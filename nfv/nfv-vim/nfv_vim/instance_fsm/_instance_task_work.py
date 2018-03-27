@@ -688,12 +688,13 @@ class EvacuateTaskWork(state_machine.StateTaskWork):
         host_table = tables.tables_get_host_table()
         host = host_table.get(self._instance.host_name, None)
         if host is not None:
-            if not host.is_offline():
-                # We must wait for the compute host to go offline before
-                # attempting to evacuate the instance. It is not safe to
+            if not (host.is_offline() or host.is_power_off()):
+                # We must wait for the compute host to go offline or power off
+                # before attempting to evacuate the instance. It is not safe to
                 # evacuate an instance that may still be running.
                 DLOG.debug("Evacuate-Instance for %s, but host %s is not "
-                           "offline." % (self._instance.name, host.name))
+                           "offline or power-off." %
+                           (self._instance.name, host.name))
                 return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
         self._do_evacuate()
