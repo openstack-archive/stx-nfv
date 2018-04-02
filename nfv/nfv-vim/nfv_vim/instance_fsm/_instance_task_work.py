@@ -556,6 +556,7 @@ class ResizeRevertTaskWork(state_machine.StateTaskWork):
             'resize-revert-instance_%s' % instance.name, task,
             force_pass=force_pass, timeout_in_secs=60)
         self._instance_reference = weakref.ref(instance)
+        self._from_host_name = instance.host_name
 
     @property
     def _instance(self):
@@ -575,9 +576,18 @@ class ResizeRevertTaskWork(state_machine.StateTaskWork):
             DLOG.debug("Resize-Revert-Instance callback for %s, "
                        "response=%s." % (self._instance.name, response))
             if response['completed']:
-                self.task.task_work_complete(
-                    state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
-                    empty_reason)
+                # A resize revert might causes a movement of the instance back
+                # to the original host. Need to wait for this movement to
+                # complete.
+                if 0 == self._instance.max_resize_wait_in_secs:
+                    DLOG.verbose("Resize-Revert-Instance instance has a "
+                                 "timeout of zero, not waiting.")
+                    self.task.task_work_complete(
+                        state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
+                        empty_reason)
+                else:
+                    self.extend_timeout(
+                        self._instance.max_resize_wait_in_secs)
             else:
                 if self.force_pass:
                     DLOG.info("Resize-Revert-Instance callback for %s, "
@@ -611,6 +621,32 @@ class ResizeRevertTaskWork(state_machine.StateTaskWork):
                 action_data.set_action_initiated()
 
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
+
+    def handle_event(self, event, event_data=None):
+        """
+        Handle instance action proceed notifications
+        """
+        handled = False
+
+        if INSTANCE_EVENT.NFVI_HOST_CHANGED == event:
+            if self._from_host_name != self._instance.host_name:
+                DLOG.debug("Resize-Revert-Instance for %s has moved from "
+                           "host %s to host %s." % (self._instance.name,
+                                                    self._from_host_name,
+                                                    self._instance.host_name))
+                self.task.task_work_complete(
+                    state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
+                    empty_reason)
+                handled = True
+
+        elif INSTANCE_EVENT.RESIZE_REVERT_COMPLETED == event:
+            DLOG.debug("Resize-Revert-Instance for %s completed"
+                       % self._instance.name)
+            self.task.task_work_complete(
+                state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
+                empty_reason)
+            handled = True
+        return handled
 
 
 class EvacuateTaskWork(state_machine.StateTaskWork):
@@ -2225,6 +2261,10 @@ class GuestServicesPostNotifyTaskWork(state_machine.StateTaskWork):
                                           self._action_type))
 
         if guest_services.guest_communication_established():
+            # this log is needed for nfv_scenario_tests
+            DLOG.debug("Guest-Services-Post-Notify for %s, guest "
+                       "communication re-established." % self._instance.name)
+
             DLOG.debug("Guest-Services-Post-Notify for %s, action_type=%s."
                        % (self._instance.name, self._action_type))
 

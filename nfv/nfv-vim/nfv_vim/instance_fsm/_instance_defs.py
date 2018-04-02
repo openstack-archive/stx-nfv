@@ -61,6 +61,7 @@ class EventNames(object):
     GUEST_ACTION_PROCEED = Constant('guest-action-proceed')
     GUEST_COMMUNICATION_ESTABLISHED = Constant('guest-communication-established')
     LIVE_MIGRATE_ROLLBACK = Constant('live-migrate-rollback')
+    RESIZE_REVERT_COMPLETED = Constant('resize-revert-completed')
     AUDIT = Constant('audit')
     TASK_START = Constant('task-start')
     TASK_STOP = Constant('task-stop')

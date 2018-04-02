@@ -1021,9 +1021,12 @@ class NotifyInstancesHostDisablingTaskWork(state_machine.StateTaskWork):
                 int(section.get('max_live_migrate_wait_in_secs_max', 800))
             max_cold_migrate_wait_in_secs = \
                 int(section.get('max_cold_migrate_wait_in_secs', 900))
+            max_resize_wait_in_secs = \
+                int(section.get('max_resize_wait_in_secs', 900))
             max_migrate_wait_in_secs = max(
                 max_live_migrate_wait_in_secs_max,
-                max_cold_migrate_wait_in_secs)
+                max_cold_migrate_wait_in_secs,
+                max_resize_wait_in_secs)
         else:
             max_migrate_wait_in_secs = 900
         # Add 60s to ensure the migration will time out before task

@@ -812,6 +812,7 @@ class Instance(ObjectData):
         self._max_live_migrate_wait_in_secs = None
         self._max_live_migration_downtime_in_ms = None
         self._max_cold_migrate_wait_in_secs = None
+        self._max_resize_wait_in_secs = None
         self._max_evacuate_wait_in_secs = None
         self._deleted = False
         self._fail_reason = None
@@ -1400,6 +1401,27 @@ class Instance(ObjectData):
         DLOG.debug("Cold-Migrate timeout set to %s secs for %s."
                    % (self._max_cold_migrate_wait_in_secs, self.name))
         return self._max_cold_migrate_wait_in_secs
+
+    @property
+    def max_resize_wait_in_secs(self):
+        """
+        Returns the resize timeout value for this instance
+        """
+        if self._max_resize_wait_in_secs is not None:
+            DLOG.debug("Resize timeout is %s secs for %s."
+                       % (self._max_resize_wait_in_secs, self.name))
+            return self._max_resize_wait_in_secs
+
+        if config.section_exists('instance-configuration'):
+            section = config.CONF['instance-configuration']
+            self._max_resize_wait_in_secs = \
+                int(section.get('max_resize_wait_in_secs', 900))
+        else:
+            self._max_resize_wait_in_secs = 900
+
+        DLOG.debug("Resize timeout set to %s secs for %s."
+                   % (self._max_resize_wait_in_secs, self.name))
+        return self._max_resize_wait_in_secs
 
     @property
     def max_evacuate_wait_in_secs(self):
@@ -2786,6 +2808,16 @@ class Instance(ObjectData):
                 # There is not an action in progress, mark action as completed.
                 self._action_data.set_action_completed()
 
+        elif self._action_data.is_completed():
+            if INSTANCE_ACTION_TYPE.REVERT_RESIZE == action_type:
+                DLOG.debug("Resize-Revert-Instance for instance %s completed."
+                           % self.name)
+                self._action_fsm.handle_event(
+                    instance_fsm.INSTANCE_EVENT.RESIZE_REVERT_COMPLETED)
+            else:
+                DLOG.info("Ignoring action for instance %s, action_type=%s, "
+                          "action-state %s." % (self.name, action_type,
+                                                action_state))
         else:
             DLOG.info("Ignoring action for instance %s, action_type=%s, "
                       "action-state %s." % (self.name, action_type,
@@ -2804,12 +2836,24 @@ class Instance(ObjectData):
         if not self._action_data.is_inprogress():
             return
 
-        if INSTANCE_ACTION_TYPE.LIVE_MIGRATE_ROLLBACK == nfvi_action_type:
+        if nfvi.objects.v1.INSTANCE_ACTION_TYPE.LIVE_MIGRATE_ROLLBACK \
+                == nfvi_action_type:
             self._action_data.nfvi_action_data_change(nfvi_action_type,
                                                       nfvi_action_state, reason)
             self._persist()
             self._nfvi_instance_handle_action_change()
             return
+
+        elif nfvi.objects.v1.INSTANCE_ACTION_TYPE.RESIZE == nfvi_action_type:
+            if INSTANCE_ACTION_TYPE.REVERT_RESIZE \
+                    == self._action_data.action_type:
+                nfvi_action_type \
+                        = nfvi.objects.v1.INSTANCE_ACTION_TYPE.REVERT_RESIZE
+                self._action_data.nfvi_action_data_change(
+                    nfvi_action_type, nfvi_action_state, reason)
+                self._persist()
+                self._nfvi_instance_handle_action_change()
+                return
 
         if not self.guest_services.are_provisioned():
             return
@@ -2834,11 +2878,6 @@ class Instance(ObjectData):
                     == self._action_data.action_type:
                 nfvi_action_type \
                     = nfvi.objects.v1.INSTANCE_ACTION_TYPE.CONFIRM_RESIZE
-
-            elif INSTANCE_ACTION_TYPE.REVERT_RESIZE \
-                    == self._action_data.action_type:
-                nfvi_action_type \
-                    = nfvi.objects.v1.INSTANCE_ACTION_TYPE.REVERT_RESIZE
 
         self._action_data.nfvi_action_data_change(nfvi_action_type,
                                                   nfvi_action_state, reason)
