@@ -2717,6 +2717,14 @@ class Instance(ObjectData):
                 self._action_data.set_action_completed()
             return
 
+        elif INSTANCE_ACTION_TYPE.REVERT_RESIZE == action_type and \
+                self._action_data.is_completed():
+            DLOG.debug("Resize-Revert-Instance for instance %s completed."
+                       % self.name)
+            self._action_fsm.handle_event(
+                    instance_fsm.INSTANCE_EVENT.RESIZE_REVERT_COMPLETED)
+            return
+
         if not self.guest_services.are_provisioned():
             self.do_action(action_type, action_data=self._action_data)
             return
@@ -2808,16 +2816,6 @@ class Instance(ObjectData):
                 # There is not an action in progress, mark action as completed.
                 self._action_data.set_action_completed()
 
-        elif self._action_data.is_completed():
-            if INSTANCE_ACTION_TYPE.REVERT_RESIZE == action_type:
-                DLOG.debug("Resize-Revert-Instance for instance %s completed."
-                           % self.name)
-                self._action_fsm.handle_event(
-                    instance_fsm.INSTANCE_EVENT.RESIZE_REVERT_COMPLETED)
-            else:
-                DLOG.info("Ignoring action for instance %s, action_type=%s, "
-                          "action-state %s." % (self.name, action_type,
-                                                action_state))
         else:
             DLOG.info("Ignoring action for instance %s, action_type=%s, "
                       "action-state %s." % (self.name, action_type,
