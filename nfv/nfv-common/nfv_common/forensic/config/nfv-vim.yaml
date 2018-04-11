@@ -260,10 +260,10 @@ logs:
     fields:
       - instance_name
 
-  - name: Instance Start State Completed
-    type: nfv_vim_instance_start_state_completed
+  - name: Instance Start State Inprogress
+    type: nfv_vim_instance_start_state_inprogress
     file: _instance_state_start.py
-    regex: "Start completed for (.*)."
+    regex: "Start inprogress for (.*)."
     fields:
       - instance_name
 

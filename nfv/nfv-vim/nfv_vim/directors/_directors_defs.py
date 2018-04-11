@@ -24,6 +24,7 @@ class OperationTypes(Constants):
     UPGRADE_HOSTS = Constant('upgrade-hosts')
     SWACT_HOSTS = Constant('swact-hosts')
     START_INSTANCES = Constant('start-instances')
+    START_INSTANCES_SERIAL = Constant('start-instances-serial')
     STOP_INSTANCES = Constant('stop-instances')
     MIGRATE_INSTANCES = Constant('migrate-instances')
     DISABLE_HOST_SERVICES = Constant('disable-host-services')
@@ -144,6 +145,13 @@ class Operation(object):
         """
         return instance_uuid in self._instances
 
+    def instance_ready(self, instance_uuid):
+        """
+        Returns true if instance exists and is in the READY state.
+        """
+        return instance_uuid in self._instances and \
+            OPERATION_STATE.READY == self._instances[instance_uuid]
+
     def add_instance(self, instance_uuid, operation_state):
         """
         Add the instance
@@ -197,7 +205,9 @@ class Operation(object):
         Returns true if the operation is inprogress
         """
         return (OPERATION_STATE.INPROGRESS in self._hosts.values() or
-                OPERATION_STATE.INPROGRESS in self._instances.values())
+                OPERATION_STATE.READY in self._hosts.values() or
+                OPERATION_STATE.INPROGRESS in self._instances.values() or
+                OPERATION_STATE.READY in self._instances.values())
 
     def is_failed(self):
         """

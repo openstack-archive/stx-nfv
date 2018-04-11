@@ -40,7 +40,7 @@ def _analysis_instances_success(instance_uuid, instance_name, records,
 
             elif record_data['type'] \
                     in [NFV_VIM.INSTANCE_START_STATE,
-                        NFV_VIM.INSTANCE_START_STATE_COMPLETED,
+                        NFV_VIM.INSTANCE_START_STATE_INPROGRESS,
                         NFV_VIM.INSTANCE_STOP_STATE,
                         NFV_VIM.INSTANCE_STOP_STATE_COMPLETED,
                         NFV_VIM.INSTANCE_PAUSE_STATE,
@@ -190,7 +190,7 @@ def analysis_instance_start_success(instance_uuid, instance_name, records,
         = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
            (always, NFV_VIM.INSTANCE_START_STATE),
            (always, NFV_VIM.INSTANCE_START_CALLBACK),
-           (always, NFV_VIM.INSTANCE_START_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_START_STATE_INPROGRESS),
            (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
