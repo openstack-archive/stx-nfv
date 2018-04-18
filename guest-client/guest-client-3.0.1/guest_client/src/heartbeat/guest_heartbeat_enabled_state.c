@@ -100,7 +100,7 @@ static bool guest_heartbeat_enabled_state_health_check(
         if (GUEST_OKAY != error)
         {
             DPRINTFE("Failed to invoke health script %s.",
-                     config->event_handling_script);
+                     config->health_check_script);
             return true; // rearm
         }
     }

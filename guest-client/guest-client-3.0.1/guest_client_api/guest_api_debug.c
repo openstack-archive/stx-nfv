@@ -106,7 +106,7 @@ void guest_api_debug_log( const char* format, ... )
     }
 
 #ifdef GUEST_DEBUG_WANT_SYSLOG
-    syslog(LOG_DEBUG, "%s", log_data);
+    syslog(LOG_INFO, "%s", log_data);
 #else
     printf("%s %s: %s\n", time_str, _process_name, log_data);
 #endif
