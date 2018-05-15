@@ -189,10 +189,12 @@ class FaultManagement(alarm_handlers_v1.AlarmHandler):
             fm_alarm_id = _fm_alarm_id_mapping[alarm_data.alarm_type]
             success = self._fm_api.clear_fault(fm_alarm_id, alarm_data.entity)
             if success:
-                del self._alarm_db[alarm_uuid]
                 DLOG.info("Cleared alarm, uuid=%s." % alarm_uuid)
             else:
                 DLOG.error("Failed to clear alarm, uuid=%s." % alarm_uuid)
+            # Always remove the alarm from our alarm db. If we failed to clear
+            # the alarm, the audit will clear it later.
+            del self._alarm_db[alarm_uuid]
 
     def audit_alarms(self):
         DLOG.debug("Auditing alarms.")
