@@ -277,8 +277,12 @@ def fake_timer(a, b, c, d):
     return 1234
 
 
-def fake_host_name():
+def fake_host_name_controller_1():
     return 'controller-1'
+
+
+def fake_host_name_controller_0():
+    return 'controller-0'
 
 
 def fake_event_issue(a, b, c, d):
@@ -300,7 +304,6 @@ def fake_event_issue(a, b, c, d):
 @mock.patch('nfv_vim.tables._host_group_table._host_group_table', _host_group_table)
 @mock.patch('nfv_vim.tables._host_aggregate_table._host_aggregate_table', _host_aggregate_table)
 @mock.patch('nfv_vim.tables._instance_table._instance_table', _instance_table)
-@mock.patch('nfv_vim.strategy._strategy.get_local_host_name', fake_host_name)
 class TestSwUpgradeStrategy:
 
     def setup(self):
@@ -333,6 +336,8 @@ class TestSwUpgradeStrategy:
         _host_group_table.clear()
         _host_aggregate_table.clear()
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_compute_stages_ignore(self):
         """
         Test the sw_upgrade strategy add compute strategy stages:
@@ -382,6 +387,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_compute_stages_parallel_migrate_anti_affinity(self):
         """
         Test the sw_upgrade strategy add compute strategy stages:
@@ -479,6 +486,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_compute_stages_parallel_migrate_ten_hosts(self):
         """
         Test the sw_upgrade strategy add compute strategy stages:
@@ -601,6 +610,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_compute_stages_parallel_migrate_fifty_hosts(self):
         """
         Test the sw_upgrade strategy add compute strategy stages:
@@ -708,6 +719,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_compute_stages_serial_migrate(self):
         """
         Test the sw_upgrade strategy add compute strategy stages:
@@ -813,6 +826,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_compute_stages_serial_migrate_locked_instance(self):
         """
         Test the sw_upgrade strategy add compute strategy stages:
@@ -856,6 +871,8 @@ class TestSwUpgradeStrategy:
 
         assert success == False, "Strategy creation did not fail"
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_storage_stages_ignore(self):
         """
         Test the sw_upgrade strategy add storage strategy stages:
@@ -901,6 +918,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_storage_stages_parallel_host_group(self):
         """
         Test the sw_upgrade strategy add storage strategy stages:
@@ -988,6 +1007,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_storage_stages_serial(self):
         """
         Test the sw_upgrade strategy add storage strategy stages:
@@ -1090,6 +1111,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_controller_stages_serial(self):
         """
         Test the sw_upgrade strategy add controller strategy stages:
@@ -1137,6 +1160,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_controller_stages_serial_start_upgrade(self):
         """
         Test the sw_upgrade strategy add controller strategy stages:
@@ -1200,6 +1225,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_cpe_stages_serial(self):
         """
         Test the sw_upgrade strategy add controller strategy stages:
@@ -1385,6 +1412,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_build_complete_serial_migrate(self):
         """
         Test the sw_upgrade strategy build_complete:
@@ -1487,6 +1516,8 @@ class TestSwUpgradeStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_build_complete_invalid_state(self):
         """
         Test the sw_upgrade strategy build_complete:
@@ -1530,6 +1561,8 @@ class TestSwUpgradeStrategy:
 
         validate_phase(build_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_build_complete_no_upgrade_required(self):
         """
         Test the sw_upgrade strategy build_complete:
@@ -1569,6 +1602,8 @@ class TestSwUpgradeStrategy:
 
         validate_phase(build_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_build_complete_unupgraded_controller_1(self):
         """
         Test the sw_upgrade strategy build_complete:
@@ -1612,6 +1647,54 @@ class TestSwUpgradeStrategy:
 
         validate_phase(build_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_0)
+    def test_sw_upgrade_strategy_build_complete_from_controller_0(self):
+        """
+        Test the sw_upgrade strategy build_complete:
+        - attempting build from controller-0
+        Verify:
+        - build fails
+        """
+        create_host('controller-0')
+        create_host('controller-1')
+        create_host('compute-0')
+        create_host('compute-1')
+        create_host('compute-2')
+        create_host('compute-3')
+
+        create_instance('small',
+                        "test_instance_0",
+                        'compute-0')
+        create_instance('small',
+                        "test_instance_1",
+                        'compute-1')
+
+        strategy = create_sw_upgrade_strategy(
+            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            nfvi_upgrade = nfvi.objects.v1.Upgrade(
+                UPGRADE_STATE.UPGRADING_CONTROLLERS,
+                '12.01',
+                '13.01')
+        )
+
+        fake_upgrade_obj = SwUpgrade()
+        strategy.sw_update_obj = fake_upgrade_obj
+        strategy.build_complete(common_strategy.STRATEGY_RESULT.SUCCESS, "")
+
+        build_phase = strategy.build_phase.as_dict()
+
+        expected_results = {
+            'total_stages': 0,
+            'result': 'failed',
+            'result_reason': 'controller-1 must be active for orchestration '
+                             'to upgrade controller-0'
+        }
+
+        validate_phase(build_phase, expected_results)
+
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_build_complete_locked_controller(self):
         """
         Test the sw_upgrade strategy build_complete:
@@ -1656,6 +1739,8 @@ class TestSwUpgradeStrategy:
 
         validate_phase(build_phase, expected_results)
 
+    @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
+                fake_host_name_controller_1)
     def test_sw_upgrade_strategy_build_complete_locked_compute(self):
         """
         Test the sw_upgrade strategy build_complete:

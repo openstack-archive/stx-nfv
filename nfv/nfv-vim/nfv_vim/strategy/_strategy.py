@@ -1428,6 +1428,24 @@ class SwUpgradeStrategy(SwUpdateStrategy):
                     self.save()
                     return
 
+                # If controller-1 has been upgraded and we have yet to upgrade
+                # controller-0, then controller-1 must be active.
+                if UPGRADE_STATE.UPGRADING_CONTROLLERS == self.nfvi_upgrade.state:
+                    if HOST_NAME.CONTROLLER_1 != get_local_host_name():
+                        DLOG.warn(
+                            "Controller-1 must be active for orchestration to "
+                            "upgrade controller-0.")
+                        self._state = strategy.STRATEGY_STATE.BUILD_FAILED
+                        self.build_phase.result = \
+                            strategy.STRATEGY_PHASE_RESULT.FAILED
+                        self.build_phase.result_reason = (
+                            'controller-1 must be active for orchestration to '
+                            'upgrade controller-0')
+                        self.sw_update_obj.strategy_build_complete(
+                            False, self.build_phase.result_reason)
+                        self.save()
+                        return
+
             if self._nfvi_alarms:
                 DLOG.warn(
                     "Active alarms found, can't apply software upgrade.")
