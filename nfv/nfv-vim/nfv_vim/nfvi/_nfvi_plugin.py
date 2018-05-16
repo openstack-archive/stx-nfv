@@ -23,7 +23,7 @@ class NFVIPlugin(object):
         self._scheduler = scheduler
 
         plugins = stevedore.named.NamedExtensionManager(namespace,
-                                                        plugin_type,
+                                                        [plugin_type, ],
                                                         invoke_on_load=True,
                                                         invoke_args=(),
                                                         invoke_kwds={})
