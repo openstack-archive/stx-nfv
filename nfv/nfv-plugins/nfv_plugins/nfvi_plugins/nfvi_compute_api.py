@@ -288,11 +288,22 @@ def instance_supports_live_migration(instance_data):
     """
     Determine if the instance supports live-migration
     """
+
+    # Live migration is not supported if there is a pci-passthrough or
+    # pci-sriov NIC.
     nics = instance_data.get('wrs-if:nics', [])
     for nic in nics:
         nic_name, nic_data = six.next(six.iteritems(nic))
         vif_model = nic_data.get('vif_model', '')
         if vif_model in ['pci-passthrough', 'pci-sriov']:
+            return False
+
+    # Live migration is not supported if there is an attached pci passthrough
+    # device.
+    flavor = instance_data['flavor']
+    flavor_data_extra = flavor.get('extra_specs', None)
+    if flavor_data_extra is not None:
+        if 'pci_passthrough:alias' in flavor_data_extra:
             return False
 
     return True
