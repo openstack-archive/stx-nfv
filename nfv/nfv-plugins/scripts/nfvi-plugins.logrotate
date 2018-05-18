@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -8,7 +8,7 @@ nodateext
 /var/log/nfv-vim-alarms.log
 {
     nodateext
-    size 100M
+    size 10M
     start 1
     missingok
     rotate 20
@@ -19,7 +19,7 @@ nodateext
 /var/log/nfv-vim-events.log
 {
     nodateext
-    size 100M
+    size 10M
     start 1
     missingok
     rotate 20
@@ -30,7 +30,7 @@ nodateext
 /var/log/nfvi-openstack.log
 {
     nodateext
-    size 100M
+    size 10M
     start 1
     missingok
     rotate 20
