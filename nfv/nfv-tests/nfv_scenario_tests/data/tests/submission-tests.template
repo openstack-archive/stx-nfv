@@ -1,0 +1,31 @@
+#
+# Copyright (c) 2015-2016 Wind River Systems, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Test Templates are a construction of a jinja2 template and yaml.
+# Data is applied to the jinja2 template to create a yaml file representing
+# the test configuration.
+#
+{% include "default-tests.template" %}
+
+tests:
+  - <<: *test_pause_instance
+  - <<: *test_unpause_instance
+  - <<: *test_suspend_instance
+  - <<: *test_resume_instance
+  - <<: *test_reboot_instance
+  - <<: *test_reboot_instance
+    hard_reset: yes
+  - <<: *test_stop_instance
+  - <<: *test_start_instance
+  - <<: *test_live_migrate_instance
+  - <<: *test_cold_migrate_instance
+  - <<: *test_cold_migrate_confirm_instance
+  - <<: *test_cold_migrate_revert_instance
+  - <<: *test_resize_instance
+  - <<: *test_resize_confirm_instance
+  - <<: *test_resize_revert_instance
+  - <<: *test_rebuild_instance
+#  - <<: *test_lock_host
+#  - <<: *test_unlock_host

@@ -1,0 +1,12 @@
+Metadata-Version: 1.1
+Name: guest-client
+Version: 3.0.1
+Summary: Titanium Cloud Platform Guest-Client Heartbeat Package
+Home-page:
+Author: Windriver
+Author-email: info@windriver.com
+License: Apache-2.0
+
+Description: Guest-Client with heartbeat functionality.
+
+Platform: UNKNOWN

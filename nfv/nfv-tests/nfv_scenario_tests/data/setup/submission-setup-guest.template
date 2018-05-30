@@ -1,0 +1,29 @@
+#
+# Copyright (c) 2015-2016 Wind River Systems, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Setup Templates are a construction of a jinja2 template and yaml.
+# Data is applied to the jinja2 template to create a yaml file representing
+# the setup configuration.
+#
+{% include "default-setup.template" %}
+
+resources:
+  - <<: *small-guest_flavor
+
+  - <<: *medium-guest_flavor
+
+  - <<: *cirros-guest_image
+
+  - <<: *cirros-guest_volume
+  - <<: *empty_attachable_volume
+
+  - <<: *internal_network
+  - <<: *external_network
+
+  - <<: *internal_subnet
+  - <<: *external_subnet
+
+  - <<: *cirros-guest-1_instance
+  - <<: *cirros-guest-image-1_instance

@@ -1,0 +1,41 @@
+
+<div class="tab-headers">
+    <ul id="host_groups" class="nav nav-tabs" data-sticky-tabs="sticky">
+        <li class="active">
+            <a><h4>Host Groups</h4></a>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content">
+    <div class="tab-pane active">
+        <table class="table table-bordered table-striped main-table">
+            <thead>
+                <tr>
+                    <th class="sortable normal_column">Name</th>
+                    <th class="sortable normal_column">Members</th>
+                    <th class="sortable normal_column">Policies </th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#host_groups}}
+            <tr>
+                <td>{{name}}</td>
+                <td>{{members}}</td>
+                <td>{{policies}}</td>
+            </tr>
+            {{/host_groups}}
+            <tfoot>
+                <tr>
+                    <td colspan="3">
+                        {{#ifCompare host_groups.length '==' '1'}}
+                            <span class="table_count">Displaying {{host_groups.length}} item</span>
+                        {{else}}
+                            <span class="table_count">Displaying {{host_groups.length}} items</span>
+                        {{/ifCompare}}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

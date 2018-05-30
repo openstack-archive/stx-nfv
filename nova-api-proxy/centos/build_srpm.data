@@ -1,0 +1,3 @@
+SRC_DIR="."
+EXCLUDE_LIST_FROM_TAR="nova-api-proxy.bb PKG-INFO centos"
+TIS_PATCH_VER=10

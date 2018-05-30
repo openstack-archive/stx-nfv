@@ -1,0 +1,40 @@
+#
+# Copyright (c) 2015-2016 Wind River Systems, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+default:
+  guest_hb: yes
+
+  pause_instance: cirros-guest-1
+  unpause_instance: cirros-guest-1
+
+  suspend_instance: cirros-guest-1
+  resume_instance: cirros-guest-1
+
+  reboot_instance: cirros-guest-1
+
+  start_instance: cirros-guest-1
+  stop_instance: cirros-guest-1
+
+  live_migrate_instance: cirros-guest-1
+
+  cold_migrate_instance: cirros-guest-1
+  cold_migrate_confirm_instance: cirros-guest-1
+  cold_migrate_revert_instance: cirros-guest-1
+
+  resize_instance: cirros-guest-1
+  resize_flavors:  [small-guest, medium-guest]
+
+  resize_confirm_instance: cirros-guest-1
+  resize_confirm_flavors:  [small-guest, medium-guest]
+
+  resize_revert_instance: cirros-guest-1
+  resize_revert_flavors:  [small-guest, medium-guest]
+
+  rebuild_instance: cirros-guest-image-1
+
+  lock_host:      compute-100
+  lock_instances: [cirros-guest-1]
+
+  unlock_host:    compute-100

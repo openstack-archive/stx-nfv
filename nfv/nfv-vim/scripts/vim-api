@@ -1,0 +1,317 @@
+#!/bin/sh
+#
+# Copyright (c) 2015-2016 Wind River Systems, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+#
+# Support: www.windriver.com
+#
+# Purpose: This resource agent manages the VIM-API
+#
+# RA Spec:
+#
+# http://www.opencf.org/cgi-bin/viewcvs.cgi/specs/ra/resource-agent-api.txt?rev=HEAD
+#
+#######################################################################
+# Initialization:
+
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+process="nfv-vim-api"
+binname="${process}"
+
+#######################################################################
+
+# Fill in some defaults if no values are specified
+OCF_RESKEY_binary_default=${binname}
+OCF_RESKEY_config_default="/etc/nfv/vim/config.ini"
+OCF_RESKEY_pid_default="/var/run/${binname}.pid"
+
+
+: ${OCF_RESKEY_binary=${OCF_RESKEY_binary_default}}
+: ${OCF_RESKEY_config=${OCF_RESKEY_config_default}}
+: ${OCF_RESKEY_pid=${OCF_RESKEY_pid_default}}
+
+mydaemon="/usr/bin/${OCF_RESKEY_binary}"
+
+#######################################################################
+
+usage() {
+    cat <<UEND
+
+usage: $0 (start|stop|status|reload|monitor|validate-all|meta-data)
+
+$0 manages the VIM-API process as an HA resource
+
+   The 'start' .....  operation starts the vim-api in the active state.
+   The 'stop' ......  operation stops the vim-api.
+   The 'reload' ....  operation stops and then starts the vim-api.
+   The 'status' ....  operation checks the status of the vim-api.
+   The 'monitor' .... operation indicates the in-service status of the vim-api.
+   The 'validate-all' operation reports whether the parameters are valid.
+   The 'meta-data' .. operation reports the vim-api's meta-data information.
+
+UEND
+}
+
+#######################################################################
+
+meta_data() {
+
+cat <<END
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="vim-api">
+<version>1.0</version>
+
+<longdesc lang="en">
+This 'vim-api' is an OCF Compliant Resource Agent.
+</longdesc>
+
+<shortdesc lang="en">
+Manages the VIM-API process.
+</shortdesc>
+
+
+<parameters>
+<parameter name="config" unique="0" required="1">
+<longdesc lang="en">Configuration INI file</longdesc>
+<shortdesc lang="en">Configuration INI file</shortdesc>
+<content type="string" default="${OCF_RESKEY_config_default}"/>
+</parameter>
+</parameters>
+
+
+<actions>
+<action name="start"        timeout="10s" />
+<action name="stop"         timeout="10s" />
+<action name="monitor"      timeout="10s" interval="30s" />
+<action name="meta-data"    timeout="10s" />
+<action name="validate-all" timeout="10s" />
+</actions>
+</resource-agent>
+END
+   return ${OCF_SUCCESS}
+}
+
+PROCESS_NOT_RUNNING_FILE="/var/run/.nfv-vim-api.not_running"
+
+vim_api_validate() {
+    check_binary ${OCF_RESKEY_binary}
+    check_binary pidof
+
+    if [ ! -f ${OCF_RESKEY_config} ] ; then
+        ocf_log err "${OCF_RESKEY_binary} ini file missing (${OCF_RESKEY_config})"
+        return ${OCF_ERR_CONFIGURED}
+    fi
+
+    return ${OCF_SUCCESS}
+}
+
+vim_api_status() {
+    local pid
+    local rc
+
+    if [ ! -f $OCF_RESKEY_pid ]; then
+        ocf_log info "VIM-API is not running"
+        return $OCF_NOT_RUNNING
+    else
+        pid=`cat $OCF_RESKEY_pid`
+    fi
+
+    ocf_run -warn kill -s 0 $pid
+    rc=$?
+    if [ $rc -ne 0 ]; then
+        ocf_log info "Old PID file found, but VIM-API is not running"
+        rm -f $OCF_RESKEY_pid
+        return $OCF_NOT_RUNNING
+    fi
+
+    return $OCF_SUCCESS
+}
+
+vim_api_monitor () {
+    local rc
+
+    vim_api_status
+    rc=$?
+    if [ ${rc} -ne ${OCF_SUCCESS} ] ; then
+        return ${rc}
+    fi
+
+    if [ -e "$PROCESS_NOT_RUNNING_FILE" ] ; then
+        ocf_log info "Process not running file found"
+        return $OCF_NOT_RUNNING
+    fi
+
+    return $OCF_SUCCESS
+}
+
+vim_api_start () {
+    local rc
+
+    if [ -e "$PROCESS_NOT_RUNNING_FILE" ] ; then
+        rm $PROCESS_NOT_RUNNING_FILE >> /dev/null 2>&1
+    fi
+
+    if [ -f ${OCF_RESKEY_pid} ] ; then
+        vim_api_status
+        rc=$?
+        if [ $rc -ne ${OCF_SUCCESS} ] ; then
+            ocf_log err "Status test failed (rc=${rc})"
+            vim_api_stop
+        else
+            return ${OCF_SUCCESS}
+        fi
+    fi
+
+    su ${OCF_RESKEY_user} -s /bin/sh -c "${OCF_RESKEY_binary} -c ${OCF_RESKEY_config}"' >> /dev/null 2>&1 & echo $!' > $OCF_RESKEY_pid
+    rc=$?
+    if [ ${rc} -ne ${OCF_SUCCESS} ] ; then
+        ocf_log err "Failed ${mydaemon} daemon (rc=$rc)"
+        return ${OCF_ERR_GENERIC}
+    else
+        if [ -f ${OCF_RESKEY_pid} ] ; then
+            pid=`cat ${OCF_RESKEY_pid}`
+            ocf_log info "Running with pid ${pid}"
+        else
+            ocf_log info "No pid file"
+        fi
+    fi
+
+    # Record success or failure and return status
+    if [ ${rc} -eq $OCF_SUCCESS ] ; then
+        ocf_log info "VIM-API (${OCF_RESKEY_binary}) started (pid=${pid})"
+    else
+        ocf_log err "VIM-API (${OCF_RESKEY_binary}) failed to start (rc=${rc})"
+        rc=${OCF_NOT_RUNNING}
+    fi
+
+    return ${rc}
+}
+
+vim_api_confirm_stop() {
+    local my_bin
+    local my_processes
+
+    my_binary=`which ${OCF_RESKEY_binary}`
+    my_processes=`pgrep -l -f "^(python|/usr/bin/python|/usr/bin/python2) ${my_binary}([^\w-]|$)"`
+
+    if [ -n "${my_processes}" ]
+    then
+        ocf_log info "About to SIGKILL the following: ${my_processes}"
+        pkill -KILL -f "^(python|/usr/bin/python|/usr/bin/python2) ${my_binary}([^\w-]|$)"
+    fi
+
+    if [ -e "$PROCESS_NOT_RUNNING_FILE" ] ; then
+        rm $PROCESS_NOT_RUNNING_FILE >> /dev/null 2>&1
+    fi
+}
+
+vim_api_stop () {
+    local rc
+    local pid
+
+    vim_api_status
+    rc=$?
+    if [ $rc -eq $OCF_NOT_RUNNING ]; then
+        ocf_log info "VIM-API already stopped"
+        vim_api_confirm_stop
+        return ${OCF_SUCCESS}
+    fi
+
+    # Try SIGTERM
+    pid=`cat $OCF_RESKEY_pid`
+    ocf_run kill -s TERM $pid
+    rc=$?
+    if [ $rc -ne 0 ]; then
+        ocf_log err "VIM-API couldn't be stopped"
+        vim_api_confirm_stop
+        exit $OCF_ERR_GENERIC
+    fi
+
+    # stop waiting
+    shutdown_timeout=15
+    if [ -n "$OCF_RESKEY_CRM_meta_timeout" ]; then
+        shutdown_timeout=$((($OCF_RESKEY_CRM_meta_timeout/1000)-5))
+    fi
+    count=0
+    while [ $count -lt $shutdown_timeout ]; do
+        vim_api_status
+        rc=$?
+        if [ $rc -eq $OCF_NOT_RUNNING ]; then
+            break
+        fi
+        count=`expr $count + 1`
+        sleep 1
+        ocf_log info "VIM-API still hasn't stopped yet. Waiting ..."
+    done
+
+    vim_api_status
+    rc=$?
+    if [ $rc -ne $OCF_NOT_RUNNING ]; then
+        # SIGTERM didn't help either, try SIGKILL
+        ocf_log err "VIM-API failed to stop after ${shutdown_timeout}s using SIGTERM. Trying SIGKILL ..."
+        ocf_run kill -s KILL $pid
+    fi
+    vim_api_confirm_stop
+
+    ocf_log info "VIM-API stopped."
+
+    rm -f $OCF_RESKEY_pid
+
+    return $OCF_SUCCESS
+}
+
+vim_api_reload () {
+    local rc
+
+    vim_api_stop
+    rc=$?
+    if [ $rc -eq ${OCF_SUCCESS} ] ; then
+        vim_api_start
+        rc=$?
+        if [ $rc -eq ${OCF_SUCCESS} ] ; then
+            ocf_log info "VIM-API (${OCF_RESKEY_binary}) process restarted"
+        fi
+    fi
+
+    if [ ${rc} -ne ${OCF_SUCCESS} ] ; then
+        ocf_log err "VIM-API (${OCF_RESKEY_binary}) process failed to restart (rc=${rc})"
+    fi
+
+    return ${rc}
+}
+
+case ${__OCF_ACTION} in
+    meta-data)   meta_data
+                 exit ${OCF_SUCCESS}
+                 ;;
+    usage|help)  usage
+                 exit ${OCF_SUCCESS}
+                 ;;
+esac
+
+# Anything except meta-data and help must pass validation
+vim_api_validate || exit $?
+
+case ${__OCF_ACTION} in
+
+    start)        vim_api_start
+                  ;;
+    stop)         vim_api_stop
+                  ;;
+    status)       vim_api_status
+                  ;;
+    reload)       vim_api_reload
+                  ;;
+    monitor)      vim_api_monitor
+                  ;;
+    validate-all) vim_api_validate
+                  ;;
+    *)            usage
+                  exit ${OCF_ERR_UNIMPLEMENTED}
+                  ;;
+esac

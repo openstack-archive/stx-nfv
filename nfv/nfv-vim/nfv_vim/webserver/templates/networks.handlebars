@@ -1,0 +1,49 @@
+
+<div class="tab-headers">
+    <ul id="networks" class="nav nav-tabs" data-sticky-tabs="sticky">
+        <li class="active">
+            <a><h4>Networks</h4></a>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content">
+    <div class="tab-pane active">
+        <table class="table table-bordered table-striped main-table" id="networks">
+            <thead>
+                <tr>
+                    <th class="sortable normal_column">UUID</th>
+                    <th class="sortable normal_column">Name</th>
+                    <th class="sortable normal_column">Administrative-State</th>
+                    <th class="sortable normal_column">Operational-State</th>
+                    <th class="sortable normal_column">Availability-Status</th>
+                    <th class="sortable normal_column">Shared</th>
+                    <th class="sortable normal_column">MTU</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#networks}}
+            <tr>
+                <td class="html_refresh" id="network_{{uuid}}_uuid">{{uuid}}</td>
+                <td class="html_refresh" id="network_{{uuid}}_name">{{name}}</td>
+                <td class="html_refresh" id="network_{{uuid}}_admin_state">{{admin_state}}</td>
+                <td class="html_refresh" id="network_{{uuid}}_oper_state">{{oper_state}}</td>
+                <td class="html_refresh" id="network_{{uuid}}_avail_status">{{avail_status}}</td>
+                <td class="html_refresh" id="network_{{uuid}}_is_shared">{{is_shared}}</td>
+                <td class="html_refresh" id="network_{{uuid}}_mtu">{{mtu}}</td>
+            </tr>
+            {{/networks}}
+            <tfoot>
+                <tr>
+                    <td colspan="7">
+                        {{#ifCompare networks.length '==' '1'}}
+                            <span class="table_count">Displaying {{networks.length}} item</span>
+                        {{else}}
+                            <span class="table_count">Displaying {{networks.length}} items</span>
+                        {{/ifCompare}}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

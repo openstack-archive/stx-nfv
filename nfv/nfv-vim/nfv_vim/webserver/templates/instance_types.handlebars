@@ -1,0 +1,51 @@
+
+<div class="tab-headers">
+    <ul id="instance_types" class="nav nav-tabs" data-sticky-tabs="sticky">
+        <li class="active">
+            <a><h4>Instance Types</h4></a>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content">
+    <div class="tab-pane active">
+        <table class="table table-bordered table-striped main-table">
+            <thead>
+                <tr>
+                    <th class="sortable normal_column">UUID</th>
+                    <th class="sortable normal_column">Name</th>
+                    <th class="sortable normal_column">VCPUs</th>
+                    <th class="sortable normal_column">Memory </th>
+                    <th class="sortable normal_column">Disk</th>
+                    <th class="sortable normal_column">Ephemeral</th>
+                    <th class="sortable normal_column">Swap</th>
+                    <th class="sortable normal_column">Storage-Type</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#instance_types}}
+            <tr>
+                <td>{{uuid}}</td>
+                <td>{{name}}</td>
+                <td>{{vcpus}}</td>
+                <td>{{mem_mb}}MB</td>
+                <td>{{disk_gb}}GB</td>
+                <td>{{ephemeral_gb}}GB</td>
+                <td>{{swap_gb}}GB</td>
+                <td>{{storage_type}}</td>
+            </tr>
+            {{/instance_types}}
+            <tfoot>
+                <tr>
+                    <td colspan="8">
+                        {{#ifCompare instance_types.length '==' '1'}}
+                            <span class="table_count">Displaying {{instance_types.length}} item</span>
+                        {{else}}
+                            <span class="table_count">Displaying {{instance_types.length}} items</span>
+                        {{/ifCompare}}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

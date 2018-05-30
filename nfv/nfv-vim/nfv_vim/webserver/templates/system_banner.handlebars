@@ -1,0 +1,56 @@
+<div>
+    <ul class="list-inline">
+        <li>
+            <strong>Critical</strong>
+            {{#ifCompare critical_alarms '>' '0'}}
+                <span class="html_refresh badge critical-badge" id="critical_alarms">
+            {{else}}
+                <span class="html_refresh badge disabled-badge" id="critical_alarms">
+            {{/ifCompare}}
+                {{critical_alarms}}
+            </span>
+        </li>
+        <li>
+            <strong>Major</strong>
+            {{#ifCompare major_alarms '>' '0'}}
+                <span class="html_refresh badge major-badge" id="major_alarms">
+            {{else}}
+                <span class="html_refresh badge disabled-badge" id="major_alarms">
+            {{/ifCompare}}
+                {{major_alarms}}
+            </span>
+        </li>
+        <li>
+            <strong>Minor</strong>
+            {{#ifCompare minor_alarms '>' '0'}}
+                <span class="html_refresh badge minor-badge" id="minor_alarms">
+            {{else}}
+                <span class="html_refresh badge disabled-badge" id="minor_alarms">
+            {{/ifCompare}}
+                {{minor_alarms}}
+            </span>
+        </li>
+        <li>
+            <strong>Warning</strong>
+            {{#ifCompare warning_alarms '>' '0'}}
+                <span class="html_refresh badge warning-badge" id="warning_alarms">
+            {{else}}
+                <span class="html_refresh badge disabled-badge" id="warning_alarms">
+            {{/ifCompare}}
+                {{warning_alarms}}
+            </span>
+        </li>
+        <li>
+            <strong>Indeterminate</strong>
+            {{#ifCompare indeterminate_alarms '>' '0'}}
+                <span class="html_refresh badge indeterminate-badge"
+                      id="indeterminate_alarms">
+            {{else}}
+                <span class="html_refresh badge disabled-badge"
+                      id="indeterminate_alarms">
+            {{/ifCompare}}
+                {{indeterminate_alarms}}
+            </span>
+        </li>
+    </ul>
+</div>

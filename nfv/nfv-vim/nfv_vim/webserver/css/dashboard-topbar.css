@@ -1,0 +1,140 @@
+/*
+ * Copyright (c) 2017 Wind River Systems, Inc.
+*
+* SPDX-License-Identifier: Apache-2.0
+*
+ */
+
+.topbar {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 10px 15px 0;
+    margin-top: 0;
+    margin-left: 220px;
+    background-color: #474747;
+    background-image: -moz-linear-gradient(top, #333333, #666666);
+    background-image: -ms-linear-gradient(top, #333333, #666666);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#333333), to(#666666));
+    background-image: -webkit-linear-gradient(top, #333333, #666666);
+    background-image: -o-linear-gradient(top, #333333, #666666);
+    background-image: linear-gradient(top, #333333, #666666);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#666666', GradientType=0);
+    position: fixed;
+    z-index: 999;
+    width: 100%;
+}
+
+.topbar .system-banner {
+    display: inline;
+    line-height: 19px;
+    color: lightgrey;
+    width: 100%;
+   text-align: center;
+}
+
+.topbar .system-banner-label {
+    float: left;
+    margin: 0;
+    font-size: 14px;
+    color: lightgrey;
+}
+
+.topbar .disabled-badge {
+    color: black;
+    background-color: grey;
+}
+
+.topbar .critical-badge {
+    color: black;
+    background-color: red;
+}
+
+.topbar .major-badge {
+    color: black;
+    background-color: orange;
+}
+
+.topbar .minor-badge {
+    color: black;
+    background-color: yellow;
+}
+
+.topbar .warning-badge {
+    color: black;
+    background-color: #92faff;
+}
+
+.topbar .indeterminate-badge {
+    color: black;
+    background-color: #0f87ff;
+}
+
+.topbar .page-header {
+    margin: 0 0;
+    padding: 0 0;
+    border-bottom-style: none;
+}
+
+.topbar .page-header h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #ffffff;
+}
+
+.topbar .datetime {
+    font-size: 14px;
+    color: #eeeeee;
+    margin-bottom: 0;
+}
+
+.topbar .page-header-menu {
+    color: #eeeeee;
+}
+
+.topbar .page-header-menu a {
+    font-weight: bold;
+    color: #eeeeee;
+}
+
+.topbar .page-header-menu a:hover {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+.topbar .page-header-caret {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    vertical-align: middle;
+    border-top: 10px solid white;
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    border-bottom: 0 solid white;
+    overflow: hidden;
+    transition: 200ms ease;
+}
+
+.topbar .page-header-caret.open {
+  border-top-width: 0;
+  border-bottom-width: 10px;
+}
+
+.topbar .page-header-underline {
+    margin-top: -8px;
+    margin-left: 20px;
+    border-width: 1px;
+}
+
+.topbar .drop-down-banner {
+    color: lightgrey;
+}
+
+.topbar .drop-down-banner-label {
+    display: inline-block;
+    float: left;
+    margin: 0;
+    width: 85px;
+    font-size: 14px;
+    color: lightgrey;
+}

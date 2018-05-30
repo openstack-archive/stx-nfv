@@ -1,0 +1,143 @@
+#
+#
+# HTTP version checking using the curl commands in the test cases below you
+# need to add --http1.0 or --http1.1 or --http2
+#
+
+1. Query Heat Version
+=====================
+TENANT_ID=`openstack token issue | grep "| project_id |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+TOKEN_ID=`openstack token issue | grep "| id         |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+
+--------------------
+:: OpenStack HEAT ::
+--------------------
+curl -i -X GET -H 'Content-Type: application/json' -H 'Accept: application/json' \
+http://192.168.204.2:8004
+
+curl -i -X GET -H 'Content-Type: application/json' -H 'Accept: application/json' \
+http://192.168.204.2:8004/
+
+---------------
+:: MANO HEAT ::
+---------------
+curl -i -X GET -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
+http://localhost:4545/api/openstack/heat
+
+curl -i -X GET -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}"  -H 'Accept: application/json' \
+http://localhost:4545/api/openstack/heat/
+
+
+2. Create a Heat Stack
+======================
+cat > heat_create_stack_request.txt
+{"files": {}, "disable_rollback": true, "parameters": {}, "stack_name": "TEST_STACK",
+"environment": {}, "template": {"heat_template_version": "2013-05-23", 
+"description": "Demonstrate the OS::Nova::Flavor heat resource Note: This uses the 
+HOT template\n", "parameters": {"RAM": {"default": 256, "type": "number", 
+"description": "How much RAM"}, "EPHEMERAL": {"default": 0, "type": "number", 
+"description": "Ephemeral"}, "CPU_MODEL": {"default": "SandyBridge", "type": 
+"string", "description": "Cpu model of the new Flavor", "constraints": 
+[{"allowed_values": ["Nehalem", "Westmere", "SandyBridge", "Haswell"]}]}, 
+"CPU_POLICY": {"default": "shared", "type": "string", "description": 
+"Cpu policy of the new Flavor", "constraints": [{"allowed_values": 
+["dedicated", "shared"]}]}, "VCPUS": {"default": 1, "type": "number", 
+"description": "Num vcpus"}, "FLAVOR_NAME": {"default": "TestFlavor", "type": 
+"string", "description": "Name of the new Flavor"}, "RXTX_FACTOR": {"default": 
+1.0, "type": "number", "description": "RX TX Factor"}, "DISK": {"default": 0, 
+"type": "number", "description": "Disk. 0 means no limit"}, "SWAP": {"default": 
+0, "type": "number", "description": "Swap space in MB"}}, "resources": 
+{"OS_Nova_Flavor": {"type": "OS::Nova::Flavor", "properties": {"vcpus": 
+{"get_param": "VCPUS"}, "disk": {"get_param": "DISK"}, "extra_specs": 
+{"hw:cpu_model": {"get_param": "CPU_MODEL"}, "hw:cpu_policy": {"get_param": 
+"CPU_POLICY"}}, "swap": {"get_param": "SWAP"}, "rxtx_factor": {"get_param": 
+"RXTX_FACTOR"}, "ram": {"get_param": "RAM"}, "ephemeral": {"get_param": 
+"EPHEMERAL"}}}}}}
+
+--------------------
+:: OpenStack HEAT ::
+--------------------
+heat --debug stack-create --template-file /root/OS_Nova_Flavor.yaml TEST_STACK
+
+TENANT_ID=`openstack token issue | grep "| project_id |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+TOKEN_ID=`openstack token issue | grep "| id         |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+
+curl -i -X POST -H "Accept: application/json" -H "X-Auth-Token: ${TOKEN_ID}" \
+-H "X-Region-Name: RegionOne" -H "X-Auth-Key: admin" -H "X-Auth-User: admin" \
+-H "User-Agent: python-heatclient" -H "Content-Type: application/json" \
+-H "X-Auth-Url: http://192.168.204.2:5000/v2.0/" \
+http://192.168.204.2:8004/v1/${TENANT_ID}/stacks \
+-d @heat_create_stack_request.txt
+
+---------------
+:: MANO HEAT ::
+---------------
+curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
+http://localhost:4545/api/openstack/heat/stacks \
+-d @heat_create_stack_request.txt
+
+
+3. Delete a Heat Stack
+======================
+--------------------
+:: OpenStack HEAT ::
+--------------------
+heat stack-delete TEST_STACK
+
+TEST_STACK_ID=c5aa422a-8723-4c4e-8c1b-0b77cfccfff9
+TENANT_ID=`openstack token issue | grep "| project_id |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+TOKEN_ID=`openstack token issue | grep "| id         |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+
+curl -i -X DELETE -H "Content-Type: application/json" -H "Accept: application/json" -H "X-Auth-Token: ${TOKEN_ID}" \
+http://192.168.204.2:8004/v1/${TENANT_ID}/stacks/TEST_STACK/${TEST_STACK_ID}
+
+---------------
+:: MANO HEAT ::
+---------------
+curl -i -X DELETE -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
+http://localhost:4545/api/openstack/heat/stacks/TEST_STACK/${TEST_STACK_ID}
+
+
+4. Query a Heat Stack
+=====================
+--------------------
+:: OpenStack HEAT ::
+--------------------
+heat stack-show TEST_STACK
+
+TEST_STACK_ID=c5aa422a-8723-4c4e-8c1b-0b77cfccfff9
+TENANT_ID=`openstack token issue | grep "| project_id |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+TOKEN_ID=`openstack token issue | grep "| id         |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+
+curl -i -X GET -H "Content-Type: application/json" -H "Accept: application/json" -H "X-Auth-Token: ${TOKEN_ID}" \
+http://192.168.204.2:8004/v1/${TENANT_ID}/stacks/TEST_STACK/${TEST_STACK_ID}
+
+---------------
+:: MANO HEAT ::
+---------------
+curl -i -X GET -H 'Content-Type: application/json'  -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
+http://localhost:4545/api/openstack/heat/stacks/TEST_STACK
+
+curl -i -X GET -H 'Content-Type: application/json'  -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
+http://localhost:4545/api/openstack/heat/stacks/TEST_STACK/${TEST_STACK_ID}
+
+
+5. Query All Heat Stacks
+========================
+--------------------
+:: OpenStack HEAT ::
+--------------------
+heat stack-list
+
+TENANT_ID=`openstack token issue | grep "| project_id |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+TOKEN_ID=`openstack token issue | grep "| id         |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+
+curl -i -X GET -H "Content-Type: application/json" -H "Accept: application/json" -H "X-Auth-Token: ${TOKEN_ID}" \
+http://192.168.204.2:8004/v1/${TENANT_ID}/stacks
+
+---------------
+:: MANO HEAT ::
+---------------
+curl -i -X GET -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
+http://localhost:4545/api/openstack/heat/stacks
+

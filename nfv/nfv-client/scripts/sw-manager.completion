@@ -1,0 +1,190 @@
+#
+# Copyright (c) 2016-2017 Wind River Systems, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+#
+# This file provides bash-completion functionality for the sw-manager CLI
+#
+
+function _swmanager()
+{
+    COMPREPLY=()
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local prev="${COMP_WORDS[COMP_CWORD-1]}"
+    local subcommand=${COMP_WORDS[1]}
+
+    #
+    #  The available sw-manager subcommands
+    #
+    local subcommands="
+        patch-strategy
+        upgrade-strategy
+    "
+
+    if [ $COMP_CWORD -gt 1 ]; then
+        #
+        #  Complete the arguments to the subcommands
+        #
+        case "$subcommand" in
+            patch-strategy)
+                local actions="
+                    create
+                    delete
+                    apply
+                    abort
+                    show
+                "
+                if [ $COMP_CWORD -gt 2 ]; then
+                    local action=${COMP_WORDS[2]}
+                    #
+                    # Complete the arguments for each action
+                    #
+                    case "$action" in
+                        create)
+                            local createopts="
+                                --controller-apply-type
+                                --storage-apply-type
+                                --compute-apply-type
+                                --max-parallel-compute-hosts
+                                --instance-action
+                                --alarm-restrictions
+                            "
+                            local createopt=${prev}
+                            case "$createopt" in
+                                --controller-apply-type)
+                                    COMPREPLY=($(compgen -W "serial ignore" -- ${cur}))
+                                    return 0
+                                    ;;
+                                --storage-apply-type|--compute-apply-type)
+                                    COMPREPLY=($(compgen -W "serial parallel ignore" -- ${cur}))
+                                    return 0
+                                    ;;
+                                --max-parallel-compute-hosts)
+                                    COMPREPLY=( $(compgen -- ${cur}))
+                                    return 0
+                                    ;;
+                                --instance-action)
+                                    COMPREPLY=($(compgen -W "migrate stop-start" -- ${cur}))
+                                    return 0
+                                    ;;
+                                --alarm-restrictions)
+                                    COMPREPLY=($(compgen -W "strict relaxed" -- ${cur}))
+                                    return 0
+                                    ;;
+                                *)
+                                    ;;
+                            esac
+                            COMPREPLY=($(compgen -W "${createopts}" -- ${cur}))
+                            return 0
+                            ;;
+                        apply|abort)
+                            if [ "${prev}" = "${action}" ]; then
+                              COMPREPLY=($(compgen -W "--stage-id" -- ${cur}))
+                            fi
+                            return 0
+                            ;;
+                        show)
+                            if [ "${prev}" = "${action}" ]; then
+                              COMPREPLY=($(compgen -W "--details" -- ${cur}))
+                            fi
+                            return 0
+                            ;;
+                        delete)
+                            # These subcommands have no options/arguments
+                            COMPREPLY=( $(compgen -- ${cur}) )
+                            return 0
+                            ;;
+                        *)
+                            ;;
+                    esac
+                fi
+
+                # Provide actions for completion
+                COMPREPLY=($(compgen -W "${actions}" -- ${cur}))
+                return 0
+                ;;
+            upgrade-strategy)
+                local actions="
+                    create
+                    delete
+                    apply
+                    abort
+                    show
+                "
+                if [ $COMP_CWORD -gt 2 ]; then
+                    local action=${COMP_WORDS[2]}
+                    #
+                    # Complete the arguments for each action
+                    #
+                    case "$action" in
+                        create)
+                            local createopts="
+                                --storage-apply-type
+                                --compute-apply-type
+                                --max-parallel-compute-hosts
+                                --alarm-restrictions
+                            "
+                            local createopt=${prev}
+                            case "$createopt" in
+                                --storage-apply-type)
+                                    COMPREPLY=($(compgen -W "serial parallel ignore" -- ${cur}))
+                                    return 0
+                                    ;;
+                                --compute-apply-type)
+                                    COMPREPLY=($(compgen -W "serial parallel ignore" -- ${cur}))
+                                    return 0
+                                    ;;
+                                --max-parallel-compute-hosts)
+                                    COMPREPLY=( $(compgen -- ${cur}))
+                                    return 0
+                                    ;;
+                                --alarm-restrictions)
+                                    COMPREPLY=($(compgen -W "strict relaxed" -- ${cur}))
+                                    return 0
+                                    ;;
+                                *)
+                                    ;;
+                            esac
+                            COMPREPLY=($(compgen -W "${createopts}" -- ${cur}))
+                            return 0
+                            ;;
+                        apply|abort)
+                            if [ "${prev}" = "${action}" ]; then
+                              COMPREPLY=($(compgen -W "--stage-id" -- ${cur}))
+                            fi
+                            return 0
+                            ;;
+                        show)
+                            if [ "${prev}" = "${action}" ]; then
+                              COMPREPLY=($(compgen -W "--details" -- ${cur}))
+                            fi
+                            return 0
+                            ;;
+                        delete)
+                            # These subcommands have no options/arguments
+                            COMPREPLY=( $(compgen -- ${cur}) )
+                            return 0
+                            ;;
+                        *)
+                            ;;
+                    esac
+                fi
+
+                # Provide actions for completion
+                COMPREPLY=($(compgen -W "${actions}" -- ${cur}))
+                return 0
+                ;;
+            *)
+                ;;
+        esac
+    fi
+
+    # Provide subcommands for completion
+    COMPREPLY=($(compgen -W "${subcommands}" -- ${cur}))
+    return 0
+}
+
+# Bind the above function to the sw-manager CLI
+complete -F _swmanager -o filenames sw-manager

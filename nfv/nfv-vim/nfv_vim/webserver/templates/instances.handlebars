@@ -1,0 +1,163 @@
+
+<div class="tab-headers">
+    <ul id="instances" class="nav nav-tabs" data-sticky-tabs="sticky">
+        <li class="active">
+            <a><h4>Instances</h4></a>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content">
+    <div class="tab-pane active">
+        <table class="table table-bordered table-striped main-table" id="instances">
+            <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th class="sortable normal_column">UUID</th>
+                    <th class="sortable normal_column">Name</th>
+                    <th class="sortable normal_column">Administrative-State</th>
+                    <th class="sortable normal_column">Operational-State</th>
+                    <th class="sortable normal_column">Availability-Status</th>
+                    <th class="sortable normal_column">Action</th>
+                    <th class="sortable normal_column">Host-Name</th>
+                    <th class="sortable normal_column">Guest-Services</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{#instances}}
+            <tr class="fluid clickable" data-toggle="collapse" data-target="#data{{uuid}}">
+                <td><img class="center-block" src="/images/details_open.png"/></td>
+                <td class="html_refresh" id="instance_{{uuid}}_uuid">{{uuid}}</td>
+                <td class="html_refresh" id="instance_{{uuid}}_name">{{name}}</td>
+                <td class="html_refresh" id="instance_{{uuid}}_admin_state">{{admin_state}}</td>
+                <td class="html_refresh" id="instance_{{uuid}}_oper_state">{{oper_state}}</td>
+                <td class="html_refresh" id="instance_{{uuid}}_avail_status">{{avail_status}}</td>
+                <td class="html_refresh" id="instance_{{uuid}}_action">{{action}}</td>
+                <td class="html_refresh" id="instance_{{uuid}}_host_name">{{host_name}}</td>
+                {{#if guest_services}}
+                    <td class="html_refresh" id="instance_{{uuid}}_guest_service">{{guest_services.state}}</td>
+                {{else}}
+                    <td class="html_refresh" id="instance_{{uuid}}_guest_service">&nbsp;</td>
+                {{/if}}
+            </tr>
+            <tr class="collapse image_toggle" id="data{{uuid}}">
+                <td colspan="12" style="background-color: #f5f5f5">
+                    <div class="container">
+                        <h5>NFVI-INSTANCE:</h5>
+                        <table class="table table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>uuid</th>
+                                    <th>name</th>
+                                    <th>tenant-id</th>
+                                    <th>vm-state</th>
+                                    <th>task-state</th>
+                                    <th>power-state</th>
+                                    <th>last-update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_uuid">{{nfvi_instance.uuid}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_name">{{nfvi_instance.name}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_tenant_id">{{nfvi_instance.tenant_id}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_vm_state">{{nfvi_instance.nfvi_data.vm_state}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_task_state">{{nfvi_instance.nfvi_data.task_state}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_power_state">{{nfvi_instance.nfvi_data.power_state}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_update">{{nfvi_instance.nfvi_data.last_update_timestamp}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        {{#if guest_services}}
+                        <table class="table table-condensed table-bordered table-striped" style="display:inline-table">
+                            <thead>
+                                <tr>
+                                    <th>guest-service</th>
+                                    <th>administrative-state</th>
+                                    <th>operational-state</th>
+                                    <th>restart-timeout</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#guest_services.nfvi_guest_services}}
+                                <tr>
+                                    <td class="html_refresh" id="nfvi_instance_{{../nfvi_instance.uuid}}_{{name}}_service">{{name}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{../nfvi_instance.uuid}}_{{name}}_admin_state">{{admin_state}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{../nfvi_instance.uuid}}_{{name}}_oper_state">{{oper_state}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{../nfvi_instance.uuid}}_{{name}}_restart_timeout">{{restart_timeout}}</td>
+                                </tr>
+                                {{/guest_services.nfvi_guest_services}}
+                            </tbody>
+                        </table>
+                        {{/if}}
+
+                        {{#if action_data.action_uuid}}
+                        <table class="table table-condensed table-bordered table-striped" style="display:inline-table">
+                            <thead>
+                                <tr>
+                                    <th>sequence</th>
+                                    <th>tenant-id</th>
+                                    <th>action-uuid</th>
+                                    <th>action-type</th>
+                                    <th>action-parameters</th>
+                                    <th>skip-vote</th>
+                                    <th>skip-notify</th>
+                                    <th>from-cli</th>
+                                    <th>action-state</th>
+                                    <th>reason</th>
+                                    <th>created</th>
+                                    <th>last-update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_action_seqnum">{{last_action_data.action_seqnum}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_action_tenant_id">{{last_action_data.nfvi_action_data.context.tenant_id}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_action_uuid">{{last_action_data.action_uuid}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_action_type">{{last_action_data.action_type}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_parameters">{{last_action_data.nfvi_action_data.action_parameters}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_skip_guest_vote">{{last_action_data.nfvi_action_data.skip_guest_vote}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_skip_guest_notify">{{last_action_data.nfvi_action_data.skip_guest_notify}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_from_cli">{{last_action_data.nfvi_action_data.from_cli}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_state">{{last_action_data.action_state}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_reason">{{last_action_data.reason}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_action_created">{{last_action_data.nfvi_action_data.created_timestamp}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_last_action_last_update">{{last_action_data.nfvi_action_data.last_update_timestamp}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_action_seqnum">{{action_data.action_seqnum}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_action_tenant_id">{{action_data.nfvi_action_data.context.tenant_id}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_action_uuid">{{action_data.action_uuid}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_action_type">{{action_data.action_type}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_parameters">{{action_data.nfvi_action_data.action_parameters}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_skip_guest_vote">{{action_data.nfvi_action_data.skip_guest_vote}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_skip_guest_notify">{{action_data.nfvi_action_data.skip_guest_notify}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_from_cli">{{action_data.nfvi_action_data.from_cli}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_state">{{action_data.action_state}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_reason">{{action_data.reason}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_action_created">{{action_data.nfvi_action_data.created_timestamp}}</td>
+                                    <td class="html_refresh" id="nfvi_instance_{{nfvi_instance.uuid}}_action_last_update">{{action_data.nfvi_action_data.last_update_timestamp}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        {{/if}}
+                    </div>
+                </td>
+            </tr>
+            {{/instances}}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="12">
+                        {{#ifCompare instances.length '==' '1'}}
+                            <span class="table_count">Displaying {{instances.length}} item</span>
+                        {{else}}
+                            <span class="table_count">Displaying {{instances.length}} items</span>
+                        {{/ifCompare}}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

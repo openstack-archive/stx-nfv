@@ -1,0 +1,20 @@
+#
+# Copyright (c) 2015-2016 Wind River Systems, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+title: VIM Documentation
+title_expanded: Virtual Infrastructure Manager Documentation
+
+table_of_contents:
+  - name: Software Image Management
+    link: software_image_management
+
+  - name: Virtualised Network Resource
+    link: virtualised_network_resource
+
+  - name: Virtualised Storage Resource
+    link: virtualised_storage_resource
+
+  - name: Virtualised Compute Resource
+    link: virtualised_compute_resource

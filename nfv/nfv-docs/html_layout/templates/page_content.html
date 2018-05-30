@@ -1,0 +1,195 @@
+<div id='{{ page_link }}' style='visibility: hidden'>
+    <p>{{ page_description }}</p>
+
+    {% for api_group in api_group_list %}
+        <div class="subhead">
+          <h2>{{ api_group.name }}</h2>
+        </div>
+
+        {% if api_group.data_model %}
+            <img src="./images/{{api_group.data_model}}">
+        {% endif %}
+
+        {% for api in api_group.api_listing %}
+            <div class="row-fluid">
+                <div class="col-md-1 method">
+                    <span class="method-label label-success">{{ api.method }}</span>
+                </div>
+
+                <div class="col-md-4">
+                    {% for url in api.urls %}
+                        <p class="method-urls">{{ url }}</p>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <strong>{{ api.name }}</strong>
+                    <p>{{ api.description }}</p>
+                </div>
+
+                <div class="col-md-1">
+                    <button class="btn btn-info btn-sm btn-details"
+                            data-target="#{{ api.id }}_details"
+                            data-toggle="collapse"
+                            id="{{ api.id }}_details_btn">details
+                    </button>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-info btn-sm btn-examples"
+                            data-target="#{{ api.id }}_examples"
+                            data-toggle="collapse"
+                            id="{{ api.id }}_examples_btn">examples
+                    </button>
+                </div>
+
+                <div class="row-fluid collapse details" id="{{ api.id }}_details">
+                    <div class="method-section">
+                        <h3>Details:</h3>
+                    </div>
+                    <div class="col-md-12">
+                        {% if api.request %}
+                            <div class="row-fluid">
+                                <div class="col-md-12">
+                                    <p>Request Data:</p>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-12">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Field</th>
+                                                <th>Optional</th>
+                                                <th>Type</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for field in api.request %}
+                                                <tr>
+                                                    <td>{{ field.name }}</td>
+                                                    <td>{{ field.optional }}</td>
+                                                    <td>{{ field.type }}</td>
+                                                    <td>{{ field.description }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if api.response %}
+                            <div class="row-fluid">
+                                <div class="col-md-12">
+                                    <p>Response Data:</p>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-12">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Field</th>
+                                                <th>Type</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for field in api.response %}
+                                                <tr>
+                                                    <td>{{ field.name }}</td>
+                                                    <td>{{ field.type }}</td>
+                                                    <td>{{ field.description }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="row-fluid">
+                            <div class="col-md-4">
+                                <p>Normal Response Codes:</p>
+                            </div>
+                            {% for code in api.normal_codes %}
+                                <div class="col-md-8">
+                                    {% if loop.first %}
+                                        <returnvalue>
+                                            {{ code.value }} - {{ code.name }}
+                                        </returnvalue>
+                                    {% else %}
+                                        <returnvalue>
+                                            , {{ code.value }} - {{ code.name }}
+                                        </returnvalue>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row-fluid">
+                            <div class="col-md-4">
+                                <p>Error Response Codes:</p>
+                            </div>
+                            <span class="col-md-8">
+                            {% for code in api.error_codes %}
+                                    {% if loop.first %}
+                                        <returnvalue>
+                                            {{ code.value }} - {{ code.name }}
+                                        </returnvalue>
+                                    {% else %}
+                                        <returnvalue>
+                                            , {{ code.value }} - {{ code.name }}
+                                        </returnvalue>
+                                    {% endif %}
+                            {% endfor %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-fluid collapse examples" id="{{ api.id }}_examples">
+                    <div class="method-section">
+                        <h3>Examples:</h3>
+                    </div>
+                    <div class="col-md-12">
+                        {% for example in api.examples %}
+                            <div class="col-md-12">
+                                <p>Example: {{ example.title}}</p>
+                                <p>{{ example.description }}</p>
+                            </div>
+
+                            {% if example.request %}
+                                <div class="row-fluid">
+                                    <div class="col-md-12">
+                                        <p>Request:</p>
+                                    </div>
+                                </div>
+                                <div class="row-fluid">
+                                    <div class="col-md-12">
+                                        <pre>{{ example.request }}</pre>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if example.response %}
+                                <div class="row-fluid">
+                                    <div class="col-md-12">
+                                        <p>Response:</p>
+                                    </div>
+                                </div>
+                                <div class="row-fluid">
+                                    <div class="col-md-12">
+                                        <pre><p>{{ example.response }}</p></pre>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <p>&nbsp;</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <p>&nbsp;</p>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>

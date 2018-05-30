@@ -1,0 +1,95 @@
+/*
+ * Copyright (c) 2017 Wind River Systems, Inc.
+*
+* SPDX-License-Identifier: Apache-2.0
+*
+ */
+
+.sidebar {
+    width: 220px;
+    min-height: 100%;
+    background: #666666;
+    border-bottom: none;
+    position: fixed;
+    -webkit-box-shadow: 0 5px 50px 0 rgba(0, 0, 0, 0.5) inset;
+    -moz-box-shadow: 0 5px 50px 0 rgba(0, 0, 0, 0.5) inset;
+    box-shadow: 0 5px 50px 0 rgba(0, 0, 0, 0.5) inset;
+    float: left;
+    z-index: 999;
+}
+
+.sidebar h4 {
+    margin-left: 14px;
+    color: #999999;
+}
+
+.sidebar .branding {
+    padding-bottom: 12px;
+    background-color: #404040;
+    background-image: -moz-linear-gradient(top, #000000, #a0a0a0);
+    background-image: -ms-linear-gradient(top, #000000, #a0a0a0);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#000000), to(#a0a0a0));
+    background-image: -webkit-linear-gradient(top, #000000, #a0a0a0);
+    background-image: -o-linear-gradient(top, #000000, #a0a0a0);
+    background-image: linear-gradient(top, #000000, #a0a0a0);
+    background-repeat: repeat-x;
+}
+
+.sidebar .branding .brand {
+    background: none;
+    padding-bottom: 0;
+}
+
+.sidebar .branding .brand a {
+    float: none;
+    background: url('/images/windriver-red-med.png') top center no-repeat;
+    text-indent: inherit;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 2px 1px 15px #000000;
+    font-size: 20px;
+    line-height: 20px;
+    margin: 20px 0 0 0;
+    padding-top: 32px;
+    padding-bottom: 0;
+    height: 30px;
+    width: 220px;
+    color: #ffffff;
+}
+
+.sidebar .branding .system {
+    text-align: center;
+    margin-top: 16px;
+    padding-bottom: 35px;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+.sidebar .sidebar-title {
+    text-align: center;
+    margin-top: -40px;
+    font-size: 13px;
+    color: #ffffff;
+}
+
+.sidebar .main_nav {
+    list-style: none;
+    width: 220px;
+    margin: 10px 0 20px 0;
+}
+
+.sidebar .main_nav a {
+    width: 160px;
+    display: block;
+    margin-left: 20px;
+    font-size: 15px;
+    padding: 5px 10px;
+    color: #dddddd;
+}
+
+.sidebar .main_nav a.active {
+    border-right: 0;
+    color: #666666;
+    background: #ffffff;
+    border-bottom-color: #cccccc;
+}

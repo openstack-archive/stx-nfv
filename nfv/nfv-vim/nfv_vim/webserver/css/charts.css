@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2017 Wind River Systems, Inc.
+*
+* SPDX-License-Identifier: Apache-2.0
+*
+ */
+
+/* Chart */
+path {
+    stroke-width: 2px;
+    fill: none;
+}
+
+.value {
+    stroke-width: 2px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+.grid .tick {
+    stroke: lightgrey;
+    stroke-dasharray: 1 1;
+    opacity: 0.7;
+}
+.grid path {
+    stroke-width: 0;
+}
+
+div.hover {
+    position: absolute;
+    height: 40px;
+    pointer-events: none;
+    border-radius:15px;
+    overflow: hidden;
+    padding: 5px;
+}

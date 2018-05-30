@@ -1,0 +1,12 @@
+[Unit]
+Description=Titanium Cloud Host Guest Messaging Agent
+After=cloud-init.service
+
+[Service]
+ExecStart=/usr/sbin/guest_agent
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
