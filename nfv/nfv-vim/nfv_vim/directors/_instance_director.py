@@ -35,7 +35,8 @@ class InstanceDirector(object):
                  max_concurrent_evacuates_per_host, recovery_audit_interval,
                  recovery_audit_cooldown, recovery_audit_batch_interval,
                  recovery_cooldown, rebuild_timeout, reboot_timeout,
-                 migrate_timeout, single_hypervisor):
+                 migrate_timeout, single_hypervisor,
+                 recovery_threshold, max_throttled_recovering_instances):
         self._max_concurrent_recovering_instances \
             = max_concurrent_recovering_instances
         self._max_concurrent_migrates_per_host \
@@ -50,6 +51,9 @@ class InstanceDirector(object):
         self._reboot_timeout = reboot_timeout
         self._migrate_timeout = migrate_timeout
         self._single_hypervisor = single_hypervisor
+        self._recovery_threshold = recovery_threshold
+        self._max_throttled_recovering_instances \
+            = max_throttled_recovering_instances
         self._host_operations = dict()
         self._reboot_count = dict()
         self._instance_recovery_list = list()
@@ -1770,6 +1774,10 @@ class InstanceDirector(object):
         instance_table = tables.tables_get_instance_table()
 
         count = 0
+        # Use a lower cutoff when there are a large number of instances to recover
+        cutoff = self._max_concurrent_recovering_instances
+        if len(self._instance_recovery_list) > self._recovery_threshold:
+            cutoff = self._max_throttled_recovering_instances
         for instance_recover in list(self._instance_recovery_list):
             instance = instance_table.get(instance_recover.uuid, None)
             if instance is not None:
@@ -1790,7 +1798,7 @@ class InstanceDirector(object):
                                 count += 1
 
             self._instance_recovery_list.remove(instance_recover)
-            if count >= self._max_concurrent_recovering_instances:
+            if count >= cutoff:
                 break
 
         if 0 == len(self._instance_recovery_list):
@@ -2099,6 +2107,9 @@ def instance_director_initialize():
             = int(section.get('migrate_timeout', 960))
         single_hypervisor \
             = (section.get('single_hypervisor', 'false').lower() == 'true')
+        recovery_threshold = int(section.get('recovery_threshold', 250))
+        max_throttled_recovering_instances \
+            = int(section.get('max_throttled_recovering_instances', 2))
 
     else:
         max_concurrent_recovering_instances = 4
@@ -2112,6 +2123,8 @@ def instance_director_initialize():
         reboot_timeout = 300
         migrate_timeout = 960
         single_hypervisor = False
+        recovery_threshold = 250
+        max_throttled_recovering_instances = 2
 
     _instance_director = InstanceDirector(
         max_concurrent_recovering_instances,
@@ -2124,7 +2137,9 @@ def instance_director_initialize():
         rebuild_timeout,
         reboot_timeout,
         migrate_timeout,
-        single_hypervisor)
+        single_hypervisor,
+        recovery_threshold,
+        max_throttled_recovering_instances)
 
 
 def instance_director_finalize():
