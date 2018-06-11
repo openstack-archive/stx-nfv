@@ -13,6 +13,8 @@ from nfv_vim import objects
 from nfv_vim.tables._table import Table
 from nfv_vim.directors._instance_director import InstanceDirector
 
+import utils
+
 # Constants
 _audit_interval = 330
 _audit_cooldown = 30
@@ -50,7 +52,9 @@ def create_instance(instance_type_name, instance_name, recovery_priority=None):
                 oper_state=nfvi.objects.v1.INSTANCE_OPER_STATE.ENABLED,
                 avail_status=list(),
                 action=nfvi.objects.v1.INSTANCE_ACTION.NONE,
-                host_name='compute-0', instance_type_uuid=instance_type.uuid,
+                host_name='compute-0',
+                instance_type=utils.instance_type_to_flavor_dict(
+                    instance_type),
                 image_uuid=image_uuid,
                 recovery_priority=recovery_priority)
 
@@ -176,10 +180,10 @@ def test_instance_director_recovery_list_order(
     instance_1._elapsed_time_in_state = _recovery_cooldown
     instance_1._nfvi_instance.avail_status.append(
         nfvi.objects.v1.INSTANCE_AVAIL_STATUS.FAILED)
-    instance_1._vcpus = 1
-    instance_1._memory_mb = 32
-    instance_1._disk_gb = 2
-    instance_1._swap_gb = 0
+    instance_1._nfvi_instance['instance_type']['vcpus'] = 1
+    instance_1._nfvi_instance['instance_type']['ram'] = 32
+    instance_1._nfvi_instance['instance_type']['disk'] = 2
+    instance_1._nfvi_instance['instance_type']['swap'] = 0
     _instance_table[instance_1.uuid] = instance_1
 
     # Validate the Instance Director recovery_list order
@@ -195,10 +199,10 @@ def test_instance_director_recovery_list_order(
     instance_2._elapsed_time_in_state = _recovery_cooldown
     instance_2._nfvi_instance.avail_status.append(
         nfvi.objects.v1.INSTANCE_AVAIL_STATUS.FAILED)
-    instance_2._vcpus = 2
-    instance_2._memory_mb = 32
-    instance_2._disk_gb = 1
-    instance_2._swap_gb = 0
+    instance_2._nfvi_instance['instance_type']['vcpus'] = 2
+    instance_2._nfvi_instance['instance_type']['ram'] = 32
+    instance_2._nfvi_instance['instance_type']['disk'] = 1
+    instance_2._nfvi_instance['instance_type']['swap'] = 0
     _instance_table[instance_2.uuid] = instance_2
 
     # -- with two instances in the failed state
@@ -215,10 +219,10 @@ def test_instance_director_recovery_list_order(
     instance_3._elapsed_time_in_state = _recovery_cooldown
     instance_3._nfvi_instance.avail_status.append(
         nfvi.objects.v1.INSTANCE_AVAIL_STATUS.FAILED)
-    instance_3._vcpus = 1
-    instance_3._memory_mb = 32
-    instance_3._disk_gb = 0
-    instance_3._swap_gb = 0
+    instance_3._nfvi_instance['instance_type']['vcpus'] = 1
+    instance_3._nfvi_instance['instance_type']['ram'] = 32
+    instance_3._nfvi_instance['instance_type']['disk'] = 0
+    instance_3._nfvi_instance['instance_type']['swap'] = 0
     _instance_table[instance_3.uuid] = instance_3
 
     # -- with three instances in the failed state
@@ -236,10 +240,10 @@ def test_instance_director_recovery_list_order(
     instance_4._elapsed_time_in_state = _recovery_cooldown
     instance_4._nfvi_instance.avail_status.append(
         nfvi.objects.v1.INSTANCE_AVAIL_STATUS.FAILED)
-    instance_4._vcpus = 1
-    instance_4._memory_mb = 32
-    instance_4._disk_gb = 0
-    instance_4._swap_gb = 0
+    instance_4._nfvi_instance['instance_type']['vcpus'] = 1
+    instance_4._nfvi_instance['instance_type']['ram'] = 32
+    instance_4._nfvi_instance['instance_type']['disk'] = 0
+    instance_4._nfvi_instance['instance_type']['swap'] = 0
     _instance_table[instance_4.uuid] = instance_4
 
     # -- with four instances in the failed state
@@ -258,10 +262,10 @@ def test_instance_director_recovery_list_order(
     instance_5._elapsed_time_in_state = _recovery_cooldown
     instance_5._nfvi_instance.avail_status.append(
         nfvi.objects.v1.INSTANCE_AVAIL_STATUS.FAILED)
-    instance_5._vcpus = 2
-    instance_5._memory_mb = 32
-    instance_5._disk_gb = 0
-    instance_5._swap_gb = 0
+    instance_5._nfvi_instance['instance_type']['vcpus'] = 2
+    instance_5._nfvi_instance['instance_type']['ram'] = 32
+    instance_5._nfvi_instance['instance_type']['disk'] = 0
+    instance_5._nfvi_instance['instance_type']['swap'] = 0
     _instance_table[instance_5.uuid] = instance_5
 
     # -- with five instances in the failed state
@@ -301,7 +305,6 @@ def test_instance_director_recover_instance(
     dor_is_complete_mock.return_value = True
 
     instance_1 = create_instance('small', 'instance_1')
-    instance_1._auto_recovery = mock.Mock(return_value=True)
     instance_1.fail = mock.Mock()
     instance_1.do_action = mock.Mock()
     instance_1._nfvi_instance.avail_status.append(

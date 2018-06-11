@@ -3,16 +3,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Column, String, Boolean, Text
 
 from _base import Base, AsDictMixin
 
 
-class Instance_v3(AsDictMixin, Base):
+class Instance_v4(AsDictMixin, Base):
     """
     Instance Database Table
     """
-    __tablename__ = 'instances_v3'
+    __tablename__ = 'instances_v4'
 
     uuid = Column(String(64), nullable=False, primary_key=True)
     name = Column(String(64), nullable=False)
@@ -37,12 +37,11 @@ class Instance_v3(AsDictMixin, Base):
         return "<Instance(%r, %r)>" % (self.uuid, self.name)
 
 
-class Instance_v4(AsDictMixin, Base):
+class Instance_v5(AsDictMixin, Base):
     """
     Instance Database Table
-    Note: Upversioned due to changes in the nfvi_instance_data.
     """
-    __tablename__ = 'instances_v4'
+    __tablename__ = 'instances_v5'
 
     uuid = Column(String(64), nullable=False, primary_key=True)
     name = Column(String(64), nullable=False)
@@ -51,7 +50,6 @@ class Instance_v4(AsDictMixin, Base):
     avail_status = Column(String(64), nullable=False)
     action = Column(String(64), nullable=False)
     host_name = Column(String(64), nullable=True)
-    instance_type_uuid = Column(String(64), nullable=False)
     image_uuid = Column(String(64), nullable=True)
     live_migration_support = Column(Boolean, nullable=False)
     elapsed_time_in_state = Column(String(64), nullable=False)
@@ -59,7 +57,7 @@ class Instance_v4(AsDictMixin, Base):
     action_data = Column(String(2048), nullable=True)
     last_action_data = Column(String(2048), nullable=True)
     guest_services = Column(String(2048), nullable=True)
-    nfvi_instance_data = Column(String(2048), nullable=False)
+    nfvi_instance_data = Column(Text(), nullable=False)
     recoverable = Column(Boolean, nullable=False)
     unlock_to_recover = Column(Boolean, nullable=False)
 

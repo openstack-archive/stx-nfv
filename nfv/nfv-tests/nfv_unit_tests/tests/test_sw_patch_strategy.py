@@ -23,6 +23,8 @@ from nfv_vim.tables._instance_table import InstanceTable
 from nfv_vim.tables._instance_group_table import InstanceGroupTable
 from nfv_vim.strategy._strategy import SwPatchStrategy, strategy_rebuild_from_dict
 
+import utils
+
 # Constants
 
 # Globals
@@ -67,7 +69,9 @@ def create_instance(instance_type_name, instance_name, host_name,
                 oper_state=nfvi.objects.v1.INSTANCE_OPER_STATE.ENABLED,
                 avail_status=list(),
                 action=nfvi.objects.v1.INSTANCE_ACTION.NONE,
-                host_name=host_name, instance_type_uuid=instance_type.uuid,
+                host_name=host_name,
+                instance_type=utils.instance_type_to_flavor_dict(
+                    instance_type),
                 image_uuid=image_uuid)
 
             instance = objects.Instance(nfvi_instance)

@@ -805,16 +805,10 @@ class Instance(ObjectData):
         self._events = list()
         self._guest_heartbeat_alarms = list()
         self._guest_heartbeat_events = list()
-        self._vcpus = None
-        self._memory_mb = None
-        self._disk_gb = None
-        self._ephemeral_gb = None
-        self._swap_gb = None
         self._live_migrate_from_host = None
         self._cold_migrate_from_host = None
         self._evacuate_from_host = None
-        self._resize_from_instance_type = None
-        self._auto_recovery = None
+        self._resize_from_instance_type_original_name = None
         self._max_live_migrate_wait_in_secs = None
         self._max_live_migration_downtime_in_ms = None
         self._max_cold_migrate_wait_in_secs = None
@@ -957,20 +951,20 @@ class Instance(ObjectData):
         return None
 
     @property
-    def instance_type_uuid(self):
+    def instance_type_original_name(self):
         """
-        Returns the instance type identifier
+        Returns the instance type original name
         """
         if self._nfvi_instance is not None:
-            return self._nfvi_instance.instance_type_uuid
+            return self._nfvi_instance.instance_type_original_name
         return None
 
     @property
-    def from_instance_type_uuid(self):
+    def from_instance_type_original_name(self):
         """
-        Returns the from instance type identifier
+        Returns the from instance type original name
         """
-        return self._resize_from_instance_type
+        return self._resize_from_instance_type_original_name
 
     @property
     def image_uuid(self):
@@ -1091,100 +1085,35 @@ class Instance(ObjectData):
         """
         Returns the number of vcpus needed for the instance
         """
-        from nfv_vim import tables
-
-        if self._vcpus is not None:
-            return self._vcpus
-
-        instance_type_table = tables.tables_get_instance_type_table()
-        instance_type = instance_type_table.get(self.instance_type_uuid, None)
-        if instance_type is not None:
-            if instance_type.have_details():
-                self._vcpus = instance_type.vcpus
-
-        if self._vcpus is None:
-            return 0
-        return self._vcpus
+        return self._nfvi_instance.instance_type_vcpus
 
     @property
     def memory_mb(self):
         """
         Returns the memory needed for this instance
         """
-        from nfv_vim import tables
-
-        if self._memory_mb is not None:
-            return self._memory_mb
-
-        instance_type_table = tables.tables_get_instance_type_table()
-        instance_type = instance_type_table.get(self.instance_type_uuid, None)
-        if instance_type is not None:
-            if instance_type.have_details():
-                self._memory_mb = instance_type.mem_mb
-
-        if self._memory_mb is None:
-            return 0
-        return self._memory_mb
+        return self._nfvi_instance.instance_type_mem_mb
 
     @property
     def disk_gb(self):
         """
         Returns the disk size needed for this instance
         """
-        from nfv_vim import tables
-
-        if self._disk_gb is not None:
-            return self._disk_gb
-
-        instance_type_table = tables.tables_get_instance_type_table()
-        instance_type = instance_type_table.get(self.instance_type_uuid, None)
-        if instance_type is not None:
-            if instance_type.have_details():
-                self._disk_gb = instance_type.disk_gb
-
-        if self._disk_gb is None:
-            return 0
-        return self._disk_gb
+        return self._nfvi_instance.instance_type_disk_gb
 
     @property
     def ephemeral_gb(self):
         """
-        Returns the swap size needed for this instance
+        Returns the ephemeral size needed for this instance
         """
-        from nfv_vim import tables
-
-        if self._ephemeral_gb is not None:
-            return self._ephemeral_gb
-
-        instance_type_table = tables.tables_get_instance_type_table()
-        instance_type = instance_type_table.get(self.instance_type_uuid, None)
-        if instance_type is not None:
-            if instance_type.have_details():
-                self._ephemeral_gb = instance_type.ephemeral_gb
-
-        if self._ephemeral_gb is None:
-            return 0
-        return self._ephemeral_gb
+        return self._nfvi_instance.instance_type_ephemeral_gb
 
     @property
     def swap_gb(self):
         """
         Returns the swap size needed for this instance
         """
-        from nfv_vim import tables
-
-        if self._swap_gb is not None:
-            return self._swap_gb
-
-        instance_type_table = tables.tables_get_instance_type_table()
-        instance_type = instance_type_table.get(self.instance_type_uuid, None)
-        if instance_type is not None:
-            if instance_type.have_details():
-                self._swap_gb = instance_type.swap_gb
-
-        if self._swap_gb is None:
-            return 0
-        return self._swap_gb
+        return self._nfvi_instance.instance_type_swap_gb
 
     @property
     def fail_reason(self):
@@ -1226,20 +1155,13 @@ class Instance(ObjectData):
         """
         Returns the guest services for this instance
         """
-        from nfv_vim import tables
-
-        instance_type_table = tables.tables_get_instance_type_table()
-        if instance_type_table is not None:
-            instance_type = instance_type_table.get(self.instance_type_uuid,
-                                                    None)
-            if instance_type is not None:
-                if instance_type.have_details():
-                    if instance_type.guest_services:
-                        for service in instance_type.guest_services.keys():
-                            self._guest_services.provision(service)
-                    else:
-                        if self._guest_services.are_provisioned():
-                            self._guest_services.delete()
+        if self._nfvi_instance.instance_type_guest_services:
+            for service in \
+                    self._nfvi_instance.instance_type_guest_services.keys():
+                self._guest_services.provision(service)
+        else:
+            if self._guest_services.are_provisioned():
+                self._guest_services.delete()
 
         return self._guest_services
 
@@ -1300,34 +1222,21 @@ class Instance(ObjectData):
         """
         from nfv_vim import tables
 
-        if self._auto_recovery is not None:
-            DLOG.debug("Auto-Recovery is %s for %s." % (self._auto_recovery,
-                                                        self.name))
-            return self._auto_recovery
-
-        instance_type_table = tables.tables_get_instance_type_table()
-        if instance_type_table is not None:
-            instance_type = instance_type_table.get(self.instance_type_uuid,
-                                                    None)
-            if instance_type is not None:
-                if instance_type.have_details() \
-                        and instance_type.auto_recovery is not None:
-                    self._auto_recovery = instance_type.auto_recovery
+        auto_recovery = self._nfvi_instance.instance_type_auto_recovery
 
         # instance type attributes overwrite image ones
-        if self._auto_recovery is None:
+        if auto_recovery is None:
             image_table = tables.tables_get_image_table()
             image = image_table.get(self.image_uuid, None)
             if image is not None and image.auto_recovery is not None:
-                self._auto_recovery = image.auto_recovery
+                auto_recovery = image.auto_recovery
 
         # turn on instance auto recovery by default
-        if self._auto_recovery is None:
-            self._auto_recovery = True
+        if auto_recovery is None:
+            auto_recovery = True
 
-        DLOG.debug("Auto-Recovery set to %s for %s."
-                   % (self._auto_recovery, self.name))
-        return self._auto_recovery
+        DLOG.debug("Auto-Recovery is %s for %s." % (auto_recovery, self.name))
+        return auto_recovery
 
     @property
     def max_live_migrate_wait_in_secs(self):
@@ -1344,16 +1253,10 @@ class Instance(ObjectData):
             timeout_from_image = int(image.live_migration_timeout)
 
         # check the flavor for the live migration timeout
-        timeout_from_flavor = None
-        instance_type_table = tables.tables_get_instance_type_table()
-        if instance_type_table is not None:
-            instance_type = instance_type_table.get(self.instance_type_uuid,
-                                                    None)
-            if instance_type is not None:
-                if instance_type.have_details() \
-                        and instance_type.live_migration_timeout is not None:
-                    timeout_from_flavor \
-                        = int(instance_type.live_migration_timeout)
+        timeout_from_flavor = \
+            self._nfvi_instance.instance_type_live_migration_timeout
+        if timeout_from_flavor is not None:
+            timeout_from_flavor = int(timeout_from_flavor)
 
         # check the instance for the live migration timeout
         timeout_from_instance = None
@@ -1454,15 +1357,10 @@ class Instance(ObjectData):
                 = image.live_migration_max_downtime
 
         # instance type attributes overwrite image ones
-        instance_type_table = tables.tables_get_instance_type_table()
-        if instance_type_table is not None:
-            instance_type = instance_type_table.get(self.instance_type_uuid,
-                                                    None)
-            if instance_type is not None:
-                if instance_type.have_details() \
-                        and instance_type.live_migration_max_downtime is not None:
-                    self._max_live_migration_downtime_in_ms \
-                        = instance_type.live_migration_max_downtime
+        if self._nfvi_instance.instance_type_live_migration_max_downtime is \
+                not None:
+            self._max_live_migration_downtime_in_ms = \
+                self._nfvi_instance.instance_type_live_migration_max_downtime
 
         # convert value to integer
         if self._max_live_migration_downtime_in_ms is not None:
@@ -1534,8 +1432,6 @@ class Instance(ObjectData):
         """
         Returns true if the instance can be cold-migrated
         """
-        from nfv_vim import tables
-
         if not system_initiated:
             # Always allow user initiated cold migration
             return True
@@ -1544,13 +1440,7 @@ class Instance(ObjectData):
             # Always allow cold migration when booted from a volume
             return True
 
-        storage_type = None
-        instance_type_table = tables.tables_get_instance_type_table()
-        if instance_type_table is not None:
-            instance_type = instance_type_table.get(self.instance_type_uuid,
-                                                    None)
-            if instance_type is not None and instance_type.have_details():
-                storage_type = instance_type.storage_type
+        storage_type = self._nfvi_instance.instance_type_storage_type
 
         if STORAGE_TYPE.REMOTE_BACKED == storage_type:
             # Always allow cold migration with remote storage
@@ -1580,8 +1470,6 @@ class Instance(ObjectData):
         """
         Returns true if the instance can be evacuated
         """
-        from nfv_vim import tables
-
         if not system_initiated:
             # Always allow user initiated evacuate
             return True
@@ -1590,13 +1478,7 @@ class Instance(ObjectData):
             # Always allow evacuate when booted from a volume
             return True
 
-        storage_type = None
-        instance_type_table = tables.tables_get_instance_type_table()
-        if instance_type_table is not None:
-            instance_type = instance_type_table.get(self.instance_type_uuid,
-                                                    None)
-            if instance_type is not None and instance_type.have_details():
-                storage_type = instance_type.storage_type
+        storage_type = self._nfvi_instance.instance_type_storage_type
 
         if STORAGE_TYPE.REMOTE_BACKED == storage_type:
             # Always allow evacuate with remote storage
@@ -1626,27 +1508,20 @@ class Instance(ObjectData):
         """
         Returns true if this instance supports live-migration
         """
-        from nfv_vim import tables
-
         if self._live_migration_support is not None:
             if not self._live_migration_support:
                 return False
 
-            instance_type_table = tables.tables_get_instance_type_table()
-            if instance_type_table is not None:
-                instance_type = instance_type_table.get(self.instance_type_uuid,
-                                                        None)
-                if instance_type is not None and instance_type.have_details():
-                    if self.image_uuid is None:
-                        if (instance_type.swap_gb or
-                                instance_type.ephemeral_gb):
-                            return (STORAGE_TYPE.REMOTE_BACKED ==
-                                    instance_type.storage_type)
-                        return True
-                    else:
-                        return (instance_type.storage_type in [
-                                    STORAGE_TYPE.LOCAL_IMAGE_BACKED,
-                                    STORAGE_TYPE.REMOTE_BACKED])
+            if self.image_uuid is None:
+                if (self._nfvi_instance.instance_type_swap_gb or
+                        self._nfvi_instance.instance_type_ephemeral_gb):
+                    return (STORAGE_TYPE.REMOTE_BACKED ==
+                            self._nfvi_instance.instance_type_storage_type)
+                return True
+            else:
+                return (self._nfvi_instance.instance_type_storage_type in [
+                    STORAGE_TYPE.LOCAL_IMAGE_BACKED,
+                    STORAGE_TYPE.REMOTE_BACKED])
 
         return True
 
@@ -2649,13 +2524,14 @@ class Instance(ObjectData):
                 if nfvi.objects.v1.INSTANCE_ACTION.REBUILDING != self.action:
                     cleanup_evacuate_from_host = True
 
-            cleanup_resize_from_instance_type = False
+            cleanup_resize_from_instance_type_original_name = False
             if nfvi.objects.v1.INSTANCE_ACTION.RESIZING == nfvi_action:
                 if nfvi.objects.v1.INSTANCE_ACTION.RESIZING != self.action:
-                    self._resize_from_instance_type = self.instance_type_uuid
+                    self._resize_from_instance_type_original_name = \
+                        self._nfvi_instance.instance_type_original_name
             else:
                 if nfvi.objects.v1.INSTANCE_ACTION.RESIZING != self.action:
-                    cleanup_resize_from_instance_type = True
+                    cleanup_resize_from_instance_type_original_name = True
 
             if nfvi.objects.v1.INSTANCE_AVAIL_STATUS.CRASHED \
                     in nfvi_avail_status:
@@ -2713,8 +2589,8 @@ class Instance(ObjectData):
             if cleanup_evacuate_from_host:
                 self._evacuate_from_host = None
 
-            if cleanup_resize_from_instance_type:
-                self._resize_from_instance_type = None
+            if cleanup_resize_from_instance_type_original_name:
+                self._resize_from_instance_type_original_name = None
 
             if need_recovery:
                 instance_director.recover_instance(self, force_fail=True)
@@ -3137,7 +3013,6 @@ class Instance(ObjectData):
         data['action'] = self.action
         data['host_name'] = self.host_name
         data['image_uuid'] = self.image_uuid
-        data['instance_type_uuid'] = self.instance_type_uuid
         data['action_data'] = self.action_data.as_dict()
         data['last_action_data'] = self.last_action_data.as_dict()
         if self.guest_services.are_provisioned():

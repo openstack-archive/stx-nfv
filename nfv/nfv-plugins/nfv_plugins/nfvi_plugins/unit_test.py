@@ -252,9 +252,6 @@ def nova_unit_tests(token, test_config):
     response = nova.enable_host_services(token, test_config['host_name'])
     print "Host-Services enable response: %s" % response
 
-    hosts = nova.get_hosts(token)
-    print "List of hosts: %s" % hosts
-
     hypervisors = nova.get_hypervisors(token)
     print "List of hypervisors: %s" % hypervisors
 

@@ -448,64 +448,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
             DLOG.verbose("Auditing action requests, timer_id=%s." % timer_id)
             self._ageout_action_requests()
 
-    def get_service_hosts(self, future, callback):
-        """
-        Get a list of service hosts
-        """
-        response = dict()
-        response['completed'] = False
-        response['reason'] = ''
-
-        try:
-            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    return
-
-                self._token = future.result.data
-
-            future.work(nova.get_hosts, self._token)
-            future.result = (yield)
-
-            if not future.result.is_complete():
-                return
-
-            host_data_list = future.result.data
-
-            host_objs = list()
-
-            for host_data in host_data_list['hosts']:
-                host_obj = nfvi_objs.ServiceHost(host_data['host_name'],
-                                                 host_data['service'],
-                                                 host_data['zone'])
-                host_objs.append(host_obj)
-
-            response['result-data'] = host_objs
-            response['completed'] = True
-
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to get service "
-                               "host list, error=%s." % e)
-                response['reason'] = e.http_response_reason
-
-        except Exception as e:
-            DLOG.exception("Caught exception while trying to get service "
-                           "host list, error=%s." % e)
-
-        finally:
-            callback.send(response)
-            callback.close()
-
     def get_host_aggregates(self, future, callback):
         """
         Get a list of host aggregates
@@ -1283,7 +1225,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
             instance_obj = nfvi_objs.Instance(
                 instance_data['id'], instance_data['name'],
                 str(tenant_uuid), admin_state, oper_state, avail_status, action,
-                instance_data['OS-EXT-SRV-ATTR:host'], instance_type_uuid,
+                instance_data['OS-EXT-SRV-ATTR:host'], instance_data['flavor'],
                 image_uuid, live_migration_support, attached_volumes, nfvi_data)
 
             response['result-data'] = instance_obj
@@ -2655,7 +2597,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
 
             tenant_uuid = uuid.UUID(instance_data['tenant_id'])
 
-            instance_type_uuid = instance_data['flavor']['id']
+            instance_type = instance_data['flavor']
 
             image_data = instance_data.get('image', None)
             if image_data:
@@ -2686,7 +2628,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
             instance_obj = nfvi_objs.Instance(
                 instance_data['id'], instance_data['name'],
                 str(tenant_uuid), admin_state, oper_state, avail_status, action,
-                instance_data['OS-EXT-SRV-ATTR:host'], instance_type_uuid,
+                instance_data['OS-EXT-SRV-ATTR:host'], instance_type,
                 image_uuid, live_migration_support, attached_volumes,
                 nfvi_data, recovery_priority, live_migration_timeout)
 
@@ -2751,7 +2693,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         task_state = message.get('task_state', None)
         power_state = message.get('power_state', None)
         host_name = message.get('host_name', None)
-        instance_type_uuid = message.get('flavor_id', None)
         image_uuid = message.get('image_id', None)
         recovery_priority = message.get('recovery_priority', None)
         live_migration_timeout = message.get('live_migration_timeout', None)
@@ -2789,7 +2730,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
                                               admin_state, oper_state,
                                               avail_status, action,
                                               host_name,
-                                              instance_type_uuid,
+                                              None,
                                               image_uuid, None, None,
                                               nfvi_data,
                                               recovery_priority,

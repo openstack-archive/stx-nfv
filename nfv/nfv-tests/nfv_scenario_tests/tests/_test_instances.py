@@ -841,7 +841,7 @@ class TestInstanceResize(TestInstance):
         flavor_id = None
         for flavor_name in self._flavor_names:
             flavor_id = self._get_flavor_id(flavor_name)
-            if flavor_id != self._instance_data['flavor']['id']:
+            if flavor_name != self._instance_data['flavor']['original_name']:
                 self._flavor_id = flavor_id
                 break
 
@@ -919,7 +919,7 @@ class TestInstanceResizeConfirm(TestInstance):
         flavor_id = None
         for flavor_name in self._flavor_names:
             flavor_id = self._get_flavor_id(flavor_name)
-            if flavor_id != self._instance_data['flavor']['id']:
+            if flavor_name != self._instance_data['flavor']['original_name']:
                 break
 
         if flavor_id is None:
@@ -1015,7 +1015,7 @@ class TestInstanceResizeRevert(TestInstance):
         flavor_id = None
         for flavor_name in self._flavor_names:
             flavor_id = self._get_flavor_id(flavor_name)
-            if flavor_id != self._instance_data['flavor']['id']:
+            if flavor_name != self._instance_data['flavor']['original_name']:
                 break
 
         if flavor_id is None:

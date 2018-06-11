@@ -26,6 +26,8 @@ from nfv_vim.strategy._strategy import SwUpgradeStrategy, strategy_rebuild_from_
 
 from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
 
+import utils
+
 # Constants
 
 # Globals
@@ -70,7 +72,8 @@ def create_instance(instance_type_name, instance_name, host_name,
                 oper_state=nfvi.objects.v1.INSTANCE_OPER_STATE.ENABLED,
                 avail_status=list(),
                 action=nfvi.objects.v1.INSTANCE_ACTION.NONE,
-                host_name=host_name, instance_type_uuid=instance_type.uuid,
+                host_name=host_name,
+                instance_type=utils.instance_type_to_flavor_dict(instance_type),
                 image_uuid=image_uuid)
 
             instance = objects.Instance(nfvi_instance)

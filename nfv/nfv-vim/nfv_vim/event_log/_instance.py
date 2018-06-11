@@ -2250,7 +2250,17 @@ def instance_manage_events(instance, enabling=False):
             event_id = event_log.EVENT_ID.INSTANCE_COLD_MIGRATE_REVERTED
 
         elif last_event(event_log.EVENT_ID.INSTANCE_RESIZING):
-            if instance.from_instance_type_uuid == instance.instance_type_uuid:
+            # Note: This isn't going to work, because the unversioned
+            # notifications we get from nova do not include the flavor details.
+            # When we switch to use the versioned notifications, they will
+            # include the flavor. However, I have verified that the original
+            # reason for this clause (CGTS-4099) no longer needs this code -
+            # nova will explicitly fail a resize if the disk size in the new
+            # flavor is smaller than the old flavor (instead of silently
+            # failing). I am leaving this code here in case there are some
+            # other silent failures we want to catch in the future.
+            if instance.from_instance_type_original_name == \
+                    instance.instance_type_original_name:
                 event_id = event_log.EVENT_ID.INSTANCE_RESIZE_FAILED
 
         elif last_event(event_log.EVENT_ID.INSTANCE_RESIZE_CONFIRM_BEGIN):

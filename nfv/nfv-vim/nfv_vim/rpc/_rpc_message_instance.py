@@ -81,7 +81,7 @@ class APIResponseCreateInstance(RPCMessage):
     action = None
     host_uuid = None
     host_name = None
-    instance_type_uuid = None
+    instance_type_original_name = None
     image_uuid = None
     vcpus = None
     memory_mb = None
@@ -108,7 +108,7 @@ class APIResponseCreateInstance(RPCMessage):
         msg['action'] = self.action
         msg['host_uuid'] = self.host_uuid
         msg['host_name'] = self.host_name
-        msg['instance_type_uuid'] = self.instance_type_uuid
+        msg['instance_type_original_name'] = self.instance_type_original_name
         msg['image_uuid'] = self.image_uuid
         msg['vcpus'] = self.vcpus
         msg['memory_mb'] = self.memory_mb
@@ -130,7 +130,8 @@ class APIResponseCreateInstance(RPCMessage):
         self.action = msg.get('action', None)
         self.host_uuid = msg.get('host_uuid', None)
         self.host_name = msg.get('host_name', None)
-        self.instance_type_uuid = msg.get('instance_type_uuid', None)
+        self.instance_type_original_name = msg.get(
+            'instance_type_original_name', None)
         self.image_uuid = msg.get('image_uuid', None)
         self.vcpus = msg.get('vcpus', None)
         self.memory_mb = msg.get('memory_mb', None)
@@ -678,7 +679,7 @@ class APIResponseGetInstance(RPCMessage):
     action = None
     host_uuid = None
     host_name = None
-    instance_type_uuid = None
+    instance_type_original_name = None
     image_uuid = None
     vcpus = None
     memory_mb = None
@@ -704,7 +705,7 @@ class APIResponseGetInstance(RPCMessage):
         msg['action'] = self.action
         msg['host_uuid'] = self.host_uuid
         msg['host_name'] = self.host_name
-        msg['instance_type_uuid'] = self.instance_type_uuid
+        msg['instance_type_original_name'] = self.instance_type_original_name
         msg['image_uuid'] = self.image_uuid
         msg['vcpus'] = self.vcpus
         msg['memory_mb'] = self.memory_mb
@@ -725,7 +726,8 @@ class APIResponseGetInstance(RPCMessage):
         self.action = msg.get('action', None)
         self.host_uuid = msg.get('host_uuid', None)
         self.host_name = msg.get('host_name', None)
-        self.instance_type_uuid = msg.get('instance_type_uuid', None)
+        self.instance_type_original_name = msg.get(
+            'instance_type_original_name', None)
         self.image_uuid = msg.get('image_uuid', None)
         self.vcpus = msg.get('vcpus', None)
         self.memory_mb = msg.get('memory_mb', None)

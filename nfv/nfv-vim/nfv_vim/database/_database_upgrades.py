@@ -7,24 +7,6 @@ import sys
 import types
 
 
-def _upgrade_instance_types_v1(table_row_data):
-    """
-    Upgrade instance_types_v1 table to the current release
-    """
-    # Once all the patches for 15.12 have been released this code is not needed.
-    # The VIM on startup will re-sync with Nova.
-    return None
-
-
-def _upgrade_volumes(table_row_data):
-    """
-    Upgrade volumes table to the current release
-    """
-    # Once all the patches for 15.12 have been released this code is not needed.
-    # The VIM on startup will re-sync with Cinder.
-    return None
-
-
 def upgrade_table_row_data(table_name, table_row_data):
     """
     Upgrade a database table row data

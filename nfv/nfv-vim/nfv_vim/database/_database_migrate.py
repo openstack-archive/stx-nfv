@@ -12,33 +12,77 @@ from nfv_common import debug
 DLOG = debug.debug_get_logger('nfv_vim.database')
 
 
-def _migrate_instances_v3_to_v4(session, instances_v3, instances_v4):
+def _migrate_instances_v4_to_v5(session, instances_v4, instances_v5):
     """
-    Migrate instances_v3 table to instances_v4 table
+    Migrate instances_v4 table to instances_v5 table
     """
-    if 0 == len(instances_v4):
-        for instance_v3 in instances_v3:
-            instance_v4 = model.Instance_v4()
-            instance_v4.data = instance_v3.data
-            nfvi_instance_data = json.loads(instance_v3.nfvi_instance_data)
-            # Use previous recovery_priority if it exists, otherwise use None
-            nfvi_instance_data['recovery_priority'] = \
-                nfvi_instance_data.get('recovery_priority', None)
-            # Use previous timeout if it exists, otherwise use None
-            nfvi_instance_data['live_migration_timeout'] = \
-                nfvi_instance_data.get('live_migration_timeout', None)
-            instance_v4.nfvi_instance_data = json.dumps(nfvi_instance_data)
-            session.add(instance_v4)
+    if 0 == len(instances_v5):
+        instance_type_query = session.query(model.InstanceType)
+        instance_types = instance_type_query.all()
+
+        for instance_v4 in instances_v4:
+            instance_v5 = model.Instance_v5()
+            instance_type_uuid = instance_v4.instance_type_uuid
+            del instance_v4.data['instance_type_uuid']
+            instance_v5.data = instance_v4.data
+            nfvi_instance_data = json.loads(instance_v4.nfvi_instance_data)
+
+            # We can build the flavor details embedded in the instance from
+            # the flavor referenced from the original instance.
+            for instance_type in instance_types:
+                if instance_type.uuid == instance_type_uuid:
+                    break
+            else:
+                DLOG.error("Missing instance type: %s" % instance_type_uuid)
+                continue
+
+            flavor = dict()
+            flavor['vcpus'] = instance_type.vcpus
+            flavor['ram'] = instance_type.mem_mb
+            flavor['disk'] = instance_type.disk_gb
+            flavor['ephemeral'] = instance_type.ephemeral_gb
+            flavor['swap'] = instance_type.swap_gb
+            flavor['original_name'] = instance_type.name
+
+            # Re-create the flavor extra_specs, undoing all the mangling that
+            # the VIM did when converting the flavor to an instance_type.
+            extra_specs = dict()
+            guest_services = instance_type.guest_services
+            if 'heartbeat' in guest_services:
+                if guest_services['heartbeat'] == 'configured':
+                    extra_specs['sw:wrs:guest:heartbeat'] = 'true'
+                else:
+                    extra_specs['sw:wrs:guest:heartbeat'] = 'false'
+            if instance_type.auto_recovery is not None:
+                if instance_type.auto_recovery:
+                    extra_specs['sw:wrs:auto_recovery'] = 'true'
+                else:
+                    extra_specs['sw:wrs:auto_recovery'] = 'false'
+            if instance_type.live_migration_timeout is not None:
+                extra_specs['hw:wrs:live_migration_timeout'] = \
+                    instance_type.live_migration_timeout
+            if instance_type.live_migration_max_downtime is not None:
+                extra_specs['hw:wrs:live_migration_max_downtime'] = \
+                    instance_type.live_migration_max_downtime
+            if instance_type.storage_type is not None:
+                extra_specs['aggregate_instance_extra_specs:storage'] = \
+                    instance_type.storage_type
+            if extra_specs:
+                flavor['extra_specs'] = extra_specs
+
+            nfvi_instance_data['instance_type'] = flavor
+            instance_v5.nfvi_instance_data = json.dumps(nfvi_instance_data)
+            session.add(instance_v5)
 
 
 def migrate_tables(session, table_names):
     """
     Migrate database tables
     """
-    if 'instances_v3' in table_names and 'instances_v4' in table_names:
-        instances_v3_query = session.query(model.Instance_v3)
-        instances_v3 = instances_v3_query.all()
+    if 'instances_v4' in table_names and 'instances_v5' in table_names:
         instances_v4_query = session.query(model.Instance_v4)
         instances_v4 = instances_v4_query.all()
-        _migrate_instances_v3_to_v4(session, instances_v3, instances_v4)
-        instances_v3_query.delete()
+        instances_v5_query = session.query(model.Instance_v5)
+        instances_v5 = instances_v5_query.all()
+        _migrate_instances_v4_to_v5(session, instances_v4, instances_v5)
+        instances_v4_query.delete()

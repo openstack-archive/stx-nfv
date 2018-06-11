@@ -227,12 +227,18 @@ def _nfvi_instance_state_change_callback(nfvi_instance):
             nfvi.nfvi_get_instance(nfvi_instance.uuid,
                                    _query_nfvi_instance_callback())
     else:
-        # Make sure we don't overwrite some information, if it isn't available
+        # We are handling a notification from nova, which will not have all
+        # the data for the nfvi_instance we store as part of our instance
+        # object. As part of the processing of the notification, we are going
+        # to save the nfvi_instance to the database, so make sure we don't
+        # overwrite data that did not come in the notification, by retrieving
+        # it from the instance object. Yes - this is ugly. No - I'm not going
+        # to rewrite this now.
         if nfvi_instance.tenant_id is None:
             nfvi_instance.tenant_id = instance.tenant_uuid
 
-        if nfvi_instance.instance_type_uuid is None:
-            nfvi_instance.instance_type_uuid = instance.instance_type_uuid
+        if nfvi_instance.instance_type is None:
+            nfvi_instance.instance_type = instance._nfvi_instance.instance_type
 
         if nfvi_instance.image_uuid is None:
             nfvi_instance.image_uuid = instance.image_uuid

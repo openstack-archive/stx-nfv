@@ -34,7 +34,8 @@ def _create_instance_callback(success, instance_name, instance_uuid):
                 response.avail_status = instance.avail_status
                 response.action = instance.action
                 response.host_name = instance.host_name
-                response.instance_type_uuid = instance.instance_type_uuid
+                response.instance_type_original_name \
+                    = instance.instance_type_original_name
                 response.image_uuid = instance.image_uuid
                 response.vcpus = instance.vcpus
                 response.memory_mb = instance.memory_mb
@@ -301,7 +302,8 @@ def vim_instance_api_get_instance(connection, msg):
         response.avail_status = instance.avail_status
         response.action = instance.action
         response.host_name = instance.host_name
-        response.instance_type_uuid = instance.instance_type_uuid
+        response.instance_type_original_name \
+            = instance.instance_type_original_name
         response.image_uuid = instance.image_uuid
         response.vcpus = instance.vcpus
         response.memory_mb = instance.memory_mb
@@ -341,7 +343,8 @@ def vim_instance_api_get_instances(connection, msg):
         response.avail_status = instance.avail_status
         response.action = instance.action
         response.host_name = instance.host_name
-        response.instance_type_uuid = instance.instance_type_uuid
+        response.instance_type_original_name \
+            = instance.instance_type_original_name
         response.image_uuid = instance.image_uuid
         response.vcpus = instance.vcpus
         response.memory_mb = instance.memory_mb

@@ -9,6 +9,7 @@ from datetime import datetime
 from _object import ObjectData
 
 from nfv_common.helpers import Object, Constant, Constants, Singleton
+from _instance_type import INSTANCE_TYPE_EXTENSION
 
 
 @six.add_metaclass(Singleton)
@@ -389,7 +390,7 @@ class Instance(ObjectData):
     NFVI Instance Object
     """
     def __init__(self, uuid, name, tenant_id, admin_state, oper_state,
-                 avail_status, action, host_name, instance_type_uuid,
+                 avail_status, action, host_name, instance_type,
                  image_uuid=None, live_migration_support=None,
                  attached_volumes=None, nfvi_data=None,
                  recovery_priority=None, live_migration_timeout=None):
@@ -402,7 +403,7 @@ class Instance(ObjectData):
                          admin_state=admin_state, oper_state=oper_state,
                          avail_status=avail_status, action=action,
                          host_name=host_name,
-                         instance_type_uuid=instance_type_uuid,
+                         instance_type=instance_type,
                          image_uuid=image_uuid,
                          live_migration_support=live_migration_support,
                          attached_volumes=attached_volumes,
@@ -410,3 +411,125 @@ class Instance(ObjectData):
                          live_migration_timeout=live_migration_timeout))
 
         self.nfvi_data = nfvi_data
+
+    @property
+    def instance_type_vcpus(self):
+        """
+        Returns the vcpus from the flavor
+        """
+        return self.get('instance_type').get('vcpus')
+
+    @property
+    def instance_type_mem_mb(self):
+        """
+        Returns the ram from the flavor
+        """
+        return self.get('instance_type').get('ram')
+
+    @property
+    def instance_type_disk_gb(self):
+        """
+        Returns the disk from the flavor
+        """
+        return self.get('instance_type').get('disk')
+
+    @property
+    def instance_type_ephemeral_gb(self):
+        """
+        Returns the ephemeral from the flavor
+        """
+        return self.get('instance_type').get('ephemeral')
+
+    @property
+    def instance_type_swap_gb(self):
+        """
+        Returns the swap from the flavor
+        """
+        return self.get('instance_type').get('swap')
+
+    @property
+    def instance_type_original_name(self):
+        """
+        Returns the original name from the flavor
+        """
+        return self.get('instance_type').get('original_name')
+
+    @property
+    def instance_type_guest_services(self):
+        """
+        Returns the guest services from the flavor extra specs
+        """
+        guest_services = dict()
+        flavor_data_extra = self.get('instance_type').get('extra_specs', None)
+        if flavor_data_extra is not None:
+            heartbeat = flavor_data_extra.get(
+                INSTANCE_TYPE_EXTENSION.GUEST_HEARTBEAT, None)
+            if heartbeat and 'true' == heartbeat.lower():
+                guest_heartbeat = INSTANCE_GUEST_SERVICE_STATE.CONFIGURED
+            else:
+                guest_heartbeat = None
+            if guest_heartbeat is not None:
+                guest_services['heartbeat'] = guest_heartbeat
+
+        return guest_services
+
+    @property
+    def instance_type_auto_recovery(self):
+        """
+        Returns the auto recovery from the flavor extra specs
+        """
+        auto_recovery = None
+        flavor_data_extra = self.get('instance_type').get('extra_specs', None)
+        if flavor_data_extra is not None:
+            auto_recovery = flavor_data_extra.get(
+                INSTANCE_TYPE_EXTENSION.INSTANCE_AUTO_RECOVERY, None)
+            if auto_recovery is not None:
+                if 'false' == auto_recovery.lower():
+                    auto_recovery = False
+                elif 'true' == auto_recovery.lower():
+                    auto_recovery = True
+                else:
+                    raise AttributeError("sw:wrs:auto_recovery is %s, "
+                                         "expecting 'true' or 'false'"
+                                         % auto_recovery)
+
+        return auto_recovery
+
+    @property
+    def instance_type_live_migration_timeout(self):
+        """
+        Returns the live migration timeout from the flavor extra specs
+        """
+        live_migration_timeout = None
+        flavor_data_extra = self.get('instance_type').get('extra_specs', None)
+        if flavor_data_extra is not None:
+            live_migration_timeout = flavor_data_extra.get(
+                INSTANCE_TYPE_EXTENSION.LIVE_MIGRATION_TIMEOUT, None)
+
+        return live_migration_timeout
+
+    @property
+    def instance_type_live_migration_max_downtime(self):
+        """
+        Returns the live migration max downtime from the flavor extra specs
+        """
+        live_migration_max_downtime = None
+        flavor_data_extra = self.get('instance_type').get('extra_specs', None)
+        if flavor_data_extra is not None:
+            live_migration_max_downtime = flavor_data_extra.get(
+                INSTANCE_TYPE_EXTENSION.LIVE_MIGRATION_MAX_DOWNTIME, None)
+
+        return live_migration_max_downtime
+
+    @property
+    def instance_type_storage_type(self):
+        """
+        Returns the storage type from the flavor extra specs
+        """
+        storage_type = None
+        flavor_data_extra = self.get('instance_type').get('extra_specs', None)
+        if flavor_data_extra is not None:
+            storage_type = flavor_data_extra.get(
+                INSTANCE_TYPE_EXTENSION.STORAGE_TYPE, None)
+
+        return storage_type

@@ -12,15 +12,6 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_compute_module')
 _compute_plugin = None
 
 
-def nfvi_get_service_hosts(callback):
-    """
-    Get a list of service hosts
-    """
-    cmd_id = _compute_plugin.invoke_plugin('get_service_hosts',
-                                           callback=callback)
-    return cmd_id
-
-
 def nfvi_get_host_aggregates(callback):
     """
     Get a list of host aggregates

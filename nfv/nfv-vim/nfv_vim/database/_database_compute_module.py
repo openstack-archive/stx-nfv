@@ -247,11 +247,11 @@ def database_instance_add(instance_obj):
     """
     db = database_get()
     session = db.session()
-    query = session.query(model.Instance_v4)
-    query = query.filter(model.Instance_v4.uuid == instance_obj.uuid)
+    query = session.query(model.Instance_v5)
+    query = query.filter(model.Instance_v5.uuid == instance_obj.uuid)
     instance = query.first()
     if not instance:
-        instance = model.Instance_v4()
+        instance = model.Instance_v5()
         instance.uuid = instance_obj.uuid
         instance.name = instance_obj.name
         instance.admin_state = instance_obj.admin_state
@@ -259,7 +259,6 @@ def database_instance_add(instance_obj):
         instance.avail_status = json.dumps(instance_obj.avail_status)
         instance.action = instance_obj.action
         instance.host_name = instance_obj.host_name
-        instance.instance_type_uuid = instance_obj.instance_type_uuid
         instance.image_uuid = instance_obj.image_uuid
         instance.live_migration_support = instance_obj.supports_live_migration()
         instance.elapsed_time_in_state = instance_obj.elapsed_time_in_state
@@ -281,7 +280,6 @@ def database_instance_add(instance_obj):
         instance.avail_status = json.dumps(instance_obj.avail_status)
         instance.action = instance_obj.action
         instance.host_name = instance_obj.host_name
-        instance.instance_type_uuid = instance_obj.instance_type_uuid
         instance.image_uuid = instance_obj.image_uuid
         instance.live_migration_support = instance_obj.supports_live_migration()
         instance.elapsed_time_in_state = instance_obj.elapsed_time_in_state
@@ -304,8 +302,8 @@ def database_instance_delete(instance_uuid):
     """
     db = database_get()
     session = db.session()
-    query = session.query(model.Instance_v4)
-    query.filter(model.Instance_v4.uuid == instance_uuid).delete()
+    query = session.query(model.Instance_v5)
+    query.filter(model.Instance_v5.uuid == instance_uuid).delete()
     session.commit()
 
 
@@ -315,7 +313,7 @@ def database_instance_get_list():
     """
     db = database_get()
     session = db.session()
-    query = session.query(model.Instance_v4)
+    query = session.query(model.Instance_v5)
     instance_objs = list()
     for instance in query.all():
         last_action_data_data = json.loads(instance.last_action_data)
@@ -403,7 +401,7 @@ def database_instance_get_list():
             nfvi_instance_data['avail_status'],
             nfvi_instance_data['action'],
             nfvi_instance_data['host_name'],
-            nfvi_instance_data['instance_type_uuid'],
+            nfvi_instance_data['instance_type'],
             nfvi_instance_data['image_uuid'],
             nfvi_instance_data['live_migration_support'],
             attached_volumes,

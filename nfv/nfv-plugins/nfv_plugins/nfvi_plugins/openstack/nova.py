@@ -5,19 +5,19 @@
 #
 import six
 import json
-import httplib
 
 from nfv_common import debug
 from nfv_common.helpers import Constants, Constant, Singleton
 
-from exceptions import OpenStackRestAPIException
+from exceptions import NotFound
 from objects import OPENSTACK_SERVICE
 from rest_api import rest_api_request, rest_api_request_with_context
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.nova')
 
-# Using maximum nova API version for newton release.
-NOVA_API_VERSION = '2.38'
+# Using maximum nova API version for pike release.
+NOVA_API_VERSION = '2.53'
+NOVA_API_VERSION_NEWTON = '2.38'
 
 
 @six.add_metaclass(Singleton)
@@ -197,24 +197,6 @@ def vm_power_state_str(power_state):
         return "building"
     else:
         return "unknown"
-
-
-def get_hosts(token):
-    """
-    Asks OpenStack Nova for a list of hosts
-    """
-    url = token.get_service_url(OPENSTACK_SERVICE.NOVA, strip_version=True)
-    if url is None:
-        raise ValueError("OpenStack Nova URL is invalid")
-
-    api_cmd = url + "/v2.1/%s/os-hosts" % token.get_tenant_id()
-
-    api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
-    api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
-
-    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
-    return response
 
 
 def get_host_aggregates(token):
@@ -1331,7 +1313,6 @@ def rpc_message_server_state_change_filter(message):
         power_state = payload.get('power_state', None)
         host_name = payload.get('host', None)
         image_meta = payload.get('image_meta', None)
-        flavor_id = payload.get('instance_flavor_id', None)
         image_id = image_meta.get('base_image_ref', None)
 
         if not image_id:
@@ -1360,7 +1341,6 @@ def rpc_message_server_state_change_filter(message):
             state_change['task_state'] = task_state
             state_change['power_state'] = power_state
             state_change['host_name'] = host_name
-            state_change['flavor_id'] = flavor_id
             state_change['image_id'] = image_id
             state_change['recovery_priority'] = recovery_priority
             state_change['live_migration_timeout'] = live_migration_timeout
@@ -1413,7 +1393,8 @@ def create_host_services(token, host_name):
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
-    api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
+    # The create is a WRS extension, which is not supported in Pike
+    api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION_NEWTON
 
     api_cmd_payload = dict()
     api_cmd_payload['binary'] = 'nova-compute'
@@ -1424,6 +1405,31 @@ def create_host_services(token, host_name):
     return response
 
 
+def get_host_service_id(token, host_name, service_name):
+    """
+    Asks OpenStack Nova for the service id of a service on a host
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NOVA, strip_version=True)
+    if url is None:
+        raise ValueError("OpenStack Nova URL is invalid")
+
+    api_cmd = url + "/v2.1/%s/os-services?host=%s&binary=%s" % \
+                    (token.get_tenant_id(), host_name, service_name)
+
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+    api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    services = response.result_data.get('services', list())
+    if services:
+        return services[0].get('id')
+    else:
+        raise NotFound("Service %s not found for host %s" % (service_name,
+                                                             host_name))
+
+
 def delete_host_services(token, host_name):
     """
     Asks OpenStack Nova to delete services on a host
@@ -1432,42 +1438,26 @@ def delete_host_services(token, host_name):
     if url is None:
         raise ValueError("OpenStack Nova URL is invalid")
 
-    compute_service_id = None
+    response = dict()
 
     # Check to see if nova knows about the host or not.  Nova returns
     # internal-error when the host is not known on a delete.
     try:
-        api_cmd = url + "/v2.1/%s/os-services?host=%s" % (token.get_tenant_id(),
-                                                          host_name)
+        compute_service_id = get_host_service_id(token, host_name,
+                                                 'nova-compute')
+    except NotFound:
+        # No service to delete
+        return response
 
-        api_cmd_headers = dict()
-        api_cmd_headers['wrs-header'] = 'true'
-        api_cmd_headers['Content-Type'] = "application/json"
-        api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
+    api_cmd = url + "/v2.1/%s/os-services/%s" % (token.get_tenant_id(),
+                                                 compute_service_id)
 
-        response = rest_api_request(token, "GET", api_cmd)
-        services = response.result_data.get('services', list())
-        for service in services:
-            service_name = service.get('binary', '')
-            if 'nova-compute' == service_name:
-                compute_service_id = service.get('id', None)
-                break
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+    api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
-    except OpenStackRestAPIException as e:
-        if httplib.NOT_FOUND != e.http_status_code:
-            raise
-
-    response = dict()
-    if compute_service_id is not None:
-        api_cmd = url + "/v2.1/%s/os-services/%s" % (token.get_tenant_id(),
-                                                     compute_service_id)
-
-        api_cmd_headers = dict()
-        api_cmd_headers['wrs-header'] = 'true'
-        api_cmd_headers['Content-Type'] = "application/json"
-        api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
-
-        response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
+    response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
     return response
 
 
@@ -1479,7 +1469,11 @@ def enable_host_services(token, host_name):
     if url is None:
         raise ValueError("OpenStack Nova URL is invalid")
 
-    api_cmd = url + "/v2.1/%s/os-services/enable" % token.get_tenant_id()
+    # Get the service ID for the nova-compute service.
+    compute_service_id = get_host_service_id(token, host_name, 'nova-compute')
+
+    api_cmd = url + "/v2.1/%s/os-services/%s" % (token.get_tenant_id(),
+                                                 compute_service_id)
 
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
@@ -1487,8 +1481,7 @@ def enable_host_services(token, host_name):
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     api_cmd_payload = dict()
-    api_cmd_payload['binary'] = 'nova-compute'
-    api_cmd_payload['host'] = host_name
+    api_cmd_payload['status'] = 'enabled'
 
     response = rest_api_request(token, "PUT", api_cmd, api_cmd_headers,
                                 json.dumps(api_cmd_payload))
@@ -1503,7 +1496,11 @@ def disable_host_services(token, host_name):
     if url is None:
         raise ValueError("OpenStack Nova URL is invalid")
 
-    api_cmd = url + "/v2.1/%s/os-services/disable" % token.get_tenant_id()
+    # Get the service ID for the nova-compute service.
+    compute_service_id = get_host_service_id(token, host_name, 'nova-compute')
+
+    api_cmd = url + "/v2.1/%s/os-services/%s" % (token.get_tenant_id(),
+                                                 compute_service_id)
 
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
@@ -1511,8 +1508,8 @@ def disable_host_services(token, host_name):
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     api_cmd_payload = dict()
-    api_cmd_payload['binary'] = 'nova-compute'
-    api_cmd_payload['host'] = host_name
+    api_cmd_payload['status'] = 'disabled'
+    api_cmd_payload['disabled_reason'] = 'disabled by VIM'
 
     response = rest_api_request(token, "PUT", api_cmd, api_cmd_headers,
                                 json.dumps(api_cmd_payload))
@@ -1562,7 +1559,11 @@ def notify_host_enabled(token, host_name):
     if url is None:
         raise ValueError("OpenStack Nova URL is invalid")
 
-    api_cmd = url + "/v2.1/%s/os-services/force-down" % token.get_tenant_id()
+    # Get the service ID for the nova-compute service.
+    compute_service_id = get_host_service_id(token, host_name, 'nova-compute')
+
+    api_cmd = url + "/v2.1/%s/os-services/%s" % (token.get_tenant_id(),
+                                                 compute_service_id)
 
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
@@ -1570,8 +1571,6 @@ def notify_host_enabled(token, host_name):
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     api_cmd_payload = dict()
-    api_cmd_payload['binary'] = 'nova-compute'
-    api_cmd_payload['host'] = host_name
     api_cmd_payload['forced_down'] = False
 
     response = rest_api_request(token, "PUT", api_cmd, api_cmd_headers,
@@ -1587,7 +1586,11 @@ def notify_host_disabled(token, host_name):
     if url is None:
         raise ValueError("OpenStack Nova URL is invalid")
 
-    api_cmd = url + "/v2.1/%s/os-services/force-down" % token.get_tenant_id()
+    # Get the service ID for the nova-compute service.
+    compute_service_id = get_host_service_id(token, host_name, 'nova-compute')
+
+    api_cmd = url + "/v2.1/%s/os-services/%s" % (token.get_tenant_id(),
+                                                 compute_service_id)
 
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
@@ -1595,8 +1598,6 @@ def notify_host_disabled(token, host_name):
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     api_cmd_payload = dict()
-    api_cmd_payload['binary'] = 'nova-compute'
-    api_cmd_payload['host'] = host_name
     api_cmd_payload['forced_down'] = True
 
     response = rest_api_request(token, "PUT", api_cmd, api_cmd_headers,

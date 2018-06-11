@@ -78,7 +78,6 @@ from _nfvi_network_module import nfvi_update_subnet
 from _nfvi_network_module import nfvi_delete_subnet
 from _nfvi_network_module import nfvi_get_subnet
 from _nfvi_network_module import nfvi_get_subnets
-from _nfvi_compute_module import nfvi_get_service_hosts
 from _nfvi_compute_module import nfvi_get_host_aggregates
 from _nfvi_compute_module import nfvi_get_hypervisors
 from _nfvi_compute_module import nfvi_get_hypervisor

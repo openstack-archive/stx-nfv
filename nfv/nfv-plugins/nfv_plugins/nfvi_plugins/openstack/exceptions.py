@@ -141,3 +141,40 @@ class OpenStackRestAPIException(exceptions.PickleableException):
         Returns the reason for the exception
         """
         return self._reason
+
+
+class NotFound(exceptions.PickleableException):
+    """
+    Not Found Exception
+    """
+    def __init__(self, message):
+        """
+        Create an OpenStack exception
+        """
+        super(NotFound, self).__init__(message)
+        self._message = message
+
+    def __str__(self):
+        """
+        Return a string representing the exception
+        """
+        return "[NotFound Exception: message=%s]" % self._message
+
+    def __repr__(self):
+        """
+        Provide a representation of the exception
+        """
+        return str(self)
+
+    def __reduce__(self):
+        """
+        Return a tuple so that we can properly pickle the exception
+        """
+        return NotFound, (self.message,)
+
+    @property
+    def message(self):
+        """
+        Returns the message for the exception
+        """
+        return self._message

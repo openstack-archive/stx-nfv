@@ -602,13 +602,13 @@ logs:
   - name: Instance NFVI State Change
     type: nfv_vim_instance_nfvi_state_change
     file: _vim_nfvi_events.py
-    regex: "Instance state-change, nfvi_instance={'instance_type_uuid': u'(.*)',
+    regex: "Instance state-change, nfvi_instance={'instance_type': ({.*}),
     'name': u'(.*)', 'tenant_id': '(.*)', 'avail_status': \\[(.*)], 'nfvi_data':
     {'vm_state': u'(.*)', 'task_state': u?'(.*)', 'power_state': '(.*)'},
     'live_migration_support': (.*), 'oper_state': '(.*)', 'host_name': u'(.*)',
     'admin_state': '(.*)', 'action': '(.*)', 'image_uuid': (.*), 'uuid': u'(.*)'}."
     fields:
-      - instance_type_uuid
+      - instance_type
       - instance_name
       - tenant_uuid
       - instance_avail_status

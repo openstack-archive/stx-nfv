@@ -41,13 +41,6 @@ class NFVIComputeAPI(object):
         pass
 
     @abc.abstractmethod
-    def get_service_hosts(self, future, callback):
-        """
-        Get a list of service hosts from the plugin
-        """
-        pass
-
-    @abc.abstractmethod
     def get_host_aggregates(self, future, callback):
         """
         Get a list of host aggregates from the plugin

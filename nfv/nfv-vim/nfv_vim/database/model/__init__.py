@@ -21,5 +21,5 @@ from _service_host import ServiceHost
 from _hypervisor import Hypervisor
 from _instance_type import InstanceType
 from _instance_group import InstanceGroup
-from _instance import Instance_v3, Instance_v4
+from _instance import Instance_v4, Instance_v5
 from _sw_update import SoftwareUpdate

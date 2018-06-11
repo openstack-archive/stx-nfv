@@ -1,6 +1,9 @@
-
+# Get a token from keystone
 TENANT_ID=`openstack token issue | grep "| project_id |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
 TOKEN_ID=`openstack token issue | grep "| id         |" | cut -f3 -d'|' | tr -d '[[:space:]]'`
+
+# Specify management IP
+MGMT_IP=192.168.204.2
 
 1. Create a VM
 --------------
@@ -15,10 +18,12 @@ cat > compute_request.txt
  "compute_data": {"flavour_id": "101", 
  "virtual_memory": {"virtual_mem_size": 512},
  "virtual_storage": {"type_of_storage": "volume", "size_of_storage": 1},
- "virtual_cpu": {"num_virtual_cpu": 1}}}
+ "virtual_cpu": {"num_virtual_cpu": 1}},
+ "meta_data": "{\"network_uuid\": \"81edbebc-d89e-40f9-bc02-7fdc9dd324f9\"}"
+}
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes -d @compute_request.txt
+http://${MGMT_IP}:4545/api/virtualised-resources/computes -d @compute_request.txt
 
 
 2. Delete a VM
@@ -26,19 +31,19 @@ http://localhost:4545/api/virtualised-resources/computes -d @compute_request.txt
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X DELETE -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}
 
 3. Get a VM
 -----------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X GET -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}
 
 4. Get all VMs
 --------------
 curl -i -X GET -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes
+http://${MGMT_IP}:4545/api/virtualised-resources/computes
 
 
 5. Pause a VM
@@ -46,68 +51,67 @@ http://localhost:4545/api/virtualised-resources/computes
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"pause\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"pause\"}"
 
 6. Unpause a VM
 ---------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"unpause\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"unpause\"}"
 
 7. Suspend a VM
 ---------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"suspend\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"suspend\"}"
 
 8. Resume a VM
 --------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"resume\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"resume\"}"
 
 9. Stop a VM
 ------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"stop\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"stop\"}"
 
 10. Start a VM
 --------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"start\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"start\"}"
 
 11. Reboot a VM
 ---------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"reboot\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/operate  -d "{\"compute_operation\": \"reboot\"}"
 
 12. Live-Migrate a VM
 ---------------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/migrate  -d "{\"migrate_type\": \"live\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/migrate  -d "{\"migrate_type\": \"live\"}"
 
 13. Cold-Migrate a VM
 ---------------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/migrate  -d "{\"migrate_type\": \"cold\"}"
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/migrate  -d "{\"migrate_type\": \"cold\"}"
 
 14. Evacuate a VM
 -----------------
 VM_ID=8bdb775c-9e29-4412-a49f-0895b5faa76a
 
 curl -i -X POST -H 'Content-Type: application/json' -H "X-Auth-Token: ${TOKEN_ID}" -H 'Accept: application/json' \
-http://localhost:4545/api/virtualised-resources/computes/${VM_ID}/migrate  -d "{\"migrate_type\": \"evacuate\"}"
-
+http://${MGMT_IP}:4545/api/virtualised-resources/computes/${VM_ID}/migrate  -d "{\"migrate_type\": \"evacuate\"}"

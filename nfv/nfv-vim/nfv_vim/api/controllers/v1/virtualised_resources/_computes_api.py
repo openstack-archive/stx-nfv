@@ -315,6 +315,7 @@ class ComputeQueryAttributesResourceType(wsme_types.Base):
     acceleration_capabilities = unicode
     virtual_memory = ComputeQueryVirtualMemoryType
     virtual_cpu = ComputeQueryVirtualCpuType
+    flavour_original_name = unicode
 
 
 class ComputeQueryResourceType(wsme_types.Base):
@@ -376,9 +377,11 @@ class ComputesAPI(pecan.rest.RestController):
             virtual_cpu.num_virtual_cpu = response.vcpus
 
             compute_attributes = ComputeQueryAttributesResourceType()
-            compute_attributes.flavour_id = response.instance_type_uuid
+            compute_attributes.flavour_id = ''
             compute_attributes.virtual_memory = virtual_memory
             compute_attributes.virtual_cpu = virtual_cpu
+            compute_attributes.flavour_original_name = \
+                response.instance_type_original_name
 
             query_result = ComputeQueryResourceType()
             query_result.compute_id = response.uuid
@@ -448,9 +451,11 @@ class ComputesAPI(pecan.rest.RestController):
             virtual_cpu.num_virtual_cpu = response.vcpus
 
             compute_attributes = ComputeQueryAttributesResourceType()
-            compute_attributes.flavour_id = response.instance_type_uuid
+            compute_attributes.flavour_id = ''
             compute_attributes.virtual_memory = virtual_memory
             compute_attributes.virtual_cpu = virtual_cpu
+            compute_attributes.flavour_original_name = \
+                response.instance_type_original_name
 
             query_result = ComputeQueryResourceType()
             query_result.compute_id = response.uuid
@@ -523,9 +528,11 @@ class ComputesAPI(pecan.rest.RestController):
             virtual_cpu.num_virtual_cpu = response.vcpus
 
             compute_attributes = ComputeQueryAttributesResourceType()
-            compute_attributes.flavour_id = response.instance_type_uuid
+            compute_attributes.flavour_id = ''
             compute_attributes.virtual_memory = virtual_memory
             compute_attributes.virtual_cpu = virtual_cpu
+            compute_attributes.flavour_original_name = \
+                response.instance_type_original_name
 
             query_result = ComputeQueryResourceType()
             query_result.compute_id = response.uuid
