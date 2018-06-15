@@ -1397,7 +1397,7 @@ class TestSwPatchStrategy:
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-        # Test no reboot patches. 
+        # Test no reboot patches.
         strategy = create_sw_patch_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START,

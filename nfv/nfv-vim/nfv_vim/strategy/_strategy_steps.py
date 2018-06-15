@@ -1481,8 +1481,8 @@ class QueryAlarmsStep(strategy.StrategyStep):
                 nfvi_alarms = list()
                 for nfvi_alarm in response['result-data']:
                     if (self.strategy._alarm_restrictions ==
-                            strategy.STRATEGY_ALARM_RESTRICTION_TYPES.RELAXED
-                            and nfvi_alarm.mgmt_affecting == 'False'):
+                            strategy.STRATEGY_ALARM_RESTRICTION_TYPES.RELAXED and
+                            nfvi_alarm.mgmt_affecting == 'False'):
                         DLOG.warn("Ignoring non-management affecting alarm "
                                   "%s - uuid %s due to relaxed alarm "
                                   "strictness" % (nfvi_alarm.alarm_id,
@@ -1566,8 +1566,8 @@ class WaitDataSyncStep(strategy.StrategyStep):
                 nfvi_alarms = list()
                 for nfvi_alarm in response['result-data']:
                     if (self.strategy._alarm_restrictions ==
-                            strategy.STRATEGY_ALARM_RESTRICTION_TYPES.RELAXED
-                            and nfvi_alarm.mgmt_affecting == 'False'):
+                            strategy.STRATEGY_ALARM_RESTRICTION_TYPES.RELAXED and
+                            nfvi_alarm.mgmt_affecting == 'False'):
                         DLOG.warn("Ignoring non-management affecting alarm "
                                   "%s - uuid %s due to relaxed alarm "
                                   "strictness" % (nfvi_alarm.alarm_id,

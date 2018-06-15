@@ -14,7 +14,7 @@ from oslo_config import cfg
 from nova_api_proxy.common import config
 from nova_api_proxy.common.service import Server
 from nova_api_proxy.common import log as logging
-from nova_api_proxy.common import histogram 
+from nova_api_proxy.common import histogram
 
 LOG = logging.getLogger(__name__)
 

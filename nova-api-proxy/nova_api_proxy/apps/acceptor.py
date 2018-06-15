@@ -73,8 +73,8 @@ class APIController(Middleware):
         return False
 
     def _log_message(self, environ):
-        remote_addr = environ.get('HTTP_X_FORWARDED_FOR', 
-                                  environ['REMOTE_ADDR']) 
+        remote_addr = environ.get('HTTP_X_FORWARDED_FOR',
+                                  environ['REMOTE_ADDR'])
         LOG.info("%s request issued by user (%s) tenant (%s) remote address "
                  "(%s)"
                  " \"%s %s\"" % (environ['REQUEST_METHOD'],

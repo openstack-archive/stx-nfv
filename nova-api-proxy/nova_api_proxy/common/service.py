@@ -270,4 +270,3 @@ class Middleware(Application):
             return response
         response = req.get_response(self.application)
         return self.process_response(response)
-
