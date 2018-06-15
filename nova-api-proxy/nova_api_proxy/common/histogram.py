@@ -156,4 +156,3 @@ def display_histogram_data(name=None):
         histogram = _find_histogram(name)
         if histogram is not None:
             histogram.display_data()
-

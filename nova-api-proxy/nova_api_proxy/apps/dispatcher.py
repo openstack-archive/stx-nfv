@@ -86,4 +86,3 @@ class APIDispatcher(object):
         utils.set_request_forward_environ(req, self._remote_host,
                                           self._remote_port)
         return self.app
-

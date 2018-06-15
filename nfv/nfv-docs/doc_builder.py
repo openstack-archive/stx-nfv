@@ -39,8 +39,9 @@ def build_html_doc(build_dir, document_data):
         six.print_(index_html, file=f)
 
         for toc_entry in document_data['table_of_contents']:
-            toc_entry_data = yaml.load(open(DOC_SRC_DIR + '/' + toc_entry['link']
-                                            + '.yaml'))
+            toc_entry_data = yaml.load(open(DOC_SRC_DIR + '/' +
+                                            toc_entry['link'] +
+                                            '.yaml'))
             toc_entry_data['page_link'] = toc_entry['link']
 
             page_content_template = j2_env.get_template('page_content.html')

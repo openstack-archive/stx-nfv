@@ -33,4 +33,3 @@ def get_monotonic_timestamp_in_ms():
         raise OSError(errno_, os.strerror(errno_))
     timestamp_ms = (t.tv_sec * 1e+3) + (t.tv_nsec * 1e-6)
     return timestamp_ms
-

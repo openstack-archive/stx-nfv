@@ -87,8 +87,8 @@ class DebugProxy(Application):
         else:
             body = ''
 
-        path = (environ.get('SCRIPT_NAME', '')
-                + environ.get('PATH_INFO', ''))
+        path = (environ.get('SCRIPT_NAME', '') +
+                environ.get('PATH_INFO', ''))
         path = urllib.quote(path)
         if 'QUERY_STRING' in environ:
             path += '?' + environ['QUERY_STRING']
