@@ -1,0 +1,9 @@
+Code-Review+2: Bart Wensley <barton.wensley@windriver.com>
+Code-Review+2: Jack Ding <Jack.Ding@windriver.com>
+Workflow+1: Jack Ding <Jack.Ding@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Mon, 18 Jun 2018 15:30:36 +0000
+Reviewed-on: https://review.openstack.org/576143
+Project: openstack/stx-nfv
+Branch: refs/heads/master
