@@ -396,6 +396,9 @@ class HostDirector(object):
                   % host.name)
         instance_director = directors.get_instance_director()
         instance_director.host_offline(host)
+        # Now that the host is offline, we may be able to recover instances
+        # on that host (i.e. evacuate them).
+        instance_director.recover_instances()
 
     @staticmethod
     def host_audit(host):
