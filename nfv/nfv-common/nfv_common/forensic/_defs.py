@@ -43,7 +43,7 @@ class _NfvVimRecordType(object):
     INSTANCE_COLD_MIGRATE_REVERT_STATE_TIMED_OUT = 'nfv_vim_instance_cold_migrate_revert_state_timed_out'
     INSTANCE_EVACUATE_STATE = 'nfv_vim_instance_evacuate_state'
     INSTANCE_START_STATE = 'nfv_vim_instance_start_state'
-    INSTANCE_START_STATE_COMPLETED = 'nfv_vim_instance_start_state_completed'
+    INSTANCE_START_STATE_INPROGRESS = 'nfv_vim_instance_start_state_inprogress'
     INSTANCE_START_STATE_FAILED = 'nfv_vim_instance_start_state_failed'
     INSTANCE_START_STATE_TIMED_OUT = 'nfv_vim_instance_start_state_timed_out'
     INSTANCE_STOP_STATE = 'nfv_vim_instance_stop_state'

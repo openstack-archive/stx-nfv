@@ -750,7 +750,9 @@ class InstanceDirector(object):
         """
         Host Start Instances
         """
-        if OPERATION_TYPE.START_INSTANCES != host_operation.operation_type:
+        if host_operation.operation_type not in [
+                OPERATION_TYPE.START_INSTANCES,
+                OPERATION_TYPE.START_INSTANCES_SERIAL]:
             reason = ("Unsupported operation (%s) against host %s."
                       % (host_operation.operation_type, host.name))
             DLOG.info(reason)
@@ -760,8 +762,13 @@ class InstanceDirector(object):
         initiated_by = objects.INSTANCE_ACTION_INITIATED_BY.DIRECTOR
         if OPERATION_TYPE.START_INSTANCES == host_operation.operation_type:
             reason = "start instances issued"
+        elif OPERATION_TYPE.START_INSTANCES_SERIAL == \
+                host_operation.operation_type:
+            reason = "start instances serial issued"
         else:
             reason = None
+
+        starts_inprogress = 0
 
         instance_table = tables.tables_get_instance_table()
         for instance in instance_table.on_host(host.name):
@@ -836,10 +843,19 @@ class InstanceDirector(object):
                 host_operation.update_failure_reason(reason)
                 return
 
-            host_operation.add_instance(instance.uuid, OPERATION_STATE.INPROGRESS)
-
-            instance.do_action(objects.INSTANCE_ACTION_TYPE.START,
-                               initiated_by=initiated_by, reason=reason)
+            if OPERATION_TYPE.START_INSTANCES_SERIAL == \
+                    host_operation.operation_type and starts_inprogress >= 1:
+                # When starting instances in serial, the first instance is
+                # started and the rest are set to the READY state, to be
+                # started later.
+                host_operation.add_instance(instance.uuid,
+                                            OPERATION_STATE.READY)
+            else:
+                host_operation.add_instance(instance.uuid,
+                                            OPERATION_STATE.INPROGRESS)
+                instance.do_action(objects.INSTANCE_ACTION_TYPE.START,
+                                   initiated_by=initiated_by, reason=reason)
+                starts_inprogress += 1
 
     def instance_migrate_complete(self, instance, from_host_name, failed=False,
                                   timed_out=False, cancelled=False):
@@ -1098,7 +1114,9 @@ class InstanceDirector(object):
             DLOG.verbose("No host %s operation inprogress." % on_host_name)
             return
 
-        if host_operation.operation_type not in [OPERATION_TYPE.START_INSTANCES]:
+        if host_operation.operation_type not in [
+                OPERATION_TYPE.START_INSTANCES,
+                OPERATION_TYPE.START_INSTANCES_SERIAL]:
             DLOG.verbose("Unexpected host %s operation %s, ignoring."
                          % (on_host_name, host_operation.operation_type))
             return
@@ -1137,10 +1155,22 @@ class InstanceDirector(object):
 
         if OPERATION_STATE.COMPLETED != host_operation_state:
             host_operation.update_failure_reason(reason)
-            host_operation = self._host_operations.get(host.name, None)
-            if host_operation is not None:
-                del self._host_operations[host.name]
-            return
+
+        if OPERATION_TYPE.START_INSTANCES_SERIAL == \
+                host_operation.operation_type:
+            # Check if there is another instance on this host ready to start.
+            # We continue starting instances even if the previous instance
+            # failed to start.
+            instance_table = tables.tables_get_instance_table()
+            for instance in instance_table.on_host(host.name):
+                if host_operation.instance_ready(instance.uuid):
+                    host_operation.update_instance(instance.uuid,
+                                                   OPERATION_STATE.INPROGRESS)
+                    instance.do_action(
+                        objects.INSTANCE_ACTION_TYPE.START,
+                        initiated_by=objects.INSTANCE_ACTION_INITIATED_BY.DIRECTOR,
+                        reason="start instances serial issued")
+                    return
 
         # Check if host operation is complete
         if not host_operation.is_inprogress():
@@ -1789,7 +1819,7 @@ class InstanceDirector(object):
                     instance.unlock_to_recover = False
 
                 if instance_uuids:
-                    self.start_instances(instance_uuids)
+                    self.start_instances(instance_uuids, serial=True)
 
             # Do not attempt to do the unlock again.
             open(NFV_VIM_UNLOCK_COMPLETE_FILE, 'w').close()
@@ -1963,7 +1993,7 @@ class InstanceDirector(object):
 
         return overall_operation
 
-    def start_instances(self, instance_uuids):
+    def start_instances(self, instance_uuids, serial=False):
         """
         Start Instances
         """
@@ -1972,7 +2002,12 @@ class InstanceDirector(object):
         host_table = tables.tables_get_host_table()
         instance_table = tables.tables_get_instance_table()
 
-        overall_operation = Operation(OPERATION_TYPE.START_INSTANCES)
+        if serial:
+            operation_type = OPERATION_TYPE.START_INSTANCES_SERIAL
+        else:
+            operation_type = OPERATION_TYPE.START_INSTANCES
+
+        overall_operation = Operation(operation_type)
 
         host_operations = dict()
         for instance_uuid in instance_uuids:
@@ -2004,7 +2039,7 @@ class InstanceDirector(object):
 
             host_operation = host_operations.get(instance.host_name, None)
             if host_operation is None:
-                host_operation = Operation(OPERATION_TYPE.START_INSTANCES)
+                host_operation = Operation(operation_type)
                 host_operations[instance.host_name] = host_operation
 
         for host_name, host_operation in host_operations.iteritems():
