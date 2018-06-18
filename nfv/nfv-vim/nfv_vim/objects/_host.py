@@ -379,6 +379,16 @@ class Host(ObjectData):
 
         return False
 
+    def is_power_off(self):
+        """
+        Returns true if the host is powered off
+        """
+        if nfvi.objects.v1.HOST_AVAIL_STATUS.POWER_OFF \
+                == self._nfvi_host.avail_status:
+            return True
+
+        return False
+
     def is_failed(self):
         """
         Returns true if the host is failed or not
