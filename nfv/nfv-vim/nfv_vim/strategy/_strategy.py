@@ -861,7 +861,8 @@ class SwPatchStrategy(SwUpdateStrategy):
                 return
 
             for host in host_table.itervalues():
-                if HOST_PERSONALITY.COMPUTE in host.personality:
+                if HOST_PERSONALITY.COMPUTE in host.personality and \
+                        HOST_PERSONALITY.CONTROLLER not in host.personality:
                     # Allow patch orchestration when compute hosts are available,
                     # locked or powered down.
                     if not ((host.is_unlocked() and host.is_enabled() and
