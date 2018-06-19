@@ -96,7 +96,10 @@ def instance_setup_func(timers_create_timer_mock):
             rebuild_timeout=_rebuild_timeout,
             reboot_timeout=_reboot_timeout,
             migrate_timeout=_migrate_timeout,
-            single_hypervisor=False)
+            single_hypervisor=False,
+            recovery_threshold=250,
+            max_throttled_recovering_instances=2
+            )
 
 
 def instance_teardown_func():
