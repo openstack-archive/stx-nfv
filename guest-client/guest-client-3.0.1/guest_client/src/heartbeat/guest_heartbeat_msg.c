@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Wind River Systems, Inc.
+ * Copyright (c) 2013-2018, Wind River Systems, Inc.
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -382,7 +382,8 @@ GuestErrorT guest_heartbeat_msg_send_exit( char log_msg[] )
     GuestErrorT error;
 
     char log_msg_buf[GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE];
-    snprintf(log_msg_buf, GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE, "%s", log_msg);
+    snprintf(log_msg_buf, GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE, "%s",
+             guest_utils_remove_newline(log_msg));
 
     char msg[GUEST_HEARTBEAT_MSG_MAX_MSG_SIZE];
     snprintf(msg, sizeof(msg), "\n{\"%s\":%d,\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,"
@@ -456,7 +457,8 @@ GuestErrorT guest_heartbeat_msg_send_challenge_response(
     GuestErrorT error;
 
     char log_msg_buf[GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE];
-    snprintf(log_msg_buf, GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE, "%s", log_msg);
+    snprintf(log_msg_buf, GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE, "%s",
+             guest_utils_remove_newline(log_msg));
 
     char msg[GUEST_HEARTBEAT_MSG_MAX_MSG_SIZE];
     snprintf(msg, sizeof(msg), "\n{\"%s\":%d,\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,"
@@ -543,7 +545,8 @@ GuestErrorT guest_heartbeat_msg_send_action_response(
     GuestErrorT error;
 
     char log_msg_buf[GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE];
-    snprintf(log_msg_buf, GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE, "%s", log_msg);
+    snprintf(log_msg_buf, GUEST_HEARTBEAT_MSG_MAX_LOG_SIZE, "%s",
+             guest_utils_remove_newline(log_msg));
 
 
     char msg[GUEST_HEARTBEAT_MSG_MAX_MSG_SIZE];
@@ -852,7 +855,7 @@ void guest_heartbeat_msg_dispatch(json_object *jobj_msg)
     if (guest_utils_json_get_value(jobj_msg, GUEST_HEARTBEAT_MSG_VERSION, &version))
         return;
 
-    if (GUEST_HEARTBEAT_MSG_VERSION_CURRENT != version)
+    if (GUEST_HEARTBEAT_MSG_VERSION_CURRENT > version)
     {
         DPRINTFI("message received version %d, expected %d, dropping\n",
         version, GUEST_HEARTBEAT_MSG_VERSION_CURRENT);

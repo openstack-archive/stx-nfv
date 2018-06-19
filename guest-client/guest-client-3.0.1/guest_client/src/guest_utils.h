@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Wind River Systems, Inc.
+ * Copyright (c) 2013-2018, Wind River Systems, Inc.
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -56,6 +56,11 @@ extern char* guest_utils_basename( char* str );
 // =========================================
 extern int guest_utils_json_get_value( struct json_object* jobj,
                                        const char* key, void * value );
+
+// ****************************************************************************
+// Guest Utilities - replace newline with space
+// ======================
+char* guest_utils_remove_newline( char* str);
 // ****************************************************************************
 
 #ifdef __cplusplus
