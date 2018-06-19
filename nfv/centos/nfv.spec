@@ -102,7 +102,7 @@ install -p -D -m 600 nfv-plugins/nfv_plugins/event_log_handlers/config.ini %{bui
 install -d -m 755 %{buildroot}/etc/nfv/nfv_plugins/nfvi_plugins/
 install -p -D -m 600 nfv-plugins/nfv_plugins/nfvi_plugins/config.ini %{buildroot}/etc/nfv/nfv_plugins/nfvi_plugins/config.ini
 install -d -m 755 %{buildroot}/
-install -p -D -m 755 nfv-plugins/scripts/nfvi_plugins.logrotate %{buildroot}/etc/logrotate.d/nfvi_plugins.logrotate
+install -p -D -m 644 nfv-plugins/scripts/nfvi-plugins.logrotate %{buildroot}/etc/logrotate.d/nfvi-plugins.logrotate
 
 # nfv-vim
 install -d -m 755 %{buildroot}/usr/lib/ocf/resource.d/nfv
@@ -136,7 +136,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc nfv-plugins/LICENSE
 %dir /etc/logrotate.d/
-/etc/logrotate.d/nfvi_plugins.logrotate
+/etc/logrotate.d/nfvi-plugins.logrotate
 %dir /etc/nfv/nfv_plugins/
 %config(noreplace)/etc/nfv/nfv_plugins/alarm_handlers/config.ini
 %config(noreplace)/etc/nfv/nfv_plugins/event_log_handlers/config.ini
