@@ -40,13 +40,13 @@ Nova Computer API Proxy
                              --single-version-externally-managed
 
 install -d -m 755 %{buildroot}%{local_etc_systemd}
-install -p -D -m 644 nova_api_proxy/scripts/api-proxy.service %{buildroot}%{local_etc_systemd}/api-proxy.service
+install -p -D -m 644 scripts/api-proxy.service %{buildroot}%{local_etc_systemd}/api-proxy.service
 install -d -m 755 %{buildroot}%{local_initddir}
-install -p -D -m 755 nova_api_proxy/scripts/api-proxy %{buildroot}%{local_initddir}/api-proxy
+install -p -D -m 755 scripts/api-proxy %{buildroot}%{local_initddir}/api-proxy
 
 install -d -m 755 %{buildroot}%{local_proxy_conf}
-install -p -D -m 700 nova_api_proxy/nova-api-proxy.conf %{buildroot}%{local_proxy_conf}/nova-api-proxy.conf
-install -p -D -m 700 nova_api_proxy/api-proxy-paste.ini %{buildroot}%{local_proxy_conf}/api-proxy-paste.ini
+install -p -D -m 700 nova-api-proxy.conf %{buildroot}%{local_proxy_conf}/nova-api-proxy.conf
+install -p -D -m 700 api-proxy-paste.ini %{buildroot}%{local_proxy_conf}/api-proxy-paste.ini
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -61,5 +61,5 @@ rm -rf $RPM_BUILD_ROOT
 %{local_etc_systemd}/*
 %config(noreplace) %{local_proxy_conf}/nova-api-proxy.conf
 %{local_proxy_conf}/api-proxy-paste.ini
-%{pythonroot}/nova_api_proxy/*
+%{pythonroot}/*
 %{pythonroot}/api_proxy-%{version}.0-py2.7.egg-info/*
