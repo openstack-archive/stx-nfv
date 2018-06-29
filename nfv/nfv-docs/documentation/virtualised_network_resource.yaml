@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+---
 page_title: Virtualised Network Resource
 page_description: >
   These interfaces allows an authorized consumer functional block to manage
@@ -80,11 +81,18 @@ api_networks: &api_networks_grouping
             This example demonstrates how to allocate a network with subnets.
           request: >
             cat > network_ipv4_subnets_request.txt
-             {"network_resource_id": "network-ipv4-subnets", "network_resource_type": "network",
+             {"network_resource_id": "network-ipv4-subnets",
+              "network_resource_type": "network",
               "type_network_data": {
-                "type_of_network": "vlan", "type_of_segment": "351", "wrs_physical_network": "physnet-x", "is_shared": true,
+                "type_of_network": "vlan",
+                "type_of_segment": "351",
+                "wrs_physical_network": "physnet-x",
+                "is_shared": true,
                 "layer3_attributes": [
-                  {"ip_version": "4", "is_dhcp_enabled": true, "gateway_ip": "192.168.12.1", "wrs_subnet_ip": "192.168.12.0",
+                  {"ip_version": "4",
+                   "is_dhcp_enabled": true,
+                   "gateway_ip": "192.168.12.1",
+                   "wrs_subnet_ip": "192.168.12.0",
                    "wrs_subnet_prefix": 24}
                 ]}}
 
@@ -96,12 +104,21 @@ api_networks: &api_networks_grouping
             {"operation_result": null, "message": null,
              "network_data": {
                "network_attributes": {
-                 "is_shared": true, "type_of_network": "vlan", "type_of_segment": "351",
+                 "is_shared": true,
+                 "type_of_network": "vlan",
+                 "type_of_segment": "351",
                  "layer3_attributes": [
-                   {"is_dhcp_enabled": true, "meta_data": null, "wrs_subnet_ip": "192.168.12.0", "gateway_ip": "192.168.12.1",
-                    "ip_version": "4", "wrs_subnet_prefix": 24}
+                   {"is_dhcp_enabled": true,
+                    "meta_data": null,
+                    "wrs_subnet_ip": "192.168.12.0",
+                    "gateway_ip": "192.168.12.1",
+                    "ip_version": "4",
+                    "wrs_subnet_prefix": 24}
                  ],
-               "sharing_criteria": null, "bandwidth": 0, "meta_data": null, "network_qos": []},
+               "sharing_criteria": null,
+               "bandwidth": 0,
+               "meta_data": null,
+               "network_qos": []},
                "resource_id": "network-ipv4-subnets"}}
 
     - id: update_network
@@ -166,10 +183,19 @@ api_networks: &api_networks_grouping
              {"network_resource_id": "network-ipv4-subnets",
               "update_network_data": {
                 "layer3_attributes": [
-                  {"ip_version": "4", "is_dhcp_enabled": true, "wrs_subnet_ip": "192.168.14.0", "wrs_subnet_prefix": "24"},
-                  {"ip_version": "6", "is_dhcp_enabled": false, "gateway_ip": "3FFE::1", "wrs_subnet_ip": "3FFE::",
+                  {"ip_version": "4",
+                   "is_dhcp_enabled": true,
+                   "wrs_subnet_ip": "192.168.14.0",
+                   "wrs_subnet_prefix": "24"},
+                  {"ip_version": "6",
+                   "is_dhcp_enabled": false,
+                   "gateway_ip": "3FFE::1",
+                   "wrs_subnet_ip": "3FFE::",
                    "wrs_subnet_prefix": "16"},
-                  {"ip_version": "4", "is_dhcp_enabled": false, "gateway_ip": "192.168.15.1", "wrs_subnet_ip": "192.168.15.0",
+                  {"ip_version": "4",
+                   "is_dhcp_enabled": false,
+                   "gateway_ip": "192.168.15.1",
+                   "wrs_subnet_ip": "192.168.15.0",
                    "wrs_subnet_prefix": "24"}
                 ]}}
 
@@ -178,21 +204,41 @@ api_networks: &api_networks_grouping
             http://localhost:4545/v1/virtualised_resources/networks
             -d @network_update_ipv4_ipv6_subnets_request.txt
           response: >
-            {"operation_result": null, "message": null,
+            {"operation_result": null,
+             "message": null,
              "network_data": {
-               "network_attributes": {
-                 "is_shared": false, "type_of_network": "vlan", "type_of_segment": "351",
+               "network_attributes": %%{
+                 "is_shared": false,
+                 "type_of_network": "vlan",
+                 "type_of_segment": "351",
                  "layer3_attributes": [
-                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86", "is_dhcp_enabled": false, "meta_data": null,
-                    "wrs_subnet_ip": "192.168.15.0", "gateway_ip": "192.168.15.1",
-                    "ip_version": "4", "wrs_subnet_prefix": 24},
-                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86", "is_dhcp_enabled": false, "meta_data": null,
-                    "wrs_subnet_ip": "3ffe::", "gateway_ip": "3FFE::1", "ip_version": "6", "wrs_subnet_prefix": 16},
-                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86", "is_dhcp_enabled": true, "meta_data": null,
-                    "wrs_subnet_ip": "192.168.14.0", "gateway_ip": "192.168.14.1", "ip_version": "4", "wrs_subnet_prefix": 24}
+                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86",
+                    "is_dhcp_enabled": false,
+                    "meta_data": null,
+                    "wrs_subnet_ip": "192.168.15.0",
+                    "gateway_ip": "192.168.15.1",
+                    "ip_version": "4",
+                    "wrs_subnet_prefix": 24},
+                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86",
+                    "is_dhcp_enabled": false,
+                    "meta_data": null,
+                    "wrs_subnet_ip": "3ffe::",
+                    "gateway_ip": "3FFE::1",
+                    "ip_version": "6",
+                    "wrs_subnet_prefix": 16},
+                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86",
+                    "is_dhcp_enabled": true,
+                    "meta_data": null,
+                    "wrs_subnet_ip": "192.168.14.0",
+                    "gateway_ip": "192.168.14.1",
+                    "ip_version": "4",
+                    "wrs_subnet_prefix": 24}
                  ],
-                 "sharing_criteria": null, "bandwidth": 0, "meta_data": null, "network_qos": []},
-                 "resource_id": "network-ipv4-subnets"}}
+                 "sharing_criteria": null,
+                 "bandwidth": 0,
+                 "meta_data": null,
+                 "network_qos": []},
+               "resource_id": "network-ipv4-subnets"}}
 
     - id: delete_network
       name: Delete Network
@@ -279,16 +325,36 @@ api_networks: &api_networks_grouping
             {"operation_result": null, "message": null,
              "query_result": [
                {"network_attributes": {
-                 "is_shared": false, "type_of_network": "vlan", "type_of_segment": "351",
+                 "is_shared": false,
+                 "type_of_network": "vlan",
+                 "type_of_segment": "351",
                  "layer3_attributes": [
-                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86", "is_dhcp_enabled": false, "meta_data": null,
-                    "wrs_subnet_ip": "192.168.15.0", "gateway_ip": "192.168.15.1", "ip_version": "4", "wrs_subnet_prefix": 24},
-                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86", "is_dhcp_enabled": false, "meta_data": null,
-                    "wrs_subnet_ip": "3ffe::", "gateway_ip": "3FFE::1", "ip_version": "6", "wrs_subnet_prefix": 16},
-                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86", "is_dhcp_enabled": true, "meta_data": null,
-                    "wrs_subnet_ip": "192.168.14.0", "gateway_ip": "192.168.14.1", "ip_version": "4", "wrs_subnet_prefix": 24}
+                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86",
+                    "is_dhcp_enabled": false,
+                    "meta_data": null,
+                    "wrs_subnet_ip": "192.168.15.0",
+                    "gateway_ip": "192.168.15.1",
+                    "ip_version": "4",
+                    "wrs_subnet_prefix": 24},
+                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86",
+                    "is_dhcp_enabled": false,
+                    "meta_data": null,
+                    "wrs_subnet_ip": "3ffe::",
+                    "gateway_ip": "3FFE::1",
+                    "ip_version": "6",
+                    "wrs_subnet_prefix": 16},
+                   {"network_id": "143fab9e-b4d2-4239-867b-d52e254d6d86",
+                    "is_dhcp_enabled": true,
+                    "meta_data": null,
+                    "wrs_subnet_ip": "192.168.14.0",
+                    "gateway_ip": "192.168.14.1",
+                    "ip_version": "4",
+                    "wrs_subnet_prefix": 24}
                  ],
-                 "sharing_criteria": null, "bandwidth": 0, "meta_data": null, "network_qos": []},
+                 "sharing_criteria": null,
+                 "bandwidth": 0,
+                 "meta_data": null,
+                 "network_qos": []},
                  "resource_id": "network-ipv4-subnets"}]}
 
 api_group_list:

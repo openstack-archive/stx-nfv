@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+---
 page_title: Software Image Management
 page_description: >
   These interfaces allows an authorized consumer functional block to manage

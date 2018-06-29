@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+---
 logs:
   - name: Host State Change
     type: nfv_vim_host_nfvi_state_change
@@ -606,7 +607,8 @@ logs:
     'name': u'(.*)', 'tenant_id': '(.*)', 'avail_status': \\[(.*)], 'nfvi_data':
     {'vm_state': u'(.*)', 'task_state': u?'(.*)', 'power_state': '(.*)'},
     'live_migration_support': (.*), 'oper_state': '(.*)', 'host_name': u'(.*)',
-    'admin_state': '(.*)', 'action': '(.*)', 'image_uuid': (.*), 'uuid': u'(.*)'}."
+    'admin_state': '(.*)', 'action': '(.*)', 'image_uuid': (.*),
+    'uuid': u'(.*)'}."
     fields:
       - instance_type
       - instance_name
@@ -706,7 +708,8 @@ logs:
   - name: Instance Live-Migrate Callback
     type: nfv_vim_instance_live_migrate_callback
     file: _instance_task_work.py
-    regex: "Live-Migrate-Instance callback for (.*), response={'completed': (.*),
+    regex: "Live-Migrate-Instance callback for (.*),
+    response={'completed': (.*),
     'reason': (.*)}."
     fields:
       - instance_name
@@ -716,7 +719,8 @@ logs:
   - name: Instance Cold-Migrate Callback
     type: nfv_vim_instance_cold_migrate_callback
     file: _instance_task_work.py
-    regex: "Cold-Migrate-Instance callback for (.*), response={'completed': (.*),
+    regex: "Cold-Migrate-Instance callback for (.*),
+    response={'completed': (.*),
     'reason': (.*)}."
     fields:
       - instance_name
@@ -766,7 +770,8 @@ logs:
   - name: Instance Resize Revert Callback
     type: nfv_vim_instance_resize_revert_callback
     file: _instance_task_work.py
-    regex: "Resize-Revert-Instance callback for (.*), response={'completed': (.*),
+    regex: "Resize-Revert-Instance callback for (.*),
+    response={'completed': (.*),
     'reason': (.*)}."
     fields:
       - instance_name
@@ -790,7 +795,8 @@ logs:
   - name: Instance Guest Services Enable
     type: nfv_vim_instance_guest_services_enable
     file: _instance_task_work.py
-    regex: "Guest-Services-Enable for (.*), nfvi_guest_services=\\[{'admin_state':
+    regex: "Guest-Services-Enable for (.*),
+    nfvi_guest_services=\\[{'admin_state':
     '(.*)', 'service': '(.*)'}]."
     fields:
       - instance_name
@@ -800,7 +806,8 @@ logs:
   - name: Instance Guest Services Enable Callback
     type: nfv_vim_instance_guest_services_enable_callback
     file: _instance_task_work.py
-    regex: "Guest-Services-Enable callback for (.*), response={'completed': (.*),
+    regex: "Guest-Services-Enable callback for (.*),
+    response={'completed': (.*),
     'reason': (.*), 'result-data': {'instance_uuid': u'(.*)', 'services':
     \\[{'admin_state': '(.*)', 'restart_timeout': (.*), 'oper_state': '(.*)',
     'name': '(.*)'}], 'host_name': u'(.*)'}}."
@@ -818,7 +825,8 @@ logs:
   - name: Instance Guest Services Disable
     type: nfv_vim_instance_guest_services_disable
     file: _instance_task_work.py
-    regex: "Guest-Services-Disable for (.*), nfvi_guest_services=\\[{'admin_state':
+    regex: "Guest-Services-Disable for (.*),
+    nfvi_guest_services=\\[{'admin_state':
     '(.*)', 'service': '(.*)'}]."
     fields:
       - instance_name
@@ -828,7 +836,8 @@ logs:
   - name: Instance Guest Services Disable Callback
     type: nfv_vim_instance_guest_services_disable_callback
     file: _instance_task_work.py
-    regex: "Guest-Services-Disable callback for (.*), response={'completed': (.*),
+    regex: "Guest-Services-Disable callback for (.*),
+    response={'completed': (.*),
     'reason': (.*), 'result-data': {'instance_uuid': u'(.*)', 'services':
     \\[{'admin_state': '(.*)', 'restart_timeout': (.*), 'oper_state': '(.*)',
     'name': '(.*)'}], 'host_name': u'(.*)'}}."
@@ -862,7 +871,8 @@ logs:
   - name: Instance Guest Services Vote Callback
     type: nfv_vim_instance_guest_services_vote_callback
     file: _instance_task_work.py
-    regex: "Guest-Services-Vote callback for (.*), response={'action-type': u'(.*)',
+    regex: "Guest-Services-Vote callback for (.*),
+    response={'action-type': u'(.*)',
     'uuid': u'(.*)', 'completed': (.*), 'reason': (.*), 'host-name': u'(.*)',
     'timeout': (.*)}."
     fields:

@@ -3,8 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+---
 default:
-  guest_hb: yes
+  guest_hb: true
 
   pause_instance: cirros-guest-1
   unpause_instance: cirros-guest-1
@@ -24,17 +25,17 @@ default:
   cold_migrate_revert_instance: cirros-guest-1
 
   resize_instance: cirros-guest-1
-  resize_flavors:  [small-guest, medium-guest]
+  resize_flavors: [small-guest, medium-guest]
 
   resize_confirm_instance: cirros-guest-1
-  resize_confirm_flavors:  [small-guest, medium-guest]
+  resize_confirm_flavors: [small-guest, medium-guest]
 
   resize_revert_instance: cirros-guest-1
-  resize_revert_flavors:  [small-guest, medium-guest]
+  resize_revert_flavors: [small-guest, medium-guest]
 
   rebuild_instance: cirros-guest-image-1
 
-  lock_host:      compute-100
+  lock_host: compute-100
   lock_instances: [cirros-guest-1]
 
-  unlock_host:    compute-100
+  unlock_host: compute-100
