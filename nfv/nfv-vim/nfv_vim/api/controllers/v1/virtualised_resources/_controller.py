@@ -10,10 +10,10 @@ from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
 from ...._link import Link
-from _computes_api import ComputesAPI
-from _networks_api import NetworksAPI
-from _image_api import ImageAPI
-from _volume_api import VolumeAPI
+from ._computes_api import ComputesAPI
+from ._networks_api import NetworksAPI
+from ._image_api import ImageAPI
+from ._volume_api import VolumeAPI
 
 
 class VirtualisedResourcesDescription(wsme_types.Base):

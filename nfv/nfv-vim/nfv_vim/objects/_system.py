@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _object import ObjectData
+from ._object import ObjectData
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.system')
 

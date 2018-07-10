@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-import model
+from nfv_common.catalog import model

@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _vim_nfvi_audits import vim_nfvi_audits_initialize
-from _vim_nfvi_audits import vim_nfvi_audits_finalize
-from _vim_alarm_audits import vim_alarm_audits_initialize
-from _vim_alarm_audits import vim_alarm_audits_finalize
+from ._vim_nfvi_audits import vim_nfvi_audits_initialize
+from ._vim_nfvi_audits import vim_nfvi_audits_finalize
+from ._vim_alarm_audits import vim_alarm_audits_initialize
+from ._vim_alarm_audits import vim_alarm_audits_finalize
 
 
 def audits_initialize():

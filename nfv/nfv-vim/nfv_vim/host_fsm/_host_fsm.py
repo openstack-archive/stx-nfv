@@ -6,17 +6,17 @@
 from nfv_common import debug
 from nfv_common import state_machine
 
-from _host_defs import HOST_STATE
-from _host_state_initial import InitialState
-from _host_state_configure import ConfigureState
-from _host_state_enabling import EnablingState
-from _host_state_enabled import EnabledState
-from _host_state_disabling import DisablingState
-from _host_state_disabling_failed import DisablingFailedState
-from _host_state_disabled import DisabledState
-from _host_state_deleting import DeletingState
-from _host_state_deleting_failed import DeletingFailedState
-from _host_state_deleted import DeletedState
+from ._host_defs import HOST_STATE
+from ._host_state_initial import InitialState
+from ._host_state_configure import ConfigureState
+from ._host_state_enabling import EnablingState
+from ._host_state_enabled import EnabledState
+from ._host_state_disabling import DisablingState
+from ._host_state_disabling_failed import DisablingFailedState
+from ._host_state_disabled import DisabledState
+from ._host_state_deleting import DeletingState
+from ._host_state_deleting_failed import DeletingFailedState
+from ._host_state_deleted import DeletedState
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host')
 

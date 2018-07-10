@@ -5,5 +5,5 @@
 #
 # flake8: noqa
 #
-from _host_defs import HOST_EVENT, HOST_STATE
-from _host_fsm import HostStateMachine
+from ._host_defs import HOST_EVENT, HOST_STATE
+from ._host_fsm import HostStateMachine

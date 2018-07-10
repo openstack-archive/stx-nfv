@@ -5,5 +5,5 @@
 #
 # flake8: noqa
 #
-from _sw_patch import SwPatchAPI
-from _sw_upgrade import SwUpgradeAPI
+from ._sw_patch import SwPatchAPI
+from ._sw_upgrade import SwUpgradeAPI

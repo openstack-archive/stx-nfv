@@ -13,7 +13,7 @@ from ....._link import Link
 
 from nfv_common import debug
 
-from _sw_update_strategy import SwUpgradeStrategyAPI
+from ._sw_update_strategy import SwUpgradeStrategyAPI
 
 DLOG = debug.debug_get_logger('nfv_vim.api.sw_upgrade')
 

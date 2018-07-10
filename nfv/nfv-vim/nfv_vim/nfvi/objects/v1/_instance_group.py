@@ -5,7 +5,7 @@
 #
 import six
 
-from _object import ObjectData
+from ._object import ObjectData
 
 from nfv_common.helpers import Constant, Constants, Singleton
 

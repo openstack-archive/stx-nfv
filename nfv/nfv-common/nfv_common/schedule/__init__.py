@@ -5,5 +5,5 @@
 #
 # flake8: noqa
 #
-from _schedule_module import schedule_function_call
-from _schedule_module import schedule_initialize, schedule_finalize
+from ._schedule_module import schedule_function_call
+from ._schedule_module import schedule_initialize, schedule_finalize

@@ -3,18 +3,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _image_director import image_director_initialize
-from _image_director import image_director_finalize
-from _volume_director import volume_director_initialize
-from _volume_director import volume_director_finalize
-from _instance_director import instance_director_initialize
-from _instance_director import instance_director_finalize
-from _network_director import network_director_initialize
-from _network_director import network_director_finalize
-from _sw_mgmt_director import sw_mgmt_director_initialize
-from _sw_mgmt_director import sw_mgmt_director_finalize
-from _host_director import host_director_initialize
-from _host_director import host_director_finalize
+from ._image_director import image_director_initialize
+from ._image_director import image_director_finalize
+from ._volume_director import volume_director_initialize
+from ._volume_director import volume_director_finalize
+from ._instance_director import instance_director_initialize
+from ._instance_director import instance_director_finalize
+from ._network_director import network_director_initialize
+from ._network_director import network_director_finalize
+from ._sw_mgmt_director import sw_mgmt_director_initialize
+from ._sw_mgmt_director import sw_mgmt_director_finalize
+from ._host_director import host_director_initialize
+from ._host_director import host_director_finalize
 
 
 def directors_initialize():

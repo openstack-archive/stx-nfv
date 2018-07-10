@@ -5,5 +5,5 @@
 #
 # flake8: noqa
 #
-from _tcp_connection import TCPConnection
-from _tcp_server import TCPServer
+from ._tcp_connection import TCPConnection
+from ._tcp_server import TCPServer

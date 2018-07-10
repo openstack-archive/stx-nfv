@@ -6,9 +6,9 @@
 from nfv_common import debug
 from nfv_common import state_machine
 
-from _host_defs import HOST_STATE, HOST_EVENT
-from _host_tasks import FailHostTask, NotifyDisabledHostTask
-from _host_tasks import AuditDisabledHostTask
+from ._host_defs import HOST_STATE, HOST_EVENT
+from ._host_tasks import FailHostTask, NotifyDisabledHostTask
+from ._host_tasks import AuditDisabledHostTask
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host')
 

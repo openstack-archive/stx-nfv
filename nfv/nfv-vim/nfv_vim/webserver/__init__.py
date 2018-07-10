@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _webserver import SimpleHttpServer
+from ._webserver import SimpleHttpServer

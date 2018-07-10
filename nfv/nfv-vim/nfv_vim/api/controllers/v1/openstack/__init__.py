@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _controller import OpenStackAPI
+from ._controller import OpenStackAPI

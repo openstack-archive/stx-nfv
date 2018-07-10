@@ -5,12 +5,12 @@
 #
 # flake8: noqa
 #
-from objects.v1 import EVENT_ID
-from objects.v1 import EVENT_CONTEXT
-from objects.v1 import EVENT_TYPE
-from objects.v1 import EVENT_IMPORTANCE
-from objects.v1 import EVENT_INITIATED_BY
-from objects.v1 import EventLogStateData
-from objects.v1 import EventLogThresholdData, EventLogData
-from _event_log_module import event_log, event_log_subsystem_sane
-from _event_log_module import event_log_initialize, event_log_finalize
+from .objects.v1 import EVENT_ID
+from .objects.v1 import EVENT_CONTEXT
+from .objects.v1 import EVENT_TYPE
+from .objects.v1 import EVENT_IMPORTANCE
+from .objects.v1 import EVENT_INITIATED_BY
+from .objects.v1 import EventLogStateData
+from .objects.v1 import EventLogThresholdData, EventLogData
+from ._event_log_module import event_log, event_log_subsystem_sane
+from ._event_log_module import event_log_initialize, event_log_finalize

@@ -8,8 +8,8 @@ from nfv_common import debug
 from nfv_common import state_machine
 from nfv_common import timers
 
-from _host_defs import HOST_STATE, HOST_EVENT
-from _host_tasks import DeleteHostTask
+from ._host_defs import HOST_STATE, HOST_EVENT
+from ._host_tasks import DeleteHostTask
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host')
 

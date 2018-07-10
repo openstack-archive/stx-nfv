@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _alarm_handler import AlarmHandler
+from ._alarm_handler import AlarmHandler

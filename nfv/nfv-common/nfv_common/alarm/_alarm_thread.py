@@ -11,7 +11,7 @@ from nfv_common import thread
 from nfv_common import timers
 from nfv_common.helpers import Singleton, coroutine
 
-from _alarm_handlers import AlarmHandlers
+from ._alarm_handlers import AlarmHandlers
 
 DLOG = debug.debug_get_logger('nfv_common.alarm.alarm_thread')
 

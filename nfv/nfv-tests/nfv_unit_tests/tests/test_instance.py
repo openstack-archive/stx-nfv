@@ -137,7 +137,7 @@ def create_instance_group(name, members, policies):
 
     member_uuids = []
 
-    for instance_uuid, instance in _instance_table.iteritems():
+    for instance_uuid, instance in _instance_table.items():
         if instance.name in members:
             member_uuids.append(instance_uuid)
 
@@ -200,7 +200,7 @@ def create_host_group(name, members, policies):
 
     member_uuids = []
 
-    for instance_uuid, instance in _instance_table.iteritems():
+    for instance_uuid, instance in _instance_table.items():
         if instance.name in members:
             member_uuids.append(instance_uuid)
 

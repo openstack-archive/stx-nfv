@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _nfvi_block_storage_plugin import NFVIBlockStoragePlugin
+from ._nfvi_block_storage_plugin import NFVIBlockStoragePlugin
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_block_storage_module')
 

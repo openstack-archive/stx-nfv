@@ -9,7 +9,7 @@ import weakref
 import collections
 import datetime
 
-from _object import ObjectData
+from ._object import ObjectData
 
 from nfv_common import config
 from nfv_common import debug
@@ -22,8 +22,8 @@ from nfv_vim import alarm
 from nfv_vim import event_log
 from nfv_vim import instance_fsm
 
-from _instance_type import STORAGE_TYPE
-from _guest_services import GuestServices
+from ._instance_type import STORAGE_TYPE
+from ._guest_services import GuestServices
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.instance')
 MAX_EVENT_REASON_LENGTH = 255

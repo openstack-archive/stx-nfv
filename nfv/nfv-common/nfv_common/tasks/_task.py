@@ -9,7 +9,7 @@ import collections
 from nfv_common import debug
 from nfv_common.helpers import Constants, Constant,  Singleton
 
-from _task_result import TaskResult
+from ._task_result import TaskResult
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task')
 

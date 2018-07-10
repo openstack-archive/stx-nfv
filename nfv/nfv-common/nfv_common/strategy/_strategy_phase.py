@@ -11,10 +11,10 @@ from nfv_common import timers
 from nfv_common import debug
 from nfv_common.helpers import coroutine
 
-from _strategy_defs import STRATEGY_PHASE
-from _strategy_result import STRATEGY_PHASE_RESULT, STRATEGY_STAGE_RESULT
-from _strategy_result import STRATEGY_STEP_RESULT
-from _strategy_result import strategy_phase_result_update
+from ._strategy_defs import STRATEGY_PHASE
+from ._strategy_result import STRATEGY_PHASE_RESULT, STRATEGY_STAGE_RESULT
+from ._strategy_result import STRATEGY_STEP_RESULT
+from ._strategy_result import strategy_phase_result_update
 
 DLOG = debug.debug_get_logger('nfv_common.strategy.phase')
 

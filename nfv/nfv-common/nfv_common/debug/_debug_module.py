@@ -8,9 +8,9 @@ import sys
 
 from nfv_common.helpers import Singleton
 
-from _debug_defs import DEBUG_LEVEL
-from _debug_config import DebugConfig
-from _debug_thread import DebugLoggingThread
+from ._debug_defs import DEBUG_LEVEL
+from ._debug_config import DebugConfig
+from ._debug_thread import DebugLoggingThread
 
 
 @six.add_metaclass(Singleton)
@@ -47,7 +47,7 @@ class Debug(object):
         """
         Load debug configuration settings
         """
-        from _debug_log import debug_get_logger, debug_set_loggers_level
+        from ._debug_log import debug_get_logger, debug_set_loggers_level
 
         if self._debug_config is not None:
             self._debug_config.load()
@@ -61,7 +61,7 @@ class Debug(object):
         """
         Reload debug configuration settings
         """
-        from _debug_log import debug_get_logger, debug_set_loggers_level
+        from ._debug_log import debug_get_logger, debug_set_loggers_level
 
         if self._debug_config is not None:
             self._debug_config.load()

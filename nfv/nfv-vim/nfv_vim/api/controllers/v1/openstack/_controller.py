@@ -10,7 +10,7 @@ from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
 from ...._link import Link
-from _heat_api import HeatAPI
+from ._heat_api import HeatAPI
 
 
 class OpenStackDescription(wsme_types.Base):

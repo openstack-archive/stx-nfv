@@ -5,7 +5,7 @@
 #
 from nfv_vim import database
 
-from _table import Table
+from ._table import Table
 
 _subnet_table = None
 

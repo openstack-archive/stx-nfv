@@ -13,7 +13,7 @@ from nfv_common import timers
 
 from nfv_vim import nfvi
 
-from _host_defs import HOST_EVENT
+from ._host_defs import HOST_EVENT
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host_task_work')
 

@@ -16,7 +16,7 @@ from nfv_vim import nfvi
 from nfv_vim import objects
 from nfv_vim import tables
 
-from _directors_defs import OPERATION_TYPE, OPERATION_STATE, Operation
+from ._directors_defs import OPERATION_TYPE, OPERATION_STATE, Operation
 
 DLOG = debug.debug_get_logger('nfv_vim.instance_director')
 
@@ -219,7 +219,7 @@ class InstanceDirector(object):
                         instances_failed.append(instance)
 
         # Remove reboot counts for instances that recovered
-        reboot_tracking_instance_uuids = self._reboot_count.keys()
+        reboot_tracking_instance_uuids = list(self._reboot_count.keys())
 
         for instance_uuid in reboot_tracking_instance_uuids:
             if instance_uuid not in instance_tracking_uuids:

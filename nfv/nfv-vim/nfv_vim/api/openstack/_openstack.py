@@ -8,7 +8,7 @@ import urllib2
 
 from nfv_common import debug
 
-from _objects import OPENSTACK_SERVICE, Directory, Token
+from ._objects import OPENSTACK_SERVICE, Directory, Token
 
 DLOG = debug.debug_get_logger('nfv_vim.api.openstack')
 

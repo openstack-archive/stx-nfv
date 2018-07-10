@@ -5,7 +5,7 @@
 #
 from sqlalchemy import Column, String, Boolean, Text
 
-from _base import Base, AsDictMixin
+from ._base import Base, AsDictMixin
 
 
 class Instance_v4(AsDictMixin, Base):

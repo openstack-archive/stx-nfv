@@ -9,11 +9,11 @@ import wsmeext.pecan as wsme_pecan
 
 from nfv_common import debug
 
-from _networks_model import NetworkResourceClass
-from _networks_middleware import NetworkType, NetworkResourceType
-from _networks_middleware import NetworkSubnetType, NetworkSubnetResourceType
-from _networks_middleware import network_allocate, network_get, network_get_all
-from _networks_middleware import network_update, network_delete
+from ._networks_model import NetworkResourceClass
+from ._networks_middleware import NetworkType, NetworkResourceType
+from ._networks_middleware import NetworkSubnetType, NetworkSubnetResourceType
+from ._networks_middleware import network_allocate, network_get, network_get_all
+from ._networks_middleware import network_update, network_delete
 
 DLOG = debug.debug_get_logger('nfv_vim.api.virtualised_network')
 

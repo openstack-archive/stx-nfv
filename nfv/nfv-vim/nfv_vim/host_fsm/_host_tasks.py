@@ -8,24 +8,24 @@ import weakref
 from nfv_common import state_machine
 from nfv_common import debug
 
-from _host_defs import HOST_EVENT
-from _host_task_work import QueryHypervisorTaskWork
-from _host_task_work import NotifyHostEnabledTaskWork
-from _host_task_work import NotifyHostDisabledTaskWork
-from _host_task_work import NotifyHostFailedTaskWork
-from _host_task_work import CreateHostServicesTaskWork
-from _host_task_work import DeleteHostServicesTaskWork
-from _host_task_work import EnableHostServicesTaskWork
-from _host_task_work import DisableHostServicesTaskWork
-from _host_task_work import NotifyHostServicesEnabledTaskWork
-from _host_task_work import NotifyHostServicesDisabledTaskWork
-from _host_task_work import NotifyHostServicesDisableFailedTaskWork
-from _host_task_work import NotifyHostServicesDeletedTaskWork
-from _host_task_work import NotifyHostServicesDeleteFailedTaskWork
-from _host_task_work import NotifyInstancesHostDisablingTaskWork
-from _host_task_work import NotifyInstancesHostDisabledTaskWork
-from _host_task_work import AuditHostServicesTaskWork
-from _host_task_work import AuditInstancesTaskWork
+from ._host_defs import HOST_EVENT
+from ._host_task_work import QueryHypervisorTaskWork
+from ._host_task_work import NotifyHostEnabledTaskWork
+from ._host_task_work import NotifyHostDisabledTaskWork
+from ._host_task_work import NotifyHostFailedTaskWork
+from ._host_task_work import CreateHostServicesTaskWork
+from ._host_task_work import DeleteHostServicesTaskWork
+from ._host_task_work import EnableHostServicesTaskWork
+from ._host_task_work import DisableHostServicesTaskWork
+from ._host_task_work import NotifyHostServicesEnabledTaskWork
+from ._host_task_work import NotifyHostServicesDisabledTaskWork
+from ._host_task_work import NotifyHostServicesDisableFailedTaskWork
+from ._host_task_work import NotifyHostServicesDeletedTaskWork
+from ._host_task_work import NotifyHostServicesDeleteFailedTaskWork
+from ._host_task_work import NotifyInstancesHostDisablingTaskWork
+from ._host_task_work import NotifyInstancesHostDisabledTaskWork
+from ._host_task_work import AuditHostServicesTaskWork
+from ._host_task_work import AuditInstancesTaskWork
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host_task')
 

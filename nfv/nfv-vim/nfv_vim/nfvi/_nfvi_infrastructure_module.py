@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _nfvi_infrastructure_plugin import NFVIInfrastructurePlugin
+from ._nfvi_infrastructure_plugin import NFVIInfrastructurePlugin
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_infrastructure_module')
 

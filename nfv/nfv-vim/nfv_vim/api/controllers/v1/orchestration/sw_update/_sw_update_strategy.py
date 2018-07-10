@@ -15,12 +15,12 @@ from nfv_common import debug
 
 from nfv_vim import rpc
 
-from _sw_update_defs import SW_UPDATE_NAME, SW_UPDATE_APPLY_TYPE
-from _sw_update_defs import SW_UPDATE_ACTION, SW_UPDATE_INSTANCE_ACTION
-from _sw_update_defs import SW_UPDATE_ALARM_RESTRICTION_TYPES
-from _sw_update_defs import SwUpdateNames, SwUpdateApplyTypes
-from _sw_update_defs import SwUpdateActions, SwUpdateInstanceActionTypes
-from _sw_update_defs import SwUpdateAlarmRestrictionTypes
+from ._sw_update_defs import SW_UPDATE_NAME, SW_UPDATE_APPLY_TYPE
+from ._sw_update_defs import SW_UPDATE_ACTION, SW_UPDATE_INSTANCE_ACTION
+from ._sw_update_defs import SW_UPDATE_ALARM_RESTRICTION_TYPES
+from ._sw_update_defs import SwUpdateNames, SwUpdateApplyTypes
+from ._sw_update_defs import SwUpdateActions, SwUpdateInstanceActionTypes
+from ._sw_update_defs import SwUpdateAlarmRestrictionTypes
 
 
 DLOG = debug.debug_get_logger('nfv_vim.api.sw_update.strategy')

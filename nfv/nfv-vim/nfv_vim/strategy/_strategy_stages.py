@@ -38,7 +38,7 @@ def strategy_stage_rebuild_from_dict(data):
     """
     Returns the strategy stage object initialized using the given dictionary
     """
-    from _strategy_steps import strategy_step_rebuild_from_dict
+    from ._strategy_steps import strategy_step_rebuild_from_dict
 
     steps = list()
     for step_data in data['steps']:

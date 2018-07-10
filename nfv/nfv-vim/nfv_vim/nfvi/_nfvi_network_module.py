@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _nfvi_network_plugin import NFVINetworkPlugin
+from ._nfvi_network_plugin import NFVINetworkPlugin
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_network_module')
 

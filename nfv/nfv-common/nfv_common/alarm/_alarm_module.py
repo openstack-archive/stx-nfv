@@ -12,7 +12,7 @@ def alarm_raise(alarm_uuid, alarm_data):
     """
     Raise an alarm
     """
-    from _alarm_thread import AlarmThread
+    from ._alarm_thread import AlarmThread
     AlarmThread().alarm_raise(alarm_uuid, alarm_data)
 
 
@@ -20,7 +20,7 @@ def alarm_clear(alarm_uuid):
     """
     Clear an alarm
     """
-    from _alarm_thread import AlarmThread
+    from ._alarm_thread import AlarmThread
     AlarmThread().alarm_clear(alarm_uuid)
 
 
@@ -28,7 +28,7 @@ def alarm_subsystem_sane():
     """
     Returns true if the alarm subsystem is healthy
     """
-    from _alarm_thread import AlarmThread
+    from ._alarm_thread import AlarmThread
     return 600 >= AlarmThread().stall_elapsed_secs
 
 
@@ -36,7 +36,7 @@ def alarm_initialize(config):
     """
     Initialize the alarm subsystem
     """
-    from _alarm_thread import AlarmThread
+    from ._alarm_thread import AlarmThread
     AlarmThread(config).start()
 
 
@@ -44,5 +44,5 @@ def alarm_finalize():
     """
     Finalize the alarm subsystem
     """
-    from _alarm_thread import AlarmThread
+    from ._alarm_thread import AlarmThread
     AlarmThread().stop(max_wait_in_seconds=5)
