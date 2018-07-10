@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _controller import VirtualisedResourcesAPI
+from ._controller import VirtualisedResourcesAPI

@@ -5,7 +5,7 @@
 #
 from sqlalchemy import Column, String, Boolean
 
-from _base import Base, AsDictMixin
+from ._base import Base, AsDictMixin
 
 
 class Host_v5(AsDictMixin, Base):

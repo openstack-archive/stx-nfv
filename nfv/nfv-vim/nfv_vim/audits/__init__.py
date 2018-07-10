@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _audits_module import audits_initialize, audits_finalize
+from ._audits_module import audits_initialize, audits_finalize

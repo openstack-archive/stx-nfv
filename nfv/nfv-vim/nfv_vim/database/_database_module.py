@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _database import database_get, database_create
+from ._database import database_get, database_create
 
 
 def database_dump_data(filename):

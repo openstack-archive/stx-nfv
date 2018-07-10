@@ -15,9 +15,9 @@ from nfv_common import timers
 from nfv_common import histogram
 from nfv_common.helpers import coroutine
 
-from model import Base, lookup_class_by_table
-from _database_migrate import migrate_tables
-from _database_upgrades import upgrade_table_row_data
+from .model import Base, lookup_class_by_table
+from ._database_migrate import migrate_tables
+from ._database_upgrades import upgrade_table_row_data
 
 _db_version = 1
 _db_name = 'vim_db_v%s' % _db_version

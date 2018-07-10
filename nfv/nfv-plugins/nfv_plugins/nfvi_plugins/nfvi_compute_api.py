@@ -3,12 +3,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import six
-import uuid
+import collections
 import json
 import socket
-import httplib
-import collections
+import uuid
+
+from six.moves import http_client as httplib
 
 from nfv_common import debug
 from nfv_common import timers
@@ -17,7 +17,8 @@ from nfv_common.helpers import Object, coroutine
 from nfv_vim import nfvi
 from nfv_vim.nfvi.objects import v1 as nfvi_objs
 
-import config
+from nfv_plugins.nfvi_plugins import config
+
 from openstack import rpc_listener
 from openstack import exceptions
 from openstack import openstack
@@ -293,7 +294,7 @@ def instance_supports_live_migration(instance_data):
     # pci-sriov NIC.
     nics = instance_data.get('wrs-if:nics', [])
     for nic in nics:
-        nic_name, nic_data = six.next(six.iteritems(nic))
+        nic_name, nic_data = nic.items()
         vif_model = nic_data.get('vif_model', '')
         if vif_model in ['pci-passthrough', 'pci-sriov']:
             return False

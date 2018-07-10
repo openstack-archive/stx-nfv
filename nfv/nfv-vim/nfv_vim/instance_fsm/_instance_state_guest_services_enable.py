@@ -6,8 +6,8 @@
 from nfv_common import debug
 from nfv_common import state_machine
 
-from _instance_defs import INSTANCE_STATE, INSTANCE_EVENT
-from _instance_tasks import GuestServicesEnableTask
+from ._instance_defs import INSTANCE_STATE, INSTANCE_EVENT
+from ._instance_tasks import GuestServicesEnableTask
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.instance')
 

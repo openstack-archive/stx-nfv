@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _event_log_handler import EventLogHandler
+from ._event_log_handler import EventLogHandler

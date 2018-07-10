@@ -4,11 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-import urllib2
+
+from six.moves.urllib.error import HTTPError
+from six.moves.urllib.error import URLError
+from six.moves.urllib.request import Request
+from six.moves.urllib.request import urlopen
 
 from nfv_common import debug
 
-from objects import OPENSTACK_SERVICE, Directory, Token
+from nfv_plugins.nfvi_plugins.openstack.objects import Directory
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import Token
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack')
 
@@ -25,7 +31,7 @@ def get_token(directory):
         else:
             url = directory.auth_uri + "/v3/auth/tokens"
 
-        request_info = urllib2.Request(url)
+        request_info = Request(url)
         request_info.add_header("Content-Type", "application/json")
         request_info.add_header("Accept", "application/json")
 
@@ -56,7 +62,7 @@ def get_token(directory):
                     }}}})
         request_info.add_data(payload)
 
-        request = urllib2.urlopen(request_info)
+        request = urlopen(request_info)
         # Identity API v3 returns token id in X-Subject-Token
         # response header.
         token_id = request.info().getheader('X-Subject-Token')
@@ -64,11 +70,11 @@ def get_token(directory):
         request.close()
         return Token(response, directory, token_id)
 
-    except urllib2.HTTPError as e:
+    except HTTPError as e:
         DLOG.error("%s" % e)
         return None
 
-    except urllib2.URLError as e:
+    except URLError as e:
         DLOG.error("%s" % e)
         return None
 

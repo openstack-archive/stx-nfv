@@ -6,10 +6,10 @@
 import six
 from datetime import datetime
 
-from _object import ObjectData
+from ._object import ObjectData
 
 from nfv_common.helpers import Object, Constant, Constants, Singleton
-from _instance_type import INSTANCE_TYPE_EXTENSION
+from ._instance_type import INSTANCE_TYPE_EXTENSION
 
 
 @six.add_metaclass(Singleton)

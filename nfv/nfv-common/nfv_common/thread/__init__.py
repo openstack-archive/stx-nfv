@@ -5,5 +5,5 @@
 #
 # flake8: noqa
 #
-from _thread import Thread
-from _thread_worker import ThreadWorker
+from ._thread import Thread
+from ._thread_worker import ThreadWorker

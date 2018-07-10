@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _events_module import events_initialize, events_finalize
+from ._events_module import events_initialize, events_finalize

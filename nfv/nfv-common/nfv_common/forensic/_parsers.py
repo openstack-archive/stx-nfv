@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import _nfv_vim_parser
+from . import _nfv_vim_parser
 
 _parsers = dict()
 

@@ -9,7 +9,7 @@ from nfv_common import debug
 from nfv_common import thread
 from nfv_common.helpers import Singleton
 
-from _event_log_handlers import EventLogHandlers
+from ._event_log_handlers import EventLogHandlers
 
 DLOG = debug.debug_get_logger('nfv_common.event_log.event_log_thread')
 

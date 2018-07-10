@@ -503,7 +503,7 @@ def vim_network_api_get_networks(connection, msg):
     """
     DLOG.verbose("Get network, all=%s." % msg.get_all)
     network_table = tables.tables_get_network_table()
-    for network in network_table.itervalues():
+    for network in network_table.values():
         response = rpc.APIResponseGetNetwork()
         response.uuid = network.uuid
         response.name = network.name

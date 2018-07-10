@@ -7,8 +7,8 @@ from nfv_common import timers
 from nfv_common import debug
 from nfv_common.helpers import coroutine
 
-from _state_task_result import STATE_TASK_RESULT, state_task_result_update
-from _state_task_work_result import STATE_TASK_WORK_RESULT
+from ._state_task_result import STATE_TASK_RESULT, state_task_result_update
+from ._state_task_work_result import STATE_TASK_WORK_RESULT
 
 DLOG = debug.debug_get_logger('nfv_common.state_machine.state_task')
 

@@ -5,7 +5,7 @@
 #
 from sqlalchemy import Column, String, Integer
 
-from _base import Base, AsDictMixin
+from ._base import Base, AsDictMixin
 
 
 class Volume(AsDictMixin, Base):

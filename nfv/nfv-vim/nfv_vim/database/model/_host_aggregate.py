@@ -5,7 +5,7 @@
 #
 from sqlalchemy import Column, String
 
-from _base import Base, AsDictMixin
+from ._base import Base, AsDictMixin
 
 
 class HostAggregate(AsDictMixin, Base):

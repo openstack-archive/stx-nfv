@@ -7,9 +7,10 @@
 #
 import argparse
 import config
-import time
 import socket
-import httplib
+import time
+
+from six.moves import http_client as httplib
 
 from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import ceilometer
@@ -475,10 +476,15 @@ def do_unit_tests(test_set=None, rest_api_debug=False, test_config=None):
     """
     if rest_api_debug:
         # Enable debugging of request and response headers for rest-api calls
-        import urllib2
-        handler = urllib2.HTTPHandler(debuglevel=1)
-        opener = urllib2.build_opener(handler)
-        urllib2.install_opener(opener)
+        from six.moves.urllib.error import HTTPError
+        from six.moves.urllib.error import URLError
+        from six.moves.urllib.request import build_opener
+        from six.moves.urllib.request import HTTPHandler
+        from six.moves.urllib.request import install_opener
+
+        handler = HTTPHandler(debuglevel=1)
+        opener = build_opener(handler)
+        install_opener(opener)
 
     directory = openstack.get_directory(config)
     token = openstack.get_token(directory)

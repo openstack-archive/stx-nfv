@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-import _parsers
+from . import _parsers
 
 DLOG = debug.debug_get_logger('forensic-evidence')
 

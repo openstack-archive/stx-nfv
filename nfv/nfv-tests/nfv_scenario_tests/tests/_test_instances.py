@@ -15,8 +15,8 @@ from nfv_plugins.nfvi_plugins.openstack import nova
 from nfv_plugins.nfvi_plugins.openstack import sysinv
 from nfv_plugins.nfvi_plugins.openstack import openstack
 
-import _instances
-import _test_base
+from . import _instances
+from . import _test_base
 
 DLOG = debug.debug_get_logger('nfv_tests.test_instances')
 
@@ -40,7 +40,7 @@ class TestInstance(_test_base.Test):
         self._output_dir = (config.CONF['test-output']['dir'] + '/' +
                             name.translate(None, ''.join(['(', ')'])) + '_' +
                             instance_name.replace(' ', '_'))
-        os.mkdir(self._output_dir, 0755)
+        os.mkdir(self._output_dir, 0o755)
 
     @property
     def instance_name(self):
@@ -85,7 +85,7 @@ class TestInstance(_test_base.Test):
         with open(self._output_dir + '/test_result', 'w') as f:
             f.write("success=%s, reason=%s\n" % (test_success, test_reason))
 
-        for log_name, log_file in self.LOG_FILES.iteritems():
+        for log_name, log_file in self.LOG_FILES.items():
             shutil.copyfile(log_file, self._output_dir + '/' + log_name + '.log')
 
         if self._instance_data is not None:

@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import datetime
 import os
 import re
 import yaml
-import datetime
 
 from pyparsing import Word, Combine, Suppress, Literal, Regex
 from pyparsing import nums, alphas

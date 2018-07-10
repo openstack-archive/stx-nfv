@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-import v1
+from . import v1

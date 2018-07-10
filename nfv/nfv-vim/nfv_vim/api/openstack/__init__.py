@@ -5,6 +5,6 @@
 #
 # flake8: noqa
 #
-from _config import CONF, config_load
-from _openstack import OPENSTACK_SERVICE, get_directory, get_token, validate_token
-from _rest_api import rest_api_request
+from ._config import CONF, config_load
+from ._openstack import OPENSTACK_SERVICE, get_directory, get_token, validate_token
+from ._rest_api import rest_api_request

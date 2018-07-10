@@ -5,7 +5,7 @@
 #
 # flake8: noqa
 #
-from _defs import CONNECTION_TYPE, CONNECTIVITY_TYPE
-from _vnf_descriptor import VNFD, ConnectionPointVNFD, VirtualLink
-from _vnf_descriptor import DeploymentFlavor, ConstituentVDU
-from _vnf_descriptor import VDU, VNFC, ConnectionPointVNFC
+from ._defs import CONNECTION_TYPE, CONNECTIVITY_TYPE
+from ._vnf_descriptor import VNFD, ConnectionPointVNFD, VirtualLink
+from ._vnf_descriptor import DeploymentFlavor, ConstituentVDU
+from ._vnf_descriptor import VDU, VNFC, ConnectionPointVNFC

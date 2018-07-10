@@ -5,7 +5,7 @@
 #
 import json
 
-import model
+from nfv_vim.database import model
 
 from nfv_common import debug
 

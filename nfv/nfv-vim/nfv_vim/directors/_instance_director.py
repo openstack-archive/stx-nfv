@@ -16,7 +16,7 @@ from nfv_vim import nfvi
 from nfv_vim import objects
 from nfv_vim import tables
 
-from _directors_defs import OPERATION_TYPE, OPERATION_STATE, Operation
+from ._directors_defs import OPERATION_TYPE, OPERATION_STATE, Operation
 
 DLOG = debug.debug_get_logger('nfv_vim.instance_director')
 
@@ -219,7 +219,7 @@ class InstanceDirector(object):
                         instances_failed.append(instance)
 
         # Remove reboot counts for instances that recovered
-        reboot_tracking_instance_uuids = self._reboot_count.keys()
+        reboot_tracking_instance_uuids = list(self._reboot_count.keys())
 
         for instance_uuid in reboot_tracking_instance_uuids:
             if instance_uuid not in instance_tracking_uuids:
@@ -1821,7 +1821,7 @@ class InstanceDirector(object):
                 instance_table = tables.tables_get_instance_table()
                 instance_uuids = list()
 
-                for instance in instance_table.itervalues():
+                for instance in instance_table.values():
                     if instance.unlock_to_recover and instance.is_locked():
                         instance_uuids.append(instance.uuid)
                     instance.unlock_to_recover = False
@@ -1920,7 +1920,7 @@ class InstanceDirector(object):
                 host_operation = Operation(OPERATION_TYPE.MIGRATE_INSTANCES)
                 host_operations[instance.host_name] = host_operation
 
-        for host_name, host_operation in host_operations.iteritems():
+        for host_name, host_operation in host_operations.items():
             self._host_operations[host_name] = host_operation
             self._host_migrate_instances(host_table[host_name], host_operation)
             if host_operation.is_inprogress():
@@ -1982,7 +1982,7 @@ class InstanceDirector(object):
                 host_operation = Operation(OPERATION_TYPE.STOP_INSTANCES)
                 host_operations[instance.host_name] = host_operation
 
-        for host_name, host_operation in host_operations.iteritems():
+        for host_name, host_operation in host_operations.items():
             self._host_operations[host_name] = host_operation
             self._host_stop_instances(host_table[host_name], host_operation,
                                       instance_uuids)
@@ -2050,7 +2050,7 @@ class InstanceDirector(object):
                 host_operation = Operation(operation_type)
                 host_operations[instance.host_name] = host_operation
 
-        for host_name, host_operation in host_operations.iteritems():
+        for host_name, host_operation in host_operations.items():
             self._host_operations[host_name] = host_operation
             self._host_start_instances(host_table[host_name], host_operation,
                                        instance_uuids)

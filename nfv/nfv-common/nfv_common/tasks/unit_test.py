@@ -13,8 +13,8 @@ from nfv_common import selobj
 from nfv_common import timers
 from nfv_common.helpers import coroutine
 
-from _task_worker_pool import TaskWorkerPool
-from _task_scheduler import TaskScheduler
+from ._task_worker_pool import TaskWorkerPool
+from ._task_scheduler import TaskScheduler
 
 DLOG = debug.debug_get_logger('unit_test', debug_level=debug.DEBUG_LEVEL.INFO)
 

@@ -5,5 +5,5 @@
 #
 # flake8: noqa
 #
-from _dor_module import system_is_stabilized, dor_is_complete
-from _dor_module import dor_initialize, dor_finalize
+from ._dor_module import system_is_stabilized, dor_is_complete
+from ._dor_module import dor_initialize, dor_finalize

@@ -3,8 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from fm_api import constants as fm_constants
-
+try:
+    from fm_api import constants as fm_constants
+except ImportError:
+    pass
 
 def _instance_alarm_raised(alarms, expected_alarm, instance):
     for alarm in alarms['ialarms']:

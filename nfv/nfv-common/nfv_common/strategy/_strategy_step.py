@@ -7,7 +7,7 @@ import weakref
 
 from nfv_common import debug
 
-from _strategy_result import STRATEGY_STEP_RESULT
+from ._strategy_result import STRATEGY_STEP_RESULT
 
 DLOG = debug.debug_get_logger('nfv_common.strategy.step')
 

@@ -7,7 +7,7 @@ import six
 
 from nfv_common.helpers import Constant, Singleton
 
-from _state_task_work_result import STATE_TASK_WORK_RESULT
+from ._state_task_work_result import STATE_TASK_WORK_RESULT
 
 
 @six.add_metaclass(Singleton)

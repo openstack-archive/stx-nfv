@@ -166,7 +166,7 @@ def reset_histogram_data(name=None):
     Reset histogram data
     """
     if name is None:
-        for histogram in _histograms.itervalues():
+        for histogram in _histograms.values():
             histogram.reset_data()
     else:
         histogram = _find_histogram(name)
@@ -179,7 +179,7 @@ def display_histogram_data(name=None, pretty_format=True):
     Display histogram data captured
     """
     if name is None:
-        for histogram in _histograms.itervalues():
+        for histogram in _histograms.values():
             histogram.display_data(pretty_format)
     else:
         histogram = _find_histogram(name)

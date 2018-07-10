@@ -7,7 +7,7 @@ import six
 
 from nfv_common.helpers import Constant, Constants, Singleton
 
-from _object import ObjectData
+from ._object import ObjectData
 
 
 @six.add_metaclass(Singleton)

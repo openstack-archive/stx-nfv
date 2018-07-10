@@ -11,9 +11,9 @@ import logging
 import datetime
 import functools
 
-from _debug_defs import DEBUG_LEVEL
-from _debug_thread import DebugLoggingThread
-from _debug_module import Debug
+from ._debug_defs import DEBUG_LEVEL
+from ._debug_thread import DebugLoggingThread
+from ._debug_module import Debug
 
 _debug_loggers = {}
 

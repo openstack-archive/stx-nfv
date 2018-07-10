@@ -7,7 +7,7 @@ import weakref
 
 from nfv_common import debug
 
-from _state_exception import StateException
+from ._state_exception import StateException
 
 DLOG = debug.debug_get_logger('nfv_common.state_machine.state_machine')
 

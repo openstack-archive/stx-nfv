@@ -3,7 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from fm_api import constants as fm_constants
+try:
+    from fm_api import constants as fm_constants
+except ImportError:
+    pass
 
 
 def _instance_logs_created(logs, expected_logs, instance, guest_hb=False):

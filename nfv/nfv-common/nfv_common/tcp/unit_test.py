@@ -12,8 +12,8 @@ from nfv_common import debug
 from nfv_common import selobj
 from nfv_common import timers
 
-from _tcp_server import TCPServer
-from _tcp_connection import TCPConnection
+from ._tcp_server import TCPServer
+from ._tcp_connection import TCPConnection
 
 
 def message_handler(client_connection, msg):

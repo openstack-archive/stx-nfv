@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _object import ObjectData
+from ._object import ObjectData
 
 
 class VolumeSnapshot(ObjectData):

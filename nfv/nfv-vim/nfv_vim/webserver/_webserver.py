@@ -3,12 +3,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import re
-import json
-import httplib
 import datetime
-import threading
+import json
+import re
 import socket
+import threading
+
+from six.moves import http_client as httplib
+
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 

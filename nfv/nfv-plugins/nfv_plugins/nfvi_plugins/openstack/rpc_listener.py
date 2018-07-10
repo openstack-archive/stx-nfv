@@ -93,7 +93,7 @@ class RPCListener(threading.Thread):
         """
         self._message_filters_lock.acquire()
         try:
-            for msg_type, msg_filter in self._message_filters.iteritems():
+            for msg_type, msg_filter in self._message_filters.items():
                 msg_data = msg_filter(body)
                 if msg_data is not None:
                     msg = dict()

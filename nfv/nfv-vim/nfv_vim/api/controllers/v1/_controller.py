@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import pecan
-import httplib
+from six.moves import http_client as httplib
 from pecan import rest
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan

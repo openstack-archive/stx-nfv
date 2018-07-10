@@ -3,22 +3,34 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import re
 import json
 import socket
 import struct
-import httplib
-import urllib2
-import SocketServer
-import BaseHTTPServer
+import re
+
+from six.moves import http_client as httplib
+
+from six.moves.urllib.error import HTTPError
+from six.moves.urllib.error import URLError
+from six.moves.urllib.request import Request
+from six.moves.urllib.request import urlopen
+
+import six.moves.socketserver as SocketServer
+import six.moves.BaseHTTPServer as BaseHTTPServer
 
 from nfv_common import debug
 from nfv_common import selobj
 from nfv_common import timers
-from nfv_common.helpers import Result, Object, coroutine
 
-from openstack_log import log_info, log_error
-from exceptions import OpenStackException, OpenStackRestAPIException
+from nfv_common.helpers import coroutine
+from nfv_common.helpers import Object
+from nfv_common.helpers import Result
+
+from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_error
+from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_info
+
+from nfv_plugins.nfvi_plugins.openstack.exceptions import OpenStackRestAPIException
+from nfv_plugins.nfvi_plugins.openstack.exceptions import OpenStackException
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.rest_api')
 
@@ -293,7 +305,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
     start_ms = timers.get_monotonic_timestamp_in_ms()
 
     try:
-        request_info = urllib2.Request(api_cmd)
+        request_info = Request(api_cmd)
         request_info.get_method = lambda: method
         request_info.add_header("X-Auth-Token", token_id)
         request_info.add_header("Accept", "application/json")
@@ -314,7 +326,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
         # opener = urllib2.build_opener(handler)
         # urllib2.install_opener(opener)
 
-        request = urllib2.urlopen(request_info)
+        request = urlopen(request_info)
 
         headers = list()  # list of tuples
         for key, value in request.info().items():
@@ -346,7 +358,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                        response=response_raw,
                                        execution_time=elapsed_secs))
 
-    except urllib2.HTTPError as e:
+    except HTTPError as e:
         headers = list()
         response_raw = dict()
 
@@ -407,7 +419,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                         api_cmd_payload, e.code, e.message,
                                         "%s" % e, headers, response_raw, reason)
 
-    except urllib2.URLError as e:
+    except URLError as e:
         now_ms = timers.get_monotonic_timestamp_in_ms()
         elapsed_ms = now_ms - start_ms
 

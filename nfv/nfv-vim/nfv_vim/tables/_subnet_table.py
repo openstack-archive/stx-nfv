@@ -5,7 +5,7 @@
 #
 from nfv_vim import database
 
-from _table import Table
+from ._table import Table
 
 _subnet_table = None
 
@@ -33,7 +33,7 @@ class SubnetTable(Table):
         return None
 
     def on_network(self, network_uuid):
-        for subnet in self._entries.itervalues():
+        for subnet in self._entries.values():
             if network_uuid == subnet.network_uuid:
                 yield subnet
 

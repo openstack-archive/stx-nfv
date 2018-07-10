@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _catalog_backend import CatalogBackend
+from ._catalog_backend import CatalogBackend
 
 _catalog_backend = None
 

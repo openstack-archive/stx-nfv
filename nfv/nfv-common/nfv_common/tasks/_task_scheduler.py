@@ -13,8 +13,8 @@ from nfv_common import selectable
 from nfv_common import histogram
 from nfv_common.helpers import coroutine
 
-from _task import Task, TASK_PRIORITY
-from _task_future import TaskFuture
+from ._task import Task, TASK_PRIORITY
+from ._task_future import TaskFuture
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task_scheduler')
 

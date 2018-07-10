@@ -3,8 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import httplib
-import urllib2
+from six.moves import http_client as httplib
+
+from six.moves.urllib.error import HTTPError
+from six.moves.urllib.error import URLError
+from six.moves.urllib.request import Request
+from six.moves.urllib.request import urlopen
+
 
 from nfv_common import debug
 
@@ -20,7 +25,7 @@ def rest_api_request(token, method, url, headers=None, body=None):
                        'transfer-encoding', 'upgrade']
 
     try:
-        request_info = urllib2.Request(url)
+        request_info = Request(url)
         request_info.get_method = lambda: method
 
         if headers is not None:
@@ -42,7 +47,7 @@ def rest_api_request(token, method, url, headers=None, body=None):
         # opener = urllib2.build_opener(handler)
         # urllib2.install_opener(opener)
 
-        request = urllib2.urlopen(request_info)
+        request = urlopen(request_info)
 
         headers = list()  # list of tuples
         for key, value in request.info().items():
@@ -54,7 +59,7 @@ def rest_api_request(token, method, url, headers=None, body=None):
         request.close()
         return httplib.OK, headers, response
 
-    except urllib2.HTTPError as e:
+    except HTTPError as e:
         if e.fp is not None:
             headers = list()  # list of tuples
             for key, value in e.fp.info().items():

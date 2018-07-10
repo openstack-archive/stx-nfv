@@ -7,7 +7,7 @@ from nfv_common import debug
 from nfv_common import selobj
 from nfv_common.helpers import coroutine
 
-from _tcp_connection import TCPConnection
+from ._tcp_connection import TCPConnection
 
 DLOG = debug.debug_get_logger('nfv_common.tcp')
 
@@ -109,7 +109,7 @@ class TCPServer(object):
         Shutdown the TCP Server
         """
         connections = self._client_connections.copy()
-        for client_connection in connections.itervalues():
+        for client_connection in connections.values():
             selobj.selobj_del_read_obj(client_connection.selobj)
             selobj.selobj_del_error_callback(client_connection.selobj)
             client_connection.close()

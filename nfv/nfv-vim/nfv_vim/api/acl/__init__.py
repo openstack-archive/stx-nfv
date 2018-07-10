@@ -5,4 +5,4 @@
 #
 # flake8: noqa
 #
-from _application import AuthenticationApplication
+from ._application import AuthenticationApplication

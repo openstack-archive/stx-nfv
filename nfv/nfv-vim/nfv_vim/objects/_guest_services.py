@@ -8,7 +8,7 @@ import six
 from nfv_common import debug
 from nfv_common.helpers import Constant, Singleton
 
-from _object import ObjectData
+from ._object import ObjectData
 
 from nfv_vim import nfvi
 

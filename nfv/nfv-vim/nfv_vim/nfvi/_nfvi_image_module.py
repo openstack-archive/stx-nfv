@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _nfvi_image_plugin import NFVIImagePlugin
+from ._nfvi_image_plugin import NFVIImagePlugin
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_image_module')
 

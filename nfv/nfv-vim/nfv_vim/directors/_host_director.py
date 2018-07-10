@@ -12,7 +12,7 @@ from nfv_vim import nfvi
 from nfv_vim import objects
 from nfv_vim import tables
 
-from _directors_defs import OPERATION_TYPE, OPERATION_STATE, Operation
+from ._directors_defs import OPERATION_TYPE, OPERATION_STATE, Operation
 
 DLOG = debug.debug_get_logger('nfv_vim.host_director')
 
