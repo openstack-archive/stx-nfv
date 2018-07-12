@@ -1393,7 +1393,7 @@ def create_host_services(token, host_name):
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
-    # The create is a WRS extension, which is not supported in Pike
+    # The create is a StarlingX extension, which is not supported in Pike
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION_NEWTON
 
     api_cmd_payload = dict()

@@ -2254,7 +2254,7 @@ def instance_manage_events(instance, enabling=False):
             # notifications we get from nova do not include the flavor details.
             # When we switch to use the versioned notifications, they will
             # include the flavor. However, I have verified that the original
-            # reason for this clause (CGTS-4099) no longer needs this code -
+            # reason for this clause no longer needs this code -
             # nova will explicitly fail a resize if the disk size in the new
             # flavor is smaller than the old flavor (instead of silently
             # failing). I am leaving this code here in case there are some
