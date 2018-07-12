@@ -1413,7 +1413,7 @@ class TestSwPatchStrategy:
 
         apply_phase = strategy.apply_phase.as_dict()
 
-        # US106924  Perform no-reboot parallel compute patches without any
+        # Perform no-reboot parallel compute patches without any
         # grouping by aggregates or determining which hosts have VMs
         # max_parallel_compute_hosts is 3 (for 4 hosts) resulting in 2 stages
         expected_results = {
