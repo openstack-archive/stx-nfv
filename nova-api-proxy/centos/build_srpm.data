@@ -1,2 +1,2 @@
-SRC_DIR="$PKG_BASE/nova_api_proxy"
+SRC_DIR="$PKG_BASE/nova-api-proxy"
 TIS_PATCH_VER=10
