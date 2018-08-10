@@ -1,0 +1,9 @@
+Code-Review+1: Don Penney <don.penney@windriver.com>
+Code-Review+2: Jack Ding <Jack.Ding@windriver.com>
+Workflow+1: Jack Ding <Jack.Ding@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Fri, 10 Aug 2018 12:01:20 +0000
+Reviewed-on: https://review.openstack.org/590632
+Project: openstack/stx-nfv
+Branch: refs/heads/m/2018.08
