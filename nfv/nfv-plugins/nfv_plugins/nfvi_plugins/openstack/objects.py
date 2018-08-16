@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -30,6 +30,7 @@ class OpenStackServices(Constants):
     SYSINV = Constant('sysinv')
     HEAT = Constant('heat')
     PATCHING = Constant('patching')
+    FM = Constant('fm')
 
 
 # OpenStack Services Constant

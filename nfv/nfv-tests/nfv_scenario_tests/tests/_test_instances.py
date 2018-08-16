@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -13,6 +13,7 @@ from nfv_common import debug
 from nfv_plugins.nfvi_plugins import config
 from nfv_plugins.nfvi_plugins.openstack import nova
 from nfv_plugins.nfvi_plugins.openstack import sysinv
+from nfv_plugins.nfvi_plugins.openstack import fm
 from nfv_plugins.nfvi_plugins.openstack import openstack
 
 import _instances
@@ -162,20 +163,20 @@ class TestInstance(_test_base.Test):
         """
         Fetch the customer alarms raised
         """
-        self._customer_alarms = sysinv.get_alarms(self.token).result_data
+        self._customer_alarms = fm.get_alarms(self.token).result_data
 
     def _refresh_customer_logs(self):
         """
         Fetch the customer logs
         """
-        self._customer_logs = sysinv.get_logs(self.token, self.start_datetime,
+        self._customer_logs = fm.get_logs(self.token, self.start_datetime,
                                               self.end_datetime).result_data
 
     def _refresh_customer_alarm_history(self):
         """
         Fetch the customer alarm history
         """
-        self._customer_alarm_history = sysinv.get_alarm_history(
+        self._customer_alarm_history = fm.get_alarm_history(
             self.token, self.start_datetime, self.end_datetime).result_data
 
 

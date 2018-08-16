@@ -29,6 +29,7 @@ class OpenStackServices(Constants):
     NOVA = Constant('nova')
     SYSINV = Constant('sysinv')
     HEAT = Constant('heat')
+    FM = Constant('fm')
 
 
 # OpenStack Services Constant

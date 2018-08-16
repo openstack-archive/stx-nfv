@@ -16,6 +16,7 @@ from openstack import rest_api
 from openstack import exceptions
 from openstack import openstack
 from openstack import sysinv
+from openstack import fm
 from openstack import mtc
 from openstack import nova
 from openstack import neutron
@@ -2412,7 +2413,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                 self._token = future.result.data
 
-            future.work(sysinv.get_alarms, self._token)
+            future.work(fm.get_alarms, self._token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2420,7 +2421,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             alarms = list()
 
-            for alarm_data in future.result.data['ialarms']:
+            for alarm_data in future.result.data['alarms']:
                 alarm = nfvi.objects.v1.Alarm(
                     alarm_data['uuid'], alarm_data['alarm_id'],
                     alarm_data['entity_instance_id'], alarm_data['severity'],
@@ -2470,7 +2471,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                 self._token = future.result.data
 
-            future.work(sysinv.get_logs, self._token, start_period, end_period)
+            future.work(fm.get_logs, self._token, start_period, end_period)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2517,7 +2518,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                 self._token = future.result.data
 
-            future.work(sysinv.get_alarm_history, self._token, start_period,
+            future.work(fm.get_alarm_history, self._token, start_period,
                         end_period)
             future.result = (yield)
 

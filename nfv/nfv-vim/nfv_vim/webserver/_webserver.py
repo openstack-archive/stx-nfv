@@ -15,7 +15,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from nfv_common import debug
 from nfv_plugins.nfvi_plugins import config
 from nfv_plugins.nfvi_plugins.openstack import openstack
-from nfv_plugins.nfvi_plugins.openstack import sysinv
+from nfv_plugins.nfvi_plugins.openstack import fm
 from nfv_vim import database
 
 DLOG = debug.debug_get_logger('nfv_vim.webserver.webserver')
@@ -226,9 +226,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     _token = openstack.get_token(_directory)
                 _lock.release()
 
-                result = sysinv.get_alarms(_token)
+                result = fm.get_alarms(_token)
                 if result.result_data:
-                    for alarm in result.result_data['ialarms']:
+                    for alarm in result.result_data['alarms']:
                         if 'critical' == alarm['severity']:
                             critical_alarms += 1
                         elif 'major' == alarm['severity']:

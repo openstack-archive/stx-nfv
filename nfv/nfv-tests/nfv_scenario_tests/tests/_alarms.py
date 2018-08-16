@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -7,7 +7,7 @@ from fm_api import constants as fm_constants
 
 
 def _instance_alarm_raised(alarms, expected_alarm, instance):
-    for alarm in alarms['ialarms']:
+    for alarm in alarms['alarms']:
         if expected_alarm['alarm_id'] == str(alarm['alarm_id']):
             if expected_alarm['severity'] == str(alarm['severity']):
                 return True
