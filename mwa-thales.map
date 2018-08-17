@@ -1,6 +1,0 @@
-cgcs/recipes-nfv/nfv|nfv
-cgcs/middleware/api-proxy/recipes-common/nova-api-proxy|api-proxy
-cgcs/middleware/mtce/recipes-common/cgts-mtce-common/cgts-mtce-common-1.0/guest|guest-common
-cgcs/middleware/vm-mgmt/recipes-common/guest-client|guest-client
-cgcs/middleware/vm-mgmt/recipes-common/guest-scale-agent|guest-agent
-cgcs/middleware/vm-mgmt/recipes-common/host-guest-comm|guest-comm
