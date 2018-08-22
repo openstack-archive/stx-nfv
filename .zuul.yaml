@@ -4,7 +4,18 @@
       jobs:
         - openstack-tox-linters
         - openstack-tox-pep8
+        - nfv-tox-unittest:
+            voting: false
     gate:
       jobs:
         - openstack-tox-linters
         - openstack-tox-pep8
+
+- job:
+    name: nfv-tox-unittest
+    parent: tox
+    description: |
+      Run unit test for nfv
+    vars:
+      tox_envlist: py27
+      tox_extra_args: -c tox.ini
