@@ -85,7 +85,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
                         message = response.get('faultstring', None)
                         if message is not None:
                             reason = str(message.lower().rstrip('.'))
-                            print "Operation failed: %s" % reason
+                            print("Operation failed: %s" % reason)
                             return
 
                     except ValueError:

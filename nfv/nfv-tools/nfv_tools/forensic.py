@@ -27,7 +27,7 @@ def process_main():
         if args.config:
             config.load(args.config)
         else:
-            print "No configuration given."
+            print("No configuration given.")
             sys.exit(1)
 
         if args.start_date:
@@ -35,7 +35,7 @@ def process_main():
                 start_date = datetime.datetime.strptime(args.start_date,
                                                         "%Y-%m-%d %H:%M:%S")
             except ValueError:
-                print ("Start-Date '%s' is invalid, "
+                print("Start-Date '%s' is invalid, "
                        "expected=<YYYY-MM-DD HH:MM:SS>" % args.start_date)
                 sys.exit(1)
         else:
@@ -46,7 +46,7 @@ def process_main():
                 end_date = datetime.datetime.strptime(args.start_date,
                                                       "%Y-%m-%d %H:%M:%S")
             except ValueError:
-                print ("End-Date '%s' is invalid, "
+                print("End-Date '%s' is invalid, "
                        "expected=<YYYY-MM-DD HH:MM:SS>" % args.start_date)
                 sys.exit(1)
         else:
@@ -66,7 +66,7 @@ def process_main():
         forensic.analysis_stdout(records)
 
     except Exception as e:
-        print "Exception: %s" % e
+        print("Exception: %s" % e)
         sys.exit(1)
 
     finally:
