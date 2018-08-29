@@ -5,6 +5,7 @@
 #
 import json
 import httplib
+import os
 
 from nfv_common import debug
 from nfv_common import tcp
@@ -12,6 +13,7 @@ from nfv_common import tcp
 from nfv_vim import nfvi
 
 import config
+from clients import kubernetes_client
 from openstack import rest_api
 from openstack import exceptions
 from openstack import openstack
@@ -124,6 +126,14 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
     @staticmethod
     def _host_supports_nova_compute(personality):
         return ('compute' in personality)
+
+    @staticmethod
+    def _host_supports_kubernetes(personality):
+        # TODO: This check will disappear once kubernetes is the default
+        if os.path.isfile('/etc/kubernetes/admin.conf'):
+            return ('compute' in personality or 'controller' in personality)
+        else:
+            return False
 
     def __init__(self):
         super(NFVIInfrastructureAPI, self).__init__()
@@ -1035,8 +1045,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
     def enable_host_services(self, future, host_uuid, host_name,
                              host_personality, callback):
         """
-        Enable Host Services, notifies Nova, Neutron and Guest to enable their
-        services for the specified host
+        Enable Host Services, notifies Nova, Neutron, Guest and Kubernetes to
+        enable their services for the specified host
         """
         response = dict()
         response['completed'] = False
@@ -1121,9 +1131,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                    % (host_uuid, host_name))
                         return
 
+            if self._host_supports_nova_compute(host_personality):
                 response['reason'] = 'failed to enable guest services'
 
-            if self._host_supports_nova_compute(host_personality):
                 # Send the Enable request to Guest
                 future.work(guest.host_services_enable, self._token, host_uuid,
                             host_name)
@@ -1134,6 +1144,21 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     DLOG.error("Guest host-services-enable failed, operation "
                                "did not complete, host_uuid=%s, host_name=%s."
                                % (host_uuid, host_name))
+
+            if self._host_supports_kubernetes(host_personality):
+                response['reason'] = 'failed to enable kubernetes services'
+
+                # To enable kubernetes we remove the NoExecute taint from the
+                # node. This allows new pods to be scheduled on the node.
+                future.work(kubernetes_client.untaint_node,
+                            host_name, "NoExecute", "services")
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Kubernetes untaint_node failed, operation "
+                               "did not complete, host_uuid=%s, host_name=%s."
+                               % (host_uuid, host_name))
+                    return
 
             response['completed'] = True
             response['reason'] = ''
@@ -1150,7 +1175,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         except Exception as e:
             DLOG.exception("Caught exception while trying to enable %s "
-                           "nova or neutron openstack services, error=%s."
+                           "host services, error=%s."
                            % (host_name, e))
 
         finally:
@@ -1160,8 +1185,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
     def disable_host_services(self, future, host_uuid, host_name,
                               host_personality, callback):
         """
-        Disable Host Services, notifies Nova and Guest to disable their
-        services for the specified host
+        Disable Host Services, notifies Nova, Guest and Kubernetes to disable
+        their services for the specified host (as applicable)
         """
         response = dict()
         response['completed'] = False
@@ -1170,71 +1195,84 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            # Only applies to compute hosts
-            if not self._host_supports_nova_compute(host_personality):
-                response['completed'] = True
-                response['reason'] = ''
-                return
+            # The following only applies to compute hosts
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get token from keystone'
 
-            response['reason'] = 'failed to get token from keystone'
+                if self._token is None or self._token.is_expired():
+                    future.work(openstack.get_token, self._directory)
+                    future.result = (yield)
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._token = future.result.data
+
+                response['reason'] = 'failed to disable nova services'
+
+                # Send the Disable request to Nova.
+                future.work(nova.disable_host_services, self._token, host_name)
+
+                try:
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("Nova disable-host-services failed, operation "
+                                   "did not complete, host_uuid=%s, host_name=%s."
+                                   % (host_uuid, host_name))
+                        return
+
+                    result_data = future.result.data['service']
+                    if not ('disabled' == result_data['status'] and
+                            host_name == result_data['host'] and
+                            'nova-compute' == result_data['binary']):
+                        DLOG.error("Nova disable-host-services failed, operation "
+                                   "did not complete, host_uuid=%s, host_name=%s."
+                                   % (host_uuid, host_name))
+                        return
+
+                except exceptions.OpenStackRestAPIException as e:
+                    if httplib.NOT_FOUND != e.http_status_code:
+                        raise
+
+                response['reason'] = 'failed to disable guest services'
+
+                # Send the Disable request to Guest.
+                future.work(guest.host_services_disable, self._token, host_uuid,
+                            host_name)
+
+                try:
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        # Do not return since the disable will be retried by audit
+                        DLOG.error("Guest host-services-disable failed, operation "
+                                   "did not complete, host_uuid=%s, host_name=%s."
+                                   % (host_uuid, host_name))
+
+                except exceptions.OpenStackRestAPIException as e:
+                    if httplib.NOT_FOUND != e.http_status_code:
+                        raise
+
+            if self._host_supports_kubernetes(host_personality):
+                response['reason'] = 'failed to disable kubernetes services'
+
+                # To disable kubernetes we add the NoExecute taint to the
+                # node. This removes pods that can be scheduled elsewhere
+                # and prevents new pods from scheduling on the node.
+                future.work(kubernetes_client.taint_node,
+                            host_name, "NoExecute", "services", "disabled")
+
                 future.result = (yield)
 
                 if not future.result.is_complete():
-                    DLOG.error("OpenStack get-token did not complete, "
-                               "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                host_name))
-                    return
-
-                self._token = future.result.data
-
-            response['reason'] = 'failed to disable nova services'
-
-            # Send the Disable request to Nova.
-            future.work(nova.disable_host_services, self._token, host_name)
-
-            try:
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Nova disable-host-services failed, operation "
+                    DLOG.error("Kubernetes taint_node failed, operation "
                                "did not complete, host_uuid=%s, host_name=%s."
                                % (host_uuid, host_name))
                     return
-
-                result_data = future.result.data['service']
-                if not ('disabled' == result_data['status'] and
-                        host_name == result_data['host'] and
-                        'nova-compute' == result_data['binary']):
-                    DLOG.error("Nova disable-host-services failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
-
-            except exceptions.OpenStackRestAPIException as e:
-                if httplib.NOT_FOUND != e.http_status_code:
-                    raise
-
-            response['reason'] = 'failed to disable guest services'
-
-            # Send the Disable request to Guest.
-            future.work(guest.host_services_disable, self._token, host_uuid,
-                        host_name)
-
-            try:
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    # Do not return since the disable will be retried by audit
-                    DLOG.error("Guest host-services-disable failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-
-            except exceptions.OpenStackRestAPIException as e:
-                if httplib.NOT_FOUND != e.http_status_code:
-                    raise
 
             response['completed'] = True
             response['reason'] = ''
@@ -1251,7 +1289,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         except Exception as e:
             DLOG.exception("Caught exception while trying to disable %s "
-                           "nova or neutron openstack services, error=%s."
+                           "host services, error=%s."
                            % (host_name, e))
 
         finally:
