@@ -1,0 +1,8 @@
+Code-Review+2: Al Bailey <al.bailey@windriver.com>
+Workflow+1: David Sullivan <david.sullivan@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 29 Aug 2018 17:44:58 +0000
+Reviewed-on: https://review.openstack.org/597128
+Project: openstack/stx-nfv
+Branch: refs/heads/master
