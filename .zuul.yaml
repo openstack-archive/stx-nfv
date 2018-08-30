@@ -4,13 +4,13 @@
       jobs:
         - openstack-tox-linters
         - openstack-tox-pep8
-        - openstack-tox-py27:
-            voting: false
         - nfv-tox-pylint
+        - openstack-tox-py27
     gate:
       jobs:
         - openstack-tox-linters
         - openstack-tox-pep8
+        - openstack-tox-py27
 
 - job:
     name: nfv-tox-pylint
