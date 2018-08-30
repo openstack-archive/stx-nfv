@@ -189,7 +189,7 @@ def gCommand(groups):
         groupFound=False
         finishedGroup=False
 
-        for i in xrange(len(cfgLines)):
+        for i in range(len(cfgLines)):
             liNum=i
             if str("GroupName="+g) == cfgLines[i].strip():
                 groupFound=True
@@ -218,7 +218,7 @@ def gCommand(groups):
 # user enters "s", the process in question will be skipped and the script will continue. If they user enters "q" the script will exit.
 def pCommand(pList):
     procList=[]
-    for i in xrange(len(pList)):
+    for i in range(len(pList)):
         csvFile=str(pList[i])+".csv"
         procName=str(pList[i])
         isFile=False
@@ -254,11 +254,11 @@ def pCommand(pList):
 def storeGraphData(procs, dateRange=[], execTime=False, hits=False, plots=1):
     graphData={}
     prevHitTotal=0
-    timeList=[[] for p in xrange(len(procs))]
-    dateList=[[] for p in xrange(len(procs))]
-    hitList=[[] for p in xrange(len(procs))]
+    timeList=[[] for p in range(len(procs))]
+    dateList=[[] for p in range(len(procs))]
+    hitList=[[] for p in range(len(procs))]
     if dateRange:
-        for i in xrange(len(procs)):
+        for i in range(len(procs)):
             csvFile = str(procs[i])+".csv"
             with open(os.path.join(pth,csvFile), 'rb') as f:
                 reader = csv.reader(f, delimiter=',', quoting=csv.QUOTE_NONE)
@@ -284,7 +284,7 @@ def storeGraphData(procs, dateRange=[], execTime=False, hits=False, plots=1):
                 fig.append_trace(graphData['trace'+str(i)], 2, 1)
 
     else:
-        for i in xrange(len(procs)):
+        for i in range(len(procs)):
             csvFile = str(procs[i])+".csv"
             with open(os.path.join(pth,csvFile), 'rb') as f:
                 reader = csv.reader(f, delimiter=',', quoting=csv.QUOTE_NONE)
@@ -385,11 +385,11 @@ if len(command)==1:
     print("Running with default settings.")
     default = True
 else:
-    for i in xrange(1,len(command)):
+    for i in range(1,len(command)):
         if command[i] == "-c": # Use config file
             config=True
         elif command[i] == "--g": # Groups
-            for j in xrange(i+1,len(command)):
+            for j in range(i+1,len(command)):
                 group.append(command[j])
             procs=gCommand(group)
             break
@@ -426,7 +426,7 @@ else:
             helpMessage()
             sys.exit()
         elif command[i] == "--p": # User-specified processes
-            for j in xrange(i+1,len(command)):
+            for j in range(i+1,len(command)):
                 procs.append(command[j])
             procs=pCommand(procs)
             break
