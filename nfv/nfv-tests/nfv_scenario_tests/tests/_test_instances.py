@@ -41,7 +41,7 @@ class TestInstance(_test_base.Test):
         self._output_dir = (config.CONF['test-output']['dir'] + '/' +
                             name.translate(None, ''.join(['(', ')'])) + '_' +
                             instance_name.replace(' ', '_'))
-        os.mkdir(self._output_dir, 0755)
+        os.mkdir(self._output_dir, 0o755)
 
     @property
     def instance_name(self):

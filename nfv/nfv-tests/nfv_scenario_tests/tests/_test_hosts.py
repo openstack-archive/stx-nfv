@@ -44,7 +44,7 @@ class TestHost(_test_base.Test):
         self._output_dir = (config.CONF['test-output']['dir'] + '/' +
                             name.translate(None, ''.join(['(', ')'])) + '_' +
                             host_name.replace(' ', '_'))
-        os.mkdir(self._output_dir, 0755)
+        os.mkdir(self._output_dir, 0o755)
 
     @property
     def host_name(self):
