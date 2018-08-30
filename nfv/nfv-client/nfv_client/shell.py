@@ -55,7 +55,7 @@ def process_main(argv=sys.argv[1:]):  # pylint: disable=dangerous-default-value
                      sw_update.APPLY_TYPE_IGNORE],
             help='defaults to serial')
         sw_patch_create_strategy_cmd.add_argument(
-            '--max-parallel-compute-hosts', type=int, choices=range(2, 101),
+            '--max-parallel-compute-hosts', type=int, choices=list(range(2, 101)),
             help='maximum compute hosts to patch in parallel')
         sw_patch_create_strategy_cmd.add_argument(
             '--instance-action', default=sw_update.INSTANCE_ACTION_STOP_START,
@@ -114,7 +114,7 @@ def process_main(argv=sys.argv[1:]):  # pylint: disable=dangerous-default-value
                      sw_update.APPLY_TYPE_IGNORE],
             help='defaults to serial')
         sw_upgrade_create_strategy_cmd.add_argument(
-            '--max-parallel-compute-hosts', type=int, choices=range(2, 11),
+            '--max-parallel-compute-hosts', type=int, choices=list(range(2, 11)),
             help='maximum compute hosts to upgrade in parallel')
         # Disable support for --start-upgrade as it was not completed
         # sw_upgrade_create_strategy_cmd.add_argument(
