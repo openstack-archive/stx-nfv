@@ -240,7 +240,7 @@ def pCommand(pList):
                             else:
                                 print " "+filename[:-4]
                     else:
-                        procName = str(raw_input("\nEnter the corrected process name, q to quit, or s to skip: ")).strip()
+                        procName = str(input("\nEnter the corrected process name, q to quit, or s to skip: ")).strip()
                     if procName=="s":
                         isFile=True
                         break
