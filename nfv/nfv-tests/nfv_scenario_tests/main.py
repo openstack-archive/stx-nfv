@@ -33,7 +33,7 @@ def process_signal_handler(signum, frame):
     if signal.SIGINT == signum:
         raise KeyboardInterrupt
     else:
-        print "Ignoring signal" % signum
+        print("Ignoring signal" % signum)
 
 
 def process_initialize():
@@ -132,7 +132,7 @@ def process_do_setup(loads_dir, setup_data):
                     image_file = loads_dir + '/' + resource['file']
                     if not os.path.isfile(image_file):
                         process_progress_marker_end("[FAILED]")
-                        print "Image file %s does not exist." % resource['file']
+                        print("Image file %s does not exist." % resource['file'])
                         return False
 
                 image_data = glance.create_image(token, resource['name'],
@@ -163,8 +163,8 @@ def process_do_setup(loads_dir, setup_data):
                                   if x['name'] == resource['image_name']), None)
                     if image is None:
                         process_progress_marker_end("[FAILED]")
-                        print "Image %s for volume %s does not exist." \
-                              % (resource['image_name'], resource['name'])
+                        print("Image %s for volume %s does not exist."
+                              % (resource['image_name'], resource['name']))
                         return False
 
                     image_id = image['id']
@@ -193,7 +193,7 @@ def process_do_setup(loads_dir, setup_data):
                             break
                 else:
                     process_progress_marker_end("[FAILED]")
-                    print "Volume %s not create properly." % resource['name']
+                    print("Volume %s not create properly." % resource['name'])
                     return False
             process_progress_marker_end("[OKAY]")
 
@@ -226,8 +226,8 @@ def process_do_setup(loads_dir, setup_data):
                                 if x['name'] == resource['network_name']), None)
                 if network is None:
                     process_progress_marker_end("[FAILED]")
-                    print "Network %s for subnet %s does not exist." \
-                          % (resource['network_name'], resource['name'])
+                    print("Network %s for subnet %s does not exist."
+                          % (resource['network_name'], resource['name']))
                     return False
 
                 neutron.create_subnet(token, network['id'], resource['name'],
@@ -250,8 +250,8 @@ def process_do_setup(loads_dir, setup_data):
                               if x['name'] == resource['flavor']), None)
                 if flavor is None:
                     process_progress_marker_end("[FAILED]")
-                    print "Can't find flavor %s for instance %s" \
-                          % (resource['flavor'], resource['name'])
+                    print("Can't find flavor %s for instance %s"
+                          % (resource['flavor'], resource['name']))
                     return False
 
                 if resource['image'] is not None:
@@ -259,8 +259,8 @@ def process_do_setup(loads_dir, setup_data):
                                   if x['name'] == resource['image']), None)
                     if image is None:
                         process_progress_marker_end("[FAILED]")
-                        print "Can't find image %s for instance %s" \
-                              % (resource['image'], resource['name'])
+                        print("Can't find image %s for instance %s"
+                              % (resource['image'], resource['name']))
                         return False
 
                     image_id = image['id']
@@ -275,8 +275,8 @@ def process_do_setup(loads_dir, setup_data):
                                       None)
                         if volume is None:
                             process_progress_marker_end("[FAILED]")
-                            print "Can't find volume %s for instance %s" \
-                                  % (block_device['volume_name'], resource['name'])
+                            print("Can't find volume %s for instance %s"
+                                  % (block_device['volume_name'], resource['name']))
                             return False
 
                         block_devices.append(
@@ -295,8 +295,8 @@ def process_do_setup(loads_dir, setup_data):
                                     if x['name'] == network_name), None)
                     if network is None:
                         process_progress_marker_end("[FAILED]")
-                        print "Can't find network %s for instance %s" \
-                              % (network_name, resource['name'])
+                        print("Can't find network %s for instance %s"
+                              % (network_name, resource['name']))
                         return False
 
                     network_ids.append({'uuid': network['id']})
@@ -320,7 +320,7 @@ def process_do_setup(loads_dir, setup_data):
                             break
                 else:
                     process_progress_marker_end("[FAILED]")
-                    print "Server %s not created properly." % resource['name']
+                    print("Server %s not created properly." % resource['name'])
                     return False
 
                 for attached_volume in resource['attached_volumes']:
@@ -329,8 +329,8 @@ def process_do_setup(loads_dir, setup_data):
                                   None)
                     if volume is None:
                         process_progress_marker_end("[FAILED]")
-                        print "Can't find volume %s for instance %s" \
-                              % (attached_volume['volume_name'], resource['name'])
+                        print("Can't find volume %s for instance %s"
+                              % (attached_volume['volume_name'], resource['name']))
                         return False
 
                     nova.attach_volume(token, server_id, volume['id'],
@@ -529,7 +529,7 @@ def process_do_teardown(setup_data):
                             break
                 else:
                     process_progress_marker_end("[FAILED]")
-                    print "Server %s not deleted." % resource['name']
+                    print("Server %s not deleted." % resource['name'])
                     return False
             process_progress_marker_end("[OKAY]")
 
@@ -613,13 +613,13 @@ def process_main():
         if args.config:
             config.load(args.config)
         else:
-            print "No configuration given."
+            print("No configuration given.")
             sys.exit(1)
 
         if args.data:
             data_fill = yaml.load(open(data_dir + '/data/' + args.data + '.yaml'))
         else:
-            print "No data file given."
+            print("No data file given.")
             sys.exit(1)
 
         if args.setup:
@@ -627,7 +627,7 @@ def process_main():
             setup_yaml = setup_template.render(data_fill)
             setup_data = yaml.load(setup_yaml)
         else:
-            print "No setup file given."
+            print("No setup file given.")
             sys.exit(1)
 
         if args.tests:
@@ -635,7 +635,7 @@ def process_main():
             tests_yaml = tests_template.render(data_fill)
             test_data = yaml.load(tests_yaml)
         else:
-            print "No tests given."
+            print("No tests given.")
             sys.exit(1)
 
         if args.repeat:
@@ -663,7 +663,7 @@ def process_main():
 
             sys.stdout.write("%s\n" % header_str)
             if not process_do_teardown(setup_data):
-                print "Cleanup failed."
+                print("Cleanup failed.")
                 sys.exit(1)
 
             sys.stdout.write("%s\n" % footer_str)
@@ -677,7 +677,7 @@ def process_main():
 
         sys.stdout.write("%s\n" % header_str)
         if not process_do_setup(loads_dir, setup_data):
-            print "Setup failed."
+            print("Setup failed.")
             sys.exit(1)
 
         sys.stdout.write("%s\n" % footer_str)
@@ -705,17 +705,17 @@ def process_main():
 
             sys.stdout.write("%s\n" % header_str)
             if not process_do_teardown(setup_data):
-                print "Teardown failed."
+                print("Teardown failed.")
                 sys.exit(1)
 
             sys.stdout.write("%s\n" % footer_str)
 
     except KeyboardInterrupt:
-        print "Keyboard Interrupt received."
+        print("Keyboard Interrupt received.")
         pass
 
     except Exception as e:
-        print "Exception: %s" % e
+        print("Exception: %s" % e)
         traceback.print_exc()
         sys.exit(1)
 

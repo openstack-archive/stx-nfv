@@ -269,7 +269,7 @@ class Token(object):
                         for endpoint in catalog['endpoints']:
                             if (endpoint['region'] == region_name and
                                     endpoint['interface'] == endpoint_type):
-                                print "HERE HERE HERE"
+                                print("HERE HERE HERE")
                                 return endpoint['url']
         return None
 
