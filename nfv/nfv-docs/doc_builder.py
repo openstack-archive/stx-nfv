@@ -66,4 +66,4 @@ if __name__ == '__main__':
     if 'html' == args.builder:
         build_html_doc(args.build_dir, document_data)
     else:
-        print "No builder selected, do nothing."
+        print("No builder selected, do nothing.")

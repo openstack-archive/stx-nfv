@@ -221,9 +221,9 @@ def validate_strategy_persists(strategy):
     new_strategy = strategy_rebuild_from_dict(strategy_dict)
 
     if strategy.as_dict() != new_strategy.as_dict():
-        print "==================== Strategy ===================="
+        print("==================== Strategy ====================")
         pprint.pprint(strategy.as_dict())
-        print "============== Converted Strategy ================"
+        print("============== Converted Strategy ================")
         pprint.pprint(new_strategy.as_dict())
     assert strategy.as_dict() == new_strategy.as_dict(), \
         "Strategy changed when converting to/from dict"
@@ -235,9 +235,9 @@ def validate_phase(phase, expected_results):
     Note: there is probably a super generic, pythonic way to do this, but this
     is good enough (tm).
     """
-    print "====================== Phase Results ========================"
+    print("====================== Phase Results ========================")
     pprint.pprint(phase)
-    print "===================== Expected Results ======================"
+    print("===================== Expected Results ======================")
     pprint.pprint(expected_results)
 
     for key in expected_results:
