@@ -49,6 +49,7 @@ from plotly.graph_objs import Scatter, Layout
 from plotly import tools
 from glob import iglob
 import commands
+from builtins import input
 
 dir = os.path.dirname(__file__)
 fig = plotly.graph_objs.graph_objs.Figure
@@ -240,7 +241,7 @@ def pCommand(pList):
                             else:
                                 print(" "+filename[:-4])
                     else:
-                        procName = str(raw_input("\nEnter the corrected process name, q to quit, or s to skip: ")).strip()
+                        procName = str(input("\nEnter the corrected process name, q to quit, or s to skip: ")).strip()
                     if procName=="s":
                         isFile=True
                         break
