@@ -1632,7 +1632,7 @@ def get_recovery_priority(metadata, instance_name):
     if recovery_priority_str is not None:
         try:
             recovery_priority = int(recovery_priority_str)
-            if recovery_priority not in range(1, 11):
+            if recovery_priority not in list(range(1, 11)):
                 DLOG.error("Invalid recovery priority %s for %s" %
                            (recovery_priority_str,
                             instance_name))
