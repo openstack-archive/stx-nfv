@@ -6,7 +6,17 @@
         - openstack-tox-pep8
         - openstack-tox-py27:
             voting: false
+        - nfv-tox-pylint
     gate:
       jobs:
         - openstack-tox-linters
         - openstack-tox-pep8
+
+- job:
+    name: nfv-tox-pylint
+    parent: tox
+    description: Run pylint for nfv
+    required-projects:
+      - openstack/stx-fault
+    vars:
+      tox_envlist: pylint
