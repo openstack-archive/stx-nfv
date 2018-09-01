@@ -475,10 +475,16 @@ def do_unit_tests(test_set=None, rest_api_debug=False, test_config=None):
     """
     if rest_api_debug:
         # Enable debugging of request and response headers for rest-api calls
-        import urllib2
-        handler = urllib2.HTTPHandler(debuglevel=1)
-        opener = urllib2.build_opener(handler)
-        urllib2.install_opener(opener)
+        try:
+            # python3
+            from urllib.request import HTTPHandler, build_opener, install_opener
+        except ImportError:
+            # python2
+            from urllib2 import HTTPHandler, build_opener, install_opener
+
+        handler = HTTPHandler(debuglevel=1)
+        opener = build_opener(handler)
+        install_opener(opener)
 
     directory = openstack.get_directory(config)
     token = openstack.get_token(directory)

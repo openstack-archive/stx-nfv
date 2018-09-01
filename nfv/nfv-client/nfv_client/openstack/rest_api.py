@@ -4,7 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-import urllib2
+try:
+    # python3
+    from urllib.request import Request, urlopen
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    # python2
+    from urllib2 import Request, urlopen, HTTPError, URLError
+
 import httplib
 
 
@@ -17,7 +24,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
                        'transfer-encoding', 'upgrade']
 
     try:
-        request_info = urllib2.Request(api_cmd)
+        request_info = Request(api_cmd)
         request_info.get_method = lambda: method
         if token_id is not None:
             request_info.add_header("X-Auth-Token", token_id)
@@ -30,7 +37,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
         if api_cmd_payload is not None:
             request_info.add_data(api_cmd_payload)
 
-        url_request = urllib2.urlopen(request_info)
+        url_request = urlopen(request_info)
 
         headers = list()  # list of tuples
         for key, value in url_request.info().items():
@@ -49,7 +56,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
 
         return response
 
-    except urllib2.HTTPError as e:
+    except HTTPError as e:
         headers = list()
         response_raw = dict()
 
@@ -96,7 +103,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
                  response_raw))
         raise
 
-    except urllib2.URLError as e:
+    except URLError as e:
         print("Rest-API status=ERR, %s, %s, headers=%s, payload=%s"
               % (method, api_cmd, api_cmd_headers, api_cmd_payload,))
         raise

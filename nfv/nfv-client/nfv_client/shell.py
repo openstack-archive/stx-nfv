@@ -6,7 +6,13 @@
 import os
 import sys
 import argparse
-import urllib2
+try:
+    # python3
+    from urllib.request import HTTPHandler, build_opener, install_opener
+except ImportError:
+    # python2
+    from urllib2 import HTTPHandler, build_opener, install_opener
+
 
 from nfv_client import sw_update
 
@@ -156,9 +162,9 @@ def process_main(argv=sys.argv[1:]):  # pylint: disable=dangerous-default-value
 
         if args.debug:
             # Enable Debug
-            handler = urllib2.HTTPHandler(debuglevel=1)
-            opener = urllib2.build_opener(handler)
-            urllib2.install_opener(opener)
+            handler = HTTPHandler(debuglevel=1)
+            opener = build_opener(handler)
+            install_opener(opener)
 
         if args.os_auth_url is None:
             args.os_auth_url = os.environ.get('OS_AUTH_URL', None)

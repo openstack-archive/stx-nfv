@@ -8,7 +8,14 @@ import json
 import socket
 import struct
 import httplib
-import urllib2
+try:
+    # python3
+    from urllib.request import Request, urlopen, HTTPHandler, build_opener, install_opener
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    # python2
+    from urllib2 import Request, urlopen, HTTPError, URLError, HTTPHandler, build_opener, install_opener
+
 import SocketServer
 import BaseHTTPServer
 
@@ -293,7 +300,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
     start_ms = timers.get_monotonic_timestamp_in_ms()
 
     try:
-        request_info = urllib2.Request(api_cmd)
+        request_info = Request(api_cmd)
         request_info.get_method = lambda: method
         request_info.add_header("X-Auth-Token", token_id)
         request_info.add_header("Accept", "application/json")
@@ -310,11 +317,11 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                              api_cmd_payload))
 
         # Enable Debug
-        # handler = urllib2.HTTPHandler(debuglevel=1)
-        # opener = urllib2.build_opener(handler)
-        # urllib2.install_opener(opener)
+        # handler = HTTPHandler(debuglevel=1)
+        # opener = build_opener(handler)
+        # install_opener(opener)
 
-        request = urllib2.urlopen(request_info)
+        request = urlopen(request_info)
 
         headers = list()  # list of tuples
         for key, value in request.info().items():
@@ -346,7 +353,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                        response=response_raw,
                                        execution_time=elapsed_secs))
 
-    except urllib2.HTTPError as e:
+    except HTTPError as e:
         headers = list()
         response_raw = dict()
 
@@ -407,7 +414,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                         api_cmd_payload, e.code, e.message,
                                         "%s" % e, headers, response_raw, reason)
 
-    except urllib2.URLError as e:
+    except URLError as e:
         now_ms = timers.get_monotonic_timestamp_in_ms()
         elapsed_ms = now_ms - start_ms
 

@@ -13,7 +13,13 @@
 #
 
 import httplib
-import urllib
+try:
+    # python3
+    from urllib.parse import quote
+except ImportError:
+    # python2
+    from urllib import quote
+
 from paste.proxy import TransparentProxy
 from paste.proxy import parse_headers
 from nova_api_proxy.common import log as logging
@@ -89,7 +95,7 @@ class DebugProxy(Application):
 
         path = (environ.get('SCRIPT_NAME', '') +
                 environ.get('PATH_INFO', ''))
-        path = urllib.quote(path)
+        path = quote(path)
         if 'QUERY_STRING' in environ:
             path += '?' + environ['QUERY_STRING']
         LOG.debug("REQ header: (%s)" % headers)
