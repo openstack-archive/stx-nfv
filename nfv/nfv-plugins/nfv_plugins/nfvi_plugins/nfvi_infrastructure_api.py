@@ -23,6 +23,7 @@ from openstack import mtc
 from openstack import nova
 from openstack import neutron
 from openstack import guest
+from openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.infrastructure_api')
 
@@ -120,14 +121,6 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         return self._signature
 
     @staticmethod
-    def _host_supports_neutron(personality):
-        return ('compute' in personality or 'controller' in personality)
-
-    @staticmethod
-    def _host_supports_nova_compute(personality):
-        return ('compute' in personality)
-
-    @staticmethod
     def _host_supports_kubernetes(personality):
         # TODO: This check will disappear once kubernetes is the default
         if os.path.isfile('/etc/kubernetes/admin.conf'):
@@ -149,6 +142,20 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         self._neutron_extensions = None
         self._data_port_fault_handling_enabled = False
         self._host_listener = None
+
+    def _host_supports_neutron(self, personality):
+        return (('compute' in personality or 'controller' in personality) and
+            (self._directory.get_service_info(OPENSTACK_SERVICE.NEUTRON) is not None))
+
+    def _host_supports_nova_compute(self, personality):
+        return (('compute' in personality) and
+            (self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) is not None))
+
+    def _neutron_enabled(self):
+        return (self._directory.get_service_info(OPENSTACK_SERVICE.NEUTRON) is not None)
+
+    def _nova_enabled(self):
+        return (self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) is not None)
 
     def get_system_info(self, future, callback):
         """
@@ -1424,6 +1431,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
+            if not (self._neutron_enabled() and self._nova_enabled()):
+                response['completed'] = True
+                return
+
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
@@ -1522,6 +1533,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if not (self._neutron_enabled() and self._nova_enabled()):
+                response['completed'] = True
+                return
 
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
@@ -1622,6 +1637,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
+            if not (self._neutron_enabled() and self._nova_enabled()):
+                response['completed'] = True
+                return
+
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
@@ -1719,6 +1738,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if not (self._neutron_enabled() and self._nova_enabled()):
+                response['completed'] = True
+                return
 
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
@@ -1818,6 +1841,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
+            if not (self._neutron_enabled() and self._nova_enabled()):
+                response['completed'] = True
+                return
+
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
@@ -1867,6 +1894,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if not (self._neutron_enabled() and self._nova_enabled()):
+                response['completed'] = True
+                return
 
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
