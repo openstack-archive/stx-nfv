@@ -373,8 +373,8 @@ class TestSwUpgradeStrategy:
         )
 
         success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts = sorted_compute_hosts,
-            reboot = True)
+            compute_hosts=sorted_compute_hosts,
+            reboot=True)
 
         assert success == True, "Strategy creation failed"
 
@@ -427,8 +427,8 @@ class TestSwUpgradeStrategy:
         )
 
         strategy._add_compute_strategy_stages(
-            compute_hosts = sorted_compute_hosts,
-            reboot = True)
+            compute_hosts=sorted_compute_hosts,
+            reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -756,8 +756,8 @@ class TestSwUpgradeStrategy:
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -845,7 +845,7 @@ class TestSwUpgradeStrategy:
         create_instance('small',
                         "test_instance_0",
                         'compute-0',
-                        admin_state = nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
         create_instance('small',
                         "test_instance_1",
                         'compute-1')
@@ -866,8 +866,8 @@ class TestSwUpgradeStrategy:
         )
 
         success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts = sorted_compute_hosts,
-            reboot = True)
+            compute_hosts=sorted_compute_hosts,
+            reboot=True)
 
         assert success == False, "Strategy creation did not fail"
 
@@ -904,8 +904,8 @@ class TestSwUpgradeStrategy:
         )
 
         success, reason = strategy._add_storage_strategy_stages(
-            storage_hosts = sorted_storage_hosts,
-            reboot = True)
+            storage_hosts=sorted_storage_hosts,
+            reboot=True)
 
         assert success == True, "Strategy creation failed"
 
@@ -951,8 +951,8 @@ class TestSwUpgradeStrategy:
             storage_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL
         )
 
-        strategy._add_storage_strategy_stages(storage_hosts = sorted_storage_hosts,
-                                              reboot = True)
+        strategy._add_storage_strategy_stages(storage_hosts=sorted_storage_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1037,8 +1037,8 @@ class TestSwUpgradeStrategy:
             storage_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
-        strategy._add_storage_strategy_stages(storage_hosts = sorted_storage_hosts,
-                                              reboot = True)
+        strategy._add_storage_strategy_stages(storage_hosts=sorted_storage_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1131,8 +1131,8 @@ class TestSwUpgradeStrategy:
 
         strategy = create_sw_upgrade_strategy()
 
-        strategy._add_controller_strategy_stages(controllers = controller_hosts,
-                                                 reboot = True)
+        strategy._add_controller_strategy_stages(controllers=controller_hosts,
+                                                 reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1179,8 +1179,8 @@ class TestSwUpgradeStrategy:
 
         strategy = create_sw_upgrade_strategy()
 
-        strategy._add_controller_strategy_stages(controllers = controller_hosts,
-                                                 reboot = True)
+        strategy._add_controller_strategy_stages(controllers=controller_hosts,
+                                                 reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1247,8 +1247,8 @@ class TestSwUpgradeStrategy:
         strategy = create_sw_upgrade_strategy()
 
         success, reason = strategy._add_controller_strategy_stages(
-            controllers = controller_hosts,
-            reboot = True)
+            controllers=controller_hosts,
+            reboot=True)
 
         assert success == False, "Strategy creation did not fail"
         assert reason == "cannot apply software upgrades to CPE configuration", \
@@ -1541,7 +1541,7 @@ class TestSwUpgradeStrategy:
 
         strategy = create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
-            nfvi_upgrade = nfvi.objects.v1.Upgrade(
+            nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.DATA_MIGRATION_COMPLETE,
                 '12.01',
                 '13.01')
@@ -1627,7 +1627,7 @@ class TestSwUpgradeStrategy:
 
         strategy = create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
-            nfvi_upgrade = nfvi.objects.v1.Upgrade(
+            nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.DATA_MIGRATION_COMPLETE,
                 '12.01',
                 '13.01')
@@ -1672,7 +1672,7 @@ class TestSwUpgradeStrategy:
 
         strategy = create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
-            nfvi_upgrade = nfvi.objects.v1.Upgrade(
+            nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
                 '12.01',
                 '13.01')
@@ -1703,7 +1703,7 @@ class TestSwUpgradeStrategy:
         - build fails
         """
         create_host('controller-0',
-                    admin_state = nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
         create_host('controller-1')
         create_host('compute-0')
         create_host('compute-1')
@@ -1754,7 +1754,7 @@ class TestSwUpgradeStrategy:
         create_host('compute-1')
         create_host('compute-2')
         create_host('compute-3',
-                    admin_state = nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
 
         create_instance('small',
                         "test_instance_0",
@@ -1765,7 +1765,7 @@ class TestSwUpgradeStrategy:
 
         strategy = create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
-            nfvi_upgrade = nfvi.objects.v1.Upgrade(
+            nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
                 '12.01',
                 '13.01')

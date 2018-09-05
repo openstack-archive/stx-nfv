@@ -171,9 +171,9 @@ def create_host_aggregate(name, host_names):
     global _host_aggregate_table
 
     nfvi_host_aggregate = nfvi.objects.v1.HostAggregate(
-        name = name,
-        host_names = host_names,
-        availability_zone = ''
+        name=name,
+        host_names=host_names,
+        availability_zone=''
     )
 
     host_aggregate = objects.HostAggregate(nfvi_host_aggregate)
@@ -366,8 +366,8 @@ class TestSwPatchStrategy:
         )
 
         success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts = sorted_compute_hosts,
-            reboot = True)
+            compute_hosts=sorted_compute_hosts,
+            reboot=True)
 
         assert success == True, "Strategy creation failed"
 
@@ -418,8 +418,8 @@ class TestSwPatchStrategy:
             max_parallel_compute_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -528,8 +528,8 @@ class TestSwPatchStrategy:
             max_parallel_compute_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -691,8 +691,8 @@ class TestSwPatchStrategy:
             max_parallel_compute_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -864,8 +864,8 @@ class TestSwPatchStrategy:
             max_parallel_compute_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1029,8 +1029,8 @@ class TestSwPatchStrategy:
             max_parallel_compute_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1180,8 +1180,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1270,7 +1270,7 @@ class TestSwPatchStrategy:
         create_instance('small',
                         "test_instance_1",
                         'compute-1',
-                        admin_state = nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
 
         create_instance_group('instance_group_1',
                               ['test_instance_0', 'test_instance_1'],
@@ -1289,8 +1289,8 @@ class TestSwPatchStrategy:
         )
 
         success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts = sorted_compute_hosts,
-            reboot = True)
+            compute_hosts=sorted_compute_hosts,
+            reboot=True)
 
         assert success == False, "Strategy creation did not fail"
 
@@ -1331,8 +1331,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1405,11 +1405,11 @@ class TestSwPatchStrategy:
         strategy = create_sw_patch_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START,
-            max_parallel_compute_hosts = 3,
+            max_parallel_compute_hosts=3,
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = False)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1457,7 +1457,7 @@ class TestSwPatchStrategy:
         create_host('compute-1')
         create_host('compute-2')
         create_host('compute-3',
-                    admin_state = nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
 
         create_instance('small',
                         "test_instance_0",
@@ -1479,8 +1479,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1551,7 +1551,7 @@ class TestSwPatchStrategy:
         create_instance('small',
                         "test_instance_1",
                         'compute-1',
-                        admin_state = nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
 
         compute_hosts = []
         for host in _host_table.values():
@@ -1566,8 +1566,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1665,8 +1665,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1744,8 +1744,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1836,8 +1836,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1925,8 +1925,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = False)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1940,7 +1940,7 @@ class TestSwPatchStrategy:
                      {'name': 'sw-patch-hosts',
                       'entity_names': ['compute-2']},
                      {'name': 'system-stabilize',
-                      'timeout' : 30}
+                      'timeout': 30}
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
@@ -1950,7 +1950,7 @@ class TestSwPatchStrategy:
                      {'name': 'sw-patch-hosts',
                       'entity_names': ['compute-3']},
                      {'name': 'system-stabilize',
-                      'timeout' : 30}
+                      'timeout': 30}
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
@@ -1960,7 +1960,7 @@ class TestSwPatchStrategy:
                      {'name': 'sw-patch-hosts',
                       'entity_names': ['compute-0']},
                      {'name': 'system-stabilize',
-                      'timeout' : 30}
+                      'timeout': 30}
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
@@ -1970,7 +1970,7 @@ class TestSwPatchStrategy:
                      {'name': 'sw-patch-hosts',
                       'entity_names': ['compute-1']},
                      {'name': 'system-stabilize',
-                      'timeout' : 30}
+                      'timeout': 30}
                  ]
                 }
             ]
@@ -1993,7 +1993,7 @@ class TestSwPatchStrategy:
         create_host('compute-0')
         create_host('compute-1')
         create_host('compute-2',
-                    admin_state = nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
         create_host('compute-3')
 
         create_instance('small',
@@ -2023,8 +2023,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2117,8 +2117,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = False)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2195,8 +2195,8 @@ class TestSwPatchStrategy:
             max_parallel_compute_hosts=5
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2325,8 +2325,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2488,7 +2488,7 @@ class TestSwPatchStrategy:
         create_instance('small',
                         "test_instance_0",
                         'compute-0',
-                        admin_state = nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
         create_instance('small',
                         "test_instance_1",
                         'compute-1')
@@ -2511,8 +2511,8 @@ class TestSwPatchStrategy:
         )
 
         success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts = sorted_compute_hosts,
-            reboot = True)
+            compute_hosts=sorted_compute_hosts,
+            reboot=True)
 
         assert success == False, "Strategy creation did not fail"
 
@@ -2608,8 +2608,8 @@ class TestSwPatchStrategy:
         )
 
         success, reason = strategy._add_storage_strategy_stages(
-            storage_hosts = sorted_storage_hosts,
-            reboot = True)
+            storage_hosts=sorted_storage_hosts,
+            reboot=True)
 
         assert success == True, "Strategy creation failed"
 
@@ -2654,8 +2654,8 @@ class TestSwPatchStrategy:
             storage_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL
         )
 
-        strategy._add_storage_strategy_stages(storage_hosts = sorted_storage_hosts,
-                                              reboot = True)
+        strategy._add_storage_strategy_stages(storage_hosts=sorted_storage_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2715,8 +2715,8 @@ class TestSwPatchStrategy:
             storage_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL
         )
 
-        strategy._add_storage_strategy_stages(storage_hosts = sorted_storage_hosts,
-                                              reboot = False)
+        strategy._add_storage_strategy_stages(storage_hosts=sorted_storage_hosts,
+                                              reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2777,8 +2777,8 @@ class TestSwPatchStrategy:
             storage_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
-        strategy._add_storage_strategy_stages(storage_hosts = sorted_storage_hosts,
-                                              reboot = True)
+        strategy._add_storage_strategy_stages(storage_hosts=sorted_storage_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2900,8 +2900,8 @@ class TestSwPatchStrategy:
         )
 
         success, reason = strategy._add_controller_strategy_stages(
-            controllers = controller_hosts,
-            reboot = True)
+            controllers=controller_hosts,
+            reboot=True)
         assert success == True, "Strategy creation failed"
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -2934,8 +2934,8 @@ class TestSwPatchStrategy:
             controller_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
-        strategy._add_controller_strategy_stages(controllers = controller_hosts,
-                                                 reboot = True)
+        strategy._add_controller_strategy_stages(controllers=controller_hosts,
+                                                 reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2989,8 +2989,8 @@ class TestSwPatchStrategy:
             controller_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
-        strategy._add_controller_strategy_stages(controllers = controller_hosts,
-                                                 reboot = False)
+        strategy._add_controller_strategy_stages(controllers=controller_hosts,
+                                                 reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -3054,8 +3054,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -3118,8 +3118,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = False)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -3179,8 +3179,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -3260,8 +3260,8 @@ class TestSwPatchStrategy:
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = sorted_compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -3283,7 +3283,7 @@ class TestSwPatchStrategy:
                      {'name': 'unlock-hosts',
                       'entity_names': ['controller-0']},
                      {'name': 'system-stabilize',
-                      'timeout' : 60}
+                      'timeout': 60}
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
@@ -3301,7 +3301,7 @@ class TestSwPatchStrategy:
                      {'name': 'unlock-hosts',
                       'entity_names': ['controller-1']},
                      {'name': 'system-stabilize',
-                      'timeout' : 60}
+                      'timeout': 60}
                   ]
                  },
             ]
@@ -3340,8 +3340,8 @@ class TestSwPatchStrategy:
         )
 
         success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts = compute_hosts,
-            reboot = True)
+            compute_hosts=compute_hosts,
+            reboot=True)
 
         assert success == False, "Strategy creation did not fail"
 
@@ -3369,8 +3369,8 @@ class TestSwPatchStrategy:
             single_controller=True
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -3424,8 +3424,8 @@ class TestSwPatchStrategy:
             single_controller=True
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts = compute_hosts,
-                                              reboot = True)
+        strategy._add_compute_strategy_stages(compute_hosts=compute_hosts,
+                                              reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
 

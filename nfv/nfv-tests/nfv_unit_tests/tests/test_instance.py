@@ -291,7 +291,6 @@ class TestInstance:
                                    'compute-0')
         assert 300 == instance.max_live_migrate_wait_in_secs
 
-
     def test_live_migration_completion_timeout_from_image(self):
         create_instance_type('small')
         create_image('image_0',
