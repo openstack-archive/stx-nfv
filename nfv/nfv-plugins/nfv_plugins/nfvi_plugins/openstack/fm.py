@@ -32,7 +32,7 @@ def get_logs(token, start=None, end=None):
     """
     url = token.get_service_url(OPENSTACK_SERVICE.FM)
     if url is None:
-        raise ValueError("OpenStack SysInv URL is invalid")
+        raise ValueError("OpenStack FM URL is invalid")
 
     api_cmd = url + "/event_log?logs=True"
 
@@ -61,7 +61,7 @@ def get_alarm_history(token, start=None, end=None):
     """
     url = token.get_service_url(OPENSTACK_SERVICE.FM)
     if url is None:
-        raise ValueError("OpenStack SysInv URL is invalid")
+        raise ValueError("OpenStack FM URL is invalid")
 
     api_cmd = url + "/event_log?alarms=True"
 

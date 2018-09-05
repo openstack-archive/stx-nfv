@@ -120,7 +120,7 @@ class TestHost(_test_base.Test):
             open(filename, 'w').close()
 
         os.system("source /etc/nova/openrc; echo -e '\tALARM-LIST' >> %s; "
-                  "system alarm-list --nowrap | sed 's/^/\t /' >> %s; "
+                  "fm alarm-list --nowrap | sed 's/^/\t /' >> %s; "
                   "echo -e '\n' >> %s" % (filename, filename, filename))
 
     def save_customer_logs(self, filename, wipe=False):
@@ -131,7 +131,7 @@ class TestHost(_test_base.Test):
             open(filename, 'w').close()
 
         os.system("source /etc/nova/openrc; echo -e '\tLOG-LIST' >> %s; "
-                  "system event-list --logs --nowrap --nopaging --limit 100 --query "
+                  "fm event-list --logs --nowrap --nopaging --limit 100 --query "
                   "'start=%s;end=%s' | sed 's/^/\t /' >> %s; echo -e '\n' >> %s"
                   % (filename, self._start_datetime, self._end_datetime,
                      filename, filename))
@@ -144,7 +144,7 @@ class TestHost(_test_base.Test):
             open(filename, 'w').close()
 
         os.system("source /etc/nova/openrc; echo -e '\tALARM-HISTORY' >> %s; "
-                  "system event-list --alarms --nowrap --nopaging --limit 100 "
+                  "fm event-list --alarms --nowrap --nopaging --limit 100 "
                   "--query 'start=%s;end=%s' | sed 's/^/\t /' >> %s; "
                   "echo -e '\n' >> %s"
                   % (filename, self._start_datetime, self._end_datetime,
