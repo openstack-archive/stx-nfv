@@ -48,7 +48,7 @@ import plotly.graph_objs as go
 from plotly.graph_objs import Scatter, Layout
 from plotly import tools
 from glob import iglob
-import commands
+import subprocess
 from builtins import input
 
 dir = os.path.dirname(__file__)
@@ -195,7 +195,6 @@ def gCommand(groups):
             liNum=i
             if str("GroupName="+g) == cfgLines[i].strip():
                 groupFound=True
-                linum=i
                 while not finishedGroup:
                     liNum+=1
                     if "GroupEND" in cfgLines[liNum]:
@@ -366,7 +365,7 @@ def setFilename(graphName):
 
 print("Welcome to plotter, type --help for information")
 # Checks that plotly is installed, otherwise graphs cannot be generated.
-plotCheck=commands.getstatusoutput("pip list | grep plotly")
+plotCheck=subprocess.getstatusoutput("pip list | grep plotly")
 if plotCheck[0]==0:
     if "plotly" not in plotCheck[1]:
         print("\n\tWARNING: Plotly is not installed on your system.\n\tPlease install it with: sudo pip install plotly\n")

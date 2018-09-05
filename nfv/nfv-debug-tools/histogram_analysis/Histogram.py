@@ -57,7 +57,7 @@ call("cp nfv-vim.log nfv-vim.log.[0-9] nfv-vim.log.[0-9][0-9] nfv-vim.log.[0-9].
 call("gunzip logs/nfv-vim.log.[0-9].gz logs/nfv-vim.log.[0-9][0-9].gz", shell=True)
 
 
-class Parser:
+class Parser(object):
     def __init__(self):
         self.proc="" # Name of process being read
         self.timestamp="" # Timestamp found on line stating process name
@@ -131,6 +131,7 @@ class Parser:
                 for line in self.csvs[process]:
                     csvOut.write(line+"\n")
             csvOut.close()
+
 
 process=Parser()
 process.main()

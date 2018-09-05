@@ -105,6 +105,7 @@ class Histogram(object):
                              '*' * min(60, bucket_value)))
         LOG.info("%s" % '-' * 120)
 
+
 _histograms = list()
 
 

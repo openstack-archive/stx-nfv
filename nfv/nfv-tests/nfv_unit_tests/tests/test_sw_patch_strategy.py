@@ -297,7 +297,7 @@ def fake_event_issue(a, b, c, d):
 @mock.patch('nfv_vim.tables._host_aggregate_table._host_aggregate_table', _host_aggregate_table)
 @mock.patch('nfv_vim.tables._instance_table._instance_table', _instance_table)
 @mock.patch('nfv_vim.strategy._strategy.get_local_host_name', fake_host_name)
-class TestSwPatchStrategy:
+class TestSwPatchStrategy(object):
 
     def setup(self):
         """
