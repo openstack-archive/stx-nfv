@@ -35,6 +35,7 @@ class ProxySysLogHandler(SysLogHandler):
         msg = logging.handlers.SysLogHandler.format(self, record)
         return self.binary_name + '(' + self.app + ')' + ': ' + msg
 
+
 _loggers = {}
 
 

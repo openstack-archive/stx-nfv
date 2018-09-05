@@ -122,7 +122,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
     @staticmethod
     def _host_supports_kubernetes(personality):
-        # TODO: This check will disappear once kubernetes is the default
+        # TODO(bwensley): This check will disappear once kubernetes is the default
         if os.path.isfile('/etc/kubernetes/admin.conf'):
             return ('compute' in personality or 'controller' in personality)
         else:

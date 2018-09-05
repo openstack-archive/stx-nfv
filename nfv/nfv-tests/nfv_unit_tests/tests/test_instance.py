@@ -249,7 +249,7 @@ def fake_event_issue(a, b, c, d):
 @mock.patch('nfv_vim.tables._instance_table._instance_table', _instance_table)
 @mock.patch('nfv_vim.tables._instance_type_table._instance_type_table', _instance_type_table)
 @mock.patch('nfv_vim.tables._image_table._image_table', _image_table)
-class TestInstance:
+class TestInstance(object):
 
     def setup(self):
         """

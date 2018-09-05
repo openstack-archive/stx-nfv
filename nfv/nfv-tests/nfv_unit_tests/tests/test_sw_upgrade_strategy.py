@@ -304,7 +304,7 @@ def fake_event_issue(a, b, c, d):
 @mock.patch('nfv_vim.tables._host_group_table._host_group_table', _host_group_table)
 @mock.patch('nfv_vim.tables._host_aggregate_table._host_aggregate_table', _host_aggregate_table)
 @mock.patch('nfv_vim.tables._instance_table._instance_table', _instance_table)
-class TestSwUpgradeStrategy:
+class TestSwUpgradeStrategy(object):
 
     def setup(self):
         """
