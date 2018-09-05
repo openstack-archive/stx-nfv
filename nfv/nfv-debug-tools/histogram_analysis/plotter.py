@@ -70,6 +70,7 @@ group=[]
 graphName=""
 plotType=""
 
+
 def helpMessage():
     print("\n"+"-"*120)
     print("NFV-VIM Histogram Graphing Script\n")
@@ -207,7 +208,7 @@ def gCommand(groups):
                     break
         else:
             if not groupFound:
-                warnings.append("WARNING: The following group could not be found: %s\n\t\t Please check your logplot.cfg file for the intended group name."%(g,))
+                warnings.append("WARNING: The following group could not be found: %s\n\t\t Please check your logplot.cfg file for the intended group name." % (g,))
 
     f.close()
     return procs
@@ -229,7 +230,7 @@ def pCommand(pList):
             procList.append(pList[i])
         else:
             while(not isFile):
-                print("\nFiles containing keyword: %s"%(str(procName)))
+                print("\nFiles containing keyword: %s" % (str(procName)))
                 csvFile=str(procName)+".csv"
                 for root, directories, filenames in os.walk(pth):
                     for filename in filenames:
@@ -274,10 +275,10 @@ def storeGraphData(procs, dateRange=[], execTime=False, hits=False, plots=1):
             f.close()
             hitList[i][0]=None
             graphData['trace'+str(i)] = go.Scatter(
-                                                x = dateList[i],
-                                                y = timeList[i] if execTime else hitList[i],
-                                                mode = plotType,
-                                                name = (procs[i] if not oneAxis else (procs[i]+"_"+("time" if execTime else "hits")))
+                                                x=dateList[i],
+                                                y=timeList[i] if execTime else hitList[i],
+                                                mode=plotType,
+                                                name=(procs[i] if not oneAxis else (procs[i]+"_"+("time" if execTime else "hits")))
                                                 )
             if plots==1:
                 fig.append_trace(graphData['trace'+str(i)], 1, 1)
@@ -297,10 +298,10 @@ def storeGraphData(procs, dateRange=[], execTime=False, hits=False, plots=1):
             f.close()
             hitList[i][0]=None
             graphData['trace'+str(i)] = go.Scatter(
-                                                x = dateList[i],
-                                                y = timeList[i] if execTime else hitList[i],
-                                                mode = plotType,
-                                                name = (procs[i] if not oneAxis else (procs[i]+"_"+("time" if execTime else "hits")))
+                                                x=dateList[i],
+                                                y=timeList[i] if execTime else hitList[i],
+                                                mode=plotType,
+                                                name=(procs[i] if not oneAxis else (procs[i]+"_"+("time" if execTime else "hits")))
                                                 )
             if plots==1:
                 fig.append_trace(graphData['trace'+str(i)], 1, 1)
@@ -361,7 +362,6 @@ def setFilename(graphName):
                 graphName=graphName+"("+str(n)+")"
                 validName=True
     return graphName
-
 
 
 print("Welcome to plotter, type --help for information")
@@ -465,7 +465,7 @@ if config:
             if os.path.exists(os.path.join(pth,csvFile)):
                 procs.append(cfgLine[0])
             else:
-                warnings.append("WARNING: %s does not exist."%(csvFile,))
+                warnings.append("WARNING: %s does not exist." % (csvFile,))
     f.close()
 
 # If both average execution time and delta hits are specified to be shown, generate two graphs if -oneaxis wasn't specified.

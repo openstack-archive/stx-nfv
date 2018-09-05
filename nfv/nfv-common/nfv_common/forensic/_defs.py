@@ -6,6 +6,7 @@
 # flake8: noqa
 #
 
+
 class _NfvVimRecordType(object):
     """
     NFV-VIM Record Type Constants
