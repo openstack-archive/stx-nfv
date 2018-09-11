@@ -234,7 +234,7 @@ class InstanceActionData(object):
             InstanceActionData._seqnum += 1
 
         elif action_seqnum >= InstanceActionData._seqnum:
-            InstanceActionData._seqnum = action_seqnum+1
+            InstanceActionData._seqnum = action_seqnum + 1
 
         self._seqnum = action_seqnum
         self._action_state = action_state

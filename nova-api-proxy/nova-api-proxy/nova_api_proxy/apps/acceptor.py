@@ -199,8 +199,8 @@ class DebugHeaders(Middleware):
         if body:
             for line in body.splitlines():
                 # This way we won't print out control characters:
-                LOG.info(line.encode('string_escape')+'\n')
-            LOG.info('-'*70+'\n')
+                LOG.info(line.encode('string_escape') + '\n')
+            LOG.info('-' * 70 + '\n')
 
 
 def get_jason_request_body(request):

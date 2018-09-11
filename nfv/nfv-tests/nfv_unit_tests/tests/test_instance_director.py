@@ -143,7 +143,7 @@ def test_instance_director_recovery_list(
     # -- with one instance in the failed state, but elapsed time is less
     #    than the recovery cooldown, verify that the list is empty, but
     #    the audit interval is set to the recovery cooldown period
-    instance_1._elapsed_time_in_state = _recovery_cooldown-1
+    instance_1._elapsed_time_in_state = _recovery_cooldown - 1
     (next_audit_interval, instance_recovery_list, instance_failed_list,
      instance_rebuilding_list, instance_migrating_list,
      instance_rebooting_list) = _director._get_instance_recovery_list()

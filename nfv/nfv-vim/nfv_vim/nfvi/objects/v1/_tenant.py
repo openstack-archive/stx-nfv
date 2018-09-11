@@ -12,5 +12,5 @@ class Tenant(ObjectData):
     """
     def __init__(self, uuid, name, description, enabled):
         super(Tenant, self).__init__('1.0.0')
-        self.update(dict(uuid=uuid, name=name,  description=description,
+        self.update(dict(uuid=uuid, name=name, description=description,
                          enabled=enabled))

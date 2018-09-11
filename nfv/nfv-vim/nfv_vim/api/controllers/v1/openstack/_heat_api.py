@@ -52,7 +52,7 @@ class HeatAPI(object):
         token = openstack.get_token(directory)
 
         url_target_index = pecan.request.url.find('/api/openstack/heat')
-        url_target = pecan.request.url[url_target_index+len('/api/openstack/heat'):]
+        url_target = pecan.request.url[url_target_index + len('/api/openstack/heat'):]
 
         if '' == url_target or '/' == url_target:
             url = token.get_service_url(openstack.OPENSTACK_SERVICE.HEAT,

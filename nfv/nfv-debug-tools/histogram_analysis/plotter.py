@@ -53,26 +53,26 @@ from builtins import input
 
 dir = os.path.dirname(__file__)
 fig = plotly.graph_objs.graph_objs.Figure
-pth = os.path.join(dir,'csv/')
+pth = os.path.join(dir, 'csv/')
 
-execTime=False # Indicates if average execution time is to be graphed or not
-default=False # Indicates no commands were entered and to run with default settings (run config with -t option)
-oneAxis=False # Causes the generated graph to have two y-axes sharing an x-axis with both avg execution time and hits being graphed
-config=False # Indicates whether to pull process names from logplot.cfg or not
-hits=False # Indicates if the delta of hits between samples is to be graphed
-markers=False
-lines=False
-timestamp=[]
-dateRange=[]
-warnings=[]
-procs=[]
-group=[]
-graphName=""
-plotType=""
+execTime = False # Indicates if average execution time is to be graphed or not
+default = False # Indicates no commands were entered and to run with default settings (run config with -t option)
+oneAxis = False # Causes the generated graph to have two y-axes sharing an x-axis with both avg execution time and hits being graphed
+config = False # Indicates whether to pull process names from logplot.cfg or not
+hits = False # Indicates if the delta of hits between samples is to be graphed
+markers = False
+lines = False
+timestamp = []
+dateRange = []
+warnings = []
+procs = []
+group = []
+graphName = ""
+plotType = ""
 
 
 def helpMessage():
-    print("\n"+"-"*120)
+    print("\n" + "-" * 120)
     print("NFV-VIM Histogram Graphing Script\n")
     print("This script is meant to graph average execution times and the delta of hits between sample periods for processes in nfv-vim logs.\n")
     print("Usage:\n")
@@ -130,51 +130,51 @@ def helpMessage():
           "                                                                                 the config file, to use log information for all dates\n"
           "                                                                                 available, to show average execution time on the y-axis,\n"
           "                                                                                 and to name the file with the current day's datestamp.")
-    print("-"*120)
+    print("-" * 120)
 
 
 # Appends new processes found via CSV filenames to the master process list in logplot.cfg if there are not already present.
 # If logplot.cfg has not been generated yet, this will create it and add process names found in filenames in ./csv
 def updater(configExists=True):
-    procs=[]
-    existingProcs=[]
-    newProcs=[]
-    position=0 # Tracks position of the end of the master process list so new processes can be added above it.
+    procs = []
+    existingProcs = []
+    newProcs = []
+    position = 0 # Tracks position of the end of the master process list so new processes can be added above it.
 
     os.chdir(pth)
     for name in iglob("*.csv"):
         procs.append(str(name)[:-4])
     os.chdir("..")
     if not configExists:
-        f=open(os.path.join(dir,'logplot.cfg'),"w")
+        f = open(os.path.join(dir, 'logplot.cfg'), "w")
         for p in procs:
-            f.write(p+" "*(59-len(p))+"N\n")
-        f.write("#"*20+"END OF PROCESS LIST"+"#"*21+"\n\n")
-        f.write("#"*27+"GROUPS"+"#"*27+"\n")
+            f.write(p + " " * (59 - len(p)) + "N\n")
+        f.write("#" * 20 + "END OF PROCESS LIST" + "#" * 21 + "\n\n")
+        f.write("#" * 27 + "GROUPS" + "#" * 27 + "\n")
         f.write("#GroupSTART\n")
         f.write("GroupName=ExampleGroupName1\n")
-        f.write("ExampleProcessName1"+" "*40+"N\n")
-        f.write("ExampleProcessName2"+" "*40+"N\n")
+        f.write("ExampleProcessName1" + " " * 40 + "N\n")
+        f.write("ExampleProcessName2" + " " * 40 + "N\n")
         f.write("#GroupEND\n")
-        f.write("-"*60+"\n")
+        f.write("-" * 60 + "\n")
         f.write("GroupName=ExampleGroupName2\n")
-        f.write("ExampleProcessName3"+" "*40+"N\n")
-        f.write("ExampleProcessName4"+" "*40+"N\n")
+        f.write("ExampleProcessName3" + " " * 40 + "N\n")
+        f.write("ExampleProcessName4" + " " * 40 + "N\n")
         f.write("#GroupEND\n")
-        f.write("#"*20+"END OF GROUPS"+"#"*27)
+        f.write("#" * 20 + "END OF GROUPS" + "#" * 27)
         f.close()
     else:
-        with open(os.path.join(dir,'logplot.cfg'),"r+") as f:
+        with open(os.path.join(dir, 'logplot.cfg'), "r+") as f:
             cfgLines = f.read().splitlines()
             for cfgProc in cfgLines:
                 if "#END" in cfgProc:
                     break
                 existingProcs.append(cfgProc.split()[0])
-                position+=1
+                position += 1
             for p in procs:
                 if p not in existingProcs:
-                    newProcs.append(p+" "*(59-len(p))+"N")
-            procs=cfgLines[:position]+newProcs+cfgLines[position:]
+                    newProcs.append(p + " " * (59 - len(p)) + "N")
+            procs = cfgLines[:position] + newProcs + cfgLines[position:]
             f.seek(0)
             f.write("\n".join(procs))
             f.truncate()
@@ -183,25 +183,25 @@ def updater(configExists=True):
 
 # Appends process names found in the specified group to the list of processes to be graphed.
 def gCommand(groups):
-    procs=[]
-    f=open(os.path.join(dir,'logplot.cfg'),"r")
-    cfgLines=f.read().splitlines()
+    procs = []
+    f = open(os.path.join(dir, 'logplot.cfg'), "r")
+    cfgLines = f.read().splitlines()
 
     for g in groups:
-        groupFound=False
-        finishedGroup=False
+        groupFound = False
+        finishedGroup = False
 
         for i in range(len(cfgLines)):
-            liNum=i
-            if str("GroupName="+g) == cfgLines[i].strip():
-                groupFound=True
+            liNum = i
+            if str("GroupName=" + g) == cfgLines[i].strip():
+                groupFound = True
                 while not finishedGroup:
-                    liNum+=1
+                    liNum += 1
                     if "GroupEND" in cfgLines[liNum]:
-                        finishedGroup=True
+                        finishedGroup = True
                     else:
-                        cfgLine=cfgLines[liNum].split()
-                        if cfgLine[1]=="Y":
+                        cfgLine = cfgLines[liNum].split()
+                        if cfgLine[1] == "Y":
                             procs.append(cfgLine[0])
                 else:
                     break
@@ -218,34 +218,34 @@ def gCommand(groups):
 # a list of known processes containing the name they entered. If they enter one of the provided names, it will be added to the list. If the
 # user enters "s", the process in question will be skipped and the script will continue. If they user enters "q" the script will exit.
 def pCommand(pList):
-    procList=[]
+    procList = []
     for i in range(len(pList)):
-        csvFile=str(pList[i])+".csv"
-        procName=str(pList[i])
-        isFile=False
+        csvFile = str(pList[i]) + ".csv"
+        procName = str(pList[i])
+        isFile = False
 
-        if os.path.isfile(os.path.join(pth,csvFile)):
+        if os.path.isfile(os.path.join(pth, csvFile)):
             isFile = True
             procList.append(pList[i])
         else:
             while(not isFile):
                 print("\nFiles containing keyword: %s" % (str(procName)))
-                csvFile=str(procName)+".csv"
+                csvFile = str(procName) + ".csv"
                 for root, directories, filenames in os.walk(pth):
                     for filename in filenames:
                         if procName.lower() in filename.lower():
-                            if (str(procName)+".csv") == str(filename):
-                                isFile=True
+                            if (str(procName) + ".csv") == str(filename):
+                                isFile = True
                                 procList.append(str(procName).strip())
                                 break
                             else:
-                                print(" "+filename[:-4])
+                                print(" " + filename[:-4])
                     else:
                         procName = str(input("\nEnter the corrected process name, q to quit, or s to skip: ")).strip()
-                    if procName=="s":
-                        isFile=True
+                    if procName == "s":
+                        isFile = True
                         break
-                    elif procName=="q":
+                    elif procName == "q":
                         sys.exit()
     return procList
 
@@ -253,59 +253,55 @@ def pCommand(pList):
 # Stores the average execution time, or delta hit count data into into a plotly graph obj, and restricts sample to be within a certain
 # date range if specified. If plots is 1, one graph will be generated. If plots is 2, two graphs will be generated with one above the other.
 def storeGraphData(procs, dateRange=[], execTime=False, hits=False, plots=1):
-    graphData={}
-    prevHitTotal=0
-    timeList=[[] for p in range(len(procs))]
-    dateList=[[] for p in range(len(procs))]
-    hitList=[[] for p in range(len(procs))]
+    graphData = {}
+    prevHitTotal = 0
+    timeList = [[] for p in range(len(procs))]
+    dateList = [[] for p in range(len(procs))]
+    hitList = [[] for p in range(len(procs))]
     if dateRange:
         for i in range(len(procs)):
-            csvFile = str(procs[i])+".csv"
-            with open(os.path.join(pth,csvFile), 'rb') as f:
+            csvFile = str(procs[i]) + ".csv"
+            with open(os.path.join(pth, csvFile), 'rb') as f:
                 reader = csv.reader(f, delimiter=',', quoting=csv.QUOTE_NONE)
                 for ts, at, h, n in reader:
                     t = ts.split("T")
-                    date=''.join(x for x in t[0].split('-'))
+                    date = ''.join(x for x in t[0].split('-'))
                     if (int(date) >= int(dateRange[0])) and (int(date) <= int(dateRange[1])):
                         timeList[i].append(at)
-                        dateList[i].append(str(ts[0:10:1]+" "+ts[11:]))
-                        hitList[i].append(int(h)-prevHitTotal)
-                        prevHitTotal=int(h)
+                        dateList[i].append(str(ts[0:10:1] + " " + ts[11:]))
+                        hitList[i].append(int(h) - prevHitTotal)
+                        prevHitTotal = int(h)
             f.close()
-            hitList[i][0]=None
-            graphData['trace'+str(i)] = go.Scatter(
-                                                x=dateList[i],
-                                                y=timeList[i] if execTime else hitList[i],
-                                                mode=plotType,
-                                                name=(procs[i] if not oneAxis else (procs[i]+"_"+("time" if execTime else "hits")))
-                                                )
-            if plots==1:
-                fig.append_trace(graphData['trace'+str(i)], 1, 1)
-            elif plots==2:
-                fig.append_trace(graphData['trace'+str(i)], 2, 1)
+            hitList[i][0] = None
+            graphData['trace' + str(i)] = go.Scatter(x=dateList[i],
+                                                     y=timeList[i] if execTime else hitList[i],
+                                                     mode=plotType,
+                                                     name=(procs[i] if not oneAxis else (procs[i] + "_" + ("time" if execTime else "hits"))))
+            if plots == 1:
+                fig.append_trace(graphData['trace' + str(i)], 1, 1)
+            elif plots == 2:
+                fig.append_trace(graphData['trace' + str(i)], 2, 1)
 
     else:
         for i in range(len(procs)):
-            csvFile = str(procs[i])+".csv"
-            with open(os.path.join(pth,csvFile), 'rb') as f:
+            csvFile = str(procs[i]) + ".csv"
+            with open(os.path.join(pth, csvFile), 'rb') as f:
                 reader = csv.reader(f, delimiter=',', quoting=csv.QUOTE_NONE)
                 for ts, at, h, n in reader:
                     timeList[i].append(at)
-                    dateList[i].append(str(ts[0:10:1]+" "+ts[11:]))
-                    hitList[i].append(int(h)-prevHitTotal)
-                    prevHitTotal=int(h)
+                    dateList[i].append(str(ts[0:10:1] + " " + ts[11:]))
+                    hitList[i].append(int(h) - prevHitTotal)
+                    prevHitTotal = int(h)
             f.close()
-            hitList[i][0]=None
-            graphData['trace'+str(i)] = go.Scatter(
-                                                x=dateList[i],
-                                                y=timeList[i] if execTime else hitList[i],
-                                                mode=plotType,
-                                                name=(procs[i] if not oneAxis else (procs[i]+"_"+("time" if execTime else "hits")))
-                                                )
-            if plots==1:
-                fig.append_trace(graphData['trace'+str(i)], 1, 1)
-            elif plots==2:
-                fig.append_trace(graphData['trace'+str(i)], 2, 1)
+            hitList[i][0] = None
+            graphData['trace' + str(i)] = go.Scatter(x=dateList[i],
+                                                     y=timeList[i] if execTime else hitList[i],
+                                                     mode=plotType,
+                                                     name=(procs[i] if not oneAxis else (procs[i] + "_" + ("time" if execTime else "hits"))))
+            if plots == 1:
+                fig.append_trace(graphData['trace' + str(i)], 1, 1)
+            elif plots == 2:
+                fig.append_trace(graphData['trace' + str(i)], 2, 1)
 
 
 # Formats the graph by adding axis titles, changing font sizes, setting there to be two separate graphs or two graphs sharing an x-axis etc.
@@ -313,14 +309,14 @@ def formatGraph(two, oneAxis):
     fig['layout'].update(showlegend=True)
     if two:
         if oneAxis:
-            fig['layout']['xaxis1'].update(title='Timestamp',titlefont=dict(size=20, color='#4d4d4d'))
-            fig['layout']['yaxis1'].update(title='Hits Per Sample',titlefont=dict(size=20, color='#4d4d4d'))
-            fig['layout']['yaxis2'].update(title='Average Execution Time (milliseconds)',anchor='x',overlaying='y',side='right',position=1,titlefont=dict(size=20, color='#4d4d4d'))
+            fig['layout']['xaxis1'].update(title='Timestamp', titlefont=dict(size=20, color='#4d4d4d'))
+            fig['layout']['yaxis1'].update(title='Hits Per Sample', titlefont=dict(size=20, color='#4d4d4d'))
+            fig['layout']['yaxis2'].update(title='Average Execution Time (milliseconds)', anchor='x', overlaying='y', side='right', position=1, titlefont=dict(size=20, color='#4d4d4d'))
         else:
-            fig['layout']['xaxis1'].update(title='Timestamp',titlefont=dict(size=20, color='#4d4d4d'))
-            fig['layout']['yaxis1'].update(title='Average Execution Time (milliseconds)',titlefont=dict(size=20, color='#4d4d4d'))
-            fig['layout']['xaxis2'].update(title='Timestamp',titlefont=dict(size=20, color='#4d4d4d'))
-            fig['layout']['yaxis2'].update(title='Hits Per Sample',titlefont=dict(size=20, color='#4d4d4d'))
+            fig['layout']['xaxis1'].update(title='Timestamp', titlefont=dict(size=20, color='#4d4d4d'))
+            fig['layout']['yaxis1'].update(title='Average Execution Time (milliseconds)', titlefont=dict(size=20, color='#4d4d4d'))
+            fig['layout']['xaxis2'].update(title='Timestamp', titlefont=dict(size=20, color='#4d4d4d'))
+            fig['layout']['yaxis2'].update(title='Hits Per Sample', titlefont=dict(size=20, color='#4d4d4d'))
         fig['layout'].update(title=graphName, titlefont=dict(size=26))
     else:
         fig['layout'].update(
@@ -346,32 +342,32 @@ def formatGraph(two, oneAxis):
 
 # Sets the name of the saved html file.
 def setFilename(graphName):
-    validName=False
+    validName = False
     if not os.path.exists("Graphs/"):
         os.makedirs("Graphs/")
-    os.chdir(os.path.join(dir,'Graphs/'))
+    os.chdir(os.path.join(dir, 'Graphs/'))
     if not graphName:
-            graphName=time.strftime("%m-%d-%Y")
-    if os.path.exists(str(graphName+".html")):
-        n=1
+            graphName = time.strftime("%m-%d-%Y")
+    if os.path.exists(str(graphName + ".html")):
+        n = 1
         while(not validName):
-            if os.path.exists(str(graphName+"("+str(n)+").html")):
-                n+=1
+            if os.path.exists(str(graphName + "(" + str(n) + ").html")):
+                n += 1
             else:
-                graphName=graphName+"("+str(n)+")"
-                validName=True
+                graphName = graphName + "(" + str(n) + ")"
+                validName = True
     return graphName
 
 
 print("Welcome to plotter, type --help for information")
 # Checks that plotly is installed, otherwise graphs cannot be generated.
-plotCheck=subprocess.getstatusoutput("pip list | grep plotly")
-if plotCheck[0]==0:
+plotCheck = subprocess.getstatusoutput("pip list | grep plotly")
+if plotCheck[0] == 0:
     if "plotly" not in plotCheck[1]:
         print("\n\tWARNING: Plotly is not installed on your system.\n\tPlease install it with: sudo pip install plotly\n")
         sys.exit()
 # Checks to see if logplot.cfg already exists, creates it if not.
-if not os.path.isfile(os.path.join(dir,'logplot.cfg')):
+if not os.path.isfile(os.path.join(dir, 'logplot.cfg')):
     print("Generating logplot.cfg")
     updater(False)
     print("logplot.cfg created.")
@@ -381,54 +377,54 @@ if not os.path.isdir('./csv'):
 
 command = sys.argv # Takes arguments from the command line
 
-if len(command)==1:
+if len(command) == 1:
     print("Running with default settings.")
     default = True
 else:
-    for i in range(1,len(command)):
+    for i in range(1, len(command)):
         if command[i] == "-c": # Use config file
-            config=True
+            config = True
         elif command[i] == "--g": # Groups
-            for j in range(i+1,len(command)):
+            for j in range(i + 1, len(command)):
                 group.append(command[j])
-            procs=gCommand(group)
+            procs = gCommand(group)
             break
         elif command[i] == "-t": # Average execution time
-            execTime=True
+            execTime = True
         elif command[i] == "-h": # Delta hits between samples
-            hits=True
+            hits = True
         elif command[i] == "-l": # Graph with lines
-            lines=True
+            lines = True
         elif command[i] == "-m": # Graph with markers (scatter)
-            markers=True
+            markers = True
         elif command[i] == "-lm": # Graph with lines and markers
-            lines=True
-            markers=True
+            lines = True
+            markers = True
         elif command[i] == "-d": # Date range
-            dateRange=command[i+1].split('-')
+            dateRange = command[i + 1].split('-')
             if dateRange[0]:
-                lower=dateRange[0].split("/")
-                dateRange[0]=lower[0]+lower[1].zfill(2)+lower[2].zfill(2)
+                lower = dateRange[0].split("/")
+                dateRange[0] = lower[0] + lower[1].zfill(2) + lower[2].zfill(2)
             else:
-                dateRange[0]="0"*8
+                dateRange[0] = "0" * 8
             if dateRange[1]:
-                upper=dateRange[1].split("/")
-                dateRange[1]=upper[0]+upper[1].zfill(2)+upper[2].zfill(2)
+                upper = dateRange[1].split("/")
+                dateRange[1] = upper[0] + upper[1].zfill(2) + upper[2].zfill(2)
             else:
-                dateRange[1]="9"*8
-            i+=1
+                dateRange[1] = "9" * 8
+            i += 1
         elif command[i] == "-n": # Name of file to be generated
-            graphName=command[i+1]
-            i+=1
+            graphName = command[i + 1]
+            i += 1
         elif command[i] == "-oneaxis": # Have hit and time data displayed on same graph
-            oneAxis=True
+            oneAxis = True
         elif (command[i] == "--help") or (command[i] == "--h"): # Print help message and exit script
             helpMessage()
             sys.exit()
         elif command[i] == "--p": # User-specified processes
-            for j in range(i+1,len(command)):
+            for j in range(i + 1, len(command)):
                 procs.append(command[j])
-            procs=pCommand(procs)
+            procs = pCommand(procs)
             break
         elif command[i] == "--update":
             print("Updating...")
@@ -442,26 +438,26 @@ if (not execTime) and (not hits):
 
 # Default settings can be changed as desired.
 if default:
-    config=True
-    execTime=True
+    config = True
+    execTime = True
 
 if (lines and markers):
-    plotType="lines+markers"
+    plotType = "lines+markers"
 elif lines:
-    plotType="lines"
+    plotType = "lines"
 else:
-    plotType="markers"
+    plotType = "markers"
 
 if config:
-    f=open(os.path.join(dir,'logplot.cfg'),"r")
-    procList=f.read().splitlines()
+    f = open(os.path.join(dir, 'logplot.cfg'), "r")
+    procList = f.read().splitlines()
     for p in procList:
         if "#END" in p:
             break
-        cfgLine=p.split()
-        if cfgLine[1]=="Y":
-            csvFile=cfgLine[0]+".csv"
-            if os.path.exists(os.path.join(pth,csvFile)):
+        cfgLine = p.split()
+        if cfgLine[1] == "Y":
+            csvFile = cfgLine[0] + ".csv"
+            if os.path.exists(os.path.join(pth, csvFile)):
                 procs.append(cfgLine[0])
             else:
                 warnings.append("WARNING: %s does not exist." % (csvFile,))
@@ -486,10 +482,10 @@ if procs:
     formatGraph((execTime and hits), oneAxis)
 
     # Generates the plot
-    plotly.offline.plot(fig, filename=setFilename(graphName)+".html")
+    plotly.offline.plot(fig, filename=setFilename(graphName) + ".html")
 else:
     warnings.append("NO GRAPH GENERATED BECAUSE NO VALID GROUP OR PROCESS NAME SPECIFIED.")
 
 # If any warnings occured, print them
 if warnings:
-    print("\n\t"+("\n\t").join(warnings)+"\n")
+    print("\n\t" + ("\n\t").join(warnings) + "\n")

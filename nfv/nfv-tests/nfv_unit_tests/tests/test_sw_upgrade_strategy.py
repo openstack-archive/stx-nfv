@@ -672,7 +672,7 @@ class TestSwUpgradeStrategy(object):
         stage_hosts = list()
         stage_instances = list()
 
-        for x in range(0, len(host_sets)-1):
+        for x in range(0, len(host_sets) - 1):
             stage_hosts.append(["compute-%02d" % host_num for host_num in host_sets[x]])
             stage_instances.append(
                 ["test_instance_%02d" % host_num for host_num in instance_sets[x]])

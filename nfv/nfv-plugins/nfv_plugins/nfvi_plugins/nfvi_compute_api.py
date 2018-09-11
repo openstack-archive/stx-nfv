@@ -2988,7 +2988,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         self._rest_api_server.add_handler(
             'POST', '/v2.1/*', self.instance_action_rest_api_post_handler)
 
-        interval_secs = max(self._max_action_request_wait_in_secs/2, 1)
+        interval_secs = max(self._max_action_request_wait_in_secs / 2, 1)
         timers.timers_create_timer('compute-api-action-requests-audit',
                                    interval_secs, interval_secs,
                                    self._audit_action_requests)

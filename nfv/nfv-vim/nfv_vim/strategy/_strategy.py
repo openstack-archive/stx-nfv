@@ -1259,7 +1259,7 @@ class SwUpgradeStrategy(SwUpdateStrategy):
             stage.add_step(strategy.UnlockHostsStep(host_list))
             # Allow up to four hours for controller disks to synchronize
             stage.add_step(strategy.WaitDataSyncStep(
-                timeout_in_secs=4*60*60,
+                timeout_in_secs=4 * 60 * 60,
                 ignore_alarms=self._ignore_alarms))
             self.apply_phase.add_stage(stage)
 

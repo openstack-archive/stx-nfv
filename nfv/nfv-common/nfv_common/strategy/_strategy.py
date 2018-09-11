@@ -210,7 +210,7 @@ class Strategy(object):
                 elif 0 == stage_id and stage_id < self.apply_phase.total_stages:
                     self._state = STRATEGY_STATE.APPLYING
                     self._current_phase = STRATEGY_PHASE.APPLY
-                    self.apply_phase.apply(stage_id+1)
+                    self.apply_phase.apply(stage_id + 1)
 
                 else:
                     success = False
@@ -259,7 +259,7 @@ class Strategy(object):
                           % (stage_id, self.apply_phase.current_stage))
 
             else:
-                self.apply_phase.apply(stage_id+1)
+                self.apply_phase.apply(stage_id + 1)
 
         else:
             if stage_id is None:

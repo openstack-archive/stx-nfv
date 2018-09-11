@@ -76,7 +76,7 @@ class NfvVimParser(object):
                 timestamp = datetime.datetime(int(parsed[0]), int(parsed[1]),
                                               int(parsed[2]), int(parsed[3]),
                                               int(parsed[4]), int(parsed[5]),
-                                              int(parsed[6])*1000)
+                                              int(parsed[6]) * 1000)
 
                 if start_date <= timestamp <= end_date:
                     message_data = self.parse_message(parsed[9], parsed[10],

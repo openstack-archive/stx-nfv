@@ -210,8 +210,8 @@ def analysis_instance_stop_success(instance_uuid, instance_name, records,
     always = True
 
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,   NFV_VIM.INSTANCE_STOP_STATE),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_STOP_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
@@ -219,9 +219,9 @@ def analysis_instance_stop_success(instance_uuid, instance_name, records,
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_STOP_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_STOP_STATE_COMPLETED),
-           (always,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (always, NFV_VIM.INSTANCE_STOP_CALLBACK),
+           (always, NFV_VIM.INSTANCE_STOP_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -240,8 +240,8 @@ def analysis_instance_pause_success(instance_uuid, instance_name, records,
     always = True
 
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,   NFV_VIM.INSTANCE_PAUSE_STATE),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_PAUSE_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
@@ -249,9 +249,9 @@ def analysis_instance_pause_success(instance_uuid, instance_name, records,
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_PAUSE_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_PAUSE_STATE_COMPLETED),
-           (always,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (always, NFV_VIM.INSTANCE_PAUSE_CALLBACK),
+           (always, NFV_VIM.INSTANCE_PAUSE_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -270,16 +270,16 @@ def analysis_instance_unpause_success(instance_uuid, instance_name, records,
     always = True
 
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,   NFV_VIM.INSTANCE_UNPAUSE_STATE),
-           (always,   NFV_VIM.INSTANCE_UNPAUSE_CALLBACK),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_UNPAUSE_STATE),
+           (always, NFV_VIM.INSTANCE_UNPAUSE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_UNPAUSE_STATE_COMPLETED),
-           (always,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (always, NFV_VIM.INSTANCE_UNPAUSE_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -298,8 +298,8 @@ def analysis_instance_suspend_success(instance_uuid, instance_name, records,
     always = True
 
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,   NFV_VIM.INSTANCE_SUSPEND_STATE),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_SUSPEND_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
@@ -307,9 +307,9 @@ def analysis_instance_suspend_success(instance_uuid, instance_name, records,
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_SUSPEND_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_SUSPEND_STATE_COMPLETED),
-           (always,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (always, NFV_VIM.INSTANCE_SUSPEND_CALLBACK),
+           (always, NFV_VIM.INSTANCE_SUSPEND_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -328,16 +328,16 @@ def analysis_instance_resume_success(instance_uuid, instance_name, records,
     always = True
 
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,   NFV_VIM.INSTANCE_RESUME_STATE),
-           (always,   NFV_VIM.INSTANCE_RESUME_CALLBACK),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_RESUME_STATE),
+           (always, NFV_VIM.INSTANCE_RESUME_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_RESUME_STATE_COMPLETED),
-           (always,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (always, NFV_VIM.INSTANCE_RESUME_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -363,8 +363,8 @@ def analysis_instance_reboot_success(instance_uuid, instance_name, records,
     always = True
 
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,   NFV_VIM.INSTANCE_REBOOT_STATE),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_REBOOT_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
@@ -372,9 +372,9 @@ def analysis_instance_reboot_success(instance_uuid, instance_name, records,
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_REBOOT_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_REBOOT_STATE_COMPLETED),
-           (always,   NFV_VIM.INSTANCE_INITIAL_STATE),
+           (always, NFV_VIM.INSTANCE_REBOOT_CALLBACK),
+           (always, NFV_VIM.INSTANCE_REBOOT_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_NOTIFY)]
 
     expected_records = list()
@@ -395,11 +395,11 @@ def analysis_instance_rebuild_success(instance_uuid, instance_name, records,
     always = True
 
     possible_records \
-        = [(action,  NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,  NFV_VIM.INSTANCE_REBUILD_STATE),
-           (always,  NFV_VIM.INSTANCE_REBUILD_CALLBACK),
-           (always,  NFV_VIM.INSTANCE_REBUILD_STATE_COMPLETED),
-           (always,  NFV_VIM.INSTANCE_INITIAL_STATE)]
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_REBUILD_STATE),
+           (always, NFV_VIM.INSTANCE_REBUILD_CALLBACK),
+           (always, NFV_VIM.INSTANCE_REBUILD_STATE_COMPLETED),
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -419,8 +419,8 @@ def analysis_instance_live_migrate_success(instance_uuid, instance_name,
     always = True
 
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,   NFV_VIM.INSTANCE_LIVE_MIGRATE_STATE),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_LIVE_MIGRATE_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
@@ -428,14 +428,14 @@ def analysis_instance_live_migrate_success(instance_uuid, instance_name,
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_LIVE_MIGRATE_CALLBACK),
+           (always, NFV_VIM.INSTANCE_LIVE_MIGRATE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_LIVE_MIGRATE_FINISH_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (always,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -460,24 +460,24 @@ def analysis_instance_cold_migrate_success(instance_uuid, instance_name,
     guest_hb_only = not action and guest_hb
 
     possible_records \
-        = [(action,        NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (always,        NFV_VIM.INSTANCE_COLD_MIGRATE_STATE),
-           (guest_hb,      NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
-           (guest_hb,      NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
-           (guest_hb,      NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
-           (guest_hb,      NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY),
-           (guest_hb,      NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
-           (guest_hb,      NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
-           (guest_hb,      NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
-           (always,        NFV_VIM.INSTANCE_COLD_MIGRATE_CALLBACK),
-           (not action,    NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_STATE),
-           (not action,    NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_CALLBACK),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (always, NFV_VIM.INSTANCE_COLD_MIGRATE_STATE),
+           (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
+           (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
+           (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
+           (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY),
+           (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
+           (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
+           (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
+           (always, NFV_VIM.INSTANCE_COLD_MIGRATE_CALLBACK),
+           (not action, NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_STATE),
+           (not action, NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_CALLBACK),
            (guest_hb_only, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb_only, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb_only, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb_only, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb_only, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (always,          NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (always, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -499,15 +499,15 @@ def analysis_instance_cold_migrate_confirm_success(instance_uuid, instance_name,
     Analyze records and determine if instance cold-migrate confirmed
     """
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (action,   NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_STATE),
-           (action,   NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_CALLBACK),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (action, NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_STATE),
+           (action, NFV_VIM.INSTANCE_COLD_MIGRATE_CONFIRM_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (action,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (action, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -529,15 +529,15 @@ def analysis_instance_cold_migrate_revert_success(instance_uuid, instance_name,
     Analyze records and determine if instance cold-migrate reverted
     """
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (action,   NFV_VIM.INSTANCE_COLD_MIGRATE_REVERT_STATE),
-           (action,   NFV_VIM.INSTANCE_COLD_MIGRATE_REVERT_CALLBACK),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (action, NFV_VIM.INSTANCE_COLD_MIGRATE_REVERT_STATE),
+           (action, NFV_VIM.INSTANCE_COLD_MIGRATE_REVERT_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (action,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (action, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -558,8 +558,8 @@ def analysis_instance_resize_success(instance_uuid, instance_name, records,
     Analyze records and determine if instance resized
     """
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (action,   NFV_VIM.INSTANCE_RESIZE_STATE),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (action, NFV_VIM.INSTANCE_RESIZE_STATE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_VOTE_RESULT),
@@ -567,8 +567,8 @@ def analysis_instance_resize_success(instance_uuid, instance_name, records,
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_PRE_NOTIFY_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_DISABLE_CALLBACK),
-           (action,   NFV_VIM.INSTANCE_RESIZE_CALLBACK),
-           (action,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (action, NFV_VIM.INSTANCE_RESIZE_CALLBACK),
+           (action, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -588,15 +588,15 @@ def analysis_instance_resize_confirm_success(instance_uuid, instance_name,
     Analyze records and determine if instance resize confirmed
     """
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (action,   NFV_VIM.INSTANCE_RESIZE_CONFIRM_STATE),
-           (action,   NFV_VIM.INSTANCE_RESIZE_CONFIRM_CALLBACK),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (action, NFV_VIM.INSTANCE_RESIZE_CONFIRM_STATE),
+           (action, NFV_VIM.INSTANCE_RESIZE_CONFIRM_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (action,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (action, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:
@@ -616,15 +616,15 @@ def analysis_instance_resize_revert_success(instance_uuid, instance_name,
     Analyze records and determine if instance resize reverted
     """
     possible_records \
-        = [(action,   NFV_VIM.INSTANCE_NFVI_ACTION_START),
-           (action,   NFV_VIM.INSTANCE_RESIZE_REVERT_STATE),
-           (action,   NFV_VIM.INSTANCE_RESIZE_REVERT_CALLBACK),
+        = [(action, NFV_VIM.INSTANCE_NFVI_ACTION_START),
+           (action, NFV_VIM.INSTANCE_RESIZE_REVERT_STATE),
+           (action, NFV_VIM.INSTANCE_RESIZE_REVERT_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_ENABLE_CALLBACK),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY),
            (guest_hb, NFV_VIM.INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK),
-           (action,   NFV_VIM.INSTANCE_INITIAL_STATE)]
+           (action, NFV_VIM.INSTANCE_INITIAL_STATE)]
 
     expected_records = list()
     for allowed, data_type in possible_records:

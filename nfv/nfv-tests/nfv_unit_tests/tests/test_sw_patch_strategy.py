@@ -3279,7 +3279,7 @@ class TestSwPatchStrategy(object):
                      {'name': 'sw-patch-hosts',
                       'entity_names': ['controller-0']},
                      {'name': 'system-stabilize',
-                      'timeout':15},
+                      'timeout': 15},
                      {'name': 'unlock-hosts',
                       'entity_names': ['controller-0']},
                      {'name': 'system-stabilize',
@@ -3297,7 +3297,7 @@ class TestSwPatchStrategy(object):
                      {'name': 'sw-patch-hosts',
                       'entity_names': ['controller-1']},
                      {'name': 'system-stabilize',
-                      'timeout':15},
+                      'timeout': 15},
                      {'name': 'unlock-hosts',
                       'entity_names': ['controller-1']},
                      {'name': 'system-stabilize',
@@ -3445,7 +3445,7 @@ class TestSwPatchStrategy(object):
                      {'name': 'unlock-hosts',
                       'entity_names': ['controller-0']},
                      {'name': 'system-stabilize',
-                      'timeout':60}
+                      'timeout': 60}
                  ]
                 },
             ]

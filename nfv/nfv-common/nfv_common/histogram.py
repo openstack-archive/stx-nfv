@@ -44,10 +44,10 @@ class Histogram(object):
         if 0 == sample_as_int:
             bucket_idx = sample_as_int.bit_length()
         else:
-            bucket_idx = (sample_as_int-1).bit_length()
+            bucket_idx = (sample_as_int - 1).bit_length()
 
         if bucket_idx > self._num_buckets:
-            bucket_idx = self._num_buckets-1
+            bucket_idx = self._num_buckets - 1
 
         if sample_as_int > self._max_sample:
             self._max_sample = sample_as_int

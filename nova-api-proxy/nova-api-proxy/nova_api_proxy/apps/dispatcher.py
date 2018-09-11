@@ -38,7 +38,7 @@ class Router(Middleware):
         """
         self.map = mapper
         self.forwarder = forwarder
-        self._router = RoutesMiddleware(self._dispatch,self.map)
+        self._router = RoutesMiddleware(self._dispatch, self.map)
         super(Router, self).__init__(app)
 
     @webob.dec.wsgify
