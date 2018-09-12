@@ -59,17 +59,17 @@ call("gunzip logs/nfv-vim.log.[0-9].gz logs/nfv-vim.log.[0-9][0-9].gz", shell=Tr
 
 class Parser(object):
     def __init__(self):
-        self.proc = "" # Name of process being read
-        self.timestamp = "" # Timestamp found on line stating process name
-        self.write = False # Flag indicating data has yet to be written
-        self.stored = False # Flag indicating that there is new data stored
-        self.length = 0 # Time duration of process
-        self.instanceCount = 0 # Number of hits for the particular duration
-        self.rollingCount = 0 # Sum of the hits for each duration parsed within the sample
-        self.total = 0 # Specific duration multiplied by number of hits for that duration
-        self.avg = 0 # Average execution time of process
-        self.unit = "" # Unit execution time was recorded in
-        self.csvs = defaultdict(list) # Stores unique processes in a dict of lists
+        self.proc = ""  # Name of process being read
+        self.timestamp = ""  # Timestamp found on line stating process name
+        self.write = False  # Flag indicating data has yet to be written
+        self.stored = False  # Flag indicating that there is new data stored
+        self.length = 0  # Time duration of process
+        self.instanceCount = 0  # Number of hits for the particular duration
+        self.rollingCount = 0  # Sum of the hits for each duration parsed within the sample
+        self.total = 0  # Specific duration multiplied by number of hits for that duration
+        self.avg = 0  # Average execution time of process
+        self.unit = ""  # Unit execution time was recorded in
+        self.csvs = defaultdict(list)  # Stores unique processes in a dict of lists
 
     # Resets variables when a new process begins to be read in logs
     def reset(self):

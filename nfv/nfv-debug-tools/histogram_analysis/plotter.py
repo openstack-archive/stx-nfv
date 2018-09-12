@@ -55,11 +55,11 @@ dir = os.path.dirname(__file__)
 fig = plotly.graph_objs.graph_objs.Figure
 pth = os.path.join(dir, 'csv/')
 
-execTime = False # Indicates if average execution time is to be graphed or not
-default = False # Indicates no commands were entered and to run with default settings (run config with -t option)
-oneAxis = False # Causes the generated graph to have two y-axes sharing an x-axis with both avg execution time and hits being graphed
-config = False # Indicates whether to pull process names from logplot.cfg or not
-hits = False # Indicates if the delta of hits between samples is to be graphed
+execTime = False  # Indicates if average execution time is to be graphed or not
+default = False  # Indicates no commands were entered and to run with default settings (run config with -t option)
+oneAxis = False  # Causes the generated graph to have two y-axes sharing an x-axis with both avg execution time and hits being graphed
+config = False  # Indicates whether to pull process names from logplot.cfg or not
+hits = False  # Indicates if the delta of hits between samples is to be graphed
 markers = False
 lines = False
 timestamp = []
@@ -139,7 +139,7 @@ def updater(configExists=True):
     procs = []
     existingProcs = []
     newProcs = []
-    position = 0 # Tracks position of the end of the master process list so new processes can be added above it.
+    position = 0  # Tracks position of the end of the master process list so new processes can be added above it.
 
     os.chdir(pth)
     for name in iglob("*.csv"):
@@ -375,32 +375,32 @@ if not os.path.isdir('./csv'):
     print("\n\tWARNING: ./csv directory is missing. Please run Histogram.sh or make sure directory has not been renamed.\n")
     sys.exit()
 
-command = sys.argv # Takes arguments from the command line
+command = sys.argv  # Takes arguments from the command line
 
 if len(command) == 1:
     print("Running with default settings.")
     default = True
 else:
     for i in range(1, len(command)):
-        if command[i] == "-c": # Use config file
+        if command[i] == "-c":  # Use config file
             config = True
-        elif command[i] == "--g": # Groups
+        elif command[i] == "--g":  # Groups
             for j in range(i + 1, len(command)):
                 group.append(command[j])
             procs = gCommand(group)
             break
-        elif command[i] == "-t": # Average execution time
+        elif command[i] == "-t":  # Average execution time
             execTime = True
-        elif command[i] == "-h": # Delta hits between samples
+        elif command[i] == "-h":  # Delta hits between samples
             hits = True
-        elif command[i] == "-l": # Graph with lines
+        elif command[i] == "-l":  # Graph with lines
             lines = True
-        elif command[i] == "-m": # Graph with markers (scatter)
+        elif command[i] == "-m":  # Graph with markers (scatter)
             markers = True
-        elif command[i] == "-lm": # Graph with lines and markers
+        elif command[i] == "-lm":  # Graph with lines and markers
             lines = True
             markers = True
-        elif command[i] == "-d": # Date range
+        elif command[i] == "-d":  # Date range
             dateRange = command[i + 1].split('-')
             if dateRange[0]:
                 lower = dateRange[0].split("/")
@@ -413,15 +413,15 @@ else:
             else:
                 dateRange[1] = "9" * 8
             i += 1
-        elif command[i] == "-n": # Name of file to be generated
+        elif command[i] == "-n":  # Name of file to be generated
             graphName = command[i + 1]
             i += 1
-        elif command[i] == "-oneaxis": # Have hit and time data displayed on same graph
+        elif command[i] == "-oneaxis":  # Have hit and time data displayed on same graph
             oneAxis = True
-        elif (command[i] == "--help") or (command[i] == "--h"): # Print help message and exit script
+        elif (command[i] == "--help") or (command[i] == "--h"):  # Print help message and exit script
             helpMessage()
             sys.exit()
-        elif command[i] == "--p": # User-specified processes
+        elif command[i] == "--p":  # User-specified processes
             for j in range(i + 1, len(command)):
                 procs.append(command[j])
             procs = pCommand(procs)
