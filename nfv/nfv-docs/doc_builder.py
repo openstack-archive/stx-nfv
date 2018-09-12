@@ -7,12 +7,12 @@
 #   pip install pyyaml
 #   pip install jinja2
 #
+import argparse
 import os
+import shutil
 import six
 import yaml
-import shutil
-import pprint
-import argparse
+
 from jinja2 import Environment, FileSystemLoader
 
 

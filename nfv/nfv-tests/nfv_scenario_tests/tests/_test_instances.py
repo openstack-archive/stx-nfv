@@ -3,17 +3,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
-import time
-import shutil
 import datetime
+import os
+import shutil
+import time
 
 from nfv_common import debug
 
 from nfv_plugins.nfvi_plugins import config
-from nfv_plugins.nfvi_plugins.openstack import nova
-from nfv_plugins.nfvi_plugins.openstack import sysinv
 from nfv_plugins.nfvi_plugins.openstack import fm
+from nfv_plugins.nfvi_plugins.openstack import nova
 from nfv_plugins.nfvi_plugins.openstack import openstack
 
 import _instances
