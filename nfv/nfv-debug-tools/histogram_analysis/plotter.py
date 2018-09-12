@@ -45,7 +45,6 @@ import sys
 import time
 import plotly
 import plotly.graph_objs as go
-from plotly.graph_objs import Scatter, Layout
 from plotly import tools
 from glob import iglob
 import subprocess
@@ -252,7 +251,9 @@ def pCommand(pList):
 
 # Stores the average execution time, or delta hit count data into into a plotly graph obj, and restricts sample to be within a certain
 # date range if specified. If plots is 1, one graph will be generated. If plots is 2, two graphs will be generated with one above the other.
-def storeGraphData(procs, dateRange=[], execTime=False, hits=False, plots=1):
+def storeGraphData(procs, dateRange=None, execTime=False, hits=False, plots=1):
+    if dateRange is None:
+        dateRange = []
     graphData = {}
     prevHitTotal = 0
     timeList = [[] for p in range(len(procs))]

@@ -404,8 +404,8 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                         pass
 
         raise OpenStackRestAPIException(method, api_cmd, api_cmd_headers,
-                                        api_cmd_payload, e.code, e.message,
-                                        "%s" % e, headers, response_raw, reason)
+                                        api_cmd_payload, e.code, str(e),
+                                        str(e), headers, response_raw, reason)
 
     except urllib2.URLError as e:
         now_ms = timers.get_monotonic_timestamp_in_ms()
@@ -416,7 +416,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                      int(elapsed_ms)))
 
         raise OpenStackException(method, api_cmd, api_cmd_headers,
-                                 api_cmd_payload, e.message, "%s" % e)
+                                 api_cmd_payload, str(e), str(e))
 
 
 def rest_api_request(token, method, api_cmd, api_cmd_headers=None,
