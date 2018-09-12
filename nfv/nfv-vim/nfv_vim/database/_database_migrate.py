@@ -29,10 +29,12 @@ def _migrate_instances_v4_to_v5(session, instances_v4, instances_v5):
 
             # We can build the flavor details embedded in the instance from
             # the flavor referenced from the original instance.
-            for instance_type in instance_types:
-                if instance_type.uuid == instance_type_uuid:
+            instance_type = None
+            for i_type in instance_types:
+                if i_type.uuid == instance_type_uuid:
+                    instance_type = i_type
                     break
-            else:
+            if instance_type is None:
                 DLOG.error("Missing instance type: %s" % instance_type_uuid)
                 continue
 

@@ -3,15 +3,37 @@
     check:
       jobs:
         - openstack-tox-linters
-        - openstack-tox-pep8
+        - nfv-tox-pep8
+        - nfv-tox-py27
         - nfv-tox-pylint
-        - openstack-tox-py27
+        - nova-api-proxy-tox-pep8
     gate:
       jobs:
         - openstack-tox-linters
-        - openstack-tox-pep8
+        - nfv-tox-pep8
+        - nfv-tox-py27
         - nfv-tox-pylint
-        - openstack-tox-py27
+        - nova-api-proxy-tox-pep8
+
+- job:
+    name: nfv-tox-py27
+    parent: tox
+    description: Run py27 for nfv
+    required-projects:
+      - openstack/stx-fault
+    vars:
+      tox_envlist: py27
+      tox_extra_args: -c nfv/tox.ini
+
+- job:
+    name: nfv-tox-pep8
+    parent: tox
+    description: Run pep8 for nfv
+    required-projects:
+      - openstack/stx-fault
+    vars:
+      tox_envlist: pep8
+      tox_extra_args: -c nfv/tox.ini
 
 - job:
     name: nfv-tox-pylint
@@ -21,3 +43,20 @@
       - openstack/stx-fault
     vars:
       tox_envlist: pylint
+      tox_extra_args: -c nfv/tox.ini
+
+- job:
+    name: nova-api-proxy-tox-pep8
+    parent: tox
+    description: Run pep8 for nova-api-proxy
+    vars:
+      tox_envlist: pep8
+      tox_extra_args: -c nova-api-proxy/tox.ini
+
+- job:
+    name: nova-api-proxy-tox-pylint
+    parent: tox
+    description: Run pylint for nova-api-proxy
+    vars:
+      tox_envlist: pylint
+      tox_extra_args: -c nova-api-proxy/tox.ini

@@ -1461,10 +1461,11 @@ class QueryAlarmsStep(strategy.StrategyStep):
     """
     Query Alarms - Strategy Step
     """
-    def __init__(self, fail_on_alarms=False, ignore_alarms=[]):
+    def __init__(self, fail_on_alarms=False, ignore_alarms=None):
         super(QueryAlarmsStep, self).__init__(
             STRATEGY_STEP_NAME.QUERY_ALARMS, timeout_in_secs=60)
-
+        if ignore_alarms is None:
+            ignore_alarms = []
         self._fail_on_alarms = fail_on_alarms
         self._ignore_alarms = ignore_alarms
 
@@ -1543,10 +1544,11 @@ class WaitDataSyncStep(strategy.StrategyStep):
     """
     Alarm Wait - Strategy Step
     """
-    def __init__(self, timeout_in_secs=300, ignore_alarms=[]):
+    def __init__(self, timeout_in_secs=300, ignore_alarms=None):
         super(WaitDataSyncStep, self).__init__(
             STRATEGY_STEP_NAME.WAIT_DATA_SYNC, timeout_in_secs=timeout_in_secs)
-
+        if ignore_alarms is None:
+            ignore_alarms = []
         self._ignore_alarms = ignore_alarms
         self._wait_time = 0
         self._query_inprogress = False
