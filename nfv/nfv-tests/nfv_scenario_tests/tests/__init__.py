@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+# flake8: noqa
+#
 from _test_instances import TestInstanceStart, TestInstanceStop
 from _test_instances import TestInstancePause, TestInstanceUnpause
 from _test_instances import TestInstanceSuspend, TestInstanceResume

@@ -158,7 +158,7 @@ class SwUpdateStrategy(strategy.Strategy):
         """
         from nfv_vim import tables
 
-        def has_policy_conflict():
+        def has_policy_conflict(peer_host):
             for instance in instance_table.on_host(host.name):
                 for peer_instance in instance_table.on_host(peer_host.name):
                     for policy in policies:
@@ -308,7 +308,7 @@ class SwUpdateStrategy(strategy.Strategy):
                         continue
 
                     for peer_host in host_list:
-                        if has_policy_conflict():
+                        if has_policy_conflict(peer_host):
                             # don't add host to the current list
                             break
                     else:
