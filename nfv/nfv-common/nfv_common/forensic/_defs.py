@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
 
 
 class _NfvVimRecordType(object):
@@ -121,6 +119,7 @@ class _NfvVimRecordType(object):
     INSTANCE_GUEST_SERVICES_POST_NOTIFY = 'nfv_vim_instance_guest_services_post_notify'
     INSTANCE_GUEST_SERVICES_POST_NOTIFY_CALLBACK = 'nfv_vim_instance_guest_services_post_notify_callback'
     INSTANCE_GUEST_SERVICES_POST_NOTIFY_HEARTBEAT = 'nfv_vim_instance_guest_services_post_notify_heartbeat'
+
 
 # Constant Instantiation
 NFV_VIM = _NfvVimRecordType()

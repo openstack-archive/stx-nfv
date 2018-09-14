@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
 import six
 
 from nfv_common.helpers import Constants, Constant, Singleton

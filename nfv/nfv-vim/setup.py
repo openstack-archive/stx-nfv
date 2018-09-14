@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
 from setuptools import setup, find_packages
 
 setup(
