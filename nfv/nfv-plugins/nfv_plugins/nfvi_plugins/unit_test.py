@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
 import argparse
 import config
 import time
@@ -55,24 +53,6 @@ def sysinv_unit_tests(token, test_config):
 
     hosts = sysinv.get_hosts(token)
     print("List of hosts: %s" % hosts)
-
-#    for host in hosts['ihosts']:
-        #host_uuid = host['uuid']
-        #host_name = host['hostname']
-
-        # Needs proper setup since system inventory will reject the disable
-        # until a lock is really started.
-        #response = sysinv.notify_host_services_disabled(token, host_uuid)
-        #print ("Notify host-services-disabled: host_uuid=%s, "
-        #       "host_name=%s, response=%s" % (host_uuid, host_name, response))
-
-        #response = sysinv.notify_host_services_disable_failed(token, host_uuid)
-        #print ("Notify host-services-disable failed: host_uuid=%s, "
-        #       "host_name=%s, response=%s" % (host_uuid, host_name, response))
-
-        #response = sysinv.notify_host_services_enabled(token, host_uuid)
-        #print ("Notify host-services enabled: host_uuid=%s, host_name=%s, "
-        #       "response=%s" % (host_uuid, host_name, response))
 
 
 def glance_unit_tests(token, test_config):
@@ -163,7 +143,7 @@ def neutron_unit_tests(token, test_config):
     response = neutron.disable_host_services(token, test_config['host_uuid'])
     print("Host-Services disable response: %s" % response)
 
-    response = neutron.enable_host_services(token,  test_config['host_uuid'])
+    response = neutron.enable_host_services(token, test_config['host_uuid'])
     print("Host-Services enable response: %s" % response)
 
     response = neutron.disable_host_services(token, test_config['host_uuid'])
@@ -176,7 +156,7 @@ def neutron_unit_tests(token, test_config):
                                             test_config['host_uuid'])
     print("Host-Services create response: %s" % response)
 
-    response = neutron.enable_host_services(token,  test_config['host_uuid'])
+    response = neutron.enable_host_services(token, test_config['host_uuid'])
     print("Host-Services enable response: %s" % response)
 
     servers = nova.get_servers(token)
@@ -243,8 +223,8 @@ def nova_unit_tests(token, test_config):
     # NOTE: if you do a delete of the host-services, the hypervisors are
     # deleted and will not be populated again until nova-compute is
     # restarted even if you re-create and enable the host-services.
-    #response = nova.delete_host_services(token, test_config['host_name'])
-    #print "Host-Services delete response: %s" % response
+    # response = nova.delete_host_services(token, test_config['host_name'])
+    # print "Host-Services delete response: %s" % response
 
     response = nova.create_host_services(token, test_config['host_name'])
     print("Host-Services create response: %s" % response)
@@ -368,7 +348,7 @@ def heat_unit_tests(token, test_config):
     print("List of stacks: %s" % stacks)
 
     for stack in stacks['stacks']:
-        heat.delete_stack(token, stack['stack_name'],  stack['id'])
+        heat.delete_stack(token, stack['stack_name'], stack['id'])
 
     stacks = heat.get_stacks(token)
     while stacks['stacks']:
@@ -450,16 +430,16 @@ def rest_api_unit_tests(token, test_config):
     conn.send('PATCH /nfvi-plugins/v1/hosts/compute-0 HTTP/1.1 \r\n')
     conn.send('Content-Type: application/json\r\n')
     conn.send('Content-Length: 0\r\n')
-    #conn.send('Content-Length: 20\r\n')
+    # conn.send('Content-Length: 20\r\n')
     conn.send('\r\n')
 
     msg = conn.sock.recv(1)
     print(msg)
     time.sleep(20)
-    #fp = conn.sock.makefile('rb')
-    #line = fp.read(1)
-    #line = fp.readline()
-    #print line
+    # fp = conn.sock.makefile('rb')
+    # line = fp.read(1)
+    # line = fp.readline()
+    # print line
     time.sleep(20)
     try:
         conn.send('\r\n')
@@ -538,8 +518,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # TODO: Port this into a unit test config file and
-    # TODO: fix the config object to handle multiple config files
+    # TODO(abailey): Port this into a unit test config file and
+    # TODO(abailey): fix the config object to handle multiple config files
     test_config = dict()
     test_config['host_name'] = 'compute-101'
     test_config['host_uuid'] = '93ad7f54-f31c-44c8-b44f-2e0ccfb62aa7'

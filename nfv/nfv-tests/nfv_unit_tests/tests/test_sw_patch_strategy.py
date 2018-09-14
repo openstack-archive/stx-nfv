@@ -369,7 +369,7 @@ class TestSwPatchStrategy(object):
             compute_hosts=sorted_compute_hosts,
             reboot=True)
 
-        assert success == True, "Strategy creation failed"
+        assert success is True, "Strategy creation failed"
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1292,7 +1292,7 @@ class TestSwPatchStrategy(object):
             compute_hosts=sorted_compute_hosts,
             reboot=True)
 
-        assert success == False, "Strategy creation did not fail"
+        assert success is False, "Strategy creation did not fail"
 
     def test_sw_patch_strategy_compute_stages_parallel_stop_start_host_aggregate(self):
         """
@@ -2514,7 +2514,7 @@ class TestSwPatchStrategy(object):
             compute_hosts=sorted_compute_hosts,
             reboot=True)
 
-        assert success == False, "Strategy creation did not fail"
+        assert success is False, "Strategy creation did not fail"
 
         # Test no reboot patches
         strategy = create_sw_patch_strategy(
@@ -2611,7 +2611,7 @@ class TestSwPatchStrategy(object):
             storage_hosts=sorted_storage_hosts,
             reboot=True)
 
-        assert success == True, "Strategy creation failed"
+        assert success is True, "Strategy creation failed"
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -2902,7 +2902,7 @@ class TestSwPatchStrategy(object):
         success, reason = strategy._add_controller_strategy_stages(
             controllers=controller_hosts,
             reboot=True)
-        assert success == True, "Strategy creation failed"
+        assert success is True, "Strategy creation failed"
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -3343,7 +3343,7 @@ class TestSwPatchStrategy(object):
             compute_hosts=compute_hosts,
             reboot=True)
 
-        assert success == False, "Strategy creation did not fail"
+        assert success is False, "Strategy creation did not fail"
 
     def test_sw_patch_strategy_cpe_simplex_stages_serial_stop_start(self):
         """

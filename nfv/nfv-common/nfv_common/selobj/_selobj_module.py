@@ -94,7 +94,7 @@ def selobj_dispatch(timeout_in_ms):
 
     try:
         readable, writeable, in_error = select.select(read_objs, write_objs, [],
-                                                      timeout_in_ms/1000.0)
+                                                      timeout_in_ms / 1000.0)
 
         for selobj in readable:
             callback = _read_callbacks.get(selobj, None)
@@ -150,10 +150,10 @@ def selobj_initialize():
     global _read_callbacks, _write_callbacks
 
     del _read_callbacks
-    _read_callbacks = dict()  # flake8: noqa
+    _read_callbacks = dict()  # noqa: F841
 
     del _write_callbacks
-    _write_callbacks = dict()  # flake8: noqa
+    _write_callbacks = dict()  # noqa: F841
 
 
 def selobj_finalize():
@@ -163,6 +163,6 @@ def selobj_finalize():
     global _read_callbacks, _write_callbacks
 
     del _read_callbacks
-    _read_callbacks = dict()  # flake8: noqa
+    _read_callbacks = dict()  # noqa: F841
     del _write_callbacks
-    _write_callbacks = dict()  # flake8: noqa
+    _write_callbacks = dict()  # noqa: F841

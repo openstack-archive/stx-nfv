@@ -50,7 +50,7 @@ def schedule_initialize():
     selobj.selobj_add_read_obj(_receive_socket.fileno(), _schedule_dispatch)
 
     del _pending_function_calls
-    _pending_function_calls = list()  # flake8: noqa
+    _pending_function_calls = list()  # noqa: F841
 
 
 def schedule_finalize():
@@ -67,4 +67,4 @@ def schedule_finalize():
         _receive_socket.close()
 
     del _pending_function_calls
-    _pending_function_calls = list()  # flake8: noqa
+    _pending_function_calls = list()  # noqa: F841

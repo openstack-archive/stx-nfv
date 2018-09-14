@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
 import six
 
 from nfv_common.helpers import Constants, Constant, Singleton
@@ -203,6 +201,7 @@ class _EventInitiatedBy(Constants):
     TENANT = Constant('tenant')
     INSTANCE = Constant('instance')
     INSTANCE_DIRECTOR = Constant('instance-director')
+
 
 # Constant Instantiation
 EVENT_ID = _EventId()

@@ -376,7 +376,7 @@ class TestSwUpgradeStrategy(object):
             compute_hosts=sorted_compute_hosts,
             reboot=True)
 
-        assert success == True, "Strategy creation failed"
+        assert success is True, "Strategy creation failed"
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -869,7 +869,7 @@ class TestSwUpgradeStrategy(object):
             compute_hosts=sorted_compute_hosts,
             reboot=True)
 
-        assert success == False, "Strategy creation did not fail"
+        assert success is False, "Strategy creation did not fail"
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
@@ -907,7 +907,7 @@ class TestSwUpgradeStrategy(object):
             storage_hosts=sorted_storage_hosts,
             reboot=True)
 
-        assert success == True, "Strategy creation failed"
+        assert success is True, "Strategy creation failed"
 
         apply_phase = strategy.apply_phase.as_dict()
 
@@ -1250,7 +1250,7 @@ class TestSwUpgradeStrategy(object):
             controllers=controller_hosts,
             reboot=True)
 
-        assert success == False, "Strategy creation did not fail"
+        assert success is False, "Strategy creation did not fail"
         assert reason == "cannot apply software upgrades to CPE configuration", \
                 "Invalid failure reason"
 

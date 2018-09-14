@@ -111,7 +111,7 @@ def timers_initialize(scheduler_interval_ms, scheduler_max_delay_ms,
 
     _scheduler = TimerScheduler(scheduler_interval_ms,
                                 scheduler_max_delay_ms,
-                                scheduler_delay_debounce_ms)  # flake8: noqa
+                                scheduler_delay_debounce_ms)
 
 
 def timers_finalize():
