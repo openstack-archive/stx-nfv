@@ -3,10 +3,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import uuid
+import fixtures
 import mock
 import pprint
-from nose.tools import nottest
+import testtools
+import uuid
 
 from nfv_common import strategy as common_strategy
 from nfv_vim import host_fsm
@@ -26,188 +27,11 @@ from nfv_vim.strategy._strategy import SwUpgradeStrategy, strategy_rebuild_from_
 
 from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
 
-import utils
-
-# Constants
-
-# Globals
-_tenant_table = Table()
-_instance_type_table = Table()
-_instance_table = InstanceTable()
-_instance_group_table = InstanceGroupTable()
-_host_table = HostTable()
-_host_group_table = HostGroupTable()
-_host_aggregate_table = HostAggregateTable()
-
-# Don't attempt to write to the database while unit testing
-_tenant_table.persist = False
-_instance_type_table.persist = False
-_instance_table.persist = False
-_instance_group_table.persist = False
-_host_table.persist = False
-_host_group_table.persist = False
-_host_aggregate_table.persist = False
+from . import testcase
+from . import utils
 
 
-def create_instance(instance_type_name, instance_name, host_name,
-                    admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.UNLOCKED):
-    """
-    Create an instance
-    """
-    global _tenant_table, _instance_table
-
-    tenant_uuid = str(uuid.uuid4())
-    image_uuid = str(uuid.uuid4())
-
-    tenant = objects.Tenant(tenant_uuid, "%s_name" % tenant_uuid, '', True)
-    _tenant_table[tenant_uuid] = tenant
-
-    for instance_type in _instance_type_table.values():
-        if instance_type.name == instance_type_name:
-            instance_uuid = str(uuid.uuid4())
-
-            nfvi_instance = nfvi.objects.v1.Instance(
-                instance_uuid, instance_name, tenant_uuid,
-                admin_state=admin_state,
-                oper_state=nfvi.objects.v1.INSTANCE_OPER_STATE.ENABLED,
-                avail_status=list(),
-                action=nfvi.objects.v1.INSTANCE_ACTION.NONE,
-                host_name=host_name,
-                instance_type=utils.instance_type_to_flavor_dict(instance_type),
-                image_uuid=image_uuid)
-
-            instance = objects.Instance(nfvi_instance)
-            _instance_table[instance.uuid] = instance
-            return
-
-    assert 0, "Unknown instance_type_name: %s" % instance_type_name
-
-
-def create_instance_group(name, members, policies):
-    """
-    Create an instance group
-    """
-    global _instance_group_table
-
-    member_uuids = []
-
-    for instance_uuid, instance in _instance_table.iteritems():
-        if instance.name in members:
-            member_uuids.append(instance_uuid)
-
-    nfvi_instance_group = nfvi.objects.v1.InstanceGroup(
-        uuid=str(uuid.uuid4()),
-        name=name,
-        member_uuids=member_uuids,
-        policies=policies
-    )
-
-    instance_group = objects.InstanceGroup(nfvi_instance_group)
-    _instance_group_table[instance_group.uuid] = instance_group
-
-
-def create_host(host_name,
-                cpe=False,
-                admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.UNLOCKED,
-                software_load='12.01',
-                target_load='12.01'):
-    """
-    Create a host
-    """
-    global _host_table
-    personality = ''
-
-    if host_name.startswith('controller'):
-        personality = HOST_PERSONALITY.CONTROLLER
-        if cpe:
-            personality = personality + ',' + HOST_PERSONALITY.COMPUTE
-    elif host_name.startswith('compute'):
-        personality = HOST_PERSONALITY.COMPUTE
-    elif host_name.startswith('storage'):
-        personality = HOST_PERSONALITY.STORAGE
-    else:
-        assert 0, "Invalid host_name: %s" % host_name
-
-    nfvi_host = nfvi.objects.v1.Host(
-        uuid=str(uuid.uuid4()),
-        name=host_name,
-        personality=personality,
-        admin_state=admin_state,
-        oper_state=nfvi.objects.v1.HOST_OPER_STATE.ENABLED,
-        avail_status=nfvi.objects.v1.HOST_AVAIL_STATUS.AVAILABLE,
-        action=nfvi.objects.v1.HOST_ACTION.NONE,
-        software_load=software_load,
-        target_load=target_load,
-        uptime='1000'
-    )
-
-    host = objects.Host(nfvi_host,
-                        initial_state=host_fsm.HOST_STATE.ENABLED)
-    _host_table[host.name] = host
-
-
-def create_host_group(name, members, policies):
-    """
-    Create a host group
-    """
-    global _host_group_table
-
-    member_uuids = []
-
-    for instance_uuid, instance in _instance_table.iteritems():
-        if instance.name in members:
-            member_uuids.append(instance_uuid)
-
-    nfvi_host_group = nfvi.objects.v1.HostGroup(
-        name=name,
-        member_names=members,
-        policies=policies
-    )
-
-    host_group = objects.HostGroup(nfvi_host_group)
-    _host_group_table[host_group.name] = host_group
-
-
-def create_host_aggregate(name, host_names):
-    """
-    Create a host aggregate
-    """
-    global _host_aggregate_table
-
-    nfvi_host_aggregate = nfvi.objects.v1.HostAggregate(
-        name=name,
-        host_names=host_names,
-        availability_zone=''
-    )
-
-    host_aggregate = objects.HostAggregate(nfvi_host_aggregate)
-    _host_aggregate_table[host_aggregate.name] = host_aggregate
-
-
-def create_sw_upgrade_strategy(
-        storage_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
-        compute_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
-        max_parallel_compute_hosts=10,
-        alarm_restrictions=SW_UPDATE_ALARM_RESTRICTION.STRICT,
-        start_upgrade=False,
-        complete_upgrade=False,
-        nfvi_upgrade=None
-):
-    """
-    Create a software update strategy
-    """
-    strategy = SwUpgradeStrategy(
-        uuid=str(uuid.uuid4()),
-        storage_apply_type=storage_apply_type,
-        compute_apply_type=compute_apply_type,
-        max_parallel_compute_hosts=max_parallel_compute_hosts,
-        alarm_restrictions=alarm_restrictions,
-        start_upgrade=start_upgrade,
-        complete_upgrade=complete_upgrade,
-        ignore_alarms=[]
-    )
-    strategy.nfvi_upgrade = nfvi_upgrade
-    return strategy
+DEBUG_PRINTING = False
 
 
 def validate_strategy_persists(strategy):
@@ -220,11 +44,12 @@ def validate_strategy_persists(strategy):
     strategy_dict = strategy.as_dict()
     new_strategy = strategy_rebuild_from_dict(strategy_dict)
 
-    if strategy.as_dict() != new_strategy.as_dict():
-        print("==================== Strategy ====================")
-        pprint.pprint(strategy.as_dict())
-        print("============== Converted Strategy ================")
-        pprint.pprint(new_strategy.as_dict())
+    if DEBUG_PRINTING:
+        if strategy.as_dict() != new_strategy.as_dict():
+            print("==================== Strategy ====================")
+            pprint.pprint(strategy.as_dict())
+            print("============== Converted Strategy ================")
+            pprint.pprint(new_strategy.as_dict())
     assert strategy.as_dict() == new_strategy.as_dict(), \
         "Strategy changed when converting to/from dict"
 
@@ -235,10 +60,11 @@ def validate_phase(phase, expected_results):
     Note: there is probably a super generic, pythonic way to do this, but this
     is good enough (tm).
     """
-    print("====================== Phase Results ========================")
-    pprint.pprint(phase)
-    print("===================== Expected Results ======================")
-    pprint.pprint(expected_results)
+    if DEBUG_PRINTING:
+        print("====================== Phase Results ========================")
+        pprint.pprint(phase)
+        print("===================== Expected Results ======================")
+        pprint.pprint(expected_results)
 
     for key in expected_results:
         if key == 'stages':
@@ -298,23 +124,44 @@ def fake_event_issue(a, b, c, d):
 @mock.patch('nfv_vim.event_log._instance._event_issue', fake_event_issue)
 @mock.patch('nfv_vim.objects._sw_update.SwUpdate.save', fake_save)
 @mock.patch('nfv_vim.objects._sw_update.timers.timers_create_timer', fake_timer)
-@mock.patch('nfv_vim.tables._tenant_table._tenant_table', _tenant_table)
-@mock.patch('nfv_vim.tables._host_table._host_table', _host_table)
-@mock.patch('nfv_vim.tables._instance_group_table._instance_group_table', _instance_group_table)
-@mock.patch('nfv_vim.tables._host_group_table._host_group_table', _host_group_table)
-@mock.patch('nfv_vim.tables._host_aggregate_table._host_aggregate_table', _host_aggregate_table)
-@mock.patch('nfv_vim.tables._instance_table._instance_table', _instance_table)
-class TestSwUpgradeStrategy(object):
+class TestSwUpgradeStrategy(testcase.NFVTestCase):
+    _tenant_table = Table()
+    _instance_type_table = Table()
+    _instance_table = InstanceTable()
+    _instance_group_table = InstanceGroupTable()
+    _host_table = HostTable()
+    _host_group_table = HostGroupTable()
+    _host_aggregate_table = HostAggregateTable()
 
-    def setup(self):
-        """
-        Setup for testing.
-        """
-        global _instance_type_table
+    # Don't attempt to write to the database while unit testing
+    _tenant_table.persist = False
+    _instance_type_table.persist = False
+    _instance_table.persist = False
+    _instance_group_table.persist = False
+    _host_table.persist = False
+    _host_group_table.persist = False
+    _host_aggregate_table.persist = False
+
+    def setUp(self):
+        super(TestSwUpgradeStrategy, self).setUp()
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_aggregate_table._host_aggregate_table',
+                                             self._host_aggregate_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_group_table._host_group_table',
+                                             self._host_group_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_table._host_table',
+                                             self._host_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._instance_group_table._instance_group_table',
+                                             self._instance_group_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._instance_table._instance_table',
+                                             self._instance_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._instance_type_table._instance_type_table',
+                                             self._instance_type_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._tenant_table._tenant_table',
+                                             self._tenant_table))
 
         instance_type_uuid = str(uuid.uuid4())
 
-        if 0 == len(_instance_type_table):
+        if 0 == len(self._instance_type_table):
             instance_type = objects.InstanceType(instance_type_uuid, 'small')
             instance_type.update_details(vcpus=1, mem_mb=64, disk_gb=1, ephemeral_gb=0,
                                          swap_gb=0, guest_services=None,
@@ -322,19 +169,166 @@ class TestSwUpgradeStrategy(object):
                                          live_migration_timeout=800,
                                          live_migration_max_downtime=500,
                                          storage_type='local_image')
-            _instance_type_table[instance_type_uuid] = instance_type
+            self._instance_type_table[instance_type_uuid] = instance_type
 
-    def teardown(self):
+    def tearDown(self):
         """
         Cleanup testing setup.
         """
-        _tenant_table.clear()
-        _instance_type_table.clear()
-        _instance_table.clear()
-        _instance_group_table.clear()
-        _host_table.clear()
-        _host_group_table.clear()
-        _host_aggregate_table.clear()
+        super(TestSwUpgradeStrategy, self).tearDown()
+        self._tenant_table.clear()
+        self._instance_type_table.clear()
+        self._instance_table.clear()
+        self._instance_group_table.clear()
+        self._host_table.clear()
+        self._host_group_table.clear()
+        self._host_aggregate_table.clear()
+
+    def create_instance(self, instance_type_name, instance_name, host_name,
+                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.UNLOCKED):
+        """
+        Create an instance
+        """
+        tenant_uuid = str(uuid.uuid4())
+        image_uuid = str(uuid.uuid4())
+
+        tenant = objects.Tenant(tenant_uuid, "%s_name" % tenant_uuid, '', True)
+        self._tenant_table[tenant_uuid] = tenant
+
+        for instance_type in self._instance_type_table.values():
+            if instance_type.name == instance_type_name:
+                instance_uuid = str(uuid.uuid4())
+
+                nfvi_instance = nfvi.objects.v1.Instance(
+                    instance_uuid, instance_name, tenant_uuid,
+                    admin_state=admin_state,
+                    oper_state=nfvi.objects.v1.INSTANCE_OPER_STATE.ENABLED,
+                    avail_status=list(),
+                    action=nfvi.objects.v1.INSTANCE_ACTION.NONE,
+                    host_name=host_name,
+                    instance_type=utils.instance_type_to_flavor_dict(instance_type),
+                    image_uuid=image_uuid)
+
+                instance = objects.Instance(nfvi_instance)
+                self._instance_table[instance.uuid] = instance
+                return
+
+        assert 0, "Unknown instance_type_name: %s" % instance_type_name
+
+    def create_instance_group(self, name, members, policies):
+        """
+        Create an instance group
+        """
+        member_uuids = []
+
+        for instance_uuid, instance in self._instance_table.iteritems():
+            if instance.name in members:
+                member_uuids.append(instance_uuid)
+
+        nfvi_instance_group = nfvi.objects.v1.InstanceGroup(
+            uuid=str(uuid.uuid4()),
+            name=name,
+            member_uuids=member_uuids,
+            policies=policies
+        )
+
+        instance_group = objects.InstanceGroup(nfvi_instance_group)
+        self._instance_group_table[instance_group.uuid] = instance_group
+
+    def create_host(self,
+                    host_name,
+                    cpe=False,
+                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.UNLOCKED,
+                    software_load='12.01',
+                    target_load='12.01'):
+        """
+        Create a host
+        """
+        personality = ''
+        if host_name.startswith('controller'):
+            personality = HOST_PERSONALITY.CONTROLLER
+            if cpe:
+                personality = personality + ',' + HOST_PERSONALITY.COMPUTE
+        elif host_name.startswith('compute'):
+            personality = HOST_PERSONALITY.COMPUTE
+        elif host_name.startswith('storage'):
+            personality = HOST_PERSONALITY.STORAGE
+        else:
+            assert 0, "Invalid host_name: %s" % host_name
+
+        nfvi_host = nfvi.objects.v1.Host(
+            uuid=str(uuid.uuid4()),
+            name=host_name,
+            personality=personality,
+            admin_state=admin_state,
+            oper_state=nfvi.objects.v1.HOST_OPER_STATE.ENABLED,
+            avail_status=nfvi.objects.v1.HOST_AVAIL_STATUS.AVAILABLE,
+            action=nfvi.objects.v1.HOST_ACTION.NONE,
+            software_load=software_load,
+            target_load=target_load,
+            uptime='1000'
+        )
+
+        host = objects.Host(nfvi_host,
+                            initial_state=host_fsm.HOST_STATE.ENABLED)
+        self._host_table[host.name] = host
+
+    def create_host_group(self, name, members, policies):
+        """
+        Create a host group
+        """
+        member_uuids = []
+
+        for instance_uuid, instance in self._instance_table.iteritems():
+            if instance.name in members:
+                member_uuids.append(instance_uuid)
+
+        nfvi_host_group = nfvi.objects.v1.HostGroup(
+            name=name,
+            member_names=members,
+            policies=policies
+        )
+
+        host_group = objects.HostGroup(nfvi_host_group)
+        self._host_group_table[host_group.name] = host_group
+
+    def create_host_aggregate(self, name, host_names):
+        """
+        Create a host aggregate
+        """
+        nfvi_host_aggregate = nfvi.objects.v1.HostAggregate(
+            name=name,
+            host_names=host_names,
+            availability_zone=''
+        )
+
+        host_aggregate = objects.HostAggregate(nfvi_host_aggregate)
+        self._host_aggregate_table[host_aggregate.name] = host_aggregate
+
+    def create_sw_upgrade_strategy(self,
+            storage_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
+            compute_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
+            max_parallel_compute_hosts=10,
+            alarm_restrictions=SW_UPDATE_ALARM_RESTRICTION.STRICT,
+            start_upgrade=False,
+            complete_upgrade=False,
+            nfvi_upgrade=None
+    ):
+        """
+        Create a software update strategy
+        """
+        strategy = SwUpgradeStrategy(
+            uuid=str(uuid.uuid4()),
+            storage_apply_type=storage_apply_type,
+            compute_apply_type=compute_apply_type,
+            max_parallel_compute_hosts=max_parallel_compute_hosts,
+            alarm_restrictions=alarm_restrictions,
+            start_upgrade=start_upgrade,
+            complete_upgrade=complete_upgrade,
+            ignore_alarms=[]
+        )
+        strategy.nfvi_upgrade = nfvi_upgrade
+        return strategy
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
@@ -345,30 +339,30 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - stages not created
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
+        self.create_instance_group('instance_group_1',
                               ['test_instance_0', 'test_instance_1'],
                               [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
         sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE
         )
 
@@ -398,30 +392,30 @@ class TestSwUpgradeStrategy(object):
         - hosts with no instances upgraded first
         - anti-affinity policy enforced
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
         sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             max_parallel_compute_hosts=2
         )
@@ -497,34 +491,34 @@ class TestSwUpgradeStrategy(object):
         - hosts with no instances upgraded first
         - instances migrated
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
-        create_host('compute-4')
-        create_host('compute-5')
-        create_host('compute-6')
-        create_host('compute-7')
-        create_host('compute-8')
-        create_host('compute-9')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
+        self.create_host('compute-4')
+        self.create_host('compute-5')
+        self.create_host('compute-6')
+        self.create_host('compute-7')
+        self.create_host('compute-8')
+        self.create_host('compute-9')
 
-        create_instance('small', "test_instance_0", 'compute-0')
-        create_instance('small', "test_instance_2", 'compute-2')
-        create_instance('small', "test_instance_3", 'compute-3')
-        create_instance('small', "test_instance_4", 'compute-4')
-        create_instance('small', "test_instance_6", 'compute-6')
-        create_instance('small', "test_instance_7", 'compute-7')
-        create_instance('small', "test_instance_8", 'compute-8')
-        create_instance('small', "test_instance_9", 'compute-9')
+        self.create_instance('small', "test_instance_0", 'compute-0')
+        self.create_instance('small', "test_instance_2", 'compute-2')
+        self.create_instance('small', "test_instance_3", 'compute-3')
+        self.create_instance('small', "test_instance_4", 'compute-4')
+        self.create_instance('small', "test_instance_6", 'compute-6')
+        self.create_instance('small', "test_instance_7", 'compute-7')
+        self.create_instance('small', "test_instance_8", 'compute-8')
+        self.create_instance('small', "test_instance_9", 'compute-9')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
         sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             max_parallel_compute_hosts=3
         )
@@ -622,26 +616,26 @@ class TestSwUpgradeStrategy(object):
         - host aggregate limits enforced
         """
         for x in range(0, 50):
-            create_host('compute-%02d' % x)
+            self.create_host('compute-%02d' % x)
 
         for x in range(2, 47):
-            create_instance('small',
-                            "test_instance_%02d" % x,
-                            'compute-%02d' % x)
+            self.create_instance('small',
+                                 "test_instance_%02d" % x,
+                                 'compute-%02d' % x)
 
-        create_host_aggregate('aggregate-1',
-                              ["compute-%02d" % x for x in range(0, 25)])
-        create_host_aggregate('aggregate-2',
-                              ["compute-%02d" % x for x in range(25, 50)])
+        self.create_host_aggregate('aggregate-1',
+                                   ["compute-%02d" % x for x in range(0, 25)])
+        self.create_host_aggregate('aggregate-2',
+                                   ["compute-%02d" % x for x in range(25, 50)])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
         sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             max_parallel_compute_hosts=5
         )
@@ -729,30 +723,30 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - hosts with no instances upgraded first
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
         sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
@@ -837,31 +831,31 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - stages not created
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0',
-                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0',
+                             admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
         sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
@@ -880,26 +874,26 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - stages not created
         """
-        create_host('storage-0')
-        create_host('storage-1')
-        create_host('storage-2')
-        create_host('storage-3')
+        self.create_host('storage-0')
+        self.create_host('storage-1')
+        self.create_host('storage-2')
+        self.create_host('storage-3')
 
-        create_host_group('group-0',
-                          ['storage-0', 'storage-1'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
-        create_host_group('group-1',
-                          ['storage-2', 'storage-3'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-0',
+                               ['storage-0', 'storage-1'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-1',
+                               ['storage-2', 'storage-3'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
 
         storage_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.STORAGE in host.personality:
                 storage_hosts.append(host)
         # Sort hosts so the order of the steps is deterministic
         sorted_storage_hosts = sorted(storage_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             storage_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE
         )
 
@@ -928,26 +922,26 @@ class TestSwUpgradeStrategy(object):
         - storage-0 upgraded first
         - host groups enforced
         """
-        create_host('storage-0')
-        create_host('storage-1')
-        create_host('storage-2')
-        create_host('storage-3')
+        self.create_host('storage-0')
+        self.create_host('storage-1')
+        self.create_host('storage-2')
+        self.create_host('storage-3')
 
-        create_host_group('group-0',
-                          ['storage-0', 'storage-1'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
-        create_host_group('group-1',
-                          ['storage-2', 'storage-3'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-0',
+                               ['storage-0', 'storage-1'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-1',
+                               ['storage-2', 'storage-3'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
 
         storage_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.STORAGE in host.personality:
                 storage_hosts.append(host)
         # Sort hosts so the order of the steps is deterministic
         sorted_storage_hosts = sorted(storage_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             storage_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL
         )
 
@@ -1014,26 +1008,26 @@ class TestSwUpgradeStrategy(object):
         Test the sw_upgrade strategy add storage strategy stages:
         - serial apply
         """
-        create_host('storage-0')
-        create_host('storage-1')
-        create_host('storage-2')
-        create_host('storage-3')
+        self.create_host('storage-0')
+        self.create_host('storage-1')
+        self.create_host('storage-2')
+        self.create_host('storage-3')
 
-        create_host_group('group-0',
-                          ['storage-0', 'storage-1'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
-        create_host_group('group-1',
-                          ['storage-2', 'storage-3'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-0',
+                               ['storage-0', 'storage-1'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-1',
+                               ['storage-2', 'storage-3'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
 
         storage_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.STORAGE in host.personality:
                 storage_hosts.append(host)
         # Sort hosts so the order of the steps is deterministic
         sorted_storage_hosts = sorted(storage_hosts, key=lambda host: host.name)
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             storage_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
@@ -1120,16 +1114,16 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - controller-0 upgraded
         """
-        create_host('controller-0')
-        create_host('controller-1')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
 
         controller_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if (HOST_PERSONALITY.CONTROLLER in host.personality and
                     HOST_NAME.CONTROLLER_0 == host.name):
                 controller_hosts.append(host)
 
-        strategy = create_sw_upgrade_strategy()
+        strategy = self.create_sw_upgrade_strategy()
 
         strategy._add_controller_strategy_stages(controllers=controller_hosts,
                                                  reboot=True)
@@ -1169,15 +1163,15 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - controller-1 and controller-0 upgraded
         """
-        create_host('controller-0')
-        create_host('controller-1')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
 
         controller_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if (HOST_PERSONALITY.CONTROLLER in host.personality):
                 controller_hosts.append(host)
 
-        strategy = create_sw_upgrade_strategy()
+        strategy = self.create_sw_upgrade_strategy()
 
         strategy._add_controller_strategy_stages(controllers=controller_hosts,
                                                  reboot=True)
@@ -1235,16 +1229,16 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - controller-0 upgraded
         """
-        create_host('controller-0', cpe=True)
-        create_host('controller-1', cpe=True)
+        self.create_host('controller-0', cpe=True)
+        self.create_host('controller-1', cpe=True)
 
         controller_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if (HOST_PERSONALITY.CONTROLLER in host.personality and
                     HOST_NAME.CONTROLLER_0 == host.name):
                 controller_hosts.append(host)
 
-        strategy = create_sw_upgrade_strategy()
+        strategy = self.create_sw_upgrade_strategy()
 
         success, reason = strategy._add_controller_strategy_stages(
             controllers=controller_hosts,
@@ -1254,7 +1248,7 @@ class TestSwUpgradeStrategy(object):
         assert reason == "cannot apply software upgrades to CPE configuration", \
                 "Invalid failure reason"
 
-    @nottest
+    @testtools.skip('No support for start_upgrade')
     def test_sw_upgrade_strategy_build_complete_serial_migrate_start_complete(self):
         """
         Test the sw_upgrade strategy build_complete:
@@ -1264,18 +1258,18 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - hosts with no instances upgraded first
         """
-        create_host('controller-0')
-        create_host('controller-1')
-        create_host('storage-0')
-        create_host('storage-1')
-        create_host('compute-0')
-        create_host('compute-1')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
+        self.create_host('storage-0')
+        self.create_host('storage-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             storage_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             start_upgrade=True,
@@ -1422,16 +1416,16 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - hosts with no instances upgraded first
         """
-        create_host('controller-0')
-        create_host('controller-1')
-        create_host('compute-0')
-        create_host('compute-1')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
@@ -1525,21 +1519,21 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - build fails
         """
-        create_host('controller-0')
-        create_host('controller-1')
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.DATA_MIGRATION_COMPLETE,
@@ -1570,21 +1564,21 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - build fails
         """
-        create_host('controller-0')
-        create_host('controller-1')
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
@@ -1611,21 +1605,21 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - build fails
         """
-        create_host('controller-0')
-        create_host('controller-1')
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.DATA_MIGRATION_COMPLETE,
@@ -1656,21 +1650,21 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - build fails
         """
-        create_host('controller-0')
-        create_host('controller-1')
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
@@ -1702,22 +1696,22 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - build fails
         """
-        create_host('controller-0',
-                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
-        create_host('controller-1')
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('controller-0',
+                         admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+        self.create_host('controller-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
@@ -1748,22 +1742,22 @@ class TestSwUpgradeStrategy(object):
         Verify:
         - build fails
         """
-        create_host('controller-0')
-        create_host('controller-1')
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3',
-                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+        self.create_host('controller-0')
+        self.create_host('controller-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3',
+                         admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        strategy = create_sw_upgrade_strategy(
+        strategy = self.create_sw_upgrade_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,

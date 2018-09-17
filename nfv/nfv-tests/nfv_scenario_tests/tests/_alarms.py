@@ -71,7 +71,7 @@ def is_instance_reboot_alarm(alarms, instance, guest_hb=False):
     """
     Check if an instance reboot alarm has been raised
     """
-    expected_alarm = {'alarm_id': fm_constants.FM_ALARM_ID_VM_REBOOT,
+    expected_alarm = {'alarm_id': fm_constants.FM_ALARM_ID_VM_REBOOTING,
                       'severity': fm_constants.FM_ALARM_SEVERITY_CRITICAL}
 
     return _instance_alarm_raised(alarms, expected_alarm, instance)
@@ -81,7 +81,7 @@ def is_instance_rebuild_alarm(alarms, instance, guest_hb=False):
     """
     Check if an instance rebuild alarm has been raised
     """
-    expected_alarm = {'alarm_id': fm_constants.FM_ALARM_ID_VM_REBUILD,
+    expected_alarm = {'alarm_id': fm_constants.FM_ALARM_ID_VM_REBUILDING,
                       'severity': fm_constants.FM_ALARM_SEVERITY_CRITICAL}
 
     return _instance_alarm_raised(alarms, expected_alarm, instance)

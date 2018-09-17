@@ -3,9 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import uuid
+import fixtures
 import mock
 import pprint
+import uuid
 
 from nfv_common import strategy as common_strategy
 from nfv_vim import host_fsm
@@ -23,161 +24,11 @@ from nfv_vim.tables._instance_table import InstanceTable
 from nfv_vim.tables._instance_group_table import InstanceGroupTable
 from nfv_vim.strategy._strategy import SwPatchStrategy, strategy_rebuild_from_dict
 
-import utils
-
-# Constants
-
-# Globals
-_tenant_table = Table()
-_instance_type_table = Table()
-_instance_table = InstanceTable()
-_instance_group_table = InstanceGroupTable()
-_host_table = HostTable()
-_host_group_table = HostGroupTable()
-_host_aggregate_table = HostAggregateTable()
-
-# Don't attempt to write to the database while unit testing
-_tenant_table.persist = False
-_instance_type_table.persist = False
-_instance_table.persist = False
-_instance_group_table.persist = False
-_host_table.persist = False
-_host_group_table.persist = False
-_host_aggregate_table.persist = False
+from . import testcase
+from . import utils
 
 
-def create_instance(instance_type_name, instance_name, host_name,
-                    admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.UNLOCKED):
-    """
-    Create an instance
-    """
-    global _tenant_table, _instance_table
-
-    tenant_uuid = str(uuid.uuid4())
-    image_uuid = str(uuid.uuid4())
-
-    tenant = objects.Tenant(tenant_uuid, "%s_name" % tenant_uuid, '', True)
-    _tenant_table[tenant_uuid] = tenant
-
-    for instance_type in _instance_type_table.values():
-        if instance_type.name == instance_type_name:
-            instance_uuid = str(uuid.uuid4())
-
-            nfvi_instance = nfvi.objects.v1.Instance(
-                instance_uuid, instance_name, tenant_uuid,
-                admin_state=admin_state,
-                oper_state=nfvi.objects.v1.INSTANCE_OPER_STATE.ENABLED,
-                avail_status=list(),
-                action=nfvi.objects.v1.INSTANCE_ACTION.NONE,
-                host_name=host_name,
-                instance_type=utils.instance_type_to_flavor_dict(
-                    instance_type),
-                image_uuid=image_uuid)
-
-            instance = objects.Instance(nfvi_instance)
-            _instance_table[instance.uuid] = instance
-            return
-
-    assert 0, "Unknown instance_type_name: %s" % instance_type_name
-
-
-def create_instance_group(name, members, policies):
-    """
-    Create an instance group
-    """
-    global _instance_group_table
-
-    member_uuids = []
-
-    for instance_uuid, instance in _instance_table.iteritems():
-        if instance.name in members:
-            member_uuids.append(instance_uuid)
-
-    nfvi_instance_group = nfvi.objects.v1.InstanceGroup(
-        uuid=str(uuid.uuid4()),
-        name=name,
-        member_uuids=member_uuids,
-        policies=policies
-    )
-
-    instance_group = objects.InstanceGroup(nfvi_instance_group)
-    _instance_group_table[instance_group.uuid] = instance_group
-
-
-def create_host(host_name,
-                cpe=False,
-                admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.UNLOCKED):
-    """
-    Create a host
-    """
-    global _host_table
-    personality = ''
-
-    if host_name.startswith('controller'):
-        personality = HOST_PERSONALITY.CONTROLLER
-        if cpe:
-            personality = personality + ',' + HOST_PERSONALITY.COMPUTE
-    elif host_name.startswith('compute'):
-        personality = HOST_PERSONALITY.COMPUTE
-    elif host_name.startswith('storage'):
-        personality = HOST_PERSONALITY.STORAGE
-    else:
-        assert 0, "Invalid host_name: %s" % host_name
-
-    nfvi_host = nfvi.objects.v1.Host(
-        uuid=str(uuid.uuid4()),
-        name=host_name,
-        personality=personality,
-        admin_state=admin_state,
-        oper_state=nfvi.objects.v1.HOST_OPER_STATE.ENABLED,
-        avail_status=nfvi.objects.v1.HOST_AVAIL_STATUS.AVAILABLE,
-        action=nfvi.objects.v1.HOST_ACTION.NONE,
-        software_load='12.01',
-        target_load='12.01',
-        uptime='1000'
-    )
-
-    host = objects.Host(nfvi_host,
-                        initial_state=host_fsm.HOST_STATE.ENABLED)
-    _host_table[host.name] = host
-
-
-def create_host_group(name, members, policies):
-    """
-    Create a host group
-    """
-    global _host_group_table
-
-    member_uuids = []
-
-    for instance_uuid, instance in _instance_table.iteritems():
-        if instance.name in members:
-            member_uuids.append(instance_uuid)
-
-    nfvi_host_group = nfvi.objects.v1.HostGroup(
-        name=name,
-        member_names=members,
-        policies=policies
-    )
-
-    host_group = objects.HostGroup(nfvi_host_group)
-    _host_group_table[host_group.name] = host_group
-
-
-def create_host_aggregate(name, host_names):
-    """
-    Create a host aggregate
-    """
-    global _host_aggregate_table
-
-    nfvi_host_aggregate = nfvi.objects.v1.HostAggregate(
-        name=name,
-        host_names=host_names,
-        availability_zone=''
-    )
-
-    host_aggregate = objects.HostAggregate(nfvi_host_aggregate)
-    _host_aggregate_table[host_aggregate.name] = host_aggregate
+DEBUG_PRINTING = False
 
 
 def create_sw_patch_strategy(
@@ -216,11 +67,12 @@ def validate_strategy_persists(strategy):
     strategy_dict = strategy.as_dict()
     new_strategy = strategy_rebuild_from_dict(strategy_dict)
 
-    if strategy.as_dict() != new_strategy.as_dict():
-        print("==================== Strategy ====================")
-        pprint.pprint(strategy.as_dict())
-        print("============== Converted Strategy ================")
-        pprint.pprint(new_strategy.as_dict())
+    if DEBUG_PRINTING:
+        if strategy.as_dict() != new_strategy.as_dict():
+            print("==================== Strategy ====================")
+            pprint.pprint(strategy.as_dict())
+            print("============== Converted Strategy ================")
+            pprint.pprint(new_strategy.as_dict())
     assert strategy.as_dict() == new_strategy.as_dict(), \
         "Strategy changed when converting to/from dict"
 
@@ -231,10 +83,11 @@ def validate_phase(phase, expected_results):
     Note: there is probably a super generic, pythonic way to do this, but this
     is good enough (tm).
     """
-    print("====================== Phase Results ========================")
-    pprint.pprint(phase)
-    print("===================== Expected Results ======================")
-    pprint.pprint(expected_results)
+    if DEBUG_PRINTING:
+        print("====================== Phase Results ========================")
+        pprint.pprint(phase)
+        print("===================== Expected Results ======================")
+        pprint.pprint(expected_results)
 
     for key in expected_results:
         if key == 'stages':
@@ -287,27 +140,51 @@ def fake_event_issue(a, b, c, d):
     return None
 
 
-@mock.patch('nfv_vim.event_log._instance._event_issue', fake_event_issue)
 @mock.patch('nfv_vim.objects._sw_update.SwUpdate.save', fake_save)
 @mock.patch('nfv_vim.objects._sw_update.timers.timers_create_timer', fake_timer)
-@mock.patch('nfv_vim.tables._tenant_table._tenant_table', _tenant_table)
-@mock.patch('nfv_vim.tables._host_table._host_table', _host_table)
-@mock.patch('nfv_vim.tables._instance_group_table._instance_group_table', _instance_group_table)
-@mock.patch('nfv_vim.tables._host_group_table._host_group_table', _host_group_table)
-@mock.patch('nfv_vim.tables._host_aggregate_table._host_aggregate_table', _host_aggregate_table)
-@mock.patch('nfv_vim.tables._instance_table._instance_table', _instance_table)
 @mock.patch('nfv_vim.strategy._strategy.get_local_host_name', fake_host_name)
-class TestSwPatchStrategy(object):
+@mock.patch('nfv_vim.event_log._instance._event_issue', fake_event_issue)
+class TestSwPatchStrategy(testcase.NFVTestCase):
 
-    def setup(self):
+    _tenant_table = Table()
+    _instance_type_table = Table()
+    _instance_table = InstanceTable()
+    _instance_group_table = InstanceGroupTable()
+    _host_table = HostTable()
+    _host_group_table = HostGroupTable()
+    _host_aggregate_table = HostAggregateTable()
+
+    # Don't attempt to write to the database while unit testing
+    _tenant_table.persist = False
+    _instance_type_table.persist = False
+    _instance_table.persist = False
+    _instance_group_table.persist = False
+    _host_table.persist = False
+    _host_group_table.persist = False
+    _host_aggregate_table.persist = False
+
+    def setUp(self):
         """
         Setup for testing.
         """
-        global _instance_type_table
+        super(TestSwPatchStrategy, self).setUp()
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._tenant_table._tenant_table',
+                                             self._tenant_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_table._host_table',
+                                             self._host_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._instance_group_table._instance_group_table',
+                                             self._instance_group_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_group_table._host_group_table',
+                                             self._host_group_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_aggregate_table._host_aggregate_table',
+                                             self._host_aggregate_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._instance_table._instance_table',
+                                             self._instance_table))
+        self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._instance_type_table._instance_type_table',
+                                             self._instance_type_table))
 
         instance_type_uuid = str(uuid.uuid4())
-
-        if 0 == len(_instance_type_table):
+        if 0 == len(self._instance_type_table):
             instance_type = objects.InstanceType(instance_type_uuid, 'small')
             instance_type.update_details(vcpus=1, mem_mb=64, disk_gb=1, ephemeral_gb=0,
                                          swap_gb=0, guest_services=None,
@@ -315,19 +192,141 @@ class TestSwPatchStrategy(object):
                                          live_migration_timeout=800,
                                          live_migration_max_downtime=500,
                                          storage_type='local_image')
-            _instance_type_table[instance_type_uuid] = instance_type
+            self._instance_type_table[instance_type_uuid] = instance_type
 
-    def teardown(self):
+    def tearDown(self):
         """
         Cleanup testing setup.
         """
-        _tenant_table.clear()
-        _instance_type_table.clear()
-        _instance_table.clear()
-        _instance_group_table.clear()
-        _host_table.clear()
-        _host_group_table.clear()
-        _host_aggregate_table.clear()
+        super(TestSwPatchStrategy, self).tearDown()
+        self._tenant_table.clear()
+        self._instance_type_table.clear()
+        self._instance_table.clear()
+        self._instance_group_table.clear()
+        self._host_table.clear()
+        self._host_group_table.clear()
+        self._host_aggregate_table.clear()
+
+    def create_instance(self, instance_type_name, instance_name, host_name,
+                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.UNLOCKED):
+        """
+        Create an instance
+        """
+        tenant_uuid = str(uuid.uuid4())
+        image_uuid = str(uuid.uuid4())
+
+        tenant = objects.Tenant(tenant_uuid, "%s_name" % tenant_uuid, '', True)
+        self._tenant_table[tenant_uuid] = tenant
+
+        for instance_type in self._instance_type_table.values():
+            if instance_type.name == instance_type_name:
+                instance_uuid = str(uuid.uuid4())
+
+                nfvi_instance = nfvi.objects.v1.Instance(
+                    instance_uuid, instance_name, tenant_uuid,
+                    admin_state=admin_state,
+                    oper_state=nfvi.objects.v1.INSTANCE_OPER_STATE.ENABLED,
+                    avail_status=list(),
+                    action=nfvi.objects.v1.INSTANCE_ACTION.NONE,
+                    host_name=host_name,
+                    instance_type=utils.instance_type_to_flavor_dict(
+                        instance_type),
+                    image_uuid=image_uuid)
+
+                instance = objects.Instance(nfvi_instance)
+                self._instance_table[instance.uuid] = instance
+                return
+
+        assert 0, "Unknown instance_type_name: %s" % instance_type_name
+
+    def create_instance_group(self, name, members, policies):
+        """
+        Create an instance group
+        """
+        member_uuids = []
+
+        for instance_uuid, instance in self._instance_table.iteritems():
+            if instance.name in members:
+                member_uuids.append(instance_uuid)
+
+        nfvi_instance_group = nfvi.objects.v1.InstanceGroup(
+            uuid=str(uuid.uuid4()),
+            name=name,
+            member_uuids=member_uuids,
+            policies=policies
+        )
+
+        instance_group = objects.InstanceGroup(nfvi_instance_group)
+        self._instance_group_table[instance_group.uuid] = instance_group
+
+    def create_host(self,
+                    host_name,
+                    cpe=False,
+                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.UNLOCKED):
+        """
+        Create a host
+        """
+        personality = ''
+
+        if host_name.startswith('controller'):
+            personality = HOST_PERSONALITY.CONTROLLER
+            if cpe:
+                personality = personality + ',' + HOST_PERSONALITY.COMPUTE
+        elif host_name.startswith('compute'):
+            personality = HOST_PERSONALITY.COMPUTE
+        elif host_name.startswith('storage'):
+            personality = HOST_PERSONALITY.STORAGE
+        else:
+            assert 0, "Invalid host_name: %s" % host_name
+
+        nfvi_host = nfvi.objects.v1.Host(
+            uuid=str(uuid.uuid4()),
+            name=host_name,
+            personality=personality,
+            admin_state=admin_state,
+            oper_state=nfvi.objects.v1.HOST_OPER_STATE.ENABLED,
+            avail_status=nfvi.objects.v1.HOST_AVAIL_STATUS.AVAILABLE,
+            action=nfvi.objects.v1.HOST_ACTION.NONE,
+            software_load='12.01',
+            target_load='12.01',
+            uptime='1000'
+        )
+
+        host = objects.Host(nfvi_host,
+                            initial_state=host_fsm.HOST_STATE.ENABLED)
+        self._host_table[host.name] = host
+
+    def create_host_group(self, name, members, policies):
+        """
+        Create a host group
+        """
+        member_uuids = []
+
+        for instance_uuid, instance in self._instance_table.iteritems():
+            if instance.name in members:
+                member_uuids.append(instance_uuid)
+
+        nfvi_host_group = nfvi.objects.v1.HostGroup(
+            name=name,
+            member_names=members,
+            policies=policies
+        )
+
+        host_group = objects.HostGroup(nfvi_host_group)
+        self._host_group_table[host_group.name] = host_group
+
+    def create_host_aggregate(self, name, host_names):
+        """
+        Create a host aggregate
+        """
+        nfvi_host_aggregate = nfvi.objects.v1.HostAggregate(
+            name=name,
+            host_names=host_names,
+            availability_zone=''
+        )
+
+        host_aggregate = objects.HostAggregate(nfvi_host_aggregate)
+        self._host_aggregate_table[host_aggregate.name] = host_aggregate
 
     def test_sw_patch_strategy_compute_stages_ignore(self):
         """
@@ -337,24 +336,24 @@ class TestSwPatchStrategy(object):
         Verify:
         - stages not created
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -389,24 +388,24 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - anti-affinity policy enforced
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -495,28 +494,28 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - instances migrated
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
-        create_host('compute-4')
-        create_host('compute-5')
-        create_host('compute-6')
-        create_host('compute-7')
-        create_host('compute-8')
-        create_host('compute-9')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
+        self.create_host('compute-4')
+        self.create_host('compute-5')
+        self.create_host('compute-6')
+        self.create_host('compute-7')
+        self.create_host('compute-8')
+        self.create_host('compute-9')
 
-        create_instance('small', "test_instance_0", 'compute-0')
-        create_instance('small', "test_instance_2", 'compute-2')
-        create_instance('small', "test_instance_3", 'compute-3')
-        create_instance('small', "test_instance_4", 'compute-4')
-        create_instance('small', "test_instance_6", 'compute-6')
-        create_instance('small', "test_instance_7", 'compute-7')
-        create_instance('small', "test_instance_8", 'compute-8')
-        create_instance('small', "test_instance_9", 'compute-9')
+        self.create_instance('small', "test_instance_0", 'compute-0')
+        self.create_instance('small', "test_instance_2", 'compute-2')
+        self.create_instance('small', "test_instance_3", 'compute-3')
+        self.create_instance('small', "test_instance_4", 'compute-4')
+        self.create_instance('small', "test_instance_6", 'compute-6')
+        self.create_instance('small', "test_instance_7", 'compute-7')
+        self.create_instance('small', "test_instance_8", 'compute-8')
+        self.create_instance('small', "test_instance_9", 'compute-9')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -647,39 +646,39 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - host aggregate limits enforced
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
-        create_host('compute-4')
-        create_host('compute-5')
-        create_host('compute-6')
-        create_host('compute-7')
-        create_host('compute-8')
-        create_host('compute-9')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
+        self.create_host('compute-4')
+        self.create_host('compute-5')
+        self.create_host('compute-6')
+        self.create_host('compute-7')
+        self.create_host('compute-8')
+        self.create_host('compute-9')
 
-        create_host_aggregate('aggregate-1', ['compute-0',
-                                              'compute-1',
-                                              'compute-2',
-                                              'compute-3',
-                                              'compute-4'])
-        create_host_aggregate('aggregate-2', ['compute-5',
-                                              'compute-6',
-                                              'compute-7',
-                                              'compute-8',
-                                              'compute-9'])
+        self.create_host_aggregate('aggregate-1', ['compute-0',
+                                                   'compute-1',
+                                                   'compute-2',
+                                                   'compute-3',
+                                                   'compute-4'])
+        self.create_host_aggregate('aggregate-2', ['compute-5',
+                                                   'compute-6',
+                                                   'compute-7',
+                                                   'compute-8',
+                                                   'compute-9'])
 
-        create_instance('small', "test_instance_0", 'compute-0')
-        create_instance('small', "test_instance_2", 'compute-2')
-        create_instance('small', "test_instance_3", 'compute-3')
-        create_instance('small', "test_instance_4", 'compute-4')
-        create_instance('small', "test_instance_6", 'compute-6')
-        create_instance('small', "test_instance_7", 'compute-7')
-        create_instance('small', "test_instance_8", 'compute-8')
-        create_instance('small', "test_instance_9", 'compute-9')
+        self.create_instance('small', "test_instance_0", 'compute-0')
+        self.create_instance('small', "test_instance_2", 'compute-2')
+        self.create_instance('small', "test_instance_3", 'compute-3')
+        self.create_instance('small', "test_instance_4", 'compute-4')
+        self.create_instance('small', "test_instance_6", 'compute-6')
+        self.create_instance('small', "test_instance_7", 'compute-7')
+        self.create_instance('small', "test_instance_8", 'compute-8')
+        self.create_instance('small', "test_instance_9", 'compute-9')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -810,49 +809,49 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - host aggregate limits enforced
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
-        create_host('compute-4')
-        create_host('compute-5')
-        create_host('compute-6')
-        create_host('compute-7')
-        create_host('compute-8')
-        create_host('compute-9')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
+        self.create_host('compute-4')
+        self.create_host('compute-5')
+        self.create_host('compute-6')
+        self.create_host('compute-7')
+        self.create_host('compute-8')
+        self.create_host('compute-9')
 
-        create_host_aggregate('aggregate-1', ['compute-0',
-                                              'compute-1',
-                                              'compute-2',
-                                              'compute-3',
-                                              'compute-4'])
-        create_host_aggregate('aggregate-2', ['compute-5',
-                                              'compute-6',
-                                              'compute-7',
-                                              'compute-8',
-                                              'compute-9'])
-        create_host_aggregate('aggregate-3', ['compute-0',
-                                              'compute-1',
-                                              'compute-2',
-                                              'compute-3',
-                                              'compute-4',
-                                              'compute-5',
-                                              'compute-6',
-                                              'compute-7',
-                                              'compute-8',
-                                              'compute-9'])
+        self.create_host_aggregate('aggregate-1', ['compute-0',
+                                                   'compute-1',
+                                                   'compute-2',
+                                                   'compute-3',
+                                                   'compute-4'])
+        self.create_host_aggregate('aggregate-2', ['compute-5',
+                                                   'compute-6',
+                                                   'compute-7',
+                                                   'compute-8',
+                                                   'compute-9'])
+        self.create_host_aggregate('aggregate-3', ['compute-0',
+                                                   'compute-1',
+                                                   'compute-2',
+                                                   'compute-3',
+                                                   'compute-4',
+                                                   'compute-5',
+                                                   'compute-6',
+                                                   'compute-7',
+                                                   'compute-8',
+                                                   'compute-9'])
 
-        create_instance('small', "test_instance_0", 'compute-0')
-        create_instance('small', "test_instance_2", 'compute-2')
-        create_instance('small', "test_instance_3", 'compute-3')
-        create_instance('small', "test_instance_4", 'compute-4')
-        create_instance('small', "test_instance_6", 'compute-6')
-        create_instance('small', "test_instance_7", 'compute-7')
-        create_instance('small', "test_instance_8", 'compute-8')
-        create_instance('small', "test_instance_9", 'compute-9')
+        self.create_instance('small', "test_instance_0", 'compute-0')
+        self.create_instance('small', "test_instance_2", 'compute-2')
+        self.create_instance('small', "test_instance_3", 'compute-3')
+        self.create_instance('small', "test_instance_4", 'compute-4')
+        self.create_instance('small', "test_instance_6", 'compute-6')
+        self.create_instance('small', "test_instance_7", 'compute-7')
+        self.create_instance('small', "test_instance_8", 'compute-8')
+        self.create_instance('small', "test_instance_9", 'compute-9')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -983,41 +982,41 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - small host aggregate handled
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
-        create_host('compute-4')
-        create_host('compute-5')
-        create_host('compute-6')
-        create_host('compute-7')
-        create_host('compute-8')
-        create_host('compute-9')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
+        self.create_host('compute-4')
+        self.create_host('compute-5')
+        self.create_host('compute-6')
+        self.create_host('compute-7')
+        self.create_host('compute-8')
+        self.create_host('compute-9')
 
-        create_host_aggregate('aggregate-1', ['compute-0',
-                                              'compute-1'])
-        create_host_aggregate('aggregate-2', ['compute-2',
-                                              'compute-3',
-                                              'compute-4',
-                                              'compute-5',
-                                              'compute-6'])
-        create_host_aggregate('aggregate-3', ['compute-7',
-                                              'compute-8',
-                                              'compute-9'])
+        self.create_host_aggregate('aggregate-1', ['compute-0',
+                                                   'compute-1'])
+        self.create_host_aggregate('aggregate-2', ['compute-2',
+                                                   'compute-3',
+                                                   'compute-4',
+                                                   'compute-5',
+                                                   'compute-6'])
+        self.create_host_aggregate('aggregate-3', ['compute-7',
+                                                   'compute-8',
+                                                   'compute-9'])
 
-        create_instance('small', "test_instance_0", 'compute-0')
-        create_instance('small', "test_instance_1", 'compute-1')
-        create_instance('small', "test_instance_2", 'compute-2')
-        create_instance('small', "test_instance_3", 'compute-3')
-        create_instance('small', "test_instance_4", 'compute-4')
-        create_instance('small', "test_instance_5", 'compute-5')
-        create_instance('small', "test_instance_6", 'compute-6')
-        create_instance('small', "test_instance_7", 'compute-7')
-        create_instance('small', "test_instance_8", 'compute-8')
-        create_instance('small', "test_instance_9", 'compute-9')
+        self.create_instance('small', "test_instance_0", 'compute-0')
+        self.create_instance('small', "test_instance_1", 'compute-1')
+        self.create_instance('small', "test_instance_2", 'compute-2')
+        self.create_instance('small', "test_instance_3", 'compute-3')
+        self.create_instance('small', "test_instance_4", 'compute-4')
+        self.create_instance('small', "test_instance_5", 'compute-5')
+        self.create_instance('small', "test_instance_6", 'compute-6')
+        self.create_instance('small', "test_instance_7", 'compute-7')
+        self.create_instance('small', "test_instance_8", 'compute-8')
+        self.create_instance('small', "test_instance_9", 'compute-9')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1152,24 +1151,24 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - anti-affinity policy enforced
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1259,25 +1258,25 @@ class TestSwPatchStrategy(object):
         Verify:
         - stage creation fails
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1',
-                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1',
+                             admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1304,22 +1303,22 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - host aggregate limits enforced
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_host_aggregate('aggregate-1', ['compute-0', 'compute-1'])
+        self.create_host_aggregate('aggregate-1', ['compute-0', 'compute-1'])
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1453,21 +1452,21 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - locked host patched and rebooted
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3',
-                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3',
+                         admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1538,23 +1537,23 @@ class TestSwPatchStrategy(object):
         - host aggregate limits enforced
         - locked instance not stopped or started
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_host_aggregate('aggregate-1', ['compute-0', 'compute-1'])
+        self.create_host_aggregate('aggregate-1', ['compute-0', 'compute-1'])
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1',
-                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1',
+                             admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1640,21 +1639,21 @@ class TestSwPatchStrategy(object):
         Verify:
         - host aggregates with a single host are patched in parallel
         """
-        create_host('compute-0')
-        create_host('compute-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
 
-        create_host_aggregate('aggregate-1', ['compute-0'])
-        create_host_aggregate('aggregate-2', ['compute-1'])
+        self.create_host_aggregate('aggregate-1', ['compute-0'])
+        self.create_host_aggregate('aggregate-2', ['compute-1'])
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1708,32 +1707,32 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - anti-affinity policy and host aggregates enforced at same time
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_host_aggregate('aggregate-1', ['compute-1', 'compute-2'])
+        self.create_host_aggregate('aggregate-1', ['compute-1', 'compute-2'])
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
-        create_instance('small',
-                        "test_instance_2",
-                        'compute-2')
-        create_instance('small',
-                        "test_instance_3",
-                        'compute-3')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
+        self.create_instance('small',
+                             "test_instance_2",
+                             'compute-2')
+        self.create_instance('small',
+                             "test_instance_3",
+                             'compute-3')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1807,24 +1806,24 @@ class TestSwPatchStrategy(object):
         Verify:
         - hosts with no instances patched first
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -1990,28 +1989,28 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - locked host patched and rebooted
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2',
-                    admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2',
+                         admin_state=nfvi.objects.v1.HOST_ADMIN_STATE.LOCKED)
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
-        create_instance('small',
-                        "test_instance_2",
-                        'compute-3')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
+        self.create_instance('small',
+                             "test_instance_2",
+                             'compute-3')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -2180,10 +2179,10 @@ class TestSwPatchStrategy(object):
         - maximum host limit enforced
         """
         for x in range(0, 13):
-            create_host('compute-%02d' % x)
+            self.create_host('compute-%02d' % x)
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -2296,24 +2295,24 @@ class TestSwPatchStrategy(object):
         Verify:
         - hosts with no instances patched first
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -2480,25 +2479,25 @@ class TestSwPatchStrategy(object):
           - hosts with no instances patched first
           - locked instance is not migrated
         """
-        create_host('compute-0')
-        create_host('compute-1')
-        create_host('compute-2')
-        create_host('compute-3')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
+        self.create_host('compute-2')
+        self.create_host('compute-3')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0',
-                        admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
-        create_instance('small',
-                        "test_instance_1",
-                        'compute-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0',
+                             admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
+        self.create_instance('small',
+                             "test_instance_1",
+                             'compute-1')
 
-        create_instance_group('instance_group_1',
-                              ['test_instance_0', 'test_instance_1'],
-                              [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
+        self.create_instance_group('instance_group_1',
+                                   ['test_instance_0', 'test_instance_1'],
+                                   [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -2583,20 +2582,20 @@ class TestSwPatchStrategy(object):
         Verify:
         - stages not created
         """
-        create_host('storage-0')
-        create_host('storage-1')
-        create_host('storage-2')
-        create_host('storage-3')
+        self.create_host('storage-0')
+        self.create_host('storage-1')
+        self.create_host('storage-2')
+        self.create_host('storage-3')
 
-        create_host_group('group-0',
-                          ['storage-0', 'storage-1'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
-        create_host_group('group-1',
-                          ['storage-2', 'storage-3'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-0',
+                               ['storage-0', 'storage-1'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-1',
+                               ['storage-2', 'storage-3'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
 
         storage_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.STORAGE in host.personality:
                 storage_hosts.append(host)
         # Sort hosts so the order of the steps is deterministic
@@ -2630,20 +2629,20 @@ class TestSwPatchStrategy(object):
         Verify:
         - host groups enforced
         """
-        create_host('storage-0')
-        create_host('storage-1')
-        create_host('storage-2')
-        create_host('storage-3')
+        self.create_host('storage-0')
+        self.create_host('storage-1')
+        self.create_host('storage-2')
+        self.create_host('storage-3')
 
-        create_host_group('group-0',
-                          ['storage-0', 'storage-1'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
-        create_host_group('group-1',
-                          ['storage-2', 'storage-3'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-0',
+                               ['storage-0', 'storage-1'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-1',
+                               ['storage-2', 'storage-3'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
 
         storage_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.STORAGE in host.personality:
                 storage_hosts.append(host)
         # Sort hosts so the order of the steps is deterministic
@@ -2754,20 +2753,20 @@ class TestSwPatchStrategy(object):
         Test the sw_patch strategy add storage strategy stages:
         - serial apply
         """
-        create_host('storage-0')
-        create_host('storage-1')
-        create_host('storage-2')
-        create_host('storage-3')
+        self.create_host('storage-0')
+        self.create_host('storage-1')
+        self.create_host('storage-2')
+        self.create_host('storage-3')
 
-        create_host_group('group-0',
-                          ['storage-0', 'storage-1'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
-        create_host_group('group-1',
-                          ['storage-2', 'storage-3'],
-                          [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-0',
+                               ['storage-0', 'storage-1'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
+        self.create_host_group('group-1',
+                               ['storage-2', 'storage-3'],
+                               [nfvi.objects.v1.HOST_GROUP_POLICY.STORAGE_REPLICATION])
 
         storage_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.STORAGE in host.personality:
                 storage_hosts.append(host)
         # Sort hosts so the order of the steps is deterministic
@@ -2886,11 +2885,11 @@ class TestSwPatchStrategy(object):
         Verify:
         - stages not created
         """
-        create_host('controller-0')
-        create_host('controller-1')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
 
         controller_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.CONTROLLER in host.personality:
                 controller_hosts.append(host)
 
@@ -2921,11 +2920,11 @@ class TestSwPatchStrategy(object):
         Verify:
         - patch mate controller first
         """
-        create_host('controller-0')
-        create_host('controller-1')
+        self.create_host('controller-0')
+        self.create_host('controller-1')
 
         controller_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.CONTROLLER in host.personality:
                 controller_hosts.append(host)
 
@@ -3031,18 +3030,18 @@ class TestSwPatchStrategy(object):
         - stop start instance action
         - test both reboot and no reboot cases
         """
-        create_host('controller-0', cpe=True)
-        create_host('controller-1', cpe=True)
+        self.create_host('controller-0', cpe=True)
+        self.create_host('controller-1', cpe=True)
 
-        create_instance('small',
-                        "test_instance_0",
-                        'controller-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'controller-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'controller-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'controller-1')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -3157,18 +3156,18 @@ class TestSwPatchStrategy(object):
         - serial apply
         - stop start instance action
         """
-        create_host('controller-0', cpe=True)
-        create_host('controller-1', cpe=True)
+        self.create_host('controller-0', cpe=True)
+        self.create_host('controller-1', cpe=True)
 
-        create_instance('small',
-                        "test_instance_0",
-                        'controller-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'controller-1')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'controller-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'controller-1')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -3245,11 +3244,11 @@ class TestSwPatchStrategy(object):
         - serial apply
         - stop start instance action
         """
-        create_host('controller-0', cpe=True)
-        create_host('controller-1', cpe=True)
+        self.create_host('controller-0', cpe=True)
+        self.create_host('controller-1', cpe=True)
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
         # Sort compute hosts so the order of the steps is deterministic
@@ -3319,17 +3318,17 @@ class TestSwPatchStrategy(object):
         Verify:
         - stage creation fails
         """
-        create_host('controller-0', cpe=True)
+        self.create_host('controller-0', cpe=True)
 
-        create_instance('small',
-                        "test_instance_0",
-                        'controller-0')
-        create_instance('small',
-                        "test_instance_1",
-                        'controller-0')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'controller-0')
+        self.create_instance('small',
+                             "test_instance_1",
+                             'controller-0')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
 
@@ -3352,14 +3351,14 @@ class TestSwPatchStrategy(object):
         - serial apply
         - stop start instance action
         """
-        create_host('controller-0', cpe=True)
+        self.create_host('controller-0', cpe=True)
 
-        create_instance('small',
-                        "test_instance_0",
-                        'controller-0')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'controller-0')
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
 
@@ -3411,10 +3410,10 @@ class TestSwPatchStrategy(object):
         - serial apply
         - stop start instance action
         """
-        create_host('controller-0', cpe=True)
+        self.create_host('controller-0', cpe=True)
 
         compute_hosts = []
-        for host in _host_table.values():
+        for host in self._host_table.values():
             if HOST_PERSONALITY.COMPUTE in host.personality:
                 compute_hosts.append(host)
 
@@ -3463,12 +3462,12 @@ class TestSwPatchStrategy(object):
         - hosts with no instances patched first
         - anti-affinity policy enforced
         """
-        create_host('compute-0')
-        create_host('compute-1')
+        self.create_host('compute-0')
+        self.create_host('compute-1')
 
-        create_instance('small',
-                        "test_instance_0",
-                        'compute-0')
+        self.create_instance('small',
+                             "test_instance_0",
+                             'compute-0')
 
         strategy = create_sw_patch_strategy(
             compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
