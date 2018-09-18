@@ -18,3 +18,7 @@ nfv-plugins
 nfv-tools
 nfv-vim
 nfv-client
+
+# mtce-guest
+mtce-guestAgent
+mtce-guestServer
