@@ -1,0 +1,13 @@
+Metadata-Version: 1.1
+Name: mtce-guest
+Version: 1.0
+Summary: Titanium Cloud Guest Server/Agent Package
+Home-page:
+Author: Windriver
+Author-email: info@windriver.com
+License: Apache-2.0
+
+Description: Guest Server/Agent package containing daemons, resource and
+             file system daemons, as well as support files for each.
+
+Platform: UNKNOWN
