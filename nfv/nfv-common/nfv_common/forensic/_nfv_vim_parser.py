@@ -3,13 +3,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import datetime
 import os
 import re
 import yaml
-import datetime
 
-from pyparsing import Word, Combine, Suppress, Literal, Regex
-from pyparsing import nums, alphas
+from pyparsing import alphas
+from pyparsing import Combine
+from pyparsing import Literal
+from pyparsing import nums
+from pyparsing import Regex
+from pyparsing import Suppress
+from pyparsing import Word
 
 
 class NfvVimParser(object):

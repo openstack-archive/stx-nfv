@@ -6,7 +6,7 @@
 import json
 import urllib2
 
-from objects import Token
+from nfv_client.openstack.objects import Token
 
 
 class OpenStackServices(object):

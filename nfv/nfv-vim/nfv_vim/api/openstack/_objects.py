@@ -3,13 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import datetime
+import iso8601
 import re
 import six
-import iso8601
-import datetime
 
 from nfv_common import debug
-from nfv_common.helpers import Constants, Constant, Singleton
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
 
 DLOG = debug.debug_get_logger('nfv_vim.api.openstack')
 

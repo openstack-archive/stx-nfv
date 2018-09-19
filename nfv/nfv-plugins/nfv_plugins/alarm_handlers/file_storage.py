@@ -8,7 +8,7 @@ import six
 
 import nfv_common.alarm.handlers.v1 as alarm_handlers_v1
 
-import config
+from nfv_plugins.alarm_handlers import config
 
 
 class FileStorage(alarm_handlers_v1.AlarmHandler):

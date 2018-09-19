@@ -12,18 +12,18 @@ from nfv_common import tcp
 
 from nfv_vim import nfvi
 
-import config
-from clients import kubernetes_client
-from openstack import rest_api
-from openstack import exceptions
-from openstack import openstack
-from openstack import sysinv
-from openstack import fm
-from openstack import mtc
-from openstack import nova
-from openstack import neutron
-from openstack import guest
-from openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins import config
+from nfv_plugins.nfvi_plugins.clients import kubernetes_client
+from nfv_plugins.nfvi_plugins.openstack import rest_api
+from nfv_plugins.nfvi_plugins.openstack import exceptions
+from nfv_plugins.nfvi_plugins.openstack import openstack
+from nfv_plugins.nfvi_plugins.openstack import sysinv
+from nfv_plugins.nfvi_plugins.openstack import fm
+from nfv_plugins.nfvi_plugins.openstack import mtc
+from nfv_plugins.nfvi_plugins.openstack import nova
+from nfv_plugins.nfvi_plugins.openstack import neutron
+from nfv_plugins.nfvi_plugins.openstack import guest
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.infrastructure_api')
 

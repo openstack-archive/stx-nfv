@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-import rest_api
+from nfv_client.openstack import rest_api
 
 
 class StrategyStep(object):

@@ -7,7 +7,7 @@ import collections
 
 from nfv_common import debug
 
-from _task_worker import TaskWorkerThread
+from nfv_common.tasks._task_worker import TaskWorkerThread
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task_worker_pool')
 

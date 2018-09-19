@@ -11,7 +11,7 @@ from nfv_common import debug
 import nfv_common.alarm.objects.v1 as alarm_objects_v1
 import nfv_common.alarm.handlers.v1 as alarm_handlers_v1
 
-import config
+from nfv_plugins.alarm_handlers import config
 
 DLOG = debug.debug_get_logger('nfv_plugins.alarm_handlers.fm')
 

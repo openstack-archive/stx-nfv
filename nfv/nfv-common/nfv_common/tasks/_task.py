@@ -3,13 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import six
 import collections
+import six
 
 from nfv_common import debug
-from nfv_common.helpers import Constants, Constant, Singleton
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
 
-from _task_result import TaskResult
+from nfv_common.tasks._task_result import TaskResult
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task')
 

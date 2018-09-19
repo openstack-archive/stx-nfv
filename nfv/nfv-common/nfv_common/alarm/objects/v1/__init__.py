@@ -3,8 +3,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _alarm_defs import ALARM_CONTEXT, ALARM_TYPE, ALARM_EVENT_TYPE
-from _alarm_defs import ALARM_PROBABLE_CAUSE, ALARM_SEVERITY, ALARM_TREND_INDICATION
-from _alarm_data import AlarmData, AlarmStateData, AlarmThresholdData
+from nfv_common.alarm.objects.v1._alarm_defs import ALARM_CONTEXT  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_defs import ALARM_EVENT_TYPE  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_defs import ALARM_TYPE  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_defs import ALARM_PROBABLE_CAUSE  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_defs import ALARM_SEVERITY  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_defs import ALARM_TREND_INDICATION  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_data import AlarmData  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_data import AlarmStateData  # noqa: F401
+from nfv_common.alarm.objects.v1._alarm_data import AlarmThresholdData  # noqa: F401

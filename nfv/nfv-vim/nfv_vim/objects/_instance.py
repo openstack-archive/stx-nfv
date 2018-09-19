@@ -3,27 +3,29 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import collections
+import datetime
 import six
 import uuid
 import weakref
-import collections
-import datetime
 
-from _object import ObjectData
+from nfv_vim.objects._object import ObjectData
 
 from nfv_common import config
 from nfv_common import debug
 from nfv_common import timers
 from nfv_common import state_machine
-from nfv_common.helpers import Singleton, Constant, Constants
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
 
-from nfv_vim import nfvi
 from nfv_vim import alarm
 from nfv_vim import event_log
 from nfv_vim import instance_fsm
+from nfv_vim import nfvi
 
-from _instance_type import STORAGE_TYPE
-from _guest_services import GuestServices
+from nfv_vim.objects._instance_type import STORAGE_TYPE
+from nfv_vim.objects._guest_services import GuestServices
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.instance')
 MAX_EVENT_REASON_LENGTH = 255

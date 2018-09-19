@@ -3,7 +3,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _tcp_connection import TCPConnection
-from _tcp_server import TCPServer
+from nfv_common.tcp._tcp_connection import TCPConnection  # noqa: F401
+from nfv_common.tcp._tcp_server import TCPServer  # noqa: F401

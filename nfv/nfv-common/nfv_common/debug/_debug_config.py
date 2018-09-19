@@ -6,7 +6,7 @@
 import six
 from six.moves import configparser
 
-from _debug_defs import DEBUG_LEVEL
+from nfv_common.debug._debug_defs import DEBUG_LEVEL
 
 from nfv_common.helpers import Singleton
 

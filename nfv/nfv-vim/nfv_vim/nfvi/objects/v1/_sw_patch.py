@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _object import ObjectData
+from nfv_vim.nfvi.objects.v1._object import ObjectData
 
 
 class SwPatch(ObjectData):

@@ -3,6 +3,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _application import Application
+from nfv_vim.api._application import Application  # noqa: F401

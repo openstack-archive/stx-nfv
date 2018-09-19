@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _dor_module import system_is_stabilized, dor_is_complete
-from _dor_module import dor_initialize, dor_finalize
+from nfv_vim.dor._dor_module import system_is_stabilized  # noqa: F401
+from nfv_vim.dor._dor_module import dor_is_complete  # noqa: F401
+from nfv_vim.dor._dor_module import dor_initialize  # noqa: F401
+from nfv_vim.dor._dor_module import dor_finalize  # noqa: F401

@@ -3,7 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _database import database_get, database_create
+from nfv_vim.database._database import database_create
+from nfv_vim.database._database import database_get
 
 
 def database_dump_data(filename):

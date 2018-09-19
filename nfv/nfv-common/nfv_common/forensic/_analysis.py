@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _defs import NFV_VIM
+from nfv_common.forensic._defs import NFV_VIM
 
 DLOG = debug.debug_get_logger('forensic-analysis')
 

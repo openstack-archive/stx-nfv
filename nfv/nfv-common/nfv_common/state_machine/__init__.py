@@ -3,12 +3,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _state import State
-from _state_task import StateTask
-from _state_task_work import StateTaskWork
-from _state_task_result import STATE_TASK_RESULT, state_task_result_update
-from _state_task_work_result import STATE_TASK_WORK_RESULT
-from _state_exception import StateException
-from _state_machine import StateMachine
+from nfv_common.state_machine._state import State  # noqa: F401
+from nfv_common.state_machine._state_task import StateTask  # noqa: F401
+from nfv_common.state_machine._state_task_work import StateTaskWork  # noqa: F401
+from nfv_common.state_machine._state_task_result import STATE_TASK_RESULT  # noqa: F401
+from nfv_common.state_machine._state_task_result import state_task_result_update  # noqa: F401
+from nfv_common.state_machine._state_task_work_result import STATE_TASK_WORK_RESULT  # noqa: F401
+from nfv_common.state_machine._state_exception import StateException  # noqa: F401
+from nfv_common.state_machine._state_machine import StateMachine  # noqa: F401

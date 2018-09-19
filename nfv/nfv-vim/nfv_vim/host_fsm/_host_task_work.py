@@ -7,13 +7,13 @@ import weakref
 from nfv_common.helpers import coroutine
 
 from nfv_common import config
-from nfv_common import state_machine
 from nfv_common import debug
+from nfv_common import state_machine
 from nfv_common import timers
 
 from nfv_vim import nfvi
 
-from _host_defs import HOST_EVENT
+from nfv_vim.host_fsm._host_defs import HOST_EVENT
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host_task_work')
 

@@ -3,6 +3,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _controller import OpenStackAPI
+from nfv_vim.api.controllers.v1.openstack._controller import OpenStackAPI  # noqa: F401

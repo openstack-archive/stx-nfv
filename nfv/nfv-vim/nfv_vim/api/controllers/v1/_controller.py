@@ -3,17 +3,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import pecan
 import httplib
+import pecan
 from pecan import rest
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
 from ..._link import Link
 
-import openstack
-import orchestration
-import virtualised_resources
+from nfv_vim.api.controllers.v1 import openstack
+from nfv_vim.api.controllers.v1 import orchestration
+from nfv_vim.api.controllers.v1 import virtualised_resources
 
 
 class APIVersion(wsme_types.Base):

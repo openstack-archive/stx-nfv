@@ -3,22 +3,24 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import argparse
+import codecs
+import datetime
 import os
+import shutil
+import signal
 import sys
+import tarfile
 import time
+import traceback
 import uuid
 import yaml
-import signal
-import shutil
-import codecs
-import tarfile
-import argparse
-import datetime
-import traceback
-from jinja2 import Environment, FileSystemLoader
 
-from nfv_common import forensic
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
+
 from nfv_common import debug
+from nfv_common import forensic
 from nfv_plugins.nfvi_plugins import config
 
 import tests

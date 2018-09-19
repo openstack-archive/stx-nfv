@@ -8,7 +8,9 @@ import urllib2
 
 from nfv_common import debug
 
-from objects import OPENSTACK_SERVICE, Directory, Token
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import Directory
+from nfv_plugins.nfvi_plugins.openstack.objects import Token
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack')
 

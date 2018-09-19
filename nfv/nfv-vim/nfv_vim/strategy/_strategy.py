@@ -8,10 +8,16 @@ import weakref
 
 from nfv_common import debug
 from nfv_common import strategy
-from nfv_common.helpers import Constant, Constants, Singleton, get_local_host_name
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
+from nfv_common.helpers import get_local_host_name
 
-from nfv_vim.objects import SW_UPDATE_APPLY_TYPE, SW_UPDATE_INSTANCE_ACTION
-from nfv_vim.objects import HOST_PERSONALITY, HOST_GROUP_POLICY, HOST_NAME
+from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
+from nfv_vim.objects import SW_UPDATE_INSTANCE_ACTION
+from nfv_vim.objects import HOST_PERSONALITY
+from nfv_vim.objects import HOST_GROUP_POLICY
+from nfv_vim.objects import HOST_NAME
 from nfv_vim.objects import INSTANCE_GROUP_POLICY
 
 from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
@@ -1600,7 +1606,7 @@ def strategy_rebuild_from_dict(data):
     """
     Returns the strategy object initialized using the given dictionary
     """
-    from _strategy_phases import strategy_phase_rebuild_from_dict
+    from nfv_vim.strategy._strategy_phases import strategy_phase_rebuild_from_dict
 
     if not data:
         return None

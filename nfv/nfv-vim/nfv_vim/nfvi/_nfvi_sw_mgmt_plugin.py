@@ -6,7 +6,7 @@
 from nfv_common import debug
 from nfv_common import tasks
 
-from _nfvi_plugin import NFVIPlugin
+from nfv_vim.nfvi._nfvi_plugin import NFVIPlugin
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_sw_mgmt_plugin')
 

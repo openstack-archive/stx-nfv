@@ -13,7 +13,7 @@ from nfv_common import debug
 import nfv_common.event_log.objects.v1 as event_log_objects_v1
 import nfv_common.event_log.handlers.v1 as event_log_handlers_v1
 
-import config
+from nfv_plugins.event_log_handlers import config
 
 DLOG = debug.debug_get_logger('nfv_plugins.event_log_handlers.fm')
 

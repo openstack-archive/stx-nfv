@@ -6,10 +6,13 @@
 import six
 from datetime import datetime
 
-from _object import ObjectData
+from nfv_vim.nfvi.objects.v1._instance_type import INSTANCE_TYPE_EXTENSION
+from nfv_vim.nfvi.objects.v1._object import ObjectData
 
-from nfv_common.helpers import Object, Constant, Constants, Singleton
-from _instance_type import INSTANCE_TYPE_EXTENSION
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Object
+from nfv_common.helpers import Singleton
 
 
 @six.add_metaclass(Singleton)

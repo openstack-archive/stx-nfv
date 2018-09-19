@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _timestamp import get_monotonic_timestamp_in_ms
+from nfv_common.timers._timestamp import get_monotonic_timestamp_in_ms
 
 DLOG = debug.debug_get_logger('nfv_common.timers.timer')
 

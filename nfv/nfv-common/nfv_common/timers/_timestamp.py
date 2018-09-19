@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
 import ctypes
+import os
 
 from nfv_common import debug
 

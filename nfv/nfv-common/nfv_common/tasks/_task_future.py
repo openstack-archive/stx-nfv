@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _task_work import TaskWork
+from nfv_common.tasks._task_work import TaskWork
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task_future')
 

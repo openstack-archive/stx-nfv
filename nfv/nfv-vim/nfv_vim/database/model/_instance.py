@@ -3,9 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from sqlalchemy import Column, String, Boolean, Text
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import String
+from sqlalchemy import Text
 
-from _base import Base, AsDictMixin
+from nfv_vim.database.model._base import AsDictMixin
+from nfv_vim.database.model._base import Base
 
 
 class Instance_v4(AsDictMixin, Base):

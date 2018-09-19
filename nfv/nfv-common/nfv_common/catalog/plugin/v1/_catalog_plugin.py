@@ -4,7 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import six
-from abc import ABCMeta, abstractproperty, abstractmethod
+
+from abc import ABCMeta
+from abc import abstractmethod
+from abc import abstractproperty
 
 
 @six.add_metaclass(ABCMeta)

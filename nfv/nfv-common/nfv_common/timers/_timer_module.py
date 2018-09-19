@@ -7,8 +7,8 @@ import functools
 
 from nfv_common import debug
 
-from _timer import Timer
-from _timer_scheduler import TimerScheduler
+from nfv_common.timers._timer import Timer
+from nfv_common.timers._timer_scheduler import TimerScheduler
 
 DLOG = debug.debug_get_logger('nfv_common.timers.timer_module')
 

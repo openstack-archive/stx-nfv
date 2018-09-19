@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _host_defs import HOST_EVENT, HOST_STATE
-from _host_fsm import HostStateMachine
+from nfv_vim.host_fsm._host_defs import HOST_EVENT  # noqa: F401
+from nfv_vim.host_fsm._host_defs import HOST_STATE  # noqa: F401
+from nfv_vim.host_fsm._host_fsm import HostStateMachine  # noqa: F401
