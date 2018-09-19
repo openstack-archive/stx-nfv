@@ -3,15 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import time
 import argparse
+import time
 
 from nfv_common import debug
 from nfv_common import selobj
 from nfv_common import timers
 
-from _tcp_server import TCPServer
-from _tcp_connection import TCPConnection
+from nfv_common.tcp._tcp_server import TCPServer
+from nfv_common.tcp._tcp_connection import TCPConnection
 
 
 def message_handler(client_connection, msg):

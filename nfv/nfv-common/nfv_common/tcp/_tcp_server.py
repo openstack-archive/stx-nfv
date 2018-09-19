@@ -7,7 +7,7 @@ from nfv_common import debug
 from nfv_common import selobj
 from nfv_common.helpers import coroutine
 
-from _tcp_connection import TCPConnection
+from nfv_common.tcp._tcp_connection import TCPConnection
 
 DLOG = debug.debug_get_logger('nfv_common.tcp')
 

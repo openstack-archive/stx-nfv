@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from nfv_common import debug
-from nfv_common import timers
 from nfv_common import exceptions
+from nfv_common import timers
 from nfv_common.helpers import Result
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task_work')

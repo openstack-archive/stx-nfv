@@ -3,9 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import socket
-import select
 import errno
+import select
+import socket
 
 from nfv_common import debug
 
@@ -85,7 +85,8 @@ def selobj_dispatch(timeout_in_ms):
     Dispatch selection objects that have become readable or writeable
     within the given time period
     """
-    from nfv_common import timers, histogram
+    from nfv_common import histogram
+    from nfv_common import timers
 
     global _read_callbacks, _write_callbacks, _error_callbacks
 

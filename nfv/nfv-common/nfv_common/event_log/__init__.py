@@ -3,14 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from objects.v1 import EVENT_ID
-from objects.v1 import EVENT_CONTEXT
-from objects.v1 import EVENT_TYPE
-from objects.v1 import EVENT_IMPORTANCE
-from objects.v1 import EVENT_INITIATED_BY
-from objects.v1 import EventLogStateData
-from objects.v1 import EventLogThresholdData, EventLogData
-from _event_log_module import event_log, event_log_subsystem_sane
-from _event_log_module import event_log_initialize, event_log_finalize
+from nfv_common.event_log.objects.v1 import EVENT_ID  # noqa: F401
+from nfv_common.event_log.objects.v1 import EVENT_CONTEXT  # noqa: F401
+from nfv_common.event_log.objects.v1 import EVENT_TYPE  # noqa: F401
+from nfv_common.event_log.objects.v1 import EVENT_IMPORTANCE  # noqa: F401
+from nfv_common.event_log.objects.v1 import EVENT_INITIATED_BY  # noqa: F401
+from nfv_common.event_log.objects.v1 import EventLogStateData  # noqa: F401
+from nfv_common.event_log.objects.v1 import EventLogThresholdData  # noqa: F401
+from nfv_common.event_log.objects.v1 import EventLogData  # noqa: F401
+from nfv_common.event_log._event_log_module import event_log  # noqa: F401
+from nfv_common.event_log._event_log_module import event_log_subsystem_sane  # noqa: F401
+from nfv_common.event_log._event_log_module import event_log_initialize  # noqa: F401
+from nfv_common.event_log._event_log_module import event_log_finalize  # noqa: F401

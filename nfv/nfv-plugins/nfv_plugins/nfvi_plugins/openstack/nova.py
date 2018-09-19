@@ -3,15 +3,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import six
 import json
+import six
 
 from nfv_common import debug
-from nfv_common.helpers import Constants, Constant, Singleton
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
 
-from exceptions import NotFound
-from objects import OPENSTACK_SERVICE
-from rest_api import rest_api_request, rest_api_request_with_context
+from nfv_plugins.nfvi_plugins.openstack.exceptions import NotFound
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.rest_api import rest_api_request
+from nfv_plugins.nfvi_plugins.openstack.rest_api import rest_api_request_with_context
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.nova')
 

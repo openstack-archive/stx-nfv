@@ -4,7 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from ctypes import c_ulonglong
-from multiprocessing import RawValue, Lock
+from multiprocessing import Lock
+from multiprocessing import RawValue
 
 from nfv_common import debug
 

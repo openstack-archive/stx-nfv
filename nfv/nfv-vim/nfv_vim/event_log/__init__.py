@@ -3,12 +3,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from nfv_common.event_log import *
+from nfv_common.event_log import *  # noqa: F401,F403
 
-from _general import issue_general_log
-from _host import host_issue_log, hypervisor_issue_log
-from _instance import instance_issue_log, instance_last_event
-from _instance import instance_manage_events
-from _sw_update import sw_update_issue_log
+from nfv_vim.event_log._general import issue_general_log  # noqa: F401
+from nfv_vim.event_log._host import host_issue_log  # noqa: F401
+from nfv_vim.event_log._host import hypervisor_issue_log  # noqa: F401
+from nfv_vim.event_log._instance import instance_issue_log  # noqa: F401
+from nfv_vim.event_log._instance import instance_last_event  # noqa: F401
+from nfv_vim.event_log._instance import instance_manage_events  # noqa: F401
+from nfv_vim.event_log._sw_update import sw_update_issue_log  # noqa: F401

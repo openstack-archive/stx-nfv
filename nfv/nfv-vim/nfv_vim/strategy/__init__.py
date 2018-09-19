@@ -3,19 +3,29 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from nfv_common.strategy import *
-from _strategy_defs import STRATEGY_EVENT
-from _strategy import SwPatchStrategy, SwUpgradeStrategy, strategy_rebuild_from_dict
-from _strategy_stages import STRATEGY_STAGE_NAME
-from _strategy_steps import LockHostsStep, UnlockHostsStep, RebootHostsStep
-from _strategy_steps import SwactHostsStep, UpgradeHostsStep, UpgradeStartStep
-from _strategy_steps import UpgradeActivateStep, UpgradeCompleteStep
-from _strategy_steps import SwPatchHostsStep, MigrateInstancesStep
-from _strategy_steps import StopInstancesStep, StartInstancesStep
-from _strategy_steps import SystemStabilizeStep, QueryAlarmsStep
-from _strategy_steps import QuerySwPatchesStep, QuerySwPatchHostsStep
-from _strategy_steps import WaitDataSyncStep, QueryUpgradeStep
-from _strategy_steps import DisableHostServicesStep
-from _strategy_steps import STRATEGY_STEP_NAME
+from nfv_common.strategy import *  # noqa: F401,F403
+from nfv_vim.strategy._strategy_defs import STRATEGY_EVENT  # noqa: F401
+from nfv_vim.strategy._strategy import SwPatchStrategy  # noqa: F401
+from nfv_vim.strategy._strategy import SwUpgradeStrategy  # noqa: F401
+from nfv_vim.strategy._strategy import strategy_rebuild_from_dict  # noqa: F401
+from nfv_vim.strategy._strategy_stages import STRATEGY_STAGE_NAME  # noqa: F401
+from nfv_vim.strategy._strategy_steps import LockHostsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import UnlockHostsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import RebootHostsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import SwactHostsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import UpgradeHostsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import UpgradeStartStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import UpgradeActivateStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import UpgradeCompleteStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import SwPatchHostsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import MigrateInstancesStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import StopInstancesStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import StartInstancesStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import SystemStabilizeStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import QueryAlarmsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import QuerySwPatchesStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import QuerySwPatchHostsStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import WaitDataSyncStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import QueryUpgradeStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import DisableHostServicesStep  # noqa: F401
+from nfv_vim.strategy._strategy_steps import STRATEGY_STEP_NAME  # noqa: F401

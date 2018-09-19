@@ -7,8 +7,8 @@ import json
 
 from nfv_vim import objects
 
-import model
-from _database import database_get
+from nfv_vim.database import model
+from nfv_vim.database._database import database_get
 
 
 def database_subnet_add(subnet_obj):

@@ -3,6 +3,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _controller import OrchestrationAPI
+from nfv_vim.api.controllers.v1.orchestration._controller import OrchestrationAPI  # noqa: F401

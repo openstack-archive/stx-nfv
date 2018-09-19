@@ -6,13 +6,16 @@
 import six
 
 from nfv_common import debug
-from nfv_common.helpers import Singleton, coroutine
+from nfv_common.helpers import coroutine
+from nfv_common.helpers import Singleton
 
 from nfv_vim import nfvi
 from nfv_vim import objects
 from nfv_vim import tables
 
-from _directors_defs import OPERATION_TYPE, OPERATION_STATE, Operation
+from nfv_vim.directors._directors_defs import Operation
+from nfv_vim.directors._directors_defs import OPERATION_STATE
+from nfv_vim.directors._directors_defs import OPERATION_TYPE
 
 DLOG = debug.debug_get_logger('nfv_vim.host_director')
 

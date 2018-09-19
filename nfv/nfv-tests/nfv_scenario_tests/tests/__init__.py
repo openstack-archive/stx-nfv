@@ -3,18 +3,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _test_instances import TestInstanceStart, TestInstanceStop
-from _test_instances import TestInstancePause, TestInstanceUnpause
-from _test_instances import TestInstanceSuspend, TestInstanceResume
-from _test_instances import TestInstanceReboot
-from _test_instances import TestInstanceRebuild
-from _test_instances import TestInstanceLiveMigrate
-from _test_instances import TestInstanceColdMigrate
-from _test_instances import TestInstanceColdMigrateConfirm
-from _test_instances import TestInstanceColdMigrateRevert
-from _test_instances import TestInstanceResize
-from _test_instances import TestInstanceResizeConfirm
-from _test_instances import TestInstanceResizeRevert
-from _test_hosts import TestHostLock, TestHostUnlock
+from tests._test_instances import TestInstanceStart  # noqa: F401
+from tests._test_instances import TestInstanceStop  # noqa: F401
+from tests._test_instances import TestInstancePause  # noqa: F401
+from tests._test_instances import TestInstanceUnpause  # noqa: F401
+from tests._test_instances import TestInstanceSuspend  # noqa: F401
+from tests._test_instances import TestInstanceResume  # noqa: F401
+from tests._test_instances import TestInstanceReboot  # noqa: F401
+from tests._test_instances import TestInstanceRebuild  # noqa: F401
+from tests._test_instances import TestInstanceLiveMigrate  # noqa: F401
+from tests._test_instances import TestInstanceColdMigrate  # noqa: F401
+from tests._test_instances import TestInstanceColdMigrateConfirm  # noqa: F401
+from tests._test_instances import TestInstanceColdMigrateRevert  # noqa: F401
+from tests._test_instances import TestInstanceResize  # noqa: F401
+from tests._test_instances import TestInstanceResizeConfirm  # noqa: F401
+from tests._test_instances import TestInstanceResizeRevert  # noqa: F401
+from tests._test_hosts import TestHostLock  # noqa: F401
+from tests._test_hosts import TestHostUnlock  # noqa: F401

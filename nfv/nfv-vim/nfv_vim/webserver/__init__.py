@@ -3,6 +3,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _webserver import SimpleHttpServer
+from nfv_vim.webserver._webserver import SimpleHttpServer  # noqa: F401

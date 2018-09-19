@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
-import time
-import shutil
 import datetime
+import os
+import shutil
+import time
 
 from nfv_common import debug
 
@@ -16,9 +16,9 @@ from nfv_plugins.nfvi_plugins.openstack import sysinv
 from nfv_plugins.nfvi_plugins.openstack import fm
 from nfv_plugins.nfvi_plugins.openstack import openstack
 
-import _hosts
-import _instances
-import _test_base
+from tests import _hosts
+from tests import _instances
+from tests import _test_base
 
 DLOG = debug.debug_get_logger('nfv_tests.test_hosts')
 

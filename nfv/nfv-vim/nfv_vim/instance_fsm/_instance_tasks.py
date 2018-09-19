@@ -5,37 +5,37 @@
 #
 import weakref
 
-from nfv_common import state_machine
 from nfv_common import debug
+from nfv_common import state_machine
 
-from _instance_defs import INSTANCE_EVENT
-from _instance_task_work import QueryHypervisorTaskWork
-from _instance_task_work import LiveMigrateTaskWork
-from _instance_task_work import ColdMigrateTaskWork
-from _instance_task_work import ColdMigrateConfirmTaskWork
-from _instance_task_work import ColdMigrateRevertTaskWork
-from _instance_task_work import ResizeTaskWork
-from _instance_task_work import ResizeConfirmTaskWork
-from _instance_task_work import ResizeRevertTaskWork
-from _instance_task_work import EvacuateTaskWork
-from _instance_task_work import StartTaskWork
-from _instance_task_work import StopTaskWork
-from _instance_task_work import PauseTaskWork
-from _instance_task_work import UnpauseTaskWork
-from _instance_task_work import SuspendTaskWork
-from _instance_task_work import ResumeTaskWork
-from _instance_task_work import RebootTaskWork
-from _instance_task_work import RebuildTaskWork
-from _instance_task_work import FailTaskWork
-from _instance_task_work import DeleteTaskWork
-from _instance_task_work import GuestServicesCreateTaskWork
-from _instance_task_work import GuestServicesEnableTaskWork
-from _instance_task_work import GuestServicesDisableTaskWork
-from _instance_task_work import GuestServicesSetTaskWork
-from _instance_task_work import GuestServicesDeleteTaskWork
-from _instance_task_work import GuestServicesVoteTaskWork
-from _instance_task_work import GuestServicesPreNotifyTaskWork
-from _instance_task_work import GuestServicesPostNotifyTaskWork
+from nfv_vim.instance_fsm._instance_defs import INSTANCE_EVENT
+from nfv_vim.instance_fsm._instance_task_work import QueryHypervisorTaskWork
+from nfv_vim.instance_fsm._instance_task_work import LiveMigrateTaskWork
+from nfv_vim.instance_fsm._instance_task_work import ColdMigrateTaskWork
+from nfv_vim.instance_fsm._instance_task_work import ColdMigrateConfirmTaskWork
+from nfv_vim.instance_fsm._instance_task_work import ColdMigrateRevertTaskWork
+from nfv_vim.instance_fsm._instance_task_work import ResizeTaskWork
+from nfv_vim.instance_fsm._instance_task_work import ResizeConfirmTaskWork
+from nfv_vim.instance_fsm._instance_task_work import ResizeRevertTaskWork
+from nfv_vim.instance_fsm._instance_task_work import EvacuateTaskWork
+from nfv_vim.instance_fsm._instance_task_work import StartTaskWork
+from nfv_vim.instance_fsm._instance_task_work import StopTaskWork
+from nfv_vim.instance_fsm._instance_task_work import PauseTaskWork
+from nfv_vim.instance_fsm._instance_task_work import UnpauseTaskWork
+from nfv_vim.instance_fsm._instance_task_work import SuspendTaskWork
+from nfv_vim.instance_fsm._instance_task_work import ResumeTaskWork
+from nfv_vim.instance_fsm._instance_task_work import RebootTaskWork
+from nfv_vim.instance_fsm._instance_task_work import RebuildTaskWork
+from nfv_vim.instance_fsm._instance_task_work import FailTaskWork
+from nfv_vim.instance_fsm._instance_task_work import DeleteTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesCreateTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesEnableTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesDisableTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesSetTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesDeleteTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesVoteTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesPreNotifyTaskWork
+from nfv_vim.instance_fsm._instance_task_work import GuestServicesPostNotifyTaskWork
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.instance_task')
 

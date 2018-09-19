@@ -3,18 +3,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import inspect
 import collections
+import inspect
 
 from nfv_common import debug
-from nfv_common import timers
-from nfv_common import selobj
-from nfv_common import selectable
 from nfv_common import histogram
+from nfv_common import selectable
+from nfv_common import selobj
+from nfv_common import timers
 from nfv_common.helpers import coroutine
 
-from _task import Task, TASK_PRIORITY
-from _task_future import TaskFuture
+from nfv_common.tasks._task import Task
+from nfv_common.tasks._task import TASK_PRIORITY
+from nfv_common.tasks._task_future import TaskFuture
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task_scheduler')
 

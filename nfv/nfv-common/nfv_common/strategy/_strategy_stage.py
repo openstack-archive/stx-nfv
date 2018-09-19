@@ -7,12 +7,13 @@ import weakref
 
 from datetime import datetime
 
-from nfv_common import timers
 from nfv_common import debug
+from nfv_common import timers
 from nfv_common.helpers import coroutine
 
-from _strategy_result import STRATEGY_STAGE_RESULT, STRATEGY_STEP_RESULT
-from _strategy_result import strategy_stage_result_update
+from nfv_common.strategy._strategy_result import STRATEGY_STAGE_RESULT
+from nfv_common.strategy._strategy_result import STRATEGY_STEP_RESULT
+from nfv_common.strategy._strategy_result import strategy_stage_result_update
 
 DLOG = debug.debug_get_logger('nfv_common.strategy.stage')
 

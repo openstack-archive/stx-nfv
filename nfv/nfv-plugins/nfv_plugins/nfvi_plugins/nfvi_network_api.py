@@ -9,11 +9,11 @@ from nfv_common import debug
 
 from nfv_vim import nfvi
 
-import config
-from openstack import exceptions
-from openstack import openstack
-from openstack import neutron
-from openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins import config
+from nfv_plugins.nfvi_plugins.openstack import exceptions
+from nfv_plugins.nfvi_plugins.openstack import openstack
+from nfv_plugins.nfvi_plugins.openstack import neutron
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.network_api')
 

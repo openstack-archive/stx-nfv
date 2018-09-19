@@ -7,9 +7,11 @@ import json
 
 from nfv_common import debug
 
-from _strategy_defs import STRATEGY_PHASE, STRATEGY_STATE
-from _strategy_result import STRATEGY_RESULT, strategy_result_update
-from _strategy_phase import StrategyPhase
+from nfv_common.strategy._strategy_defs import STRATEGY_PHASE
+from nfv_common.strategy._strategy_defs import STRATEGY_STATE
+from nfv_common.strategy._strategy_result import STRATEGY_RESULT
+from nfv_common.strategy._strategy_result import strategy_result_update
+from nfv_common.strategy._strategy_phase import StrategyPhase
 
 DLOG = debug.debug_get_logger('nfv_common.strategy')
 

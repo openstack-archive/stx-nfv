@@ -6,14 +6,17 @@
 import six
 import uuid
 
-from nfv_common import timers
 from nfv_common import debug
-from nfv_common.helpers import Constant, Constants, Singleton, coroutine
+from nfv_common import timers
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
+from nfv_common.helpers import coroutine
 
 from nfv_vim import alarm
 from nfv_vim import event_log
 
-from _object import ObjectData
+from nfv_vim.objects._object import ObjectData
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.sw_update')
 

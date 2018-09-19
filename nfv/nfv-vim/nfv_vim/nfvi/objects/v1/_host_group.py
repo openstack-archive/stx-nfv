@@ -5,9 +5,11 @@
 #
 import six
 
-from _object import ObjectData
+from nfv_vim.nfvi.objects.v1._object import ObjectData
 
-from nfv_common.helpers import Constant, Constants, Singleton
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
 
 
 @six.add_metaclass(Singleton)

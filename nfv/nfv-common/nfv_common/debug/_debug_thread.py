@@ -3,11 +3,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import logging
+import multiprocessing
 import six
 import sys
-import logging
 import threading
-import multiprocessing
 
 from logging.handlers import SysLogHandler
 

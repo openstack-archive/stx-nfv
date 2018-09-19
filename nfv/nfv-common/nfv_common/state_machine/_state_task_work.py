@@ -7,7 +7,7 @@ import weakref
 
 from nfv_common import debug
 
-from _state_task_result import STATE_TASK_WORK_RESULT
+from nfv_common.state_machine._state_task_result import STATE_TASK_WORK_RESULT
 
 DLOG = debug.debug_get_logger('nfv_common.state_machine.state_task_work')
 

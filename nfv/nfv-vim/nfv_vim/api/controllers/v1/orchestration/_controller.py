@@ -3,15 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import pecan
 import httplib
+import pecan
 from pecan import rest
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
 from ...._link import Link
-from sw_update import SwPatchAPI
-from sw_update import SwUpgradeAPI
+from nfv_vim.api.controllers.v1.orchestration.sw_update import SwPatchAPI
+from nfv_vim.api.controllers.v1.orchestration.sw_update import SwUpgradeAPI
 
 
 class OrchestrationDescription(wsme_types.Base):

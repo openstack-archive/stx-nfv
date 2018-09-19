@@ -5,14 +5,14 @@
 #
 import six
 
-from nfv_common import debug
 from nfv_common import config
+from nfv_common import debug
 from nfv_common import selobj
 from nfv_common import timers
 from nfv_common.helpers import coroutine
 
-from _task_worker_pool import TaskWorkerPool
-from _task_scheduler import TaskScheduler
+from nfv_common.tasks._task_worker_pool import TaskWorkerPool
+from nfv_common.tasks._task_scheduler import TaskScheduler
 
 DLOG = debug.debug_get_logger('unit_test', debug_level=debug.DEBUG_LEVEL.INFO)
 

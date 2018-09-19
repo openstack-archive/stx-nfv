@@ -3,17 +3,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import pecan
 import httplib
+import pecan
 from pecan import rest
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
 from ...._link import Link
-from _computes_api import ComputesAPI
-from _networks_api import NetworksAPI
-from _image_api import ImageAPI
-from _volume_api import VolumeAPI
+from nfv_vim.api.controllers.v1.virtualised_resources._computes_api import ComputesAPI
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_api import NetworksAPI
+from nfv_vim.api.controllers.v1.virtualised_resources._image_api import ImageAPI
+from nfv_vim.api.controllers.v1.virtualised_resources._volume_api import VolumeAPI
 
 
 class VirtualisedResourcesDescription(wsme_types.Base):

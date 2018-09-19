@@ -3,7 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from _defs import CONNECTIVITY_TYPE, CONNECTION_TYPE
+from nfv_common.catalog.model._defs import CONNECTION_TYPE
+from nfv_common.catalog.model._defs import CONNECTIVITY_TYPE
 
 #
 # Virtual Network Function Descriptor - Class Layout

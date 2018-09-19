@@ -5,17 +5,18 @@
 #
 import os.path
 
+from nfv_common import config
 from nfv_common import debug
 from nfv_common import timers
-from nfv_common import config
-from nfv_common.helpers import local_uptime_in_secs, process_uptime_in_secs
 from nfv_common.helpers import coroutine
+from nfv_common.helpers import local_uptime_in_secs
+from nfv_common.helpers import process_uptime_in_secs
 
-from nfv_vim import nfvi
-from nfv_vim import tables
-from nfv_vim import objects
 from nfv_vim import alarm
 from nfv_vim import event_log
+from nfv_vim import nfvi
+from nfv_vim import objects
+from nfv_vim import tables
 
 DLOG = debug.debug_get_logger('nfv_vim.dor')
 

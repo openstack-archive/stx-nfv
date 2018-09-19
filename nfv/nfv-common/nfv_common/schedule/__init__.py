@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _schedule_module import schedule_function_call
-from _schedule_module import schedule_initialize, schedule_finalize
+from nfv_common.schedule._schedule_module import schedule_function_call  # noqa: F401
+from nfv_common.schedule._schedule_module import schedule_initialize  # noqa: F401
+from nfv_common.schedule._schedule_module import schedule_finalize  # noqa: F401

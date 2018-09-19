@@ -3,72 +3,82 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _rpc_defs import RPC_MSG_VERSION, RPC_MSG_TYPE, RPC_MSG_RESULT
-from _rpc_message import RPCMessage
+from nfv_vim.rpc._rpc_defs import RPC_MSG_VERSION  # noqa: F401
+from nfv_vim.rpc._rpc_defs import RPC_MSG_TYPE  # noqa: F401
+from nfv_vim.rpc._rpc_defs import RPC_MSG_RESULT  # noqa: F401
+from nfv_vim.rpc._rpc_message import RPCMessage  # noqa: F401
 
-from _rpc_message_image import APIRequestCreateImage, APIResponseCreateImage
-from _rpc_message_image import APIRequestUpdateImage, APIResponseUpdateImage
-from _rpc_message_image import APIRequestDeleteImage, APIResponseDeleteImage
-from _rpc_message_image import APIRequestGetImage, APIResponseGetImage
+from nfv_vim.rpc._rpc_message_image import APIRequestCreateImage  # noqa: F401
+from nfv_vim.rpc._rpc_message_image import APIResponseCreateImage  # noqa: F401
+from nfv_vim.rpc._rpc_message_image import APIRequestUpdateImage  # noqa: F401
+from nfv_vim.rpc._rpc_message_image import APIResponseUpdateImage  # noqa: F401
+from nfv_vim.rpc._rpc_message_image import APIRequestDeleteImage  # noqa: F401
+from nfv_vim.rpc._rpc_message_image import APIResponseDeleteImage  # noqa: F401
+from nfv_vim.rpc._rpc_message_image import APIRequestGetImage  # noqa: F401
+from nfv_vim.rpc._rpc_message_image import APIResponseGetImage  # noqa: F401
 
-from _rpc_message_volume import APIRequestCreateVolume, APIResponseCreateVolume
-from _rpc_message_volume import APIRequestUpdateVolume, APIResponseUpdateVolume
-from _rpc_message_volume import APIRequestDeleteVolume, APIResponseDeleteVolume
-from _rpc_message_volume import APIRequestGetVolume, APIResponseGetVolume
+from nfv_vim.rpc._rpc_message_volume import APIRequestCreateVolume  # noqa: F401
+from nfv_vim.rpc._rpc_message_volume import APIResponseCreateVolume  # noqa: F401
+from nfv_vim.rpc._rpc_message_volume import APIRequestUpdateVolume  # noqa: F401
+from nfv_vim.rpc._rpc_message_volume import APIResponseUpdateVolume  # noqa: F401
+from nfv_vim.rpc._rpc_message_volume import APIRequestDeleteVolume  # noqa: F401
+from nfv_vim.rpc._rpc_message_volume import APIResponseDeleteVolume  # noqa: F401
+from nfv_vim.rpc._rpc_message_volume import APIRequestGetVolume  # noqa: F401
+from nfv_vim.rpc._rpc_message_volume import APIResponseGetVolume  # noqa: F401
 
-from _rpc_message_instance import APIRequestCreateInstance
-from _rpc_message_instance import APIResponseCreateInstance
-from _rpc_message_instance import APIRequestStartInstance
-from _rpc_message_instance import APIResponseStartInstance
-from _rpc_message_instance import APIRequestStopInstance
-from _rpc_message_instance import APIResponseStopInstance
-from _rpc_message_instance import APIRequestPauseInstance
-from _rpc_message_instance import APIResponsePauseInstance
-from _rpc_message_instance import APIRequestUnpauseInstance
-from _rpc_message_instance import APIResponseUnpauseInstance
-from _rpc_message_instance import APIRequestSuspendInstance
-from _rpc_message_instance import APIResponseSuspendInstance
-from _rpc_message_instance import APIRequestResumeInstance
-from _rpc_message_instance import APIResponseResumeInstance
-from _rpc_message_instance import APIRequestRebootInstance
-from _rpc_message_instance import APIResponseRebootInstance
-from _rpc_message_instance import APIRequestLiveMigrateInstance
-from _rpc_message_instance import APIResponseLiveMigrateInstance
-from _rpc_message_instance import APIRequestColdMigrateInstance
-from _rpc_message_instance import APIResponseColdMigrateInstance
-from _rpc_message_instance import APIRequestEvacuateInstance
-from _rpc_message_instance import APIResponseEvacuateInstance
-from _rpc_message_instance import APIRequestDeleteInstance
-from _rpc_message_instance import APIResponseDeleteInstance
-from _rpc_message_instance import APIRequestGetInstance
-from _rpc_message_instance import APIResponseGetInstance
+from nfv_vim.rpc._rpc_message_instance import APIRequestCreateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseCreateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestStartInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseStartInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestStopInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseStopInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestPauseInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponsePauseInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestUnpauseInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseUnpauseInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestSuspendInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseSuspendInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestResumeInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseResumeInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestRebootInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseRebootInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestLiveMigrateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseLiveMigrateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestColdMigrateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseColdMigrateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestEvacuateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseEvacuateInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestDeleteInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseDeleteInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIRequestGetInstance  # noqa: F401
+from nfv_vim.rpc._rpc_message_instance import APIResponseGetInstance  # noqa: F401
 
-from _rpc_message_subnet import APIRequestCreateSubnet
-from _rpc_message_subnet import APIResponseCreateSubnet
-from _rpc_message_subnet import APIRequestUpdateSubnet
-from _rpc_message_subnet import APIResponseUpdateSubnet
-from _rpc_message_subnet import APIRequestDeleteSubnet
-from _rpc_message_subnet import APIResponseDeleteSubnet
-from _rpc_message_subnet import APIRequestGetSubnet, APIResponseGetSubnet
+from nfv_vim.rpc._rpc_message_subnet import APIRequestCreateSubnet  # noqa: F401
+from nfv_vim.rpc._rpc_message_subnet import APIResponseCreateSubnet  # noqa: F401
+from nfv_vim.rpc._rpc_message_subnet import APIRequestUpdateSubnet  # noqa: F401
+from nfv_vim.rpc._rpc_message_subnet import APIResponseUpdateSubnet  # noqa: F401
+from nfv_vim.rpc._rpc_message_subnet import APIRequestDeleteSubnet  # noqa: F401
+from nfv_vim.rpc._rpc_message_subnet import APIResponseDeleteSubnet  # noqa: F401
+from nfv_vim.rpc._rpc_message_subnet import APIRequestGetSubnet  # noqa: F401
+from nfv_vim.rpc._rpc_message_subnet import APIResponseGetSubnet  # noqa: F401
 
-from _rpc_message_network import APIRequestCreateNetwork
-from _rpc_message_network import APIResponseCreateNetwork
-from _rpc_message_network import APIRequestUpdateNetwork
-from _rpc_message_network import APIResponseUpdateNetwork
-from _rpc_message_network import APIRequestDeleteNetwork
-from _rpc_message_network import APIResponseDeleteNetwork
-from _rpc_message_network import APIRequestGetNetwork, APIResponseGetNetwork
+from nfv_vim.rpc._rpc_message_network import APIRequestCreateNetwork  # noqa: F401
+from nfv_vim.rpc._rpc_message_network import APIResponseCreateNetwork  # noqa: F401
+from nfv_vim.rpc._rpc_message_network import APIRequestUpdateNetwork  # noqa: F401
+from nfv_vim.rpc._rpc_message_network import APIResponseUpdateNetwork  # noqa: F401
+from nfv_vim.rpc._rpc_message_network import APIRequestDeleteNetwork  # noqa: F401
+from nfv_vim.rpc._rpc_message_network import APIResponseDeleteNetwork  # noqa: F401
+from nfv_vim.rpc._rpc_message_network import APIRequestGetNetwork  # noqa: F401
+from nfv_vim.rpc._rpc_message_network import APIResponseGetNetwork  # noqa: F401
 
-from _rpc_message_sw_update import APIRequestCreateSwUpdateStrategy
-from _rpc_message_sw_update import APIRequestCreateSwUpgradeStrategy
-from _rpc_message_sw_update import APIResponseCreateSwUpdateStrategy
-from _rpc_message_sw_update import APIRequestApplySwUpdateStrategy
-from _rpc_message_sw_update import APIResponseApplySwUpdateStrategy
-from _rpc_message_sw_update import APIRequestAbortSwUpdateStrategy
-from _rpc_message_sw_update import APIResponseAbortSwUpdateStrategy
-from _rpc_message_sw_update import APIRequestDeleteSwUpdateStrategy
-from _rpc_message_sw_update import APIResponseDeleteSwUpdateStrategy
-from _rpc_message_sw_update import APIRequestGetSwUpdateStrategy
-from _rpc_message_sw_update import APIResponseGetSwUpdateStrategy
+from nfv_vim.rpc._rpc_message_sw_update import APIRequestCreateSwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIRequestCreateSwUpgradeStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIResponseCreateSwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIRequestApplySwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIResponseApplySwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIRequestAbortSwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIResponseAbortSwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIRequestDeleteSwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIResponseDeleteSwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIRequestGetSwUpdateStrategy  # noqa: F401
+from nfv_vim.rpc._rpc_message_sw_update import APIResponseGetSwUpdateStrategy  # noqa: F401

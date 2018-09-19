@@ -5,7 +5,7 @@
 #
 from nfv_common import debug
 
-from _nfvi_identity_plugin import NFVIIdentityPlugin
+from nfv_vim.nfvi._nfvi_identity_plugin import NFVIIdentityPlugin
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_identity_module')
 
