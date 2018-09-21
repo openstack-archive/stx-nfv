@@ -3,13 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _strategy_defs import STRATEGY_APPLY_TYPE, STRATEGY_STATE, STRATEGY_PHASE
-from _strategy_defs import STRATEGY_ALARM_RESTRICTION_TYPES
-from _strategy_result import STRATEGY_RESULT, STRATEGY_PHASE_RESULT
-from _strategy_result import STRATEGY_STAGE_RESULT, STRATEGY_STEP_RESULT
-from _strategy_step import StrategyStep
-from _strategy_stage import StrategyStage
-from _strategy_phase import StrategyPhase
-from _strategy import Strategy
+from nfv_common.strategy._strategy_defs import STRATEGY_APPLY_TYPE  # noqa: F401
+from nfv_common.strategy._strategy_defs import STRATEGY_STATE  # noqa: F401
+from nfv_common.strategy._strategy_defs import STRATEGY_PHASE  # noqa: F401
+from nfv_common.strategy._strategy_defs import STRATEGY_ALARM_RESTRICTION_TYPES  # noqa: F401
+from nfv_common.strategy._strategy_result import STRATEGY_RESULT  # noqa: F401
+from nfv_common.strategy._strategy_result import STRATEGY_PHASE_RESULT  # noqa: F401
+from nfv_common.strategy._strategy_result import STRATEGY_STAGE_RESULT  # noqa: F401
+from nfv_common.strategy._strategy_result import STRATEGY_STEP_RESULT  # noqa: F401
+from nfv_common.strategy._strategy_step import StrategyStep  # noqa: F401
+from nfv_common.strategy._strategy_stage import StrategyStage  # noqa: F401
+from nfv_common.strategy._strategy_phase import StrategyPhase  # noqa: F401
+from nfv_common.strategy._strategy import Strategy  # noqa: F401

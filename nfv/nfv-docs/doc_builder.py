@@ -13,7 +13,8 @@ import shutil
 import six
 import yaml
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))

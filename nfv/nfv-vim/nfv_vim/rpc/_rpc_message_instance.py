@@ -5,8 +5,10 @@
 #
 from nfv_common import debug
 
-from _rpc_defs import RPC_MSG_VERSION, RPC_MSG_TYPE, RPC_MSG_RESULT
-from _rpc_message import RPCMessage
+from nfv_vim.rpc._rpc_defs import RPC_MSG_RESULT
+from nfv_vim.rpc._rpc_defs import RPC_MSG_TYPE
+from nfv_vim.rpc._rpc_defs import RPC_MSG_VERSION
+from nfv_vim.rpc._rpc_message import RPCMessage
 
 DLOG = debug.debug_get_logger('nfv_vim.rpc.instance')
 

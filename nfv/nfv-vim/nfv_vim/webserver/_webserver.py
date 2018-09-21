@@ -3,14 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import re
-import json
-import httplib
 import datetime
-import threading
+import httplib
+import json
+import re
 import socket
+import threading
 from SocketServer import ThreadingMixIn
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from BaseHTTPServer import BaseHTTPRequestHandler
+from BaseHTTPServer import HTTPServer
 
 from nfv_common import debug
 from nfv_plugins.nfvi_plugins import config

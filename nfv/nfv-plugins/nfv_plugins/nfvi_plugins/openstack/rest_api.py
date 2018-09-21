@@ -3,22 +3,27 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import re
+import httplib
 import json
+import re
 import socket
 import struct
-import httplib
 import urllib2
-import SocketServer
+
 import BaseHTTPServer
+import SocketServer
 
 from nfv_common import debug
 from nfv_common import selobj
 from nfv_common import timers
-from nfv_common.helpers import Result, Object, coroutine
+from nfv_common.helpers import coroutine
+from nfv_common.helpers import Object
+from nfv_common.helpers import Result
 
-from openstack_log import log_info, log_error
-from exceptions import OpenStackException, OpenStackRestAPIException
+from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_error
+from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_info
+from nfv_plugins.nfvi_plugins.openstack.exceptions import OpenStackException
+from nfv_plugins.nfvi_plugins.openstack.exceptions import OpenStackRestAPIException
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.rest_api')
 

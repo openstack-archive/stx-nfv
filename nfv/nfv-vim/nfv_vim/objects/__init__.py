@@ -3,29 +3,40 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _tenant import Tenant
-from _system import System
-from _host import HOST_PERSONALITY, HOST_NAME, HOST_SERVICE_STATE, Host
-from _host_group import HOST_GROUP_POLICY, HostGroup
-from _image import ImageAttributes, Image
-from _volume import Volume
-from _volume_snapshot import VolumeSnapshot
-from _service_host import ServiceHost
-from _host_aggregate import HostAggregate
-from _hypervisor import Hypervisor
-from _instance import INSTANCE_ACTION_TYPE, INSTANCE_ACTION_STATE
-from _instance import INSTANCE_ACTION_INITIATED_BY
-from _instance import InstanceActionData, Instance
-from _instance_type import STORAGE_TYPE, INSTANCE_TYPE_EXTENSION
-from _instance_type import InstanceType, InstanceTypeAttributes
-from _instance_group import INSTANCE_GROUP_POLICY, InstanceGroup
-from _subnet import Subnet
-from _network import NetworkProviderData, Network
-from _guest_services import GuestServices
-from _sw_update import SW_UPDATE_TYPE, SW_UPDATE_APPLY_TYPE
-from _sw_update import SW_UPDATE_INSTANCE_ACTION, SwUpdate
-from _sw_update import SW_UPDATE_ALARM_RESTRICTION
-from _sw_patch import SwPatch
-from _sw_upgrade import SwUpgrade
+from nfv_vim.objects._tenant import Tenant  # noqa: F401
+from nfv_vim.objects._system import System  # noqa: F401
+from nfv_vim.objects._host import HOST_PERSONALITY  # noqa: F401
+from nfv_vim.objects._host import HOST_NAME  # noqa: F401
+from nfv_vim.objects._host import HOST_SERVICE_STATE  # noqa: F401
+from nfv_vim.objects._host import Host  # noqa: F401
+from nfv_vim.objects._host_group import HOST_GROUP_POLICY  # noqa: F401
+from nfv_vim.objects._host_group import HostGroup  # noqa: F401
+from nfv_vim.objects._image import ImageAttributes  # noqa: F401
+from nfv_vim.objects._image import Image  # noqa: F401
+from nfv_vim.objects._volume import Volume  # noqa: F401
+from nfv_vim.objects._volume_snapshot import VolumeSnapshot  # noqa: F401
+from nfv_vim.objects._service_host import ServiceHost  # noqa: F401
+from nfv_vim.objects._host_aggregate import HostAggregate  # noqa: F401
+from nfv_vim.objects._hypervisor import Hypervisor  # noqa: F401
+from nfv_vim.objects._instance import INSTANCE_ACTION_TYPE  # noqa: F401
+from nfv_vim.objects._instance import INSTANCE_ACTION_STATE  # noqa: F401
+from nfv_vim.objects._instance import INSTANCE_ACTION_INITIATED_BY  # noqa: F401
+from nfv_vim.objects._instance import InstanceActionData  # noqa: F401
+from nfv_vim.objects._instance import Instance  # noqa: F401
+from nfv_vim.objects._instance_type import STORAGE_TYPE  # noqa: F401
+from nfv_vim.objects._instance_type import INSTANCE_TYPE_EXTENSION  # noqa: F401
+from nfv_vim.objects._instance_type import InstanceType  # noqa: F401
+from nfv_vim.objects._instance_type import InstanceTypeAttributes  # noqa: F401
+from nfv_vim.objects._instance_group import INSTANCE_GROUP_POLICY  # noqa: F401
+from nfv_vim.objects._instance_group import InstanceGroup  # noqa: F401
+from nfv_vim.objects._subnet import Subnet  # noqa: F401
+from nfv_vim.objects._network import NetworkProviderData  # noqa: F401
+from nfv_vim.objects._network import Network  # noqa: F401
+from nfv_vim.objects._guest_services import GuestServices  # noqa: F401
+from nfv_vim.objects._sw_update import SW_UPDATE_TYPE  # noqa: F401
+from nfv_vim.objects._sw_update import SW_UPDATE_APPLY_TYPE  # noqa: F401
+from nfv_vim.objects._sw_update import SW_UPDATE_INSTANCE_ACTION  # noqa: F401
+from nfv_vim.objects._sw_update import SwUpdate  # noqa: F401
+from nfv_vim.objects._sw_update import SW_UPDATE_ALARM_RESTRICTION  # noqa: F401
+from nfv_vim.objects._sw_patch import SwPatch  # noqa: F401
+from nfv_vim.objects._sw_upgrade import SwUpgrade  # noqa: F401

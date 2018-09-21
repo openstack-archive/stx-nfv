@@ -5,7 +5,7 @@
 #
 from nfv_vim import database
 
-from _table import Table
+from nfv_vim.tables._table import Table
 
 _instance_type_table = None
 

@@ -6,19 +6,22 @@
 from nfv_common import debug
 from nfv_common import tasks
 
-from _nfvi_identity_module import nfvi_identity_initialize
-from _nfvi_identity_module import nfvi_identity_finalize
-from _nfvi_image_module import nfvi_image_initialize, nfvi_image_finalize
-from _nfvi_block_storage_module import nfvi_block_storage_initialize
-from _nfvi_block_storage_module import nfvi_block_storage_finalize
-from _nfvi_network_module import nfvi_network_initialize, nfvi_network_finalize
-from _nfvi_compute_module import nfvi_compute_initialize, nfvi_compute_finalize
-from _nfvi_guest_module import nfvi_guest_initialize
-from _nfvi_guest_module import nfvi_guest_finalize
-from _nfvi_infrastructure_module import nfvi_infrastructure_initialize
-from _nfvi_infrastructure_module import nfvi_infrastructure_finalize
-from _nfvi_sw_mgmt_module import nfvi_sw_mgmt_initialize
-from _nfvi_sw_mgmt_module import nfvi_sw_mgmt_finalize
+from nfv_vim.nfvi._nfvi_identity_module import nfvi_identity_initialize
+from nfv_vim.nfvi._nfvi_identity_module import nfvi_identity_finalize
+from nfv_vim.nfvi._nfvi_image_module import nfvi_image_initialize
+from nfv_vim.nfvi._nfvi_image_module import nfvi_image_finalize
+from nfv_vim.nfvi._nfvi_block_storage_module import nfvi_block_storage_initialize
+from nfv_vim.nfvi._nfvi_block_storage_module import nfvi_block_storage_finalize
+from nfv_vim.nfvi._nfvi_network_module import nfvi_network_initialize
+from nfv_vim.nfvi._nfvi_network_module import nfvi_network_finalize
+from nfv_vim.nfvi._nfvi_compute_module import nfvi_compute_initialize
+from nfv_vim.nfvi._nfvi_compute_module import nfvi_compute_finalize
+from nfv_vim.nfvi._nfvi_guest_module import nfvi_guest_initialize
+from nfv_vim.nfvi._nfvi_guest_module import nfvi_guest_finalize
+from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_infrastructure_initialize
+from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_infrastructure_finalize
+from nfv_vim.nfvi._nfvi_sw_mgmt_module import nfvi_sw_mgmt_initialize
+from nfv_vim.nfvi._nfvi_sw_mgmt_module import nfvi_sw_mgmt_finalize
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_module')
 

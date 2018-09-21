@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from nfv_common import thread
-from nfv_common import histogram
-from nfv_common import timers
 from nfv_common import debug
+from nfv_common import histogram
+from nfv_common import thread
+from nfv_common import timers
 
 DLOG = debug.debug_get_logger('nfv_common.tasks.task_worker')
 

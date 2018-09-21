@@ -5,8 +5,8 @@
 #
 from nfv_common import debug
 
-from objects import OPENSTACK_SERVICE
-from rest_api import rest_api_request
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.rest_api import rest_api_request
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.patching')
 

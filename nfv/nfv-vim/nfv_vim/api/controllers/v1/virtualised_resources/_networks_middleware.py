@@ -2,14 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import pecan
 import httplib
+import pecan
 
 from nfv_common import debug
 from nfv_vim import rpc
 
-from _networks_model import NetworkSubnetType, NetworkSubnetResourceType
-from _networks_model import NetworkType, NetworkResourceType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_model import NetworkResourceType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_model import NetworkSubnetResourceType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_model import NetworkSubnetType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_model import NetworkType
 
 DLOG = debug.debug_get_logger('nfv_vim.api.virtualised_network')
 

@@ -3,6 +3,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _controller import VirtualisedResourcesAPI
+from nfv_vim.api.controllers.v1.virtualised_resources._controller import VirtualisedResourcesAPI  # noqa: F401

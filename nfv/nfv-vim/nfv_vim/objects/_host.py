@@ -6,16 +6,17 @@
 import six
 
 from nfv_common import debug
-from nfv_common import timers
 from nfv_common import state_machine
-from nfv_common.helpers import Constant, Singleton
+from nfv_common import timers
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Singleton
 
-from _object import ObjectData
+from nfv_vim.objects._object import ObjectData
 
-from nfv_vim import nfvi
-from nfv_vim import host_fsm
 from nfv_vim import alarm
 from nfv_vim import event_log
+from nfv_vim import host_fsm
+from nfv_vim import nfvi
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.host')
 

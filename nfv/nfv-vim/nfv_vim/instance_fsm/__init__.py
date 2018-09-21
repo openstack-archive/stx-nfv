@@ -3,29 +3,28 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _instance_defs import INSTANCE_EVENT, INSTANCE_STATE
-from _instance_fsm import LiveMigrateStateMachine
-from _instance_fsm import ColdMigrateStateMachine
-from _instance_fsm import ColdMigrateConfirmStateMachine
-from _instance_fsm import ColdMigrateRevertStateMachine
-from _instance_fsm import EvacuateStateMachine
-from _instance_fsm import StartStateMachine
-from _instance_fsm import StopStateMachine
-from _instance_fsm import PauseStateMachine
-from _instance_fsm import UnpauseStateMachine
-from _instance_fsm import SuspendStateMachine
-from _instance_fsm import ResumeStateMachine
-from _instance_fsm import RebootStateMachine
-from _instance_fsm import RebuildStateMachine
-from _instance_fsm import FailStateMachine
-from _instance_fsm import DeleteStateMachine
-from _instance_fsm import ResizeStateMachine
-from _instance_fsm import ResizeConfirmStateMachine
-from _instance_fsm import ResizeRevertStateMachine
-from _instance_fsm import GuestServicesCreateStateMachine
-from _instance_fsm import GuestServicesEnableStateMachine
-from _instance_fsm import GuestServicesDisableStateMachine
-from _instance_fsm import GuestServicesSetStateMachine
-from _instance_fsm import GuestServicesDeleteStateMachine
+from nfv_vim.instance_fsm._instance_defs import INSTANCE_EVENT  # noqa: F401
+from nfv_vim.instance_fsm._instance_defs import INSTANCE_STATE  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import LiveMigrateStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import ColdMigrateStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import ColdMigrateConfirmStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import ColdMigrateRevertStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import EvacuateStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import StartStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import StopStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import PauseStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import UnpauseStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import SuspendStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import ResumeStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import RebootStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import RebuildStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import FailStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import DeleteStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import ResizeStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import ResizeConfirmStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import ResizeRevertStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import GuestServicesCreateStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import GuestServicesEnableStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import GuestServicesDisableStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import GuestServicesSetStateMachine  # noqa: F401
+from nfv_vim.instance_fsm._instance_fsm import GuestServicesDeleteStateMachine  # noqa: F401

@@ -15,8 +15,8 @@ from nfv_plugins.nfvi_plugins.openstack import fm
 from nfv_plugins.nfvi_plugins.openstack import nova
 from nfv_plugins.nfvi_plugins.openstack import openstack
 
-import _instances
-import _test_base
+from tests import _instances
+from tests import _test_base
 
 DLOG = debug.debug_get_logger('nfv_tests.test_instances')
 

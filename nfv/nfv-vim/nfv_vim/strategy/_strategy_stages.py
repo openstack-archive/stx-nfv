@@ -5,9 +5,11 @@
 #
 import six
 
-from nfv_common import strategy
 from nfv_common import debug
-from nfv_common.helpers import Constant, Constants, Singleton
+from nfv_common import strategy
+from nfv_common.helpers import Constant
+from nfv_common.helpers import Constants
+from nfv_common.helpers import Singleton
 
 DLOG = debug.debug_get_logger('nfv_vim.strategy.stage')
 
@@ -38,7 +40,7 @@ def strategy_stage_rebuild_from_dict(data):
     """
     Returns the strategy stage object initialized using the given dictionary
     """
-    from _strategy_steps import strategy_step_rebuild_from_dict
+    from nfv_vim.strategy._strategy_steps import strategy_step_rebuild_from_dict
 
     steps = list()
     for step_data in data['steps']:

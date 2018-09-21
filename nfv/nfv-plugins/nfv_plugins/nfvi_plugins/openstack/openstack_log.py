@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import fcntl
 import datetime
+import fcntl
 
 NFVI_OPENSTACK_LOG = '/var/log/nfvi-openstack.log'
 

@@ -3,7 +3,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _sw_patch import SwPatchAPI
-from _sw_upgrade import SwUpgradeAPI
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_patch import SwPatchAPI  # noqa: F401
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_upgrade import SwUpgradeAPI  # noqa: F401

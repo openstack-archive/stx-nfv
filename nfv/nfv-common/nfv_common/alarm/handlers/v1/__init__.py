@@ -3,6 +3,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _alarm_handler import AlarmHandler
+from nfv_common.alarm.handlers.v1._alarm_handler import AlarmHandler  # noqa: F401

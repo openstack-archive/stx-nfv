@@ -7,8 +7,9 @@ from nfv_common import debug
 from nfv_common import state_machine
 from nfv_common import timers
 
-from _instance_defs import INSTANCE_STATE, INSTANCE_EVENT
-from _instance_tasks import StartTask
+from nfv_vim.instance_fsm._instance_defs import INSTANCE_EVENT
+from nfv_vim.instance_fsm._instance_defs import INSTANCE_STATE
+from nfv_vim.instance_fsm._instance_tasks import StartTask
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.instance')
 

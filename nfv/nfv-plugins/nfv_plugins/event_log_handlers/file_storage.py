@@ -8,7 +8,7 @@ import six
 
 import nfv_common.event_log.handlers.v1 as event_log_handlers_v1
 
-import config
+from nfv_plugins.event_log_handlers import config
 
 
 class FileStorage(event_log_handlers_v1.EventLogHandler):

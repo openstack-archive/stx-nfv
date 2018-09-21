@@ -3,7 +3,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# flake8: noqa
-#
-from _thread import Thread
-from _thread_worker import ThreadWorker
+from nfv_common.thread._thread import Thread  # noqa: F401
+from nfv_common.thread._thread_worker import ThreadWorker  # noqa: F401

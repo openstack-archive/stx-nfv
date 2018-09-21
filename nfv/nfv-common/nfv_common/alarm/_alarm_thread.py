@@ -3,15 +3,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import six
 import datetime
+import six
 
 from nfv_common import debug
 from nfv_common import thread
 from nfv_common import timers
-from nfv_common.helpers import Singleton, coroutine
+from nfv_common.helpers import coroutine
+from nfv_common.helpers import Singleton
 
-from _alarm_handlers import AlarmHandlers
+from nfv_common.alarm._alarm_handlers import AlarmHandlers
 
 DLOG = debug.debug_get_logger('nfv_common.alarm.alarm_thread')
 

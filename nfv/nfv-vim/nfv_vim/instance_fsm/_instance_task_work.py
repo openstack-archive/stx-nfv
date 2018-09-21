@@ -7,12 +7,12 @@ import weakref
 
 from nfv_common.helpers import coroutine
 
-from nfv_common import state_machine
 from nfv_common import debug
+from nfv_common import state_machine
 
 from nfv_vim import nfvi
 
-from _instance_defs import INSTANCE_EVENT
+from nfv_vim.instance_fsm._instance_defs import INSTANCE_EVENT
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.instance_task_work')
 
