@@ -34,39 +34,52 @@ def nfvi_initialize(config):
     """
     global _task_worker_pools
 
+    image_plugin_disabled = config.get('image_plugin_disabled', 'False')
+    block_storage_plugin_disabled = config.get('block_storage_plugin_disabled',
+                                               'False')
+    compute_plugin_disabled = config.get('compute_plugin_disabled', 'False')
+    network_plugin_disabled = config.get('network_plugin_disabled', 'False')
+    guest_plugin_disabled = config.get('guest_plugin_disabled', 'False')
+
     _task_worker_pools['identity'] = \
         tasks.TaskWorkerPool('Identity', num_workers=1)
+    nfvi_identity_initialize(config, _task_worker_pools['identity'])
 
-    _task_worker_pools['image'] = \
-        tasks.TaskWorkerPool('Image', num_workers=1)
+    disabled_list = ['Yes', 'yes', 'Y', 'y', 'True', 'true', 'T', 't', '1']
 
-    _task_worker_pools['block'] = \
-        tasks.TaskWorkerPool('BlockStorage', num_workers=1)
+    if image_plugin_disabled not in disabled_list:
+        _task_worker_pools['image'] = \
+            tasks.TaskWorkerPool('Image', num_workers=1)
+        nfvi_image_initialize(config, _task_worker_pools['image'])
 
-    # Use two workers for the compute plugin. This allows the VIM to send two
-    # requests to the nova-api at a time.
-    _task_worker_pools['compute'] = \
-        tasks.TaskWorkerPool('Compute', num_workers=2)
+    if block_storage_plugin_disabled not in disabled_list:
+        _task_worker_pools['block'] = \
+            tasks.TaskWorkerPool('BlockStorage', num_workers=1)
+        nfvi_block_storage_initialize(config, _task_worker_pools['block'])
 
-    _task_worker_pools['network'] = \
-        tasks.TaskWorkerPool('Network', num_workers=1)
+    if compute_plugin_disabled not in disabled_list:
+        # Use two workers for the compute plugin. This allows the VIM to send
+        # two requests to the nova-api at a time.
+        _task_worker_pools['compute'] = \
+            tasks.TaskWorkerPool('Compute', num_workers=2)
+        nfvi_compute_initialize(config, _task_worker_pools['compute'])
+
+    if network_plugin_disabled not in disabled_list:
+        _task_worker_pools['network'] = \
+            tasks.TaskWorkerPool('Network', num_workers=1)
+        nfvi_network_initialize(config, _task_worker_pools['network'])
 
     _task_worker_pools['infra'] = \
         tasks.TaskWorkerPool('Infrastructure', num_workers=1)
+    nfvi_infrastructure_initialize(config, _task_worker_pools['infra'])
 
-    _task_worker_pools['guest'] = \
-        tasks.TaskWorkerPool('Guest', num_workers=1)
+    if guest_plugin_disabled not in disabled_list:
+        _task_worker_pools['guest'] = \
+            tasks.TaskWorkerPool('Guest', num_workers=1)
+        nfvi_guest_initialize(config, _task_worker_pools['guest'])
 
     _task_worker_pools['sw_mgmt'] = \
         tasks.TaskWorkerPool('Sw-Mgmt', num_workers=1)
-
-    nfvi_identity_initialize(config, _task_worker_pools['identity'])
-    nfvi_image_initialize(config, _task_worker_pools['image'])
-    nfvi_block_storage_initialize(config, _task_worker_pools['block'])
-    nfvi_compute_initialize(config, _task_worker_pools['compute'])
-    nfvi_network_initialize(config, _task_worker_pools['network'])
-    nfvi_infrastructure_initialize(config, _task_worker_pools['infra'])
-    nfvi_guest_initialize(config, _task_worker_pools['guest'])
     nfvi_sw_mgmt_initialize(config, _task_worker_pools['sw_mgmt'])
 
 

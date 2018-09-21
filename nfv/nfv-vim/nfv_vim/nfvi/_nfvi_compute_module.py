@@ -12,6 +12,13 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_compute_module')
 _compute_plugin = None
 
 
+def nfvi_compute_plugin_disabled():
+    """
+    Get compute plugin disabled status
+    """
+    return (_compute_plugin is None)
+
+
 def nfvi_get_host_aggregates(callback):
     """
     Get a list of host aggregates

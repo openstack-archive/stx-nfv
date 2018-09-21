@@ -810,7 +810,8 @@ def _audit_nfvi():
     while True:
         timer_id = (yield)
 
-        DLOG.verbose("Audit system information called, timer_id=%s." % timer_id)
+        DLOG.verbose("Audit system information called, timer_id=%s."
+                     % timer_id)
         nfvi.nfvi_get_system_info(_audit_nfvi_system_info_callback(timer_id))
 
         _main_audit_inprogress = True
@@ -824,20 +825,23 @@ def _audit_nfvi():
         while _main_audit_inprogress:
             timer_id = (yield)
 
-        DLOG.verbose("Audit host aggregates called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_host_aggregates(
-            _audit_nfvi_host_aggregates_callback(timer_id))
+        if not nfvi.nfvi_compute_plugin_disabled():
+            DLOG.verbose("Audit host aggregates called, timer_id=%s."
+                         % timer_id)
+            nfvi.nfvi_get_host_aggregates(
+                _audit_nfvi_host_aggregates_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.verbose("Audit hypervisors called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_hypervisors(_audit_nfvi_hypervisors_callback(timer_id))
+            DLOG.verbose("Audit hypervisors called, timer_id=%s." % timer_id)
+            nfvi.nfvi_get_hypervisors(
+                _audit_nfvi_hypervisors_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
         DLOG.verbose("Audit tenants called, timer_id=%s." % timer_id)
         nfvi.nfvi_get_tenants(_audit_nfvi_tenants_callback(timer_id))
@@ -846,70 +850,77 @@ def _audit_nfvi():
         while _main_audit_inprogress:
             timer_id = (yield)
 
-        DLOG.verbose("Audit instance types called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_instance_types(
-            _nfvi_instance_types_paging,
-            _audit_nfvi_instance_types_callback(timer_id))
+        if not nfvi.nfvi_compute_plugin_disabled():
+            DLOG.verbose("Audit instance types called, timer_id=%s."
+                         % timer_id)
+            nfvi.nfvi_get_instance_types(
+                _nfvi_instance_types_paging,
+                _audit_nfvi_instance_types_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.info("Audit instances called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_instances(_nfvi_instances_paging,
-                                _audit_nfvi_instances_callback(timer_id))
+            DLOG.info("Audit instances called, timer_id=%s." % timer_id)
+            nfvi.nfvi_get_instances(_nfvi_instances_paging,
+                                    _audit_nfvi_instances_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.verbose("Audit instance groups called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_instance_groups(
-            _audit_nfvi_instance_groups_callback(timer_id))
+            DLOG.verbose("Audit instance groups called, timer_id=%s."
+                         % timer_id)
+            nfvi.nfvi_get_instance_groups(
+                _audit_nfvi_instance_groups_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.verbose("Audit images called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_images(_nfvi_images_paging,
-                             _audit_nfvi_images_callback(timer_id))
+        if not nfvi.nfvi_image_plugin_disabled():
+            DLOG.verbose("Audit images called, timer_id=%s." % timer_id)
+            nfvi.nfvi_get_images(_nfvi_images_paging,
+                                 _audit_nfvi_images_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.verbose("Audit volumes called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_volumes(_nfvi_volumes_paging,
-                              _audit_nfvi_volumes_callback(timer_id))
+        if not nfvi.nfvi_block_storage_plugin_disabled():
+            DLOG.verbose("Audit volumes called, timer_id=%s." % timer_id)
+            nfvi.nfvi_get_volumes(_nfvi_volumes_paging,
+                                  _audit_nfvi_volumes_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.verbose("Audit volume snapshots called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_volume_snapshots(
-            _audit_nfvi_volume_snapshots_callback(timer_id))
+            DLOG.verbose("Audit volume snapshots called, timer_id=%s."
+                         % timer_id)
+            nfvi.nfvi_get_volume_snapshots(
+                _audit_nfvi_volume_snapshots_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.verbose("Audit subnets called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_subnets(_nfvi_subnets_paging,
-                              _audit_nfvi_subnets_callback(timer_id))
+        if not nfvi.nfvi_network_plugin_disabled():
+            DLOG.verbose("Audit subnets called, timer_id=%s." % timer_id)
+            nfvi.nfvi_get_subnets(_nfvi_subnets_paging,
+                                  _audit_nfvi_subnets_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
-        DLOG.verbose("Audit networks called, timer_id=%s." % timer_id)
-        nfvi.nfvi_get_networks(_nfvi_networks_paging,
-                               _audit_nfvi_networks_callback(timer_id))
+            DLOG.verbose("Audit networks called, timer_id=%s." % timer_id)
+            nfvi.nfvi_get_networks(_nfvi_networks_paging,
+                                   _audit_nfvi_networks_callback(timer_id))
 
-        _main_audit_inprogress = True
-        while _main_audit_inprogress:
-            timer_id = (yield)
+            _main_audit_inprogress = True
+            while _main_audit_inprogress:
+                timer_id = (yield)
 
 
 @coroutine
@@ -1214,12 +1225,22 @@ def vim_nfvi_audits_initialize():
     """
     Initialize nfvi audits
     """
-    timers.timers_register_interval_timers([_audit_nfvi,
-                                            _audit_nfvi_instance,
-                                            _audit_nfvi_hypervisor_details,
-                                            _audit_nfvi_instance_type_details,
-                                            _audit_nfvi_volume,
-                                            _audit_nfvi_guest_services])
+    audits = list()
+
+    audits.append(_audit_nfvi)
+
+    if not nfvi.nfvi_compute_plugin_disabled():
+        audits.append(_audit_nfvi_instance)
+        audits.append(_audit_nfvi_hypervisor_details)
+        audits.append(_audit_nfvi_instance_type_details)
+
+    if not nfvi.nfvi_block_storage_plugin_disabled():
+        audits.append(_audit_nfvi_volume)
+
+    if not nfvi.nfvi_guest_plugin_disabled():
+        audits.append(_audit_nfvi_guest_services)
+
+    timers.timers_register_interval_timers(audits)
 
 
 def vim_nfvi_audits_finalize():
