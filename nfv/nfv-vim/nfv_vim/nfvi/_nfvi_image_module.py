@@ -12,6 +12,13 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_image_module')
 _image_plugin = None
 
 
+def nfvi_image_plugin_disabled():
+    """
+    Get image plugin disabled status
+    """
+    return (_image_plugin is None)
+
+
 def nfvi_get_images(paging, callback):
     """
     Get a list of images

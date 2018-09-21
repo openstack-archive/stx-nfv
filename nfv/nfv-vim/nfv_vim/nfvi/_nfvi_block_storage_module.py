@@ -12,6 +12,13 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_block_storage_module')
 _block_storage_plugin = None
 
 
+def nfvi_block_storage_plugin_disabled():
+    """
+    Get block storage plugin disabled status
+    """
+    return (_block_storage_plugin is None)
+
+
 def nfvi_get_volumes(paging, callback):
     """
     Get a list of volumes

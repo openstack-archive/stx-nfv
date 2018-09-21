@@ -12,6 +12,13 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_guest_module')
 _guest_plugin = None
 
 
+def nfvi_guest_plugin_disabled():
+    """
+    Get guest plugin disabled status
+    """
+    return (_guest_plugin is None)
+
+
 def nfvi_guest_services_create(instance_uuid, host_name, services, callback):
     """
     Create guest services
