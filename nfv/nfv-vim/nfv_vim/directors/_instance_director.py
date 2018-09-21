@@ -66,9 +66,15 @@ class InstanceDirector(object):
         self._instance_rebooting_list = list()
         self._instance_cleanup_list = list()
         self._next_audit_interval = recovery_audit_interval
-        self._timer_audit_instances = timers.timers_create_timer(
-            "audit-instances", recovery_audit_cooldown,
-            recovery_audit_interval, self.audit_instances)
+
+        if not nfvi.nfvi_compute_plugin_disabled():
+            # Do not launch audit if compute plugin not enabled.
+            self._timer_audit_instances = timers.timers_create_timer(
+                "audit-instances", recovery_audit_cooldown,
+                recovery_audit_interval, self.audit_instances)
+        else:
+            self._timer_audit_instances = None
+
         self._timer_cleanup_instances = None
 
     @staticmethod
@@ -1723,9 +1729,11 @@ class InstanceDirector(object):
         if interval is None:
             interval = self._next_audit_interval
 
-        timers.timers_reschedule_timer(self._timer_audit_instances, interval)
-        DLOG.verbose("Recovery audit is rescheduled to %s second intervals."
-                     % interval)
+        if self._timer_audit_instances is not None:
+            timers.timers_reschedule_timer(self._timer_audit_instances,
+                                           interval)
+            DLOG.verbose("Recovery audit is rescheduled to %s second "
+                         "intervals." % interval)
 
     def recover_instances(self, audit=False):
         """

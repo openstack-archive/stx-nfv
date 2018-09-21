@@ -12,6 +12,13 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_network_module')
 _network_plugin = None
 
 
+def nfvi_network_plugin_disabled():
+    """
+    Get network plugin disabled status
+    """
+    return (_network_plugin is None)
+
+
 def nfvi_get_networks(paging, callback):
     """
     Get a list of networks

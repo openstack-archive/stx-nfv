@@ -471,32 +471,34 @@ def vim_nfvi_events_initialize():
     nfvi.nfvi_register_host_notification_callback(
         _nfvi_host_notification_callback)
 
-    nfvi.nfvi_register_instance_state_change_callback(
-        _nfvi_instance_state_change_callback)
+    if not nfvi.nfvi_compute_plugin_disabled():
+        nfvi.nfvi_register_instance_state_change_callback(
+            _nfvi_instance_state_change_callback)
 
-    nfvi.nfvi_register_instance_action_change_callback(
-        _nfvi_instance_action_change_callback)
+        nfvi.nfvi_register_instance_action_change_callback(
+            _nfvi_instance_action_change_callback)
 
-    nfvi.nfvi_register_instance_action_callback(
-        _nfvi_instance_action_callback)
+        nfvi.nfvi_register_instance_action_callback(
+            _nfvi_instance_action_callback)
 
-    nfvi.nfvi_register_instance_delete_callback(
-        _nfvi_instance_delete_callback)
+        nfvi.nfvi_register_instance_delete_callback(
+            _nfvi_instance_delete_callback)
 
-    nfvi.nfvi_register_host_services_query_callback(
-        _nfvi_host_services_query_callback)
+    if not nfvi.nfvi_guest_plugin_disabled():
+        nfvi.nfvi_register_host_services_query_callback(
+            _nfvi_host_services_query_callback)
 
-    nfvi.nfvi_register_guest_services_query_callback(
-        _nfvi_guest_services_query_callback)
+        nfvi.nfvi_register_guest_services_query_callback(
+            _nfvi_guest_services_query_callback)
 
-    nfvi.nfvi_register_guest_services_state_notify_callback(
-        _nfvi_guest_services_state_notify_callback)
+        nfvi.nfvi_register_guest_services_state_notify_callback(
+            _nfvi_guest_services_state_notify_callback)
 
-    nfvi.nfvi_register_guest_services_alarm_notify_callback(
-        _nfvi_guest_services_alarm_notify_callback)
+        nfvi.nfvi_register_guest_services_alarm_notify_callback(
+            _nfvi_guest_services_alarm_notify_callback)
 
-    nfvi.nfvi_register_guest_services_action_notify_callback(
-        _nfvi_guest_services_action_notify_callback)
+        nfvi.nfvi_register_guest_services_action_notify_callback(
+            _nfvi_guest_services_action_notify_callback)
 
 
 def vim_nfvi_events_finalize():

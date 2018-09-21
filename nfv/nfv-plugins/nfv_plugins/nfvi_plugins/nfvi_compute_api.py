@@ -24,7 +24,6 @@ from nfv_plugins.nfvi_plugins.openstack import exceptions
 from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import nova
 from nfv_plugins.nfvi_plugins.openstack import rest_api
-from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.compute_api')
 
@@ -472,13 +471,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) \
-                    is None:
-                DLOG.info("Compute service get-host-aggregates not available.")
-                response['result-data'] = list()
-                response['completed'] = True
-                return
-
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
@@ -537,13 +529,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) \
-                    is None:
-                DLOG.info("Compute service get-hypervisors not available.")
-                response['result-data'] = list()
-                response['completed'] = True
-                return
 
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
@@ -687,14 +672,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) \
-                    is None:
-                DLOG.info("Compute service get-instance-types not available.")
-                response['result-data'] = list()
-                response['completed'] = True
-                paging.next_page = None
-                return
 
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
@@ -1035,13 +1012,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) \
-                    is None:
-                DLOG.info("Compute service get-instance-groups not available.")
-                response['result-data'] = list()
-                response['completed'] = True
-                return
-
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
@@ -1129,14 +1099,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) \
-                    is None:
-                DLOG.info("Compute service get-instances not available.")
-                response['result-data'] = list()
-                response['completed'] = True
-                paging.next_page = None
-                return
 
             if self._token is None or self._token.is_expired():
                 future.work(openstack.get_token, self._directory)
