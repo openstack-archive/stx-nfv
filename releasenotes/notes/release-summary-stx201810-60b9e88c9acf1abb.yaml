@@ -1,0 +1,21 @@
+---
+prelude: >
+    The StarlingX NFV  project is a new repository that provides
+    High Availability management of VMs and Software Patching &
+    Upgrade Orchestrator Services.
+features:
+  - |
+    Responsible for managing and orchestrating the VM carrier grade
+    and high availability capabilities,
+  - |
+    Auto-healing of failed instances
+  - |
+    Orchestrates guest API actions
+  - |
+    Raising and clearing operator alarms about instances. Generating
+    operator logs about instances
+  - |
+    Orchestrates the migration of instances off compute hosts being
+    taken administratively out of service
+  - |
+    Orchestrates software patching and upgrades of hosts
