@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -11,7 +11,7 @@ from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
 from nfv_common.helpers import Singleton
 
-from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import PLATFORM_SERVICE
 from nfv_plugins.nfvi_plugins.openstack.rest_api import rest_api_request
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.mtc')
@@ -35,7 +35,7 @@ def system_query(token):
     """
     Query Maintenance for the system information
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.MTC)
+    url = token.get_service_url(PLATFORM_SERVICE.MTC)
     if url is None:
         raise ValueError("OpenStack Mtc URL is invalid")
 
@@ -53,7 +53,7 @@ def host_query(token, host_uuid, host_name):
     """
     Query Maintenance for the host information
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.MTC)
+    url = token.get_service_url(PLATFORM_SERVICE.MTC)
     if url is None:
         raise ValueError("OpenStack Mtc URL is invalid")
 
@@ -76,7 +76,7 @@ def notify_host_severity(token, host_uuid, host_name, host_severity):
     """
     Notify Maintenance the severity of a host
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.MTC)
+    url = token.get_service_url(PLATFORM_SERVICE.MTC)
     if url is None:
         raise ValueError("OpenStack Mtc URL is invalid")
 

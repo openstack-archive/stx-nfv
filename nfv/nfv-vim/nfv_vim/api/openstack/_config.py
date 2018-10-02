@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -34,10 +34,6 @@ def config_load():
         nfvi_config = Config()
         nfvi_config.read(config.CONF['nfvi']['config_file'])
         CONF = nfvi_config.as_dict()
-
-        password = CONF['openstack'].get('password', None)
-        if password is None:
-            CONF['openstack']['password'] = None
 
         region_name = CONF['openstack'].get('region_name', None)
         if region_name is None:

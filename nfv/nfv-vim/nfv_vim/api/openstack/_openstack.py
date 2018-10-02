@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -9,6 +9,8 @@ import urllib2
 from nfv_common import debug
 
 from nfv_vim.api.openstack._objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import PLATFORM_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import SERVICE_CATEGORY
 from nfv_vim.api.openstack._objects import Directory
 from nfv_vim.api.openstack._objects import Token
 
@@ -17,7 +19,7 @@ DLOG = debug.debug_get_logger('nfv_vim.api.openstack')
 
 def validate_token(directory, admin_token, token_id):
     """
-    Ask OpenStack if a token is valid
+    Ask Keystone if a token is valid
     """
     try:
         if directory.auth_uri is None:
@@ -89,7 +91,8 @@ def get_token(directory):
 
         if directory.auth_password is None:
             import keyring
-            password = keyring.get_password('CGCS', directory.auth_username)
+            password = keyring.get_password(directory.keyring_service,
+                                            directory.auth_username)
         else:
             password = directory.auth_password
 
@@ -131,27 +134,38 @@ def get_token(directory):
         return None
 
 
-def get_directory(config):
+def get_directory(config, service_category):
     """
-    Get directory information from the given configuration
+    Get directory information from the given configuration for the given
+    service category.
     """
-    openstack_info = config.get('openstack', None)
-    if openstack_info is not None:
-        auth_uri = openstack_info.get('authorization_uri', None)
+    if SERVICE_CATEGORY.PLATFORM == service_category:
+        services = PLATFORM_SERVICE
+    elif SERVICE_CATEGORY.OPENSTACK == service_category:
+        services = OPENSTACK_SERVICE
+    else:
+        raise ValueError("service_category is invalid: %s" % service_category)
+
+    auth_info = config.get(service_category, None)
+    if auth_info is not None:
+        auth_uri = auth_info.get('authorization_uri', None)
     else:
         auth_uri = None
 
-    directory = Directory(config['openstack']['authorization_protocol'],
-                          config['openstack']['authorization_ip'],
-                          config['openstack']['authorization_port'],
-                          config['openstack']['tenant'],
-                          config['openstack']['username'],
-                          config['openstack']['password'],
-                          config['openstack']['user_domain_name'],
-                          config['openstack']['project_domain_name'],
-                          auth_uri)
+    directory = Directory(
+        service_category,
+        config[service_category]['keyring_service'],
+        config[service_category]['authorization_protocol'],
+        config[service_category]['authorization_ip'],
+        config[service_category]['authorization_port'],
+        config[service_category]['tenant'],
+        config[service_category]['username'],
+        config[service_category].get('password', None),
+        config[service_category]['user_domain_name'],
+        config[service_category]['project_domain_name'],
+        auth_uri)
 
-    for service in OPENSTACK_SERVICE:
+    for service in services:
         service_info = config.get(service, None)
         if service_info is not None:
             region_name = service_info.get('region_name', None)

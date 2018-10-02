@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -850,7 +850,8 @@ class NFVIGuestAPI(nfvi.api.v1.NFVIGuestAPI):
         Initialize the plugin
         """
         config.load(config_file)
-        self._directory = openstack.get_directory(config)
+        self._directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.PLATFORM)
 
         self._rest_api_server = rest_api.rest_api_get_server(
             config.CONF['guest-rest-api']['host'],

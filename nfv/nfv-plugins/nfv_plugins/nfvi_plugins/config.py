@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -33,7 +33,3 @@ def load(config_file):
         config = Config()
         config.read(config_file)
         CONF = config.as_dict()
-
-        password = CONF['openstack'].get('password', None)
-        if password is None:
-            CONF['openstack']['password'] = None

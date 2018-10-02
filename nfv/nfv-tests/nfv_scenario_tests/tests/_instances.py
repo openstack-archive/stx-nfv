@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -26,7 +26,8 @@ def _get_token():
     global _directory, _token
 
     if _directory is None:
-        _directory = openstack.get_directory(config)
+        _directory = openstack.get_directory(config,
+                                             openstack.SERVICE_CATEGORY.OPENSTACK)
 
     if _token is None:
         _token = openstack.get_token(_directory)

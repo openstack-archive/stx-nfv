@@ -6,7 +6,7 @@
 import json
 from nfv_common import debug
 
-from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import PLATFORM_SERVICE
 from nfv_plugins.nfvi_plugins.openstack.rest_api import rest_api_request
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.sysinv')
@@ -17,7 +17,7 @@ def get_system_info(token):
     Asks System Inventory for information about the system, such as
     the name of the system
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -31,7 +31,7 @@ def get_hosts(token):
     """
     Asks System Inventory for a list of hosts
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -45,7 +45,7 @@ def get_host(token, host_uuid):
     """
     Asks System Inventory for a host details
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -59,7 +59,7 @@ def get_upgrade(token):
     """
     Asks System Inventory for information about the upgrade
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -73,7 +73,7 @@ def upgrade_start(token):
     """
     Ask System Inventory to start an upgrade
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -95,7 +95,7 @@ def upgrade_activate(token):
     """
     Ask System Inventory to activate an upgrade
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -122,7 +122,7 @@ def upgrade_complete(token):
     """
     Ask System Inventory to complete an upgrade
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -140,7 +140,7 @@ def get_host_lvgs(token, host_uuid):
     """
     Asks System Inventory for a list logical volume groups for a host
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -154,7 +154,7 @@ def notify_host_services_enabled(token, host_uuid):
     """
     Notify System Inventory that host services are enabled
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -181,7 +181,7 @@ def notify_host_services_disabled(token, host_uuid):
     """
     Notify System Inventory that host services are disabled
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -208,7 +208,7 @@ def notify_host_services_disable_extend(token, host_uuid):
     """
     Notify System Inventory that host services disable needs to be extended
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -235,7 +235,7 @@ def notify_host_services_disable_failed(token, host_uuid, reason):
     """
     Notify System Inventory that host services disable failed
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -268,7 +268,7 @@ def notify_host_services_deleted(token, host_uuid):
     """
     Notify System Inventory that host services have been deleted
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -286,7 +286,7 @@ def notify_host_services_delete_failed(token, host_uuid, reason):
     """
     Notify System Inventory that host services delete failed
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -319,7 +319,7 @@ def lock_host(token, host_uuid):
     """
     Ask System Inventory to lock a host
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -346,7 +346,7 @@ def unlock_host(token, host_uuid):
     """
     Ask System Inventory to unlock a host
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -373,7 +373,7 @@ def reboot_host(token, host_uuid):
     """
     Ask System Inventory to reboot a host
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -400,7 +400,7 @@ def upgrade_host(token, host_uuid):
     """
     Ask System Inventory to upgrade a host
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 
@@ -422,7 +422,7 @@ def swact_from_host(token, host_uuid):
     """
     Ask System Inventory to swact from a host
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.SYSINV)
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
     if url is None:
         raise ValueError("OpenStack SysInv URL is invalid")
 

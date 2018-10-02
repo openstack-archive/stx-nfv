@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -130,8 +130,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
     def __init__(self):
         super(NFVIInfrastructureAPI, self).__init__()
-        self._token = None
-        self._directory = None
+        self._platform_token = None
+        self._openstack_token = None
+        self._platform_directory = None
+        self._openstack_directory = None
         self._rest_api_server = None
         self._host_add_callbacks = list()
         self._host_action_callbacks = list()
@@ -145,11 +147,13 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
     def _host_supports_neutron(self, personality):
         return (('compute' in personality or 'controller' in personality) and
-            (self._directory.get_service_info(OPENSTACK_SERVICE.NEUTRON) is not None))
+                (self._openstack_directory.get_service_info(
+                     OPENSTACK_SERVICE.NEUTRON) is not None))
 
     def _host_supports_nova_compute(self, personality):
         return (('compute' in personality) and
-            (self._directory.get_service_info(OPENSTACK_SERVICE.NOVA) is not None))
+            (self._openstack_directory.get_service_info(
+                OPENSTACK_SERVICE.NOVA) is not None))
 
     def get_system_info(self, future, callback):
         """
@@ -162,17 +166,18 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.get_system_info, self._token)
+            future.work(sysinv.get_system_info, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -200,8 +205,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to get system "
@@ -226,17 +231,18 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(mtc.system_query, self._token)
+            future.work(mtc.system_query, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -254,8 +260,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to query the "
@@ -282,16 +288,17 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.get_hosts, self._token)
+            future.work(sysinv.get_hosts, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -309,7 +316,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 if host_data['subfunctions'] is None:
                     continue
 
-                future.work(mtc.host_query, self._token,
+                future.work(mtc.host_query, self._platform_token,
                             host_data['uuid'], host_data['hostname'])
                 future.result = (yield)
 
@@ -384,8 +391,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to get hosts, "
@@ -410,8 +417,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -419,9 +427,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.get_host, self._token, host_uuid)
+            future.work(sysinv.get_host, self._platform_token, host_uuid)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -429,7 +437,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_data = future.result.data
 
-            future.work(mtc.host_query, self._token,
+            future.work(mtc.host_query, self._platform_token,
                         host_data['uuid'], host_data['hostname'])
             future.result = (yield)
 
@@ -481,8 +489,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to get host "
@@ -507,17 +515,18 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.get_upgrade, self._token)
+            future.work(sysinv.get_upgrade, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -544,8 +553,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to get upgrade "
@@ -570,17 +579,18 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.upgrade_start, self._token)
+            future.work(sysinv.upgrade_start, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -599,8 +609,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to start "
@@ -625,17 +635,18 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.upgrade_activate, self._token)
+            future.work(sysinv.upgrade_activate, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -654,8 +665,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to activate "
@@ -680,17 +691,18 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.upgrade_complete, self._token)
+            future.work(sysinv.upgrade_complete, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -709,8 +721,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to complete "
@@ -739,10 +751,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             if (self._host_supports_neutron(host_personality) or
                     self._host_supports_nova_compute(host_personality)):
-                response['reason'] = 'failed to get token from keystone'
-
-                if self._token is None or self._token.is_expired():
-                    future.work(openstack.get_token, self._directory)
+                response['reason'] = 'failed to get openstack token from ' \
+                                     'keystone'
+                if self._openstack_token is None or \
+                        self._openstack_token.is_expired():
+                    future.work(openstack.get_token, self._openstack_directory)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -751,12 +764,28 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                                     host_name))
                         return
 
-                    self._token = future.result.data
+                    self._openstack_token = future.result.data
+
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._platform_token is None or \
+                        self._platform_token.is_expired():
+                    future.work(openstack.get_token, self._platform_directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._platform_token = future.result.data
 
             if self._host_supports_neutron(host_personality):
                 response['reason'] = 'failed to get neutron extensions'
                 if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._token)
+                    future.work(neutron.get_extensions, self._openstack_token)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -769,7 +798,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['reason'] = 'failed to create nova services'
 
                 # Send the create request to Nova.
-                future.work(nova.create_host_services, self._token, host_name)
+                future.work(nova.create_host_services, self._openstack_token,
+                            host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -790,7 +820,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['reason'] = 'failed to disable nova services'
 
                 # Send the disable request to Nova.
-                future.work(nova.disable_host_services, self._token, host_name)
+                future.work(nova.disable_host_services, self._openstack_token,
+                            host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -817,7 +848,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     response['reason'] = \
                         'failed to delete existing neutron services'
 
-                    future.work(neutron.delete_host_services_by_name, self._token,
+                    future.work(neutron.delete_host_services_by_name,
+                                self._openstack_token,
                                 host_name, host_uuid, only_if_changed=True)
                     future.result = (yield)
 
@@ -830,7 +862,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     response['reason'] = 'failed to create neutron services'
 
                     # Send the create request to Neutron.
-                    future.work(neutron.create_host_services, self._token,
+                    future.work(neutron.create_host_services,
+                                self._openstack_token,
                                 host_name, host_uuid)
                     future.result = (yield)
 
@@ -852,7 +885,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     response['reason'] = 'failed to disable neutron services'
 
                     # Send the disable request to Neutron
-                    future.work(neutron.disable_host_services, self._token,
+                    future.work(neutron.disable_host_services,
+                                self._openstack_token,
                                 host_uuid)
                     future.result = (yield)
 
@@ -876,7 +910,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                 try:
                     # Send the create request to Guest.
-                    future.work(guest.host_services_create, self._token,
+                    future.work(guest.host_services_create,
+                                self._platform_token,
                                 host_uuid, host_name)
                     future.result = (yield)
 
@@ -889,7 +924,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     response['reason'] = 'failed to disable guest services'
 
                     # Send the disable request to Guest
-                    future.work(guest.host_services_disable, self._token,
+                    future.work(guest.host_services_disable,
+                                self._platform_token,
                                 host_uuid, host_name)
                     future.result = (yield)
 
@@ -911,8 +947,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
+                if self._openstack_token is not None:
+                    self._openstack_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to create "
@@ -941,10 +979,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             if (self._host_supports_neutron(host_personality) or
                     self._host_supports_nova_compute(host_personality)):
-                response['reason'] = 'failed to get token from keystone'
-
-                if self._token is None or self._token.is_expired():
-                    future.work(openstack.get_token, self._directory)
+                response['reason'] = 'failed to get openstack token from ' \
+                                     'keystone'
+                if self._openstack_token is None or \
+                        self._openstack_token.is_expired():
+                    future.work(openstack.get_token, self._openstack_directory)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -953,13 +992,29 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                                     host_name))
                         return
 
-                    self._token = future.result.data
+                    self._openstack_token = future.result.data
+
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._platform_token is None or \
+                        self._platform_token.is_expired():
+                    future.work(openstack.get_token, self._platform_directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._platform_token = future.result.data
 
             if self._host_supports_neutron(host_personality):
                 response['reason'] = 'failed to get neutron extensions'
 
                 if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._token)
+                    future.work(neutron.get_extensions, self._openstack_token)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -972,7 +1027,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['reason'] = 'failed to delete nova services'
 
                 # Send the delete request to Nova.
-                future.work(nova.delete_host_services, self._token, host_name)
+                future.work(nova.delete_host_services, self._openstack_token,
+                            host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -989,7 +1045,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                     # Send the delete request to Neutron.
                     future.work(neutron.delete_host_services,
-                                self._token, host_uuid)
+                                self._openstack_token, host_uuid)
                     try:
                         future.result = (yield)
 
@@ -1007,7 +1063,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['reason'] = 'failed to delete guest services'
 
                 # Send the delete request to Guest.
-                future.work(guest.host_services_delete, self._token, host_uuid)
+                future.work(guest.host_services_delete, self._platform_token,
+                            host_uuid)
                 try:
                     future.result = (yield)
 
@@ -1027,8 +1084,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._openstack_token is not None:
+                    self._openstack_token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to delete "
@@ -1058,10 +1117,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             if (self._host_supports_neutron(host_personality) or
                     self._host_supports_nova_compute(host_personality)):
-                response['reason'] = 'failed to get token from keystone'
-
-                if self._token is None or self._token.is_expired():
-                    future.work(openstack.get_token, self._directory)
+                response['reason'] = 'failed to get openstack token from ' \
+                                     'keystone'
+                if self._openstack_token is None or \
+                        self._openstack_token.is_expired():
+                    future.work(openstack.get_token, self._openstack_directory)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1070,13 +1130,29 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                                     host_name))
                         return
 
-                    self._token = future.result.data
+                    self._openstack_token = future.result.data
+
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._platform_token is None or \
+                        self._platform_token.is_expired():
+                    future.work(openstack.get_token, self._platform_directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._platform_token = future.result.data
 
             if self._host_supports_neutron(host_personality):
                 response['reason'] = 'failed to get neutron extensions'
 
                 if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._token)
+                    future.work(neutron.get_extensions, self._openstack_token)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1089,7 +1165,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['reason'] = 'failed to enable nova services'
 
                 # Send the Enable request to Nova.
-                future.work(nova.enable_host_services, self._token, host_name)
+                future.work(nova.enable_host_services, self._openstack_token,
+                            host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1114,7 +1191,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                     # Send the Enable request to Neutron
                     future.work(neutron.enable_host_services,
-                                self._token, host_uuid)
+                                self._openstack_token, host_uuid)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1136,8 +1213,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['reason'] = 'failed to enable guest services'
 
                 # Send the Enable request to Guest
-                future.work(guest.host_services_enable, self._token, host_uuid,
-                            host_name)
+                future.work(guest.host_services_enable, self._platform_token,
+                            host_uuid, host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1167,8 +1244,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._openstack_token is not None:
+                    self._openstack_token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to enable "
@@ -1198,10 +1277,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             # The following only applies to compute hosts
             if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to get token from keystone'
-
-                if self._token is None or self._token.is_expired():
-                    future.work(openstack.get_token, self._directory)
+                response['reason'] = 'failed to get openstack token from ' \
+                                     'keystone'
+                if self._openstack_token is None or \
+                        self._openstack_token.is_expired():
+                    future.work(openstack.get_token, self._openstack_directory)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1210,12 +1290,28 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                                     host_name))
                         return
 
-                    self._token = future.result.data
+                    self._openstack_token = future.result.data
+
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._platform_token is None or \
+                        self._platform_token.is_expired():
+                    future.work(openstack.get_token, self._platform_directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._platform_token = future.result.data
 
                 response['reason'] = 'failed to disable nova services'
 
                 # Send the Disable request to Nova.
-                future.work(nova.disable_host_services, self._token, host_name)
+                future.work(nova.disable_host_services, self._openstack_token,
+                            host_name)
 
                 try:
                     future.result = (yield)
@@ -1242,8 +1338,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['reason'] = 'failed to disable guest services'
 
                 # Send the Disable request to Guest.
-                future.work(guest.host_services_disable, self._token, host_uuid,
-                            host_name)
+                future.work(guest.host_services_disable, self._platform_token,
+                            host_uuid, host_name)
 
                 try:
                     future.result = (yield)
@@ -1281,8 +1377,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._openstack_token is not None:
+                    self._openstack_token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to disable "
@@ -1313,8 +1411,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             if (self._host_supports_neutron(host_personality) or
                     self._host_supports_nova_compute(host_personality)):
-                if self._token is None or self._token.is_expired():
-                    future.work(openstack.get_token, self._directory)
+                if self._openstack_token is None or \
+                        self._openstack_token.is_expired():
+                    future.work(openstack.get_token, self._openstack_directory)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1323,10 +1422,24 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                                     host_name))
                         return
 
-                    self._token = future.result.data
+                    self._openstack_token = future.result.data
+
+                if self._platform_token is None or \
+                        self._platform_token.is_expired():
+                    future.work(openstack.get_token, self._platform_directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._platform_token = future.result.data
+
             if self._host_supports_neutron(host_personality):
                 if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._token)
+                    future.work(neutron.get_extensions, self._openstack_token)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1337,7 +1450,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             if self._host_supports_nova_compute(host_personality):
                 # Send Query request to Nova.
-                future.work(nova.query_host_services, self._token, host_name)
+                future.work(nova.query_host_services, self._openstack_token,
+                            host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1355,7 +1469,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
                                             self._neutron_extensions):
                     # Send Query request to Neutron
-                    future.work(neutron.query_host_services, self._token, host_name)
+                    future.work(neutron.query_host_services,
+                                self._openstack_token, host_name)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1371,8 +1486,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             if self._host_supports_nova_compute(host_personality):
                 # Send Query request to Guest
-                future.work(guest.host_services_query, self._token, host_uuid,
-                            host_name)
+                future.work(guest.host_services_query, self._platform_token,
+                            host_uuid, host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1383,7 +1498,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 else:
                     result_data = future.result.data
                     if 'disabled' == result_data['state']:
-                        future.work(guest.host_services_enable, self._token,
+                        future.work(guest.host_services_enable,
+                                    self._platform_token,
                                     host_uuid, host_name)
                         future.result = (yield)
                         if not future.result.is_complete():
@@ -1397,8 +1513,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._openstack_token is not None:
+                    self._openstack_token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to query "
@@ -1425,8 +1543,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1434,9 +1553,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.notify_host_services_enabled, self._token,
+            future.work(sysinv.notify_host_services_enabled,
+                        self._platform_token,
                         host_uuid)
             future.result = (yield)
 
@@ -1445,7 +1565,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_data = future.result.data
 
-            future.work(mtc.host_query, self._token,
+            future.work(mtc.host_query, self._platform_token,
                         host_data['uuid'], host_data['hostname'])
             future.result = (yield)
 
@@ -1497,8 +1617,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -1524,8 +1644,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1533,9 +1654,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.notify_host_services_disabled, self._token,
+            future.work(sysinv.notify_host_services_disabled,
+                        self._platform_token,
                         host_uuid)
             future.result = (yield)
 
@@ -1544,7 +1666,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_data = future.result.data
 
-            future.work(mtc.host_query, self._token,
+            future.work(mtc.host_query, self._platform_token,
                         host_data['uuid'], host_data['hostname'])
             future.result = (yield)
 
@@ -1596,8 +1718,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -1623,8 +1745,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1632,9 +1755,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.notify_host_services_disable_extend, self._token,
+            future.work(sysinv.notify_host_services_disable_extend,
+                        self._platform_token,
                         host_uuid)
             future.result = (yield)
 
@@ -1643,7 +1767,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_data = future.result.data
 
-            future.work(mtc.host_query, self._token,
+            future.work(mtc.host_query, self._platform_token,
                         host_data['uuid'], host_data['hostname'])
             future.result = (yield)
 
@@ -1694,8 +1818,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -1721,8 +1845,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1730,10 +1855,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
             future.work(sysinv.notify_host_services_disable_failed,
-                        self._token, host_uuid, reason)
+                        self._platform_token, host_uuid, reason)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -1741,7 +1866,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_data = future.result.data
 
-            future.work(mtc.host_query, self._token,
+            future.work(mtc.host_query, self._platform_token,
                         host_data['uuid'], host_data['hostname'])
             future.result = (yield)
 
@@ -1792,8 +1917,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -1819,8 +1944,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1828,9 +1954,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.notify_host_services_deleted, self._token,
+            future.work(sysinv.notify_host_services_deleted,
+                        self._platform_token,
                         host_uuid)
             future.result = (yield)
 
@@ -1842,8 +1969,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -1869,8 +1996,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1878,10 +2006,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
             future.work(sysinv.notify_host_services_delete_failed,
-                        self._token, host_uuid, reason)
+                        self._platform_token, host_uuid, reason)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -1889,7 +2017,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_data = future.result.data
 
-            future.work(mtc.host_query, self._token,
+            future.work(mtc.host_query, self._platform_token,
                         host_data['uuid'], host_data['hostname'])
             future.result = (yield)
 
@@ -1940,8 +2068,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -1975,8 +2103,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             response['reason'] = 'failed to get token from keystone'
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._openstack_token is None or \
+                    self._openstack_token.is_expired():
+                future.work(openstack.get_token, self._openstack_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -1984,11 +2113,12 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._openstack_token = future.result.data
 
             response['reason'] = 'failed to notify nova that host is enabled'
 
-            future.work(nova.notify_host_enabled, self._token, host_name)
+            future.work(nova.notify_host_enabled, self._openstack_token,
+                        host_name)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2000,8 +2130,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._openstack_token is not None:
+                    self._openstack_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -2030,8 +2160,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             if (self._host_supports_neutron(host_personality) or
                     self._host_supports_nova_compute(host_personality)):
                 response['reason'] = 'failed to get token from keystone'
-                if self._token is None or self._token.is_expired():
-                    future.work(openstack.get_token, self._directory)
+                if self._openstack_token is None or \
+                        self._openstack_token.is_expired():
+                    future.work(openstack.get_token, self._openstack_directory)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -2039,13 +2170,13 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                    "host_uuid=%s." % host_uuid)
                         return
 
-                    self._token = future.result.data
+                    self._openstack_token = future.result.data
 
             if self._host_supports_neutron(host_personality):
                 response['reason'] = 'failed to get neutron extensions'
 
                 if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._token)
+                    future.work(neutron.get_extensions, self._openstack_token)
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -2057,7 +2188,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             if self._host_supports_nova_compute(host_personality):
                 response['reason'] = 'failed to notify nova that host is disabled'
 
-                future.work(nova.notify_host_disabled, self._token, host_name)
+                future.work(nova.notify_host_disabled, self._openstack_token,
+                            host_name)
 
                 try:
                     future.result = (yield)
@@ -2076,7 +2208,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     response['reason'] = 'failed to disable neutron services'
 
                     # Send the Disable request to Neutron
-                    future.work(neutron.disable_host_services, self._token,
+                    future.work(neutron.disable_host_services,
+                                self._openstack_token,
                                 host_uuid)
                     future.result = (yield)
 
@@ -2101,8 +2234,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._openstack_token is not None:
+                    self._openstack_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -2133,8 +2266,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 response['completed'] = True
                 return
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -2143,11 +2277,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                                 host_name))
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
             # Send a host failed notification to maintenance
-            future.work(mtc.notify_host_severity, self._token, host_uuid,
-                        host_name, mtc.HOST_SEVERITY.FAILED)
+            future.work(mtc.notify_host_severity, self._platform_token,
+                        host_uuid, host_name, mtc.HOST_SEVERITY.FAILED)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2161,8 +2295,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to notify "
@@ -2189,8 +2323,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -2198,9 +2333,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.lock_host, self._token, host_uuid)
+            future.work(sysinv.lock_host, self._platform_token, host_uuid)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2211,8 +2346,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to lock "
@@ -2240,8 +2375,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -2249,9 +2385,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.unlock_host, self._token, host_uuid)
+            future.work(sysinv.unlock_host, self._platform_token, host_uuid)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2262,8 +2398,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to unlock "
@@ -2291,8 +2427,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -2300,9 +2437,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.reboot_host, self._token, host_uuid)
+            future.work(sysinv.reboot_host, self._platform_token, host_uuid)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2313,8 +2450,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to reboot "
@@ -2342,8 +2479,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -2351,9 +2489,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.upgrade_host, self._token, host_uuid)
+            future.work(sysinv.upgrade_host, self._platform_token, host_uuid)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2364,8 +2502,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to upgrade "
@@ -2393,8 +2531,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -2402,9 +2541,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                "host_uuid=%s." % host_uuid)
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(sysinv.swact_from_host, self._token, host_uuid)
+            future.work(sysinv.swact_from_host, self._platform_token, host_uuid)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2415,8 +2554,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to swact "
@@ -2442,17 +2581,18 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(fm.get_alarms, self._token)
+            future.work(fm.get_alarms, self._platform_token)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2474,8 +2614,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to get alarms, "
@@ -2500,17 +2640,19 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(fm.get_logs, self._token, start_period, end_period)
+            future.work(fm.get_logs, self._platform_token, start_period,
+                        end_period)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2521,8 +2663,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to get logs, "
@@ -2547,18 +2689,19 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if self._token is None or self._token.is_expired():
-                future.work(openstack.get_token, self._directory)
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
                 if not future.result.is_complete():
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
-                self._token = future.result.data
+                self._platform_token = future.result.data
 
-            future.work(fm.get_alarm_history, self._token, start_period,
-                        end_period)
+            future.work(fm.get_alarm_history, self._platform_token,
+                        start_period, end_period)
             future.result = (yield)
 
             if not future.result.is_complete():
@@ -2569,8 +2712,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except exceptions.OpenStackRestAPIException as e:
             if httplib.UNAUTHORIZED == e.http_status_code:
                 response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._token is not None:
-                    self._token.set_expired()
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
 
             else:
                 DLOG.exception("Caught exception while trying to get alarm "
@@ -2890,7 +3033,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         Initialize the plugin
         """
         config.load(config_file)
-        self._directory = openstack.get_directory(config)
+        self._platform_directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.PLATFORM)
+        self._openstack_directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.OPENSTACK)
 
         self._rest_api_server = rest_api.rest_api_get_server(
             config.CONF['infrastructure-rest-api']['host'],

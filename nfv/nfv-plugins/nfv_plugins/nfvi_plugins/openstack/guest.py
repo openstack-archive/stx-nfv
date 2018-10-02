@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -11,7 +11,7 @@ from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
 from nfv_common.helpers import Singleton
 
-from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import PLATFORM_SERVICE
 from nfv_plugins.nfvi_plugins.openstack.rest_api import rest_api_request
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.guest')
@@ -86,7 +86,7 @@ def host_services_create(token, host_uuid, host_name):
     """
     Create host services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -109,7 +109,7 @@ def host_services_enable(token, host_uuid, host_name):
     """
     Enable host services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -132,7 +132,7 @@ def host_services_disable(token, host_uuid, host_name):
     """
     Disable host services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -155,7 +155,7 @@ def host_services_delete(token, host_uuid):
     """
     Delete host services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -173,7 +173,7 @@ def host_services_query(token, host_uuid, host_name):
     """
     Query host services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -196,7 +196,7 @@ def guest_services_create(token, instance_uuid, host_name, services):
     """
     Create guest services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -220,7 +220,7 @@ def guest_services_set(token, instance_uuid, host_name, services):
     """
     Set guest services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -244,7 +244,7 @@ def guest_services_delete(token, instance_uuid):
     """
     Delete guest services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -262,7 +262,7 @@ def guest_services_query(token, instance_uuid):
     """
     Query guest services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -280,7 +280,7 @@ def guest_services_vote(token, instance_uuid, host_name, action):
     """
     Ask guest services to vote
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 
@@ -304,7 +304,7 @@ def guest_services_notify(token, instance_uuid, host_name, action):
     """
     Notify guest services
     """
-    url = token.get_service_url(OPENSTACK_SERVICE.GUEST)
+    url = token.get_service_url(PLATFORM_SERVICE.GUEST)
     if url is None:
         raise ValueError("OpenStack Guest URL is invalid")
 

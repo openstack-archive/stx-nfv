@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016 Wind River Systems, Inc.
+# Copyright (c) 2016-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -17,7 +17,8 @@ class AuthenticationApplication(object):
         self._app = app
         self._token = None
         self._config = openstack.config_load()
-        self._directory = openstack.get_directory(self._config)
+        self._directory = openstack.get_directory(
+            self._config, openstack.SERVICE_CATEGORY.PLATFORM)
 
     @staticmethod
     def _get_header_value(env, key, default_value=None):

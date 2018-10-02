@@ -35,11 +35,15 @@ class TestHost(_test_base.Test):
         self._instance_names = instance_names
         self._host_data = None
         self._instances = dict()
-        self._token = None
+        self._platform_token = None
+        self._openstack_token = None
         self._customer_alarms = None
         self._customer_logs = None
         self._customer_alarm_history = None
-        self._directory = openstack.get_directory(config)
+        self._platform_directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.PLATFORM)
+        self._openstack_directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.OPENSTACK)
         name = name.replace(' ', '_')
         self._output_dir = (config.CONF['test-output']['dir'] + '/' +
                             name.translate(None, ''.join(['(', ')'])) + '_' +
@@ -68,17 +72,32 @@ class TestHost(_test_base.Test):
         return _hosts.host_get_id(self._host_data)
 
     @property
-    def token(self):
+    def platform_token(self):
         """
-        Returns the token
+        Returns the platform token
         """
-        if self._token is None:
-            self._token = openstack.get_token(self._directory)
+        if self._platform_token is None:
+            self._platform_token = openstack.get_token(self._platform_directory)
 
-        elif self._token.is_expired():
-            self._token = openstack.get_token(self._directory)
+        elif self._platform_token.is_expired():
+            self._platform_token = openstack.get_token(self._platform_directory)
 
-        return self._token
+        return self._platform_token
+
+    @property
+    def openstack_token(self):
+        """
+        Returns the openstack token
+        """
+        if self._openstack_token is None:
+            self._openstack_token = openstack.get_token(
+                self._openstack_directory)
+
+        elif self._openstack_token.is_expired():
+            self._openstack_token = openstack.get_token(
+                self._openstack_directory)
+
+        return self._openstack_token
 
     def _save_debug(self, test_success, test_reason):
         """
@@ -176,7 +195,7 @@ class TestHost(_test_base.Test):
         """
         Fetch the customer alarms raised
         """
-        self._customer_alarms = fm.get_alarms(self.token).result_data
+        self._customer_alarms = fm.get_alarms(self.platform_token).result_data
 
         return
 
@@ -184,15 +203,18 @@ class TestHost(_test_base.Test):
         """
         Fetch the customer logs
         """
-        self._customer_logs = fm.get_logs(self.token, self.start_datetime,
-                                              self.end_datetime).result_data
+        self._customer_logs = fm.get_logs(self.platform_token,
+                                          self.start_datetime,
+                                          self.end_datetime).result_data
 
     def _refresh_customer_alarm_history(self):
         """
         Fetch the customer alarm history
         """
         self._customer_alarm_history = fm.get_alarm_history(
-            self.token, self.start_datetime, self.end_datetime).result_data
+            self.platform_token,
+            self.start_datetime,
+            self.end_datetime).result_data
 
 
 class TestHostLock(TestHost):
@@ -226,7 +248,7 @@ class TestHostLock(TestHost):
             success, reason = _instances.instance_on_host(instance_data,
                                                           self.host_name)
             if not success:
-                nova.live_migrate_server(self.token, instance_uuid,
+                nova.live_migrate_server(self.openstack_token, instance_uuid,
                                          to_host_name=self.host_name)
 
                 max_end_datetime = (self._start_datetime +
@@ -262,7 +284,7 @@ class TestHostLock(TestHost):
         """
         Perform the test
         """
-        sysinv.lock_host(self.token, self.host_id)
+        sysinv.lock_host(self.platform_token, self.host_id)
         return True, "host locking"
 
     def _test_passed(self):
@@ -329,7 +351,7 @@ class TestHostUnlock(TestHost):
         """
         Perform the test
         """
-        sysinv.unlock_host(self.token, self.host_id)
+        sysinv.unlock_host(self.platform_token, self.host_id)
         return True, "host unlocking"
 
     def _test_passed(self):

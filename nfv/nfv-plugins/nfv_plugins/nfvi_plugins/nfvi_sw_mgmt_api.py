@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016 Wind River Systems, Inc.
+# Copyright (c) 2016-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -268,7 +268,8 @@ class NFVISwMgmtAPI(nfvi.api.v1.NFVISwMgmtAPI):
         Initialize the plugin
         """
         config.load(config_file)
-        self._directory = openstack.get_directory(config)
+        self._directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.PLATFORM)
 
     def finalize(self):
         """

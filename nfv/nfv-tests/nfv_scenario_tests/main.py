@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -80,7 +80,8 @@ def process_do_setup(loads_dir, setup_data):
     from nfv_plugins.nfvi_plugins.openstack import glance
     from nfv_plugins.nfvi_plugins.openstack import neutron
 
-    directory = openstack.get_directory(config)
+    directory = openstack.get_directory(config,
+                                        openstack.SERVICE_CATEGORY.OPENSTACK)
     token = openstack.get_token(directory)
 
     result = nova.get_flavors(token)
@@ -491,7 +492,8 @@ def process_do_teardown(setup_data):
     from nfv_plugins.nfvi_plugins.openstack import glance
     from nfv_plugins.nfvi_plugins.openstack import neutron
 
-    directory = openstack.get_directory(config)
+    directory = openstack.get_directory(config,
+                                        openstack.SERVICE_CATEGORY.OPENSTACK)
     token = openstack.get_token(directory)
 
     result = nova.get_flavors(token)

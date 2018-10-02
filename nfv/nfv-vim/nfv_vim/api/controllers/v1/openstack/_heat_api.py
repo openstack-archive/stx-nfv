@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -48,7 +48,8 @@ class HeatAPI(object):
         OpenStack Heat Proxy
         """
         config = openstack.config_load()
-        directory = openstack.get_directory(config)
+        directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.OPENSTACK)
         token = openstack.get_token(directory)
 
         url_target_index = pecan.request.url.find('/api/openstack/heat')

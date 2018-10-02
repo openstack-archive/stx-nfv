@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -17,6 +17,36 @@ DLOG = debug.debug_get_logger('nfv_vim.api.openstack')
 
 
 @six.add_metaclass(Singleton)
+class ServiceCategory(Constants):
+    """
+    Service Category Constants
+    """
+    PLATFORM = Constant('platform')
+    OPENSTACK = Constant('openstack')
+
+
+# Service Category Constant
+SERVICE_CATEGORY = ServiceCategory()
+
+
+@six.add_metaclass(Singleton)
+class PlatformServices(Constants):
+    """
+    Platform Services Constants
+    """
+    GUEST = Constant('guest')
+    KEYSTONE = Constant('keystone')
+    MTC = Constant('mtc')
+    SYSINV = Constant('sysinv')
+    PATCHING = Constant('patching')
+    FM = Constant('fm')
+
+
+# Platform Services Constant
+PLATFORM_SERVICE = PlatformServices()
+
+
+@six.add_metaclass(Singleton)
 class OpenStackServices(Constants):
     """
     OpenStack Services Constants
@@ -24,14 +54,10 @@ class OpenStackServices(Constants):
     CEILOMETER = Constant('ceilometer')
     CINDER = Constant('cinder')
     GLANCE = Constant('glance')
-    GUEST = Constant('guest')
     KEYSTONE = Constant('keystone')
-    MTC = Constant('mtc')
     NEUTRON = Constant('neutron')
     NOVA = Constant('nova')
-    SYSINV = Constant('sysinv')
     HEAT = Constant('heat')
-    FM = Constant('fm')
 
 
 # OpenStack Services Constant
@@ -90,9 +116,12 @@ class Directory(object):
     """
     Directory
     """
-    def __init__(self, auth_protocol, auth_host, auth_port, auth_project,
+    def __init__(self, service_category, keyring_service, auth_protocol,
+                 auth_host, auth_port, auth_project,
                  auth_username, auth_password, auth_user_domain_name,
                  auth_project_domain_name, auth_uri=None):
+        self._service_category = service_category
+        self._keyring_service = keyring_service
         self._auth_protocol = auth_protocol
         self._auth_host = auth_host
         self._auth_port = auth_port
@@ -103,6 +132,20 @@ class Directory(object):
         self._auth_user_domain_name = auth_user_domain_name
         self._auth_project_domain_name = auth_project_domain_name
         self._entries = dict()
+
+    @property
+    def service_category(self):
+        """
+        Returns the service category
+        """
+        return self._service_category
+
+    @property
+    def keyring_service(self):
+        """
+        Returns the keyring service
+        """
+        return self._keyring_service
 
     @property
     def auth_protocol(self):
@@ -271,7 +314,6 @@ class Token(object):
                         for endpoint in catalog['endpoints']:
                             if (endpoint['region'] == region_name and
                                     endpoint['interface'] == endpoint_type):
-                                print("HERE HERE HERE")
                                 return endpoint['url']
         return None
 

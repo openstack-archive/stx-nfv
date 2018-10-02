@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -460,8 +460,12 @@ def do_unit_tests(test_set=None, rest_api_debug=False, test_config=None):
         opener = urllib2.build_opener(handler)
         urllib2.install_opener(opener)
 
-    directory = openstack.get_directory(config)
-    token = openstack.get_token(directory)
+    platform_directory = openstack.get_directory(
+        config, openstack.SERVICE_CATEGORY.PLATFORM)
+    openstack_directory = openstack.get_directory(
+        config, openstack.SERVICE_CATEGORY.OPENSTACK)
+    platform_token = openstack.get_token(platform_directory)
+    openstack_token = openstack.get_token(openstack_directory)
 
     if test_set is None:
         test_set = ['keystone', 'ceilometer', 'sysinv', 'glance', 'cinder',
@@ -469,43 +473,43 @@ def do_unit_tests(test_set=None, rest_api_debug=False, test_config=None):
 
     print("-" * 80)
     if 'keystone' in test_set:
-        keystone_unit_tests(token, test_config)
+        keystone_unit_tests(openstack_token, test_config)
         print("-" * 80)
 
     if 'ceilometer' in test_set:
-        ceilometer_unit_tests(token, test_config)
+        ceilometer_unit_tests(openstack_token, test_config)
         print("-" * 80)
 
     if 'sysinv' in test_set:
-        sysinv_unit_tests(token, test_config)
+        sysinv_unit_tests(platform_token, test_config)
         print("-" * 80)
 
     if 'glance' in test_set:
-        glance_unit_tests(token, test_config)
+        glance_unit_tests(openstack_token, test_config)
         print("-" * 80)
 
     if 'cinder' in test_set:
-        cinder_unit_tests(token, test_config)
+        cinder_unit_tests(openstack_token, test_config)
         print("-" * 80)
 
     if 'neutron' in test_set:
-        neutron_unit_tests(token, test_config)
+        neutron_unit_tests(openstack_token, test_config)
         print("-" * 80)
 
     if 'nova' in test_set:
-        nova_unit_tests(token, test_config)
+        nova_unit_tests(openstack_token, test_config)
         print("-" * 80)
 
     if 'heat' in test_set:
-        heat_unit_tests(token, test_config)
+        heat_unit_tests(openstack_token, test_config)
         print("-" * 80)
 
     if 'guest' in test_set:
-        guest_unit_tests(token, test_config)
+        guest_unit_tests(platform_token, test_config)
         print("-" * 80)
 
     if 'rest-api' in test_set:
-        rest_api_unit_tests(token, test_config)
+        rest_api_unit_tests(platform_token, test_config)
         print("-" * 80)
 
 

@@ -31,11 +31,15 @@ class TestInstance(_test_base.Test):
         super(TestInstance, self).__init__(name, timeout_secs)
         self._instance_name = instance_name
         self._instance_data = None
-        self._token = None
+        self._platform_token = None
+        self._openstack_token = None
         self._customer_alarms = None
         self._customer_logs = None
         self._customer_alarm_history = None
-        self._directory = openstack.get_directory(config)
+        self._platform_directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.PLATFORM)
+        self._openstack_directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.OPENSTACK)
         name = name.replace(' ', '_')
         self._output_dir = (config.CONF['test-output']['dir'] + '/' +
                             name.translate(None, ''.join(['(', ')'])) + '_' +
@@ -66,17 +70,32 @@ class TestInstance(_test_base.Test):
         return None
 
     @property
-    def token(self):
+    def platform_token(self):
         """
-        Returns the token
+        Returns the platform token
         """
-        if self._token is None:
-            self._token = openstack.get_token(self._directory)
+        if self._platform_token is None:
+            self._platform_token = openstack.get_token(self._platform_directory)
 
-        elif self._token.is_expired():
-            self._token = openstack.get_token(self._directory)
+        elif self._platform_token.is_expired():
+            self._platform_token = openstack.get_token(self._platform_directory)
 
-        return self._token
+        return self._platform_token
+
+    @property
+    def openstack_token(self):
+        """
+        Returns the openstack token
+        """
+        if self._openstack_token is None:
+            self._openstack_token = openstack.get_token(
+                self._openstack_directory)
+
+        elif self._openstack_token.is_expired():
+            self._openstack_token = openstack.get_token(
+                self._openstack_directory)
+
+        return self._openstack_token
 
     def _save_debug(self, test_success, test_reason):
         """
@@ -162,21 +181,24 @@ class TestInstance(_test_base.Test):
         """
         Fetch the customer alarms raised
         """
-        self._customer_alarms = fm.get_alarms(self.token).result_data
+        self._customer_alarms = fm.get_alarms(self.platform_token).result_data
 
     def _refresh_customer_logs(self):
         """
         Fetch the customer logs
         """
-        self._customer_logs = fm.get_logs(self.token, self.start_datetime,
-                                              self.end_datetime).result_data
+        self._customer_logs = fm.get_logs(self.platform_token,
+                                          self.start_datetime,
+                                          self.end_datetime).result_data
 
     def _refresh_customer_alarm_history(self):
         """
         Fetch the customer alarm history
         """
         self._customer_alarm_history = fm.get_alarm_history(
-            self.token, self.start_datetime, self.end_datetime).result_data
+            self.platform_token,
+            self.start_datetime,
+            self.end_datetime).result_data
 
 
 class TestInstanceStart(TestInstance):
@@ -202,7 +224,7 @@ class TestInstanceStart(TestInstance):
         """
         Perform test
         """
-        nova.start_server(self.token, self.instance_uuid)
+        nova.start_server(self.openstack_token, self.instance_uuid)
         return True, "instance is starting"
 
     def _test_passed(self):
@@ -244,7 +266,7 @@ class TestInstanceStop(TestInstance):
         """
         Perform test
         """
-        nova.stop_server(self.token, self.instance_uuid)
+        nova.stop_server(self.openstack_token, self.instance_uuid)
         return True, "instance is stopping"
 
     def _test_passed(self):
@@ -295,7 +317,7 @@ class TestInstancePause(TestInstance):
         """
         Perform test
         """
-        nova.pause_server(self.token, self.instance_uuid)
+        nova.pause_server(self.openstack_token, self.instance_uuid)
         return True, "instance is pausing"
 
     def _test_passed(self):
@@ -337,7 +359,7 @@ class TestInstanceUnpause(TestInstance):
         """
         Perform test
         """
-        nova.unpause_server(self.token, self.instance_uuid)
+        nova.unpause_server(self.openstack_token, self.instance_uuid)
         return True, "instance is unpausing"
 
     def _test_passed(self):
@@ -379,7 +401,7 @@ class TestInstanceSuspend(TestInstance):
         """
         Perform test
         """
-        nova.suspend_server(self.token, self.instance_uuid)
+        nova.suspend_server(self.openstack_token, self.instance_uuid)
         return True, "instance is suspending"
 
     def _test_passed(self):
@@ -424,7 +446,7 @@ class TestInstanceResume(TestInstance):
         """
         Perform test
         """
-        nova.resume_server(self.token, self.instance_uuid)
+        nova.resume_server(self.openstack_token, self.instance_uuid)
         return True, "instance is resuming"
 
     def _test_passed(self):
@@ -482,10 +504,10 @@ class TestInstanceReboot(TestInstance):
         Perform test
         """
         if self._hard:
-            nova.reboot_server(self.token, self.instance_uuid,
+            nova.reboot_server(self.openstack_token, self.instance_uuid,
                                nova.VM_REBOOT_TYPE.HARD)
         else:
-            nova.reboot_server(self.token, self.instance_uuid,
+            nova.reboot_server(self.openstack_token, self.instance_uuid,
                                nova.VM_REBOOT_TYPE.SOFT)
         return True, "instance is rebooting"
 
@@ -542,7 +564,8 @@ class TestInstanceRebuild(TestInstance):
         """
         # try block added to work around nova bug for now
         try:
-            nova.rebuild_server(self.token, self.instance_uuid, self.instance_name,
+            nova.rebuild_server(self.openstack_token, self.instance_uuid,
+                                self.instance_name,
                                 self._instance_data['image']['id'])
         except ValueError:
             pass
@@ -592,7 +615,8 @@ class TestInstanceLiveMigrate(TestInstance):
         """
         Perform test
         """
-        nova.live_migrate_server(self.token, self.instance_uuid, self._to_host)
+        nova.live_migrate_server(self.openstack_token, self.instance_uuid,
+                                 self._to_host)
         return True, "instance is live-migrating"
 
     def _test_passed(self):
@@ -639,7 +663,8 @@ class TestInstanceColdMigrate(TestInstance):
         """
         Perform test
         """
-        nova.cold_migrate_server(self.token, self.instance_uuid, self._to_host)
+        nova.cold_migrate_server(self.openstack_token, self.instance_uuid,
+                                 self._to_host)
         return True, "instance is cold-migrating"
 
     def _test_passed(self):
@@ -686,7 +711,7 @@ class TestInstanceColdMigrateConfirm(TestInstance):
             return False, ("instance needs to be migrated for test, but is not in "
                            "the running state")
 
-        nova.cold_migrate_server(self.token, self.instance_uuid)
+        nova.cold_migrate_server(self.openstack_token, self.instance_uuid)
 
         max_end_datetime = (self._start_datetime +
                             datetime.timedelta(seconds=self.timeout_secs))
@@ -711,7 +736,8 @@ class TestInstanceColdMigrateConfirm(TestInstance):
         """
         Perform test
         """
-        nova.cold_migrate_server_confirm(self.token, self.instance_uuid)
+        nova.cold_migrate_server_confirm(self.openstack_token,
+                                         self.instance_uuid)
         return True, "confirming instance cold-migrate"
 
     def _test_passed(self):
@@ -757,7 +783,7 @@ class TestInstanceColdMigrateRevert(TestInstance):
             return False, ("instance needs to be migrated for test, but is not in "
                            "the running state")
 
-        nova.cold_migrate_server(self.token, self.instance_uuid)
+        nova.cold_migrate_server(self.openstack_token, self.instance_uuid)
 
         max_end_datetime = (self._start_datetime +
                             datetime.timedelta(seconds=self.timeout_secs))
@@ -782,7 +808,8 @@ class TestInstanceColdMigrateRevert(TestInstance):
         """
         Perform test
         """
-        nova.cold_migrate_server_revert(self.token, self.instance_uuid)
+        nova.cold_migrate_server_revert(self.openstack_token,
+                                        self.instance_uuid)
         return True, "reverting instance cold-migrate"
 
     def _test_passed(self):
@@ -820,7 +847,7 @@ class TestInstanceResize(TestInstance):
         Returns the flavor id associated with the given flavor name
         """
         flavor_id = None
-        flavors = nova.get_flavors(self.token).result_data
+        flavors = nova.get_flavors(self.openstack_token).result_data
         for flavor in flavors['flavors']:
             if flavor['name'] == flavor_name:
                 flavor_id = flavor['id']
@@ -857,7 +884,8 @@ class TestInstanceResize(TestInstance):
         """
         Perform test
         """
-        nova.resize_server(self.token, self.instance_uuid, self._flavor_id)
+        nova.resize_server(self.openstack_token, self.instance_uuid,
+                           self._flavor_id)
         return True, "instance is resizing"
 
     def _test_passed(self):
@@ -894,7 +922,7 @@ class TestInstanceResizeConfirm(TestInstance):
         Returns the flavor id associated with the given flavor name
         """
         flavor_id = None
-        flavors = nova.get_flavors(self.token).result_data
+        flavors = nova.get_flavors(self.openstack_token).result_data
         for flavor in flavors['flavors']:
             if flavor['name'] == flavor_name:
                 flavor_id = flavor['id']
@@ -928,7 +956,7 @@ class TestInstanceResizeConfirm(TestInstance):
                        % (self._name, self.instance_name))
             return False, "no valid flavors given"
 
-        nova.resize_server(self.token, self.instance_uuid, flavor_id)
+        nova.resize_server(self.openstack_token, self.instance_uuid, flavor_id)
 
         max_end_datetime = (self._start_datetime +
                             datetime.timedelta(seconds=self.timeout_secs))
@@ -953,7 +981,7 @@ class TestInstanceResizeConfirm(TestInstance):
         """
         Perform test
         """
-        nova.resize_server_confirm(self.token, self.instance_uuid)
+        nova.resize_server_confirm(self.openstack_token, self.instance_uuid)
         return True, "confirming instance resize"
 
     def _test_passed(self):
@@ -990,7 +1018,7 @@ class TestInstanceResizeRevert(TestInstance):
         Returns the flavor id associated with the given flavor name
         """
         flavor_id = None
-        flavors = nova.get_flavors(self.token).result_data
+        flavors = nova.get_flavors(self.openstack_token).result_data
         for flavor in flavors['flavors']:
             if flavor['name'] == flavor_name:
                 flavor_id = flavor['id']
@@ -1024,7 +1052,7 @@ class TestInstanceResizeRevert(TestInstance):
                        % (self._name, self.instance_name))
             return False, "no valid flavors given"
 
-        nova.resize_server(self.token, self.instance_uuid, flavor_id)
+        nova.resize_server(self.openstack_token, self.instance_uuid, flavor_id)
 
         max_end_datetime = (self._start_datetime +
                             datetime.timedelta(seconds=self.timeout_secs))
@@ -1049,7 +1077,7 @@ class TestInstanceResizeRevert(TestInstance):
         """
         Perform test
         """
-        nova.resize_server_revert(self.token, self.instance_uuid)
+        nova.resize_server_revert(self.openstack_token, self.instance_uuid)
         return True, "reverting instance resize"
 
     def _test_passed(self):

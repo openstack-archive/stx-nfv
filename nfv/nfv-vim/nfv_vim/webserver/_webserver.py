@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -597,7 +597,8 @@ class SimpleHttpServer(object):
         self.server_thread = None
 
         config.load(nfvi_config['config_file'])
-        _directory = openstack.get_directory(config)
+        _directory = openstack.get_directory(config,
+                                             openstack.SERVICE_CATEGORY.PLATFORM)
         _vim_api_ip = vim_api_config['host']
         if ':' in _vim_api_ip:
             # Wrap IPv6 address for use in URLs
