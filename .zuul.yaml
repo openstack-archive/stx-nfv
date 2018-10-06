@@ -20,6 +20,9 @@
         - nfv-tox-pylint
         - nova-api-proxy-tox-pep8
         - nova-api-proxy-tox-pylint
+    post:
+      jobs:
+        - publish-stx-tox
 
 - job:
     name: nfv-tox-py27
