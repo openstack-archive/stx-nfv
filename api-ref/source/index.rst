@@ -8,3 +8,5 @@ StarlingX NFVI Orchestration
    :maxdepth: 2
 
    api-ref-nfv-vim-v1
+
+:ref:`search`
