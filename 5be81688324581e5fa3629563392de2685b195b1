@@ -1,0 +1,10 @@
+Code-Review+2: Jack Ding <Jack.Ding@windriver.com>
+Code-Review+1: Shoaib Nasir <shoaib.nasir@windriver.com>
+Code-Review+2: Al Bailey <al.bailey@windriver.com>
+Workflow+1: Al Bailey <al.bailey@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Fri, 12 Oct 2018 17:50:10 +0000
+Reviewed-on: https://review.openstack.org/610053
+Project: openstack/stx-nfv
+Branch: refs/heads/master
