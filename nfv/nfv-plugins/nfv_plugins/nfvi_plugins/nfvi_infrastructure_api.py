@@ -1078,6 +1078,19 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     if httplib.NOT_FOUND != e.http_status_code:
                         raise
 
+            if self._host_supports_kubernetes(host_personality):
+                response['reason'] = 'failed to delete kubernetes services'
+
+                # Send the delete request to kubernetes.
+                future.work(kubernetes_client.delete_node, host_name)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Kubernetes delete_node failed, operation "
+                               "did not complete, host_uuid=%s, host_name=%s."
+                               % (host_uuid, host_name))
+                    return
+
             response['completed'] = True
             response['reason'] = ''
 
@@ -1147,6 +1160,21 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                         return
 
                     self._platform_token = future.result.data
+
+            if self._host_supports_kubernetes(host_personality):
+                response['reason'] = 'failed to enable kubernetes services'
+
+                # To enable kubernetes we remove the NoExecute taint from the
+                # node. This allows new pods to be scheduled on the node.
+                future.work(kubernetes_client.untaint_node,
+                            host_name, "NoExecute", "services")
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Kubernetes untaint_node failed, operation "
+                               "did not complete, host_uuid=%s, host_name=%s."
+                               % (host_uuid, host_name))
+                    return
 
             if self._host_supports_neutron(host_personality):
                 response['reason'] = 'failed to get neutron extensions'
@@ -1222,21 +1250,6 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     DLOG.error("Guest host-services-enable failed, operation "
                                "did not complete, host_uuid=%s, host_name=%s."
                                % (host_uuid, host_name))
-
-            if self._host_supports_kubernetes(host_personality):
-                response['reason'] = 'failed to enable kubernetes services'
-
-                # To enable kubernetes we remove the NoExecute taint from the
-                # node. This allows new pods to be scheduled on the node.
-                future.work(kubernetes_client.untaint_node,
-                            host_name, "NoExecute", "services")
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Kubernetes untaint_node failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
 
             response['completed'] = True
             response['reason'] = ''

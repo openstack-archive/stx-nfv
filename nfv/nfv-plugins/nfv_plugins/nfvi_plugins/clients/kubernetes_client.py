@@ -108,3 +108,17 @@ def untaint_node(node_name, effect, key):
         response = kube_client.patch_node(node_name, body)
 
     return Result(response)
+
+
+def delete_node(node_name):
+    """
+    Delete a node
+    """
+    # Get the client.
+    kube_client = get_client()
+
+    # Delete the node
+    body = kubernetes.client.V1DeleteOptions()
+    response = kube_client.delete_node(node_name, body)
+
+    return Result(response)
