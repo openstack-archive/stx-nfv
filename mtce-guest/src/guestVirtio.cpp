@@ -324,8 +324,10 @@ int virtio_channel_connect ( instInfo * instInfo_ptr )
         struct sockaddr_un un;
         un.sun_family = AF_UNIX;
 
-        strcpy(un.sun_path, buf);
-        len = offsetof(struct sockaddr_un, sun_path) + strlen(buf);
+        strncpy(un.sun_path, buf, sizeof(un.sun_path)-1);
+        un.sun_path[sizeof(un.sun_path)-1] = '\0';
+
+        len = offsetof(struct sockaddr_un, sun_path) + strlen(un.sun_path);
         rc = connect(instInfo_ptr->chan_fd, (struct sockaddr *)&un, len);
         if (rc < 0)
         {
