@@ -4,6 +4,7 @@
       - build-openstack-docs-pti
     check:
       jobs:
+        - build-openstack-api-ref
         - build-openstack-releasenotes
         - openstack-tox-linters
         - nfv-tox-pep8
@@ -13,6 +14,7 @@
         - nova-api-proxy-tox-pylint
     gate:
       jobs:
+        - build-openstack-api-ref
         - build-openstack-releasenotes
         - openstack-tox-linters
         - nfv-tox-pep8
@@ -25,6 +27,7 @@
         - publish-stx-api-ref
         - publish-stx-tox
         - publish-stx-releasenotes
+        - publish-stx-docs
 
 - job:
     name: nfv-tox-py27
