@@ -11,6 +11,8 @@ Source0: %{name}-%{version}.tar.gz
 %define debug_package %{nil}
 
 BuildRequires: python-setuptools
+BuildRequires: python2-pip
+BuildRequires: python2-wheel
 
 %description
 Titanium Cloud Config Info
@@ -21,6 +23,7 @@ Titanium Cloud Config Info
 %define build_python() ( \
     pushd %1; \
     %{__python} setup.py build; \
+    %{__python} setup.py bdist_wheel; \
     popd)
 
 %define install_python() ( \
@@ -31,6 +34,8 @@ Titanium Cloud Config Info
         --prefix=/usr \\\
         --install-data=/usr/share \\\
         --single-version-externally-managed; \
+    mkdir -p $RPM_BUILD_ROOT/wheels; \
+    install -m 644 dist/*.whl $RPM_BUILD_ROOT/wheels/; \
     popd)
 
 # TODO: nfv-docs
@@ -185,3 +190,12 @@ rm -rf $RPM_BUILD_ROOT
 %{pythonroot}/nfv_client/*
 %dir %{pythonroot}/nfv_client-%{version}.0-py2.7.egg-info
 %{pythonroot}/nfv_client-%{version}.0-py2.7.egg-info/*
+
+%package wheels
+Summary: NFV wheels
+
+%description wheels
+Contains python wheels for NFV
+
+%files wheels
+/wheels/*

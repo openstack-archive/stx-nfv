@@ -11,6 +11,8 @@ Source0: %{name}-%{version}.tar.gz
 %define debug_package %{nil}
 
 BuildRequires: python-setuptools
+BuildRequires: python2-pip
+BuildRequires: python2-wheel
 Requires: python-eventlet
 Requires: python-routes
 Requires: python-webob
@@ -31,6 +33,7 @@ Nova Computer API Proxy
 
 %build
 %{__python} setup.py build
+%py2_build_wheel
 
 %install
 %{__python} setup.py install --root=$RPM_BUILD_ROOT \
@@ -38,6 +41,8 @@ Nova Computer API Proxy
                              --prefix=/usr \
                              --install-data=/usr/share \
                              --single-version-externally-managed
+mkdir -p $RPM_BUILD_ROOT/wheels
+install -m 644 dist/*.whl $RPM_BUILD_ROOT/wheels/
 
 install -d -m 755 %{buildroot}%{local_etc_systemd}
 install -p -D -m 644 nova_api_proxy/scripts/api-proxy.service %{buildroot}%{local_etc_systemd}/api-proxy.service
@@ -64,3 +69,12 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{pythonroot}/nova_api_proxy
 %{pythonroot}/nova_api_proxy/*
 %{pythonroot}/api_proxy-%{version}.0-py2.7.egg-info/*
+
+%package wheels
+Summary: %{module_name} wheels
+
+%description wheels
+Contains python wheels for %{module_name}
+
+%files wheels
+/wheels/*
