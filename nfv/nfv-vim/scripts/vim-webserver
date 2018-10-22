@@ -26,7 +26,7 @@ binname="${process}"
 
 # Fill in some defaults if no values are specified
 OCF_RESKEY_binary_default=${binname}
-OCF_RESKEY_config_default="/etc/nfv/vim/config.ini"
+OCF_RESKEY_config_default="@SYSCONFDIR@/nfv/vim/config.ini"
 OCF_RESKEY_pid_default="/var/run/${binname}.pid"
 
 
