@@ -11,12 +11,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 
 import errno
 import os
-import logging
 import eventlet
 import webob.dec
 import webob.exc
@@ -25,12 +24,12 @@ import eventlet.wsgi
 from eventlet.green import socket
 from eventlet.green import ssl
 from oslo_config import cfg
+from oslo_log import log as logging
 
-from nova_api_proxy.common import log as proxy_log
 from nova_api_proxy.common.exception import ProxyException
 
 
-LOG = proxy_log.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 URL_LENGTH_LIMIT = 50000
 

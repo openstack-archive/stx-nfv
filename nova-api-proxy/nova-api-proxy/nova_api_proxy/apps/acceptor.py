@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -10,7 +10,7 @@ import webob.exc
 
 from paste.request import construct_url
 from oslo_config import cfg
-from nova_api_proxy.common import log as logging
+from oslo_log import log as logging
 from nova_api_proxy.common import utils
 from nova_api_proxy.common.service import Middleware
 from nova_api_proxy.common.service import Request
@@ -37,7 +37,6 @@ proxy_opts = [
 
 CONF = cfg.CONF
 CONF.register_opts(proxy_opts)
-CONF.import_opt('debug', 'nova_api_proxy.common.log')
 
 
 class APIController(Middleware):
