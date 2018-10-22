@@ -106,11 +106,16 @@ install -p -D -m 644 nfv-plugins/scripts/nfvi-plugins.logrotate %{buildroot}/etc
 
 # nfv-vim
 install -d -m 755 %{buildroot}/usr/lib/ocf/resource.d/nfv
+sed -i -e 's/${sysconfdir}/\/etc/g' nfv-vim/scripts/vim
 install -p -D -m 755 nfv-vim/scripts/vim %{buildroot}/usr/lib/ocf/resource.d/nfv/vim
+sed -i -e 's/${sysconfdir}/\/etc/g' nfv-vim/scripts/vim-api
 install -p -D -m 755 nfv-vim/scripts/vim-api %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-api
+sed -i -e 's/${sysconfdir}/\/etc/g' nfv-vim/scripts/vim-webserver
 install -p -D -m 755 nfv-vim/scripts/vim-webserver %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-webserver
 install -d -m 755 %{buildroot}/etc/nfv/
 install -d -m 755 %{buildroot}/etc/nfv/vim/
+sed -i -e 's/${sysconfdir}/\/etc/g' nfv-vim/nfv_vim/config.ini
+sed -i -e 's/${pythonroot}/\/usr\/lib64\/python2.7\/site-packages/g' nfv-vim/nfv_vim/config.ini
 install -p -D -m 600 nfv-vim/nfv_vim/config.ini %{buildroot}/etc/nfv/vim/config.ini
 install -p -D -m 600 nfv-vim/nfv_vim/debug.ini %{buildroot}/etc/nfv/vim/debug.ini
 
