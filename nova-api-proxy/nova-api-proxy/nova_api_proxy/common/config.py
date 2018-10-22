@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -8,7 +8,7 @@ import os
 from oslo_config import cfg
 from paste import deploy
 
-from nova_api_proxy.common import log as logging
+from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 

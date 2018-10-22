@@ -7,7 +7,7 @@
 # (c) 2005 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
 # Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -16,7 +16,7 @@ import httplib
 import urllib
 from paste.proxy import TransparentProxy
 from paste.proxy import parse_headers
-from nova_api_proxy.common import log as logging
+from oslo_log import log as logging
 from nova_api_proxy.common.service import Application
 from nova_api_proxy.common.timestamp import get_monotonic_timestamp_in_ms
 from nova_api_proxy.common import histogram
