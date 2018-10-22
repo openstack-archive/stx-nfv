@@ -16,7 +16,7 @@ import httplib
 import urllib
 from paste.proxy import TransparentProxy
 from paste.proxy import parse_headers
-from nova_api_proxy.common import log as logging
+from oslo_log import log as logging
 from nova_api_proxy.common.service import Application
 from nova_api_proxy.common.timestamp import get_monotonic_timestamp_in_ms
 from nova_api_proxy.common import histogram

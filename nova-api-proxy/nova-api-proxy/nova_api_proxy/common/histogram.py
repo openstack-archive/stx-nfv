@@ -7,7 +7,7 @@ import math
 import array
 import datetime
 
-from nova_api_proxy.common import log as logging
+from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 

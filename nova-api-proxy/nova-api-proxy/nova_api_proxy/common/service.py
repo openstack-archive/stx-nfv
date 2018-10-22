@@ -16,7 +16,6 @@
 
 import errno
 import os
-import logging
 import eventlet
 import webob.dec
 import webob.exc
@@ -25,8 +24,9 @@ import eventlet.wsgi
 from eventlet.green import socket
 from eventlet.green import ssl
 from oslo_config import cfg
+from oslo_log import log as logging
 
-from nova_api_proxy.common import log as proxy_log
+from oslo_log import log as proxy_log
 from nova_api_proxy.common.exception import ProxyException
 
 
