@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h> 
+#include <time.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -135,11 +135,11 @@ instance_t *instance_find_by_instance_name(char *name)
     int i;
     for (i=0;i<=max_instance;i++) {
         instance_t *instance = instances + i;
-        
+	
         // Skip the entry if it has been invalidated.
         if (instance->fd == -1)
             continue;
-        if (strncmp(instance->name, name, INSTANCE_NAME_SIZE) == 0)
+        if (strncmp(instance->name, name, INSTANCE_NAME_SIZE -1) == 0)
             return instance;
     }
     return NULL;
@@ -263,8 +263,11 @@ int add_instance(int fd, short events, char *name)
         instance = instance_get_entry();
         instance->fd = fd;
         instance->pollfd_index = idx;
-        strncpy(instance->name, name, sizeof(instance->name));
-        
+        if(snprintf(instance->name, sizeof(instance->name), "%s", name) < 0) {
+            PRINT_ERR("snprintf error for instance_name %s", name);
+            return -1;
+        }
+
         // Index the new element for easy access later.
         instance_ptrs[fd] = instance;
 
@@ -400,8 +403,15 @@ static void queue_connection_retry(int sock, char *filename,
     }
 
     retry->sock = sock;
-    strncpy(retry->instance_name, instance_name, sizeof(retry->instance_name));
+
+    if(snprintf(retry->instance_name, sizeof(retry->instance_name), "%s", instance_name) < 0) {
+        PRINT_ERR("snprintf error for instance_name %s", instance_name);
+        free(retry);
+        return;
+    }
+
     strcpy(retry->file_name, filename);
+
     retry->next_try = gettime() + 1000000000ULL;  // delay for one second
     memcpy(&retry->un, un, sizeof(retry->un));
     retry->addrlen = addrlen;
@@ -441,7 +451,10 @@ static int socket_added(char *filename)
         return 0;
     }
 
-    snprintf(pathname, sizeof(pathname), "%s/%s", host_virtio_dir, filename);
+    if(snprintf(pathname, sizeof(pathname), "%s/%s", host_virtio_dir, filename) < 0) {
+        PRINT_ERR("encoding error when generate pathname %s.", filename);
+        return -1;
+    }
 
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock < 0) {
