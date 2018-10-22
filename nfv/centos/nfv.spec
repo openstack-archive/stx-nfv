@@ -93,26 +93,33 @@ install -d -m 755 %{buildroot}%{_sysconfdir}/bash_completion.d
 install -m 444 nfv-client/scripts/sw-manager.completion %{buildroot}%{_sysconfdir}/bash_completion.d/sw-manager
 
 # nfv-plugins
-install -d -m 755 %{buildroot}/etc/nfv/
-install -d -m 755 %{buildroot}/etc/nfv/nfv_plugins/
-install -d -m 755 %{buildroot}/etc/nfv/nfv_plugins/alarm_handlers/
-install -p -D -m 600 nfv-plugins/nfv_plugins/alarm_handlers/config.ini %{buildroot}/etc/nfv/nfv_plugins/alarm_handlers/config.ini
-install -d -m 755 %{buildroot}/etc/nfv/nfv_plugins/event_log_handlers/
-install -p -D -m 600 nfv-plugins/nfv_plugins/event_log_handlers/config.ini %{buildroot}/etc/nfv/nfv_plugins/event_log_handlers/config.ini
-install -d -m 755 %{buildroot}/etc/nfv/nfv_plugins/nfvi_plugins/
-install -p -D -m 600 nfv-plugins/nfv_plugins/nfvi_plugins/config.ini %{buildroot}/etc/nfv/nfv_plugins/nfvi_plugins/config.ini
+install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/
+install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/nfv_plugins/
+install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/nfv_plugins/alarm_handlers/
+install -p -D -m 600 nfv-plugins/nfv_plugins/alarm_handlers/config.ini %{buildroot}/%{_sysconfdir}/nfv/nfv_plugins/alarm_handlers/config.ini
+install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/nfv_plugins/event_log_handlers/
+install -p -D -m 600 nfv-plugins/nfv_plugins/event_log_handlers/config.ini %{buildroot}/%{_sysconfdir}/nfv/nfv_plugins/event_log_handlers/config.ini
+install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/nfv_plugins/nfvi_plugins/
+install -p -D -m 600 nfv-plugins/nfv_plugins/nfvi_plugins/config.ini %{buildroot}/%{_sysconfdir}/nfv/nfv_plugins/nfvi_plugins/config.ini
 install -d -m 755 %{buildroot}/
-install -p -D -m 644 nfv-plugins/scripts/nfvi-plugins.logrotate %{buildroot}/etc/logrotate.d/nfvi-plugins.logrotate
+install -p -D -m 644 nfv-plugins/scripts/nfvi-plugins.logrotate %{buildroot}/%{_sysconfdir}/logrotate.d/nfvi-plugins.logrotate
 
 # nfv-vim
 install -d -m 755 %{buildroot}/usr/lib/ocf/resource.d/nfv
 install -p -D -m 755 nfv-vim/scripts/vim %{buildroot}/usr/lib/ocf/resource.d/nfv/vim
 install -p -D -m 755 nfv-vim/scripts/vim-api %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-api
 install -p -D -m 755 nfv-vim/scripts/vim-webserver %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-webserver
-install -d -m 755 %{buildroot}/etc/nfv/
-install -d -m 755 %{buildroot}/etc/nfv/vim/
-install -p -D -m 600 nfv-vim/nfv_vim/config.ini %{buildroot}/etc/nfv/vim/config.ini
-install -p -D -m 600 nfv-vim/nfv_vim/debug.ini %{buildroot}/etc/nfv/vim/debug.ini
+install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/
+install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/vim/
+install -p -D -m 600 nfv-vim/nfv_vim/config.ini %{buildroot}/%{_sysconfdir}/nfv/vim/config.ini
+install -p -D -m 600 nfv-vim/nfv_vim/debug.ini %{buildroot}/%{_sysconfdir}/nfv/vim/debug.ini
+
+# update _sysconfdir in nfv-vim config files in which @SYSCONFDIR@ is used as place-holder.
+sed -i -e 's|@SYSCONFDIR@|%{_sysconfdir}|g' %{buildroot}/usr/lib/ocf/resource.d/nfv/vim
+sed -i -e 's|@SYSCONFDIR@|%{_sysconfdir}|g' %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-api
+sed -i -e 's|@SYSCONFDIR@|%{_sysconfdir}|g' %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-webserver
+sed -i -e 's|@SYSCONFDIR@|%{_sysconfdir}|g' %{buildroot}/%{_sysconfdir}/nfv/vim/config.ini
+sed -i -e 's|@PYTHONROOT@|%{pythonroot}|g' %{buildroot}/%{_sysconfdir}/nfv/vim/config.ini
 
 %post -n nfv-common
 
@@ -135,13 +142,13 @@ rm -rf $RPM_BUILD_ROOT
 %files -n nfv-plugins
 %defattr(-,root,root,-)
 %doc nfv-plugins/LICENSE
-%dir /etc/logrotate.d/
-/etc/logrotate.d/nfvi-plugins.logrotate
-%dir /etc/nfv/nfv_plugins/
-%config(noreplace)/etc/nfv/nfv_plugins/alarm_handlers/config.ini
-%config(noreplace)/etc/nfv/nfv_plugins/event_log_handlers/config.ini
-%config(noreplace)/etc/nfv/nfv_plugins/nfvi_plugins/config.ini
-/etc/nfv/nfv_plugins/*
+%dir %{_sysconfdir}/logrotate.d/
+%{_sysconfdir}/logrotate.d/nfvi-plugins.logrotate
+%dir %{_sysconfdir}/nfv/nfv_plugins/
+%config(noreplace)/%{_sysconfdir}/nfv/nfv_plugins/alarm_handlers/config.ini
+%config(noreplace)/%{_sysconfdir}/nfv/nfv_plugins/event_log_handlers/config.ini
+%config(noreplace)/%{_sysconfdir}/nfv/nfv_plugins/nfvi_plugins/config.ini
+%{_sysconfdir}/nfv/nfv_plugins/*
 %dir %{pythonroot}/nfv_plugins/
 %{pythonroot}/nfv_plugins/*
 %dir %{pythonroot}/windriver_nfv_plugins-%{version}.0-py2.7.egg-info
@@ -164,9 +171,9 @@ rm -rf $RPM_BUILD_ROOT
 %{local_bindir}/nfv-vim-api
 %{local_bindir}/nfv-vim-manage
 %{local_bindir}/nfv-vim-webserver
-%dir /etc/nfv/vim/
-%config(noreplace)/etc/nfv/vim/config.ini
-%config(noreplace)/etc/nfv/vim/debug.ini
+%dir %{_sysconfdir}/nfv/vim/
+%config(noreplace)/%{_sysconfdir}/nfv/vim/config.ini
+%config(noreplace)/%{_sysconfdir}/nfv/vim/debug.ini
 %dir /usr/lib/ocf/resource.d/nfv/
 /usr/lib/ocf/resource.d/nfv/vim
 /usr/lib/ocf/resource.d/nfv/vim-api
