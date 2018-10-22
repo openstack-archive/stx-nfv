@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -11,9 +11,9 @@ import signal
 import eventlet
 
 from oslo_config import cfg
+from oslo_log import log as logging
 from nova_api_proxy.common import config
 from nova_api_proxy.common.service import Server
-from nova_api_proxy.common import log as logging
 from nova_api_proxy.common import histogram
 
 LOG = logging.getLogger(__name__)
@@ -68,7 +68,9 @@ def main():
         signal.signal(signal.SIGUSR1, process_signal_handler)
         signal.signal(signal.SIGUSR2, process_signal_handler)
 
+        logging.register_options(cfg.CONF)
         config.parse_args(sys.argv)
+        logging.setup(cfg.CONF, 'nova-api-proxy')
 
         should_use_ssl = CONF.use_ssl
         LOG.debug("Load paste apps")

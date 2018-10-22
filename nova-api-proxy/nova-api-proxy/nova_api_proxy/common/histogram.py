@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -7,7 +7,7 @@ import math
 import array
 import datetime
 
-from nova_api_proxy.common import log as logging
+from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 
