@@ -71,10 +71,10 @@ rm -rf $RPM_BUILD_ROOT
 %{pythonroot}/api_proxy-%{version}.0-py2.7.egg-info/*
 
 %package wheels
-Summary: %{module_name} wheels
+Summary: %{name} wheels
 
 %description wheels
-Contains python wheels for %{module_name}
+Contains python wheels for %{name}
 
 %files wheels
 /wheels/*
