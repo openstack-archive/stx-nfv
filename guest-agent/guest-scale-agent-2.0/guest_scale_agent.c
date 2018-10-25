@@ -130,14 +130,17 @@ int online_cpu(unsigned cpu)
     rc = read(fd, &val, 1);
     if (rc != 1){
         ERR_LOG("can't read cpu online value: %m");
+        close(fd);
         return -1;
     }
     if (val == '1') {
         ERR_LOG("cpu %d is already online", cpu);
+        close(fd);
         return 0;
     }
     val = '1';
     rc = write(fd, &val, 1);
+    close(fd);
     if (rc != 1){
         ERR_LOG("can't set cpu %d online", cpu);
         return -1;
@@ -160,14 +163,17 @@ int offline_cpu(unsigned cpu)
     rc = read(fd, &val, 1);
     if (rc != 1){
         ERR_LOG("can't read cpu online value: %m");
+        close(fd);
         return -1;
     }
     if (val == '0') {
         ERR_LOG("cpu %d is already offline\n", cpu);
+        close(fd);
         return 0;
     }
     val = '0';
     rc = write(fd, &val, 1);
+    close(fd);
     if (rc != 1){
         ERR_LOG("can't set cpu %d offline", cpu);
         return -1;
@@ -189,6 +195,7 @@ int get_highest_online_cpu(void)
     }
 
     rc = read(fd, buf, sizeof(buf));
+    close(fd);
     if (rc < 2) {
         ERR_LOG("error parsing /sys/devices/system/cpu/online, too few chars");
         return -1;
@@ -286,7 +293,7 @@ pick_cpu:
             goto failed;
         }
     }
-    
+
     // try to offline selected cpu
     rc = offline_cpu(cpu);
     if (rc < 0) {
@@ -304,6 +311,7 @@ pick_cpu:
     // no need to release jobj_array as its ownership is transferred to jobj_response
     struct json_object *jobj_array = new_json_obj_from_array(current_online_cpus);
     json_object_object_add(jobj_response, ONLINE_CPUS, jobj_array);
+    free(current_online_cpus);
     return;
 
 failed:
@@ -351,9 +359,9 @@ void cpu_scale_up(json_object *jobj_request,
         printf("failed to set cpu %d online\n", cpu);
         goto failed;
     }
-    
+
     INFO_LOG("set cpu %d online", cpu);
-    
+
     // Now try to call out to the helper script
     // If it fails, not the end of the world.
 
@@ -374,7 +382,7 @@ void cpu_scale_up(json_object *jobj_request,
     // no need to release jobj_array as its ownership is transferred to jobj_response
     struct json_object *jobj_array = new_json_obj_from_array(current_online_cpus);
     json_object_object_add(jobj_response, ONLINE_CPUS, jobj_array);
-
+    free(current_online_cpus);
     return;
 
 failed:
@@ -477,10 +485,10 @@ void wait_for_messages(int fd)
 {
     int rc;
     fd_set rfds, rfds_tmp;
-    
+
     FD_ZERO(&rfds);
     FD_SET(fd, &rfds);
-    
+
     while(1) {
         rfds_tmp = rfds;
         rc = select(fd+1, &rfds_tmp, NULL, NULL, NULL);
