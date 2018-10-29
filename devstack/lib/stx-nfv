@@ -1,0 +1,47 @@
+
+
+PREFIX=/usr
+INCLUDE_DIR=$PREFIX/include
+UNIT_DIR=/etc/systemd/system
+
+GUEST_CLIENT_VERSION="3.0.1"
+GUEST_CLIENT_DIR=$DEST/stx-nfv/guest-client/guest-client-$GUEST_CLIENT_VERSION
+CGCS_SDK_DEPLOY_DIR=/opt/deploy/cgcs_sdk
+
+function install_guest_client(){
+    cd $GUEST_CLIENT_DIR
+    make clean
+    make build sysconfdir=/etc
+    make sample
+    make tar ARCHIVE_NAME=wrs-guest-heartbeat-$GUEST_CLIENT_VERSION
+    find build
+
+    # Sudo Install for guest-client package
+
+    sudo install -m 755 -d $INCLUDE_DIR/guest-client
+    sudo install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $INCLUDE_DIR/guest-client/guest_heartbeat_msg_defs.h
+    sudo install -d $CGCS_SDK_DEPLOY_DIR
+    sudo install -m 640 build/wrs-guest-heartbeat-$GUEST_CLIENT_VERSION.tgz $CGCS_SDK_DEPLOY_DIR
+
+    # Systemd services
+    sudo install -m 644 -p -D guest_client/scripts/guest-client.service $UNIT_DIR/guest-client.service
+    sudo install -m 744 -p -D guest_client/scripts/guest-client.systemd /etc/guest-client/guest-client.systemd
+
+    sudo install -m 750 -d /etc/guest-client/heartbeat
+    sudo install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf /etc/guest-client/heartbeat/guest_heartbeat.conf
+    sudo install -m 755 -p -D guest_client/scripts/sample_event_handling_script /etc/guest-client/heartbeat/sample_event_handling_script
+    sudo install -m 755 -p -D guest_client/scripts/sample_health_check_script /etc/guest-client/heartbeat/sample_health_check_script
+    sudo install -m 640 -p -D build/guest-client /usr/local/bin/guest-client
+    sudo install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION /usr/local/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+    sudo install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION /usr/local/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+}
+
+function clean_guest_client(){
+    sudo rm -rf $INCLUDE_DIR/guest-client
+    sudo rm -rf $CGCS_SDK_DEPLOY_DIR
+    sudo rm -rf $UNIT_DIR/guest-client.service
+    sudo rm -rf /etc/guest-client
+    sudo rm -rf /usr/local/bin/guest-client
+    sudo rm -rf /usr/local/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+    sudo rm -rf /usr/local/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+}
