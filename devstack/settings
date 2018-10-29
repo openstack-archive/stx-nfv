@@ -1,0 +1,15 @@
+#!/bin/bash
+# Devstack settings
+
+# Defaults
+# --------
+
+STX_NFV_NAME=stx-nfv
+
+######### Plugin Specific ##########
+enable_service $STX_NFV_NAME
+
+if is_service_enabled stx-nfv; then
+   # Initial source of lib script
+   source $DEST/stx-nfv/devstack/lib/stx-nfv
+fi
