@@ -140,6 +140,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         self._host_state_change_callbacks = list()
         self._host_get_callbacks = list()
         self._host_upgrade_callbacks = list()
+        self._host_update_callbacks = list()
         self._host_notification_callbacks = list()
         self._neutron_extensions = None
         self._data_port_fault_handling_enabled = False
@@ -346,6 +347,34 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 software_load = host_data['software_load']
                 target_load = host_data['target_load']
 
+                future.work(sysinv.get_host_labels, self._platform_token,
+                            host_uuid)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Get-Host-Labels did not complete.")
+                    response['incomplete-hosts'].append(host_data['hostname'])
+                    continue
+
+                host_label_list = future.result.data['labels']
+
+                openstack_compute = nfvi.objects.v1.HOST_LABEL_VALUES.DISABLED
+                openstack_control = nfvi.objects.v1.HOST_LABEL_VALUES.DISABLED
+
+                for host_label in host_label_list:
+
+                    if (host_label['label_key'] ==
+                                nfvi.objects.v1.
+                                    HOST_LABEL_KEYS.OS_COMPUTE_NODE):
+                            openstack_compute = \
+                                host_label['label_value']
+
+                    if (host_label['label_key'] ==
+                                nfvi.objects.v1.
+                                    HOST_LABEL_KEYS.OS_CONTROL_PLANE):
+                            openstack_control = \
+                                host_label['label_value']
+
                 admin_state, oper_state, avail_status, nfvi_data \
                     = host_state(host_uuid, host_name, host_personality,
                                  host_sub_functions, host_admin_state,
@@ -364,6 +393,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                 host_data['uptime'],
                                                 software_load,
                                                 target_load,
+                                                openstack_compute,
+                                                openstack_control,
                                                 nfvi_data)
 
                 host_objs.append(host_obj)
@@ -473,6 +504,28 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                              data_port_avail_status,
                              self._data_port_fault_handling_enabled)
 
+            future.work(sysinv.get_host_labels, self._platform_token, host_uuid)
+            future.result = (yield)
+
+            if not future.result.is_complete():
+                DLOG.error("Get-Host-Labels did not complete, host=%s."
+                           % host_name)
+                return
+
+            host_label_list = future.result.data['labels']
+
+            openstack_compute = nfvi.objects.v1.HOST_LABEL_VALUES.DISABLED
+            openstack_control = nfvi.objects.v1.HOST_LABEL_VALUES.DISABLED
+
+            for host_label in host_label_list:
+                if (host_label['label_key'] ==
+                            nfvi.objects.v1.HOST_LABEL_KEYS.OS_COMPUTE_NODE):
+                        openstack_compute = host_label['label_value']
+
+                if (host_label['label_key'] ==
+                            nfvi.objects.v1.HOST_LABEL_KEYS.OS_CONTROL_PLANE):
+                        openstack_control = host_label['label_value']
+
             host_obj = nfvi.objects.v1.Host(host_uuid, host_name,
                                             host_sub_functions,
                                             admin_state, oper_state,
@@ -481,6 +534,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                             host_data['uptime'],
                                             software_load,
                                             target_load,
+                                            openstack_compute,
+                                            openstack_control,
                                             nfvi_data)
 
             response['result-data'] = host_obj
@@ -2798,6 +2853,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             action = host_data.get('action', None)
             state_change = host_data.get('state-change', None)
             upgrade = host_data.get('upgrade', None)
+            label = host_data.get('label', None)
 
             if action is not None:
                 do_action = None
@@ -2885,6 +2941,31 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     DLOG.error("Invalid host upgrade data received, "
                                "host_uuid=%s, host_name=%s, upgrade=%s."
                                % (host_uuid, host_name, upgrade))
+                    http_response = httplib.BAD_REQUEST
+
+            elif label is not None:
+
+                label_key = label.get('label_key', None)
+                label_value = label.get('label_value', None)
+                if host_uuid is not None and host_name is not None:
+
+                    for callback in self._host_update_callbacks:
+                        success = callback(host_uuid, host_name, label_key,
+                                           label_value)
+                        if not success:
+                            http_response = httplib.BAD_REQUEST
+
+                    if httplib.OK == http_response:
+                        http_payload = dict()
+                        http_payload['status'] = "success"
+
+                else:
+                    DLOG.error("Invalid host update data received, "
+                               "host_uuid=%s, host_name=%s, label_key=%s "
+                               "label_value=%s"
+                               % (host_uuid, host_name,
+                                  label_key,
+                                  label_value))
                     http_response = httplib.BAD_REQUEST
 
             else:
@@ -3034,6 +3115,12 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         Register for host upgrade notifications
         """
         self._host_upgrade_callbacks.append(callback)
+
+    def register_host_update_callback(self, callback):
+        """
+        Register for host update notifications
+        """
+        self._host_update_callbacks.append(callback)
 
     def register_host_notification_callback(self, callback):
         """

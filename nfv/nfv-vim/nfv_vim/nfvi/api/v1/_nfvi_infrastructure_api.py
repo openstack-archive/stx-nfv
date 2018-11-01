@@ -257,6 +257,13 @@ class NFVIInfrastructureAPI(object):
         pass
 
     @abc.abstractmethod
+    def register_host_update_callback(self, callback):
+        """
+        Register for host update notifications
+        """
+        pass
+
+    @abc.abstractmethod
     def initialize(self, config_file):
         """
         Initialize the plugin
