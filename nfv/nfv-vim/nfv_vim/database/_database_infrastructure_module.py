@@ -123,6 +123,8 @@ def database_host_get_list():
                                          nfvi_host_data['uptime'],
                                          nfvi_host_data['software_load'],
                                          nfvi_host_data['target_load'],
+                                         nfvi_host_data['openstack_compute'],
+                                         nfvi_host_data['openstack_control'],
                                          nfvi_host_data['nfvi_data'])
 
         host_obj = objects.Host(nfvi_host, host.state, host.action,

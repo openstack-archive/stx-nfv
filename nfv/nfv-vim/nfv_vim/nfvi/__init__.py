@@ -55,6 +55,7 @@ from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_register_host_action_c
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_register_host_state_change_callback  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_register_host_get_callback  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_register_host_upgrade_callback  # noqa: F401
+from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_register_host_update_callback  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_register_host_notification_callback  # noqa: F401
 from nfv_vim.nfvi._nfvi_image_module import nfvi_image_plugin_disabled  # noqa: F401
 from nfv_vim.nfvi._nfvi_image_module import nfvi_get_images  # noqa: F401

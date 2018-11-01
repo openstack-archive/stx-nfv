@@ -153,6 +153,24 @@ def _nfvi_host_upgrade_callback(nfvi_host_uuid, nfvi_host_name,
     return True
 
 
+def _nfvi_host_update_callback(nfvi_host_uuid, nfvi_host_name,
+                               label_key, label_value):
+    """
+    NFVI Host update callback
+    """
+    DLOG.debug("Host update, nfvi_host_uuid=%s, nfvi_host_name=%s"
+               " label_key=%s, label_value=%s" %
+               (nfvi_host_uuid, nfvi_host_name, label_key, label_value))
+
+    host_table = tables.tables_get_host_table()
+    host = host_table.get(nfvi_host_name, None)
+
+    if host is not None:
+        nfvi.nfvi_get_host(nfvi_host_uuid, nfvi_host_name,
+                           _nfvi_host_query_callback())
+
+    return True
+
 def _nfvi_host_notification_callback(host_ip, nfvi_notify_type, nfvi_notify_data):
     """
     NFVI Host notification callback
@@ -467,6 +485,9 @@ def vim_nfvi_events_initialize():
 
     nfvi.nfvi_register_host_upgrade_callback(
         _nfvi_host_upgrade_callback)
+
+    nfvi.nfvi_register_host_update_callback(
+        _nfvi_host_update_callback)
 
     nfvi.nfvi_register_host_notification_callback(
         _nfvi_host_notification_callback)
