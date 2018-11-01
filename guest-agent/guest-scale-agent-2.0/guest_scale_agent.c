@@ -60,7 +60,7 @@ gh_info_t *info;
    Key/value pairs for Scaling Request:
    "version": <integer>     - version of the interface
    "timeout_ms": <integer>  - timeout for app_scale_helper scripts
-   "resource": “cpu”        - indicate the resouce to scale.
+   "resource": “cpu”        - indicate the resource to scale.
                               Only cpu is currently supported.
    "direction“: "up” or “down”
    "online_cpu": <integer>  - vcpu number to online when scale up
