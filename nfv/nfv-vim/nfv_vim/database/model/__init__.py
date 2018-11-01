@@ -11,6 +11,7 @@ from nfv_vim.database.model._volume import Volume  # noqa: F401
 from nfv_vim.database.model._volume_snapshot import VolumeSnapshot  # noqa: F401
 from nfv_vim.database.model._system import System  # noqa: F401
 from nfv_vim.database.model._host import Host_v5  # noqa: F401
+from nfv_vim.database.model._host import Host_v6  # noqa: F401
 from nfv_vim.database.model._host_aggregate import HostAggregate  # noqa: F401
 from nfv_vim.database.model._host_group import HostGroup  # noqa: F401
 from nfv_vim.database.model._subnet import Subnet  # noqa: F401
