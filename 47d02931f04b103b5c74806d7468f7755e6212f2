@@ -1,0 +1,10 @@
+Code-Review+1: Kim Bao Long <longkb@vn.fujitsu.com>
+Code-Review+2: Bart Wensley <barton.wensley@windriver.com>
+Code-Review+2: Jack Ding <Jack.Ding@windriver.com>
+Workflow+1: Jack Ding <Jack.Ding@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Thu, 01 Nov 2018 15:39:12 +0000
+Reviewed-on: https://review.openstack.org/614678
+Project: openstack/stx-nfv
+Branch: refs/heads/master
