@@ -269,6 +269,8 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
             action=nfvi.objects.v1.HOST_ACTION.NONE,
             software_load=software_load,
             target_load=target_load,
+            openstack_compute=False,
+            openstack_control=False,
             uptime='1000'
         )
 

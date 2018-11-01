@@ -55,6 +55,20 @@ def get_host(token, host_uuid):
     return response
 
 
+def get_host_labels(token, host_uuid):
+    """
+    Asks System Inventory for host label details
+    """
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
+    if url is None:
+        raise ValueError("OpenStack SysInv URL is invalid")
+
+    api_cmd = url + "/ihosts/%s/labels" % host_uuid
+
+    response = rest_api_request(token, "GET", api_cmd)
+    return response
+
+
 def get_upgrade(token):
     """
     Asks System Inventory for information about the upgrade

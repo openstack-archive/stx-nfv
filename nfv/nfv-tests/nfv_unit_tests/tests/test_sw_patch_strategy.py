@@ -292,7 +292,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
             action=nfvi.objects.v1.HOST_ACTION.NONE,
             software_load='12.01',
             target_load='12.01',
-            uptime='1000'
+            uptime='1000',
+            openstack_compute=False,
+            openstack_control=False,
         )
 
         host = objects.Host(nfvi_host,

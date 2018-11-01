@@ -209,6 +209,20 @@ class Host(ObjectData):
         return self._nfvi_host.target_load
 
     @property
+    def openstack_compute(self):
+        """
+        Returns openstack_compute for this host
+        """
+        return self._nfvi_host.openstack_compute
+
+    @property
+    def openstack_control(self):
+        """
+        Returns openstack_control for this host
+        """
+        return self._nfvi_host.openstack_control
+
+    @property
     def recover_instances(self):
         """
         Returns true if the instances on this host are allowed to be recovered
