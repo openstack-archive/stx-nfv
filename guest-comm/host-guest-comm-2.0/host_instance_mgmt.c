@@ -118,7 +118,8 @@ typedef struct conn_retry conn_retry_t;
 static conn_retry_t *retry_list;
 static conn_retry_t *retry_list_tail;
 
-
+// buffer size of formate string copy 
+const unsigned int formate_string_size=100;
 
 // Look up the instance given the fd
 char *instance_name_by_fd(int fd)
@@ -296,7 +297,11 @@ void vio_full_disconnect(instance_t *instance)
  */
 char *file_to_instance_name(char *filename, char* instance_name) {
     int rc;
-    rc = sscanf(filename, "cgcs.messaging.%[^.].sock", instance_name);
+    char formate_string[formate_string_size];
+    snprintf(formate_string, formate_string_size, 
+            "cgcs.messaing.%%%d[^.].sock", INSTANCE_NAME_SIZE-1);
+    
+    rc = sscanf(filename, formate_string, instance_name);
     if (rc == 1)
         return instance_name;
     else
