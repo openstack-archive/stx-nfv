@@ -352,6 +352,14 @@ def nfvi_register_host_upgrade_callback(callback):
                                          callback=callback)
 
 
+def nfvi_register_host_update_callback(callback):
+    """
+    Register for host update notifications
+    """
+    _infrastructure_plugin.invoke_plugin('register_host_update_callback',
+                                         callback=callback)
+
+
 def nfvi_register_host_notification_callback(callback):
     """
     Register for host notifications

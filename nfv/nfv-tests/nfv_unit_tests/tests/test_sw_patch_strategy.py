@@ -292,6 +292,8 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
             action=nfvi.objects.v1.HOST_ACTION.NONE,
             software_load='12.01',
             target_load='12.01',
+            openstack_compute=False,
+            openstack_control=False,
             uptime='1000'
         )
 

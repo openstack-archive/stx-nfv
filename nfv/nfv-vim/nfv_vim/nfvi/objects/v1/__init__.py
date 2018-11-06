@@ -48,6 +48,8 @@ from nfv_vim.nfvi.objects.v1._host import HOST_OPER_STATE  # noqa: F401
 from nfv_vim.nfvi.objects.v1._host import HOST_AVAIL_STATUS  # noqa: F401
 from nfv_vim.nfvi.objects.v1._host import HOST_ACTION  # noqa: F401
 from nfv_vim.nfvi.objects.v1._host import HOST_NOTIFICATIONS  # noqa: F401
+from nfv_vim.nfvi.objects.v1._host import HOST_LABEL_KEYS  # noqa: F401
+from nfv_vim.nfvi.objects.v1._host import HOST_LABEL_VALUES  # noqa: F401
 from nfv_vim.nfvi.objects.v1._host import Host  # noqa: F401
 from nfv_vim.nfvi.objects.v1._host_aggregate import HostAggregate  # noqa: F401
 from nfv_vim.nfvi.objects.v1._host_group import HOST_GROUP_POLICY  # noqa: F401
