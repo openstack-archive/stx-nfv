@@ -1419,21 +1419,37 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                         raise
 
             if self._host_supports_kubernetes(host_personality):
-                response['reason'] = 'failed to disable kubernetes services'
+                if 'controller' in host_personality and \
+                        'compute' in host_personality:
+                    # This is an AIO host (either simplex or duplex). For now,
+                    # we do not want to apply the NoExecute taint. When
+                    # the host reboots (e.g. on a lock/unlock), the VIM will
+                    # not initialize if it cannot register with rabbitmq
+                    # (which is running in a pod). But the VIM must first
+                    # remove the NoExecute taint, before that pod will run.
+                    # This is only necessary on AIO simplex hosts, but we have
+                    # no way to know whether the host is simplex or duplex
+                    # in this plugin. Long term, this decision will be moved to
+                    # the VIM, before invoking the plugin, once the plugins are
+                    # refactored into separate enable/disable functions for
+                    # nova, neutron, kubernetes, etc...
+                    pass
+                else:
+                    response['reason'] = 'failed to disable kubernetes services'
 
-                # To disable kubernetes we add the NoExecute taint to the
-                # node. This removes pods that can be scheduled elsewhere
-                # and prevents new pods from scheduling on the node.
-                future.work(kubernetes_client.taint_node,
-                            host_name, "NoExecute", "services", "disabled")
+                    # To disable kubernetes we add the NoExecute taint to the
+                    # node. This removes pods that can be scheduled elsewhere
+                    # and prevents new pods from scheduling on the node.
+                    future.work(kubernetes_client.taint_node,
+                                host_name, "NoExecute", "services", "disabled")
 
-                future.result = (yield)
+                    future.result = (yield)
 
-                if not future.result.is_complete():
-                    DLOG.error("Kubernetes taint_node failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
+                    if not future.result.is_complete():
+                        DLOG.error("Kubernetes taint_node failed, operation "
+                                   "did not complete, host_uuid=%s, host_name=%s."
+                                   % (host_uuid, host_name))
+                        return
 
             response['completed'] = True
             response['reason'] = ''
