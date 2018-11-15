@@ -12,6 +12,8 @@
         - nfv-tox-pylint
         - nova-api-proxy-tox-pep8
         - nova-api-proxy-tox-pylint
+        - stx-devstack-nfv:
+            voting: false
     gate:
       jobs:
         - build-openstack-api-ref
@@ -73,3 +75,50 @@
     vars:
       tox_envlist: pylint
       tox_extra_args: -c nova-api-proxy/tox.ini
+
+- job:
+    name: stx-devstack-nfv
+    parent: stx-devstack-base
+    timeout: 7800
+    required-projects:
+      - openstack/stx-fault
+    vars:
+      tox_envlist: functional
+      devstack_services:
+        # Cinder services
+        c-api: false
+        c-bak: false
+        c-sch: false
+        c-vol: false
+        cinder: false
+        # Glance services
+        g-api: false
+        g-reg: false
+        # Nova services
+        n-api: false
+        n-api-meta: false
+        n-cauth: false
+        n-cond: false
+        n-cpu: false
+        n-novnc: false
+        n-obj: false
+        n-sch: false
+        placement-api: false
+        # Neutron services
+        q-agt: true
+        q-dhcp: false
+        q-l3: false
+        q-meta: false
+        q-metering: false
+        q-svc: false
+        horizon: false
+        # StarlingX services
+        nfv-common: true
+        nfv-vim: true
+        nfv-client: true
+        guest-client: true
+      devstack_plugins:
+        stx-fault: git://git.starlingx.io/stx-fault
+        stx-nfv: git://git.starlingx.io/stx-nfv
+      devstack_localrc:
+        LIBS_FROM_GIT: keystone
