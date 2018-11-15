@@ -1,44 +1,57 @@
 #!/bin/bash
+#
+# lib/stx-nfv
+# Functions to control the configuration and operation of stx-nfv
 
-PREFIX=/usr
-INCLUDE_DIR=$PREFIX/include
-UNIT_DIR=/etc/systemd/system
+_XTRACE_STX_NFV=$(set +o | grep xtrace)
+set -o xtrace
 
-GUEST_CLIENT_VERSION="3.0.1"
-GUEST_CLIENT_DIR=$DEST/stx-nfv/guest-client/guest-client-$GUEST_CLIENT_VERSION
-CGCS_SDK_DEPLOY_DIR=/opt/deploy/cgcs_sdk
+STXNFV_DIR=$DEST/stx-nfv
+STXNFV_SYSCONFDIR=/etc
 
-NFV_DIR=$DEST/stx-nfv/nfv
+STX_BIN_DIR=$(get_python_exec_prefix)
+STX_PREFIX=${STX_BIN_DIR%/*}
+
+NFV_DIR=$STXNFV_DIR/nfv
+NFV_CONF_DIR=$STXNFV_SYSCONFDIR/nfv
 NFV_CLIENT_DIR=$NFV_DIR/nfv-client
 NFV_COMMON_DIR=$NFV_DIR/nfv-common
 NFV_PLUGINS_DIR=$NFV_DIR/nfv-plugins
 NFV_TOOLS_DIR=$NFV_DIR/nfv-tools
 NFV_VIM_DIR=$NFV_DIR/nfv-vim
 
-function clean_guest_client(){
-    sudo rm -rf $INCLUDE_DIR/guest-client
-    sudo rm -rf $CGCS_SDK_DEPLOY_DIR
-    sudo rm -rf $UNIT_DIR/guest-client.service
-    sudo rm -rf /etc/guest-client
-    sudo rm -rf /usr/local/bin/guest-client
-    sudo rm -rf /usr/local/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    sudo rm -rf /usr/local/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+GUEST_CLIENT_VERSION="3.0.1"
+
+STX_SDK_DEPLOY_DIR=${STX_SDK_DEPLOY_DIR:-/opt/deploy/cgcs_sdk}
+
+function cleanup_guest_client {
+    sudo rm -rf $STX_PREFIX/include/guest-client
+    sudo rm -rf $STX_SDK_DEPLOY_DIR
+    sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
+    sudo rm -rf $STXNFV_SYSCONFDIR/guest-client
+    sudo rm -rf $STX_PREFIX/bin/guest-client
+    sudo rm -rf $STX_PREFIX/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+    sudo rm -rf $STX_PREFIX/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
 }
 
-function clean_init_nfv(){
+function cleanup_init_nfv {
     sudo userdel nfv
     sudo groupdel nfv
     sudo rm -rf /opt/platform/nfv
 }
 
-function clean_nfv(){
+function cleanup_nfv {
     if is_service_enabled stx-nfv; then
-	clean_guest_client
-	clean_init_nfv
+        clean_init_nfv
+    fi
+    if is_service_enabled guest-client; then
+        cleanup_guest_client
     fi
 }
 
-function init_nfv(){
+function init_nfv {
+    # TODO: This is all too specific, remove hard-coded uid and gid references
+
     # create the nfv group
     sudo groupadd -g 172 nfv
 
@@ -48,106 +61,111 @@ function init_nfv(){
     sudo mkdir -p /opt/platform/nfv
 }
 
-function install_guest_client(){
-    pushd $GUEST_CLIENT_DIR
+function install_guest_client {
+    pushd $STXNFV_DIR/guest-client/guest-client-$GUEST_CLIENT_VERSION
+
     make clean
-    make build sysconfdir=/etc
+    make build sysconfdir=$STXNFV_SYSCONFDIR
     make sample
     make tar ARCHIVE_NAME=wrs-guest-heartbeat-$GUEST_CLIENT_VERSION
     find build
 
     # Sudo Install for guest-client package
-    sudo install -m 755 -d $INCLUDE_DIR/guest-client
-    sudo install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $INCLUDE_DIR/guest-client/guest_heartbeat_msg_defs.h
-    sudo install -d $CGCS_SDK_DEPLOY_DIR
-    sudo install -m 640 build/wrs-guest-heartbeat-$GUEST_CLIENT_VERSION.tgz $CGCS_SDK_DEPLOY_DIR
+    sudo install -m 755 -d $STX_PREFIX/include/guest-client
+    sudo install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $STX_PREFIX/include/guest-client/guest_heartbeat_msg_defs.h
+    sudo install -d $STX_SDK_DEPLOY_DIR
+    sudo install -m 640 build/wrs-guest-heartbeat-$GUEST_CLIENT_VERSION.tgz $STX_SDK_DEPLOY_DIR
 
     # Systemd services
-    sudo install -m 644 -p -D guest_client/scripts/guest-client.service $UNIT_DIR/guest-client.service
-    sudo install -m 744 -p -D guest_client/scripts/guest-client.systemd /etc/guest-client/guest-client.systemd
+    sudo install -m 644 -p -D guest_client/scripts/guest-client.service $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
+    sudo install -m 744 -p -D guest_client/scripts/guest-client.systemd $STXNFV_SYSCONFDIR/guest-client/guest-client.systemd
 
-    sudo install -m 750 -d /etc/guest-client/heartbeat
-    sudo install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf /etc/guest-client/heartbeat/guest_heartbeat.conf
-    sudo install -m 755 -p -D guest_client/scripts/sample_event_handling_script /etc/guest-client/heartbeat/sample_event_handling_script
-    sudo install -m 755 -p -D guest_client/scripts/sample_health_check_script /etc/guest-client/heartbeat/sample_health_check_script
-    sudo install -m 640 -p -D build/guest-client /usr/local/bin/guest-client
-    sudo install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION /usr/local/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    sudo install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION /usr/local/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+    sudo install -m 750 -d $STXNFV_SYSCONFDIR/guest-client/heartbeat
+    sudo install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf $STXNFV_SYSCONFDIR/guest-client/heartbeat/guest_heartbeat.conf
+    sudo install -m 755 -p -D guest_client/scripts/sample_event_handling_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_event_handling_script
+    sudo install -m 755 -p -D guest_client/scripts/sample_health_check_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_health_check_script
+    sudo install -m 640 -p -D build/guest-client $STX_PREFIX/bin/guest-client
+    sudo install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION $STX_PREFIX/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+    sudo install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION $STX_PREFIX/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+
     popd
 }
 
-function install_nfv(){
-    if is_service_enabled guest-client; then
-	install_guest_client
+function install_nfv {
+    if is_service_enabled nfv-common; then
+        init_nfv
+        install_nfv_common
+        install_nfv_plugins
+        install_nfv_tools
     fi
 
-    if is_service_enabled nfv-common; then
-	init_nfv
-	install_nfv_common
-	install_nfv_plugins
-	install_nfv_tools
-	install_nfv_client
+    if is_service_enabled nfv-client; then
+        install_nfv_client
     fi
 
     if is_service_enabled nfv-vim; then
-	install_nfv_vim
+        install_nfv_vim
+    fi
+
+    if is_service_enabled guest-client; then
+        install_guest_client
     fi
 }
 
-function install_nfv_client(){
+function install_nfv_client {
     pushd $NFV_CLIENT_DIR
     python setup.py build
     sudo python setup.py install
 
-    sudo install -d -m 755 /etc/bash_completion.d
-    sudo install -m 444 scripts/sw-manager.completion /etc/bash_completion.d/sw-manager
+    sudo install -d -m 755 $STXNFV_SYSCONFDIR/bash_completion.d
+    sudo install -m 444 nfv-client/scripts/sw-manager.completion $STXNFV_SYSCONFDIR/bash_completion.d/sw-manager
     popd
 }
 
-function install_nfv_common(){
+function install_nfv_common {
     pushd $NFV_COMMON_DIR
     python setup.py build
     sudo python setup.py install
     popd
 }
 
-function install_nfv_plugins(){
+function install_nfv_plugins {
     pushd $NFV_PLUGINS_DIR
     python setup.py build
     sudo python setup.py install
 
-    sudo install -d -m 755 /etc/nfv/
-    sudo install -d -m 755 /etc/nfv/nfv_plugins/
-    sudo install -d -m 755 /etc/nfv/nfv_plugins/alarm_handlers/
-    sudo install -p -D -m 600 nfv_plugins/alarm_handlers/config.ini /etc/nfv/nfv_plugins/alarm_handlers/config.ini
-    sudo install -d -m 755 /etc/nfv/nfv_plugins/event_log_handlers/
-    sudo install -p -D -m 600 nfv_plugins/event_log_handlers/config.ini /etc/nfv/nfv_plugins/event_log_handlers/config.ini
-    sudo install -d -m 755 /etc/nfv/nfv_plugins/nfvi_plugins/
-    sudo install -p -D -m 600 nfv_plugins/nfvi_plugins/config.ini /etc/nfv/nfv_plugins/nfvi_plugins/config.ini
-    sudo install -d -m 755 /
-    sudo install -p -D -m 644 scripts/nfvi-plugins.logrotate /etc/logrotate.d/nfvi-plugins.logrotate
+    sudo install -d -m 755 $NFV_CONF_DIR
+    sudo install -d -m 755 $NFV_CONF_DIR/nfv_plugins/
+    sudo install -d -m 755 $NFV_CONF_DIR/nfv_plugins/alarm_handlers/
+    sudo install -p -D -m 600 nfv-plugins/nfv_plugins/alarm_handlers/config.ini $NFV_CONF_DIR/nfv_plugins/alarm_handlers/config.ini
+    sudo install -d -m 755 $NFV_CONF_DIR/nfv_plugins/event_log_handlers/
+    sudo install -p -D -m 600 nfv-plugins/nfv_plugins/event_log_handlers/config.ini $NFV_CONF_DIR/nfv_plugins/event_log_handlers/config.ini
+    sudo install -d -m 755 $NFV_CONF_DIR/nfv_plugins/nfvi_plugins/
+    sudo install -p -D -m 600 nfv-plugins/nfv_plugins/nfvi_plugins/config.ini $NFV_CONF_DIR/nfv_plugins/nfvi_plugins/config.ini
+    sudo install -p -D -m 644 nfv-plugins/scripts/nfvi-plugins.logrotate $STXNFV_SYSCONFDIR/logrotate.d/nfvi-plugins.logrotate
     popd
 }
 
-function install_nfv_tools(){
+function install_nfv_tools {
     pushd $NFV_TOOLS_DIR
     python setup.py build
     sudo python setup.py install
     popd
 }
 
-function install_nfv_vim(){
+function install_nfv_vim {
     pushd $NFV_VIM_DIR
     python setup.py build
     sudo python setup.py install
 
     sudo install -d -m 755 /usr/lib/ocf/resource.d/nfv
-    sudo install -p -D -m 755 scripts/vim /usr/lib/ocf/resource.d/nfv/vim
-    sudo install -p -D -m 755 scripts/vim-api /usr/lib/ocf/resource.d/nfv/vim-api
-    sudo install -p -D -m 755 scripts/vim-webserver /usr/lib/ocf/resource.d/nfv/vim-webserver
-    sudo install -d -m 755 /etc/nfv/
-    sudo install -d -m 755 /etc/nfv/vim/
-    sudo install -p -D -m 600 nfv_vim/config.ini /etc/nfv/vim/config.ini
-    sudo install -p -D -m 600 nfv_vim/debug.ini /etc/nfv/vim/debug.ini
+    sudo install -p -D -m 755 nfv-vim/scripts/vim /usr/lib/ocf/resource.d/nfv/vim
+    sudo install -p -D -m 755 nfv-vim/scripts/vim-api /usr/lib/ocf/resource.d/nfv/vim-api
+    sudo install -p -D -m 755 nfv-vim/scripts/vim-webserver /usr/lib/ocf/resource.d/nfv/vim-webserver
+    sudo install -d -m 755 $NFV_CONF_DIR/vim/
+    sudo install -p -D -m 600 nfv-vim/nfv_vim/config.ini $NFV_CONF_DIR/vim/config.ini
+    sudo install -p -D -m 600 nfv-vim/nfv_vim/debug.ini $NFV_CONF_DIR/vim/debug.ini
     popd
 }
+
+$_XTRACE_STX_NFV
