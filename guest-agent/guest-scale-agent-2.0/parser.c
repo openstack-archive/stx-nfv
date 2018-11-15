@@ -65,15 +65,15 @@ struct online_cpus *range_to_array(const char *range)
     struct online_cpus *cpuarray = (struct online_cpus *) malloc(BUFLEN);
     int start, end;
     int inrange = 0;
-    char *token, *tmp;
+    char *token, *tmp, *tobe_free;
     int done = 0;
-    tmp = strdup(range);
-    strcpy(tmp, range);
-    token = tmp;
+    tobe_free = strdup(range);
+    token = tmp = tobe_free;
 
     if (*tmp == '\0') {
         /* empty string, no online cpus */
         cpuarray->numcpus = 0;
+        free(tobe_free);
         return cpuarray;
     }
         
@@ -125,9 +125,11 @@ struct online_cpus *range_to_array(const char *range)
             break;
     }
     cpuarray->numcpus = end+1;
+    free(tobe_free);
     return cpuarray;
 error:
     free(cpuarray);
+    free(tobe_free);
     return 0;
 }
 
