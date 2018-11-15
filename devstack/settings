@@ -1,1 +1,11 @@
-enable_service stx-nfv
+#!/bin/bash
+# Devstack settings
+
+# Defaults
+# --------
+
+STX_NFV_NAME=stx-nfv
+
+enable_service $STX_NFV_NAME
+
+source $DEST/stx-nfv/devstack/lib/stx-nfv
