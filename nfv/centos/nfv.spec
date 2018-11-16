@@ -121,7 +121,6 @@ install -p -D -m 644 nfv-plugins/scripts/nfvi-plugins.logrotate %{buildroot}/%{_
 install -d -m 755 %{buildroot}/usr/lib/ocf/resource.d/nfv
 install -p -D -m 755 nfv-vim/scripts/vim %{buildroot}/usr/lib/ocf/resource.d/nfv/vim
 install -p -D -m 755 nfv-vim/scripts/vim-api %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-api
-install -p -D -m 755 nfv-vim/scripts/vim-webserver %{buildroot}/usr/lib/ocf/resource.d/nfv/vim-webserver
 install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/
 install -d -m 755 %{buildroot}/%{_sysconfdir}/nfv/vim/
 install -p -D -m 600 nfv-vim/nfv_vim/config.ini %{buildroot}/%{_sysconfdir}/nfv/vim/config.ini
@@ -176,14 +175,12 @@ rm -rf $RPM_BUILD_ROOT
 %{local_bindir}/nfv-vim
 %{local_bindir}/nfv-vim-api
 %{local_bindir}/nfv-vim-manage
-%{local_bindir}/nfv-vim-webserver
 %dir %{_sysconfdir}/nfv/vim/
 %config(noreplace)/%{_sysconfdir}/nfv/vim/config.ini
 %config(noreplace)/%{_sysconfdir}/nfv/vim/debug.ini
 %dir /usr/lib/ocf/resource.d/nfv/
 /usr/lib/ocf/resource.d/nfv/vim
 /usr/lib/ocf/resource.d/nfv/vim-api
-/usr/lib/ocf/resource.d/nfv/vim-webserver
 %dir %{pythonroot}/nfv_vim/
 %{pythonroot}/nfv_vim/*
 %dir %{pythonroot}/nfv_vim-%{version}.0-py2.7.egg-info
