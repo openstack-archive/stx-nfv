@@ -296,7 +296,14 @@ void vio_full_disconnect(instance_t *instance)
  */
 char *file_to_instance_name(char *filename, char* instance_name) {
     int rc;
-    rc = sscanf(filename, "cgcs.messaging.%[^.].sock", instance_name);
+    char format_string[100];
+
+    if (inst_name_len == 0)
+        return NULL;
+
+    snprintf(format_string, sizeof(format_string),
+            "cgcs.messaging.%%%d[^.].sock", inst_name_len-1);
+    rc = sscanf(filename, format_string, instance_name);
     if (rc == 1)
         return instance_name;
     else
@@ -328,7 +335,7 @@ static void socket_deleted(char *fn)
     if (!fn)
         return;
     
-    instance_name = file_to_instance_name(fn, buf);
+    instance_name = file_to_instance_name(fn, buf, sizeof(buf));
     if (!instance_name)
         // Not a file we care about.
         return;
@@ -429,7 +436,7 @@ static int socket_added(char *filename)
         return -1;
     }
     
-    instance_name = file_to_instance_name(filename, namebuf);
+    instance_name = file_to_instance_name(filename, namebuf, sizeof(namebuf));
     if (!instance_name) {
         // Not a bug, just not a file we care about.
         return -1;
