@@ -7,7 +7,7 @@ import argparse
 import config
 import time
 import socket
-import httplib
+from six.moves import http_client as httplib
 
 from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import ceilometer
