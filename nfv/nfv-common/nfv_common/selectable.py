@@ -5,7 +5,7 @@
 #
 import socket
 import multiprocessing
-import Queue as threading_queue
+from six.moves import queue as threading_queue
 
 
 class ThreadQueue(object):
