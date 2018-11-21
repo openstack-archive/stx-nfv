@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import httplib
+from six.moves import http_client as httplib
 import kubernetes
 from kubernetes.client.rest import ApiException
 
