@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-import httplib
+from six.moves import http_client as httplib
 
 from nfv_common import debug
 

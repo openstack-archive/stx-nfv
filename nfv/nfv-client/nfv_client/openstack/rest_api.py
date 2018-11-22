@@ -5,7 +5,7 @@
 #
 import json
 import urllib2
-import httplib
+from six.moves import http_client as httplib
 
 
 def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=None):
