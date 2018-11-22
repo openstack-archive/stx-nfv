@@ -455,10 +455,10 @@ def do_unit_tests(test_set=None, rest_api_debug=False, test_config=None):
     """
     if rest_api_debug:
         # Enable debugging of request and response headers for rest-api calls
-        import urllib2
-        handler = urllib2.HTTPHandler(debuglevel=1)
-        opener = urllib2.build_opener(handler)
-        urllib2.install_opener(opener)
+        from six.moves.urllib import request as urllib_request
+        handler = urllib_request.HTTPHandler(debuglevel=1)
+        opener = urllib_request.build_opener(handler)
+        urllib_request.install_opener(opener)
 
     platform_directory = openstack.get_directory(
         config, openstack.SERVICE_CATEGORY.PLATFORM)

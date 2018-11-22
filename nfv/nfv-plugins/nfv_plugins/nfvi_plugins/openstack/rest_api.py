@@ -8,7 +8,8 @@ import json
 import re
 import socket
 import struct
-import urllib2
+from six.moves.urllib import error as urllib_error
+from six.moves.urllib import request as urllib_request
 
 import BaseHTTPServer
 import SocketServer
@@ -298,7 +299,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
     start_ms = timers.get_monotonic_timestamp_in_ms()
 
     try:
-        request_info = urllib2.Request(api_cmd)
+        request_info = urllib_request.Request(api_cmd)
         request_info.get_method = lambda: method
         request_info.add_header("X-Auth-Token", token_id)
         request_info.add_header("Accept", "application/json")
@@ -315,11 +316,11 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                              api_cmd_payload))
 
         # Enable Debug
-        # handler = urllib2.HTTPHandler(debuglevel=1)
-        # opener = urllib2.build_opener(handler)
-        # urllib2.install_opener(opener)
+        # handler = urllib_request.HTTPHandler(debuglevel=1)
+        # opener = urllib_request.build_opener(handler)
+        # urllib_request.install_opener(opener)
 
-        request = urllib2.urlopen(request_info)
+        request = urllib_request.urlopen(request_info)
 
         headers = list()  # list of tuples
         for key, value in request.info().items():
@@ -351,7 +352,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                        response=response_raw,
                                        execution_time=elapsed_secs))
 
-    except urllib2.HTTPError as e:
+    except urllib_error.HTTPError as e:
         headers = list()
         response_raw = dict()
 
@@ -412,7 +413,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                         api_cmd_payload, e.code, str(e),
                                         str(e), headers, response_raw, reason)
 
-    except urllib2.URLError as e:
+    except urllib_error.URLError as e:
         now_ms = timers.get_monotonic_timestamp_in_ms()
         elapsed_ms = now_ms - start_ms
 

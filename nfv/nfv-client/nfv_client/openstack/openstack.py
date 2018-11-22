@@ -4,7 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-import urllib2
+
+from six.moves.urllib import error as urllib_error
+from six.moves.urllib import request as urllib_request
 
 from nfv_client.openstack.objects import Token
 
@@ -35,7 +37,7 @@ def get_token(auth_uri, project_name, project_domain_name, username, password,
     try:
         url = auth_uri + "/auth/tokens"
 
-        request_info = urllib2.Request(url)
+        request_info = urllib_request.Request(url)
         request_info.add_header("Content-Type", "application/json")
         request_info.add_header("Accept", "application/json")
 
@@ -61,7 +63,7 @@ def get_token(auth_uri, project_name, project_domain_name, username, password,
 
         request_info.add_data(payload)
 
-        request = urllib2.urlopen(request_info)
+        request = urllib_request.urlopen(request_info)
         # Identity API v3 returns token id in X-Subject-Token
         # response header.
         token_id = request.info().getheader('X-Subject-Token')
@@ -69,10 +71,10 @@ def get_token(auth_uri, project_name, project_domain_name, username, password,
         request.close()
         return Token(response, token_id)
 
-    except urllib2.HTTPError as e:
+    except urllib_error.HTTPError as e:
         print(e)
         return None
 
-    except urllib2.URLError as e:
+    except urllib_error.URLError as e:
         print(e)
         return None

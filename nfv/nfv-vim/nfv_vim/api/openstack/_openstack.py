@@ -4,7 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-import urllib2
+from six.moves.urllib import error as urllib_error
+from six.moves.urllib import request as urllib_request
 
 from nfv_common import debug
 
@@ -29,7 +30,7 @@ def validate_token(directory, admin_token, token_id):
         else:
             url = directory.auth_uri + "/v3/auth/tokens"
 
-        request_info = urllib2.Request(url)
+        request_info = urllib_request.Request(url)
         request_info.add_header("Content-Type", "application/json")
         request_info.add_header("Accept", "application/json")
         request_info.add_header("X-Auth-Token", admin_token.get_id())
@@ -56,7 +57,7 @@ def validate_token(directory, admin_token, token_id):
 
         request_info.add_data(payload)
 
-        request = urllib2.urlopen(request_info)
+        request = urllib_request.urlopen(request_info)
         # Identity API v3 returns token id in X-Subject-Token
         # response header.
         token_id = request.info().getheader('X-Subject-Token')
@@ -64,11 +65,11 @@ def validate_token(directory, admin_token, token_id):
         request.close()
         return Token(response, directory, token_id)
 
-    except urllib2.HTTPError as e:
+    except urllib_error.HTTPError as e:
         DLOG.error("%s" % e)
         return None
 
-    except urllib2.URLError as e:
+    except urllib_error.URLError as e:
         DLOG.error("%s" % e)
         return None
 
@@ -85,7 +86,7 @@ def get_token(directory):
         else:
             url = directory.auth_uri + "/v3/auth/tokens"
 
-        request_info = urllib2.Request(url)
+        request_info = urllib_request.Request(url)
         request_info.add_header("Content-Type", "application/json")
         request_info.add_header("Accept", "application/json")
 
@@ -117,7 +118,7 @@ def get_token(directory):
                     }}}})
         request_info.add_data(payload)
 
-        request = urllib2.urlopen(request_info)
+        request = urllib_request.urlopen(request_info)
         # Identity API v3 returns token id in X-Subject-Token
         # response header.
         token_id = request.info().getheader('X-Subject-Token')
@@ -125,11 +126,11 @@ def get_token(directory):
         request.close()
         return Token(response, directory, token_id)
 
-    except urllib2.HTTPError as e:
+    except urllib_error.HTTPError as e:
         DLOG.error("%s" % e)
         return None
 
-    except urllib2.URLError as e:
+    except urllib_error.URLError as e:
         DLOG.error("%s" % e)
         return None
 
