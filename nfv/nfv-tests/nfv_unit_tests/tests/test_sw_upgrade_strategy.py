@@ -128,25 +128,26 @@ def fake_event_issue(a, b, c, d):
 @mock.patch('nfv_vim.objects._sw_update.SwUpdate.save', fake_save)
 @mock.patch('nfv_vim.objects._sw_update.timers.timers_create_timer', fake_timer)
 class TestSwUpgradeStrategy(testcase.NFVTestCase):
-    _tenant_table = Table()
-    _instance_type_table = Table()
-    _instance_table = InstanceTable()
-    _instance_group_table = InstanceGroupTable()
-    _host_table = HostTable()
-    _host_group_table = HostGroupTable()
-    _host_aggregate_table = HostAggregateTable()
-
-    # Don't attempt to write to the database while unit testing
-    _tenant_table.persist = False
-    _instance_type_table.persist = False
-    _instance_table.persist = False
-    _instance_group_table.persist = False
-    _host_table.persist = False
-    _host_group_table.persist = False
-    _host_aggregate_table.persist = False
 
     def setUp(self):
         super(TestSwUpgradeStrategy, self).setUp()
+        self._tenant_table = Table()
+        self._instance_type_table = Table()
+        self._instance_table = InstanceTable()
+        self._instance_group_table = InstanceGroupTable()
+        self._host_table = HostTable()
+        self._host_group_table = HostGroupTable()
+        self._host_aggregate_table = HostAggregateTable()
+
+        # Don't attempt to write to the database while unit testing
+        self._tenant_table.persist = False
+        self._instance_type_table.persist = False
+        self._instance_table.persist = False
+        self._instance_group_table.persist = False
+        self._host_table.persist = False
+        self._host_group_table.persist = False
+        self._host_aggregate_table.persist = False
+
         self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_aggregate_table._host_aggregate_table',
                                              self._host_aggregate_table))
         self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_group_table._host_group_table',
@@ -164,15 +165,18 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
         instance_type_uuid = str(uuid.uuid4())
 
-        if 0 == len(self._instance_type_table):
-            instance_type = objects.InstanceType(instance_type_uuid, 'small')
-            instance_type.update_details(vcpus=1, mem_mb=64, disk_gb=1, ephemeral_gb=0,
-                                         swap_gb=0, guest_services=None,
-                                         auto_recovery=True,
-                                         live_migration_timeout=800,
-                                         live_migration_max_downtime=500,
-                                         storage_type='local_image')
-            self._instance_type_table[instance_type_uuid] = instance_type
+        instance_type = objects.InstanceType(instance_type_uuid, 'small')
+        instance_type.update_details(vcpus=1,
+                                     mem_mb=64,
+                                     disk_gb=1,
+                                     ephemeral_gb=0,
+                                     swap_gb=0,
+                                     guest_services=None,
+                                     auto_recovery=True,
+                                     live_migration_timeout=800,
+                                     live_migration_max_downtime=500,
+                                     storage_type='local_image')
+        self._instance_type_table[instance_type_uuid] = instance_type
 
     def tearDown(self):
         """

@@ -30,28 +30,29 @@ def fake_timer(a, b, c, d):
 
 
 class TestInstanceDirector(testcase.NFVTestCase):
-    _image_table = ImageTable()
-    _instance_table = Table()
-    _instance_type_table = Table()
-    _tenant_table = Table()
-
-    # Don't attempt to write to the database while unit testing
-    _image_table.persist = False
-    _instance_table.persist = False
-    _instance_type_table.persist = False
-    _tenant_table.persist = False
-
-    _director = None
 
     def setUp(self):
         super(TestInstanceDirector, self).setUp()
+        self._image_table = ImageTable()
+        self._instance_table = Table()
+        self._instance_type_table = Table()
+        self._tenant_table = Table()
+
+        # Don't attempt to write to the database while unit testing
+        self._image_table.persist = False
+        self._instance_table.persist = False
+        self._instance_type_table.persist = False
+        self._tenant_table.persist = False
+        self._director = None
+
         self.instance_setup_func()
 
     def tearDown(self):
         super(TestInstanceDirector, self).tearDown()
-        self._tenant_table.clear()
+        self._image_table.clear()
         self._instance_table.clear()
         self._instance_type_table.clear()
+        self._tenant_table.clear()
         self._director = None
 
     def create_instance(self, instance_type_name, instance_name, recovery_priority=None):
@@ -91,34 +92,33 @@ class TestInstanceDirector(testcase.NFVTestCase):
         """
         instance_type_uuid = uuid.uuid4()
 
-        if 0 == len(self._instance_type_table):
-            instance_type = objects.InstanceType(instance_type_uuid, 'small')
-            instance_type.update_details(vcpus=1, mem_mb=64, disk_gb=1, ephemeral_gb=0,
-                                         swap_gb=0, guest_services=None,
-                                         auto_recovery=True,
-                                         live_migration_timeout=800,
-                                         live_migration_max_downtime=500,
-                                         storage_type='local_image')
-            self._instance_type_table[instance_type_uuid] = instance_type
+        instance_type = objects.InstanceType(instance_type_uuid, 'small')
+        instance_type.update_details(vcpus=1,
+                                     mem_mb=64,
+                                     disk_gb=1,
+                                     ephemeral_gb=0,
+                                     swap_gb=0,
+                                     guest_services=None,
+                                     auto_recovery=True,
+                                     live_migration_timeout=800,
+                                     live_migration_max_downtime=500,
+                                     storage_type='local_image')
+        self._instance_type_table[instance_type_uuid] = instance_type
 
-        self._instance_table.clear()
-
-        if self._director is None:
-            self._director = InstanceDirector(
-                max_concurrent_recovering_instances=4,
-                max_concurrent_migrates_per_host=1,
-                max_concurrent_evacuates_per_host=1,
-                recovery_audit_interval=_audit_interval,
-                recovery_audit_cooldown=_audit_cooldown,
-                recovery_audit_batch_interval=2,
-                recovery_cooldown=_recovery_cooldown,
-                rebuild_timeout=_rebuild_timeout,
-                reboot_timeout=_reboot_timeout,
-                migrate_timeout=_migrate_timeout,
-                single_hypervisor=False,
-                recovery_threshold=250,
-                max_throttled_recovering_instances=2
-                )
+        self._director = InstanceDirector(
+            max_concurrent_recovering_instances=4,
+            max_concurrent_migrates_per_host=1,
+            max_concurrent_evacuates_per_host=1,
+            recovery_audit_interval=_audit_interval,
+            recovery_audit_cooldown=_audit_cooldown,
+            recovery_audit_batch_interval=2,
+            recovery_cooldown=_recovery_cooldown,
+            rebuild_timeout=_rebuild_timeout,
+            reboot_timeout=_reboot_timeout,
+            migrate_timeout=_migrate_timeout,
+            single_hypervisor=False,
+            recovery_threshold=250,
+            max_throttled_recovering_instances=2)
 
     @mock.patch('nfv_vim.tables.tables_get_tenant_table')
     @mock.patch('nfv_vim.tables.tables_get_instance_type_table')

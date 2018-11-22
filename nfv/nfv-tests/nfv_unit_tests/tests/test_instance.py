@@ -42,30 +42,30 @@ def fake_event_issue(a, b, c, d):
 # nova/tests/unit/virt/libvirt/test_driver.py
 class TestInstance(testcase.NFVTestCase):
 
-    _tenant_table = Table()
-    _instance_type_table = InstanceTypeTable()
-    _image_table = ImageTable()
-    _instance_table = InstanceTable()
-    _instance_group_table = InstanceGroupTable()
-    _host_table = HostTable()
-    _host_group_table = HostGroupTable()
-    _host_aggregate_table = HostAggregateTable()
-
-    # Don't attempt to write to the database while unit testing
-    _tenant_table.persist = False
-    _image_table.persist = False
-    _instance_type_table.persist = False
-    _instance_table.persist = False
-    _instance_group_table.persist = False
-    _host_table.persist = False
-    _host_group_table.persist = False
-    _host_aggregate_table.persist = False
-
     def setUp(self):
         """
         Setup for testing.
         """
         super(TestInstance, self).setUp()
+        self._tenant_table = Table()
+        self._instance_type_table = InstanceTypeTable()
+        self._image_table = ImageTable()
+        self._instance_table = InstanceTable()
+        self._instance_group_table = InstanceGroupTable()
+        self._host_table = HostTable()
+        self._host_group_table = HostGroupTable()
+        self._host_aggregate_table = HostAggregateTable()
+
+        # Don't attempt to write to the database while unit testing
+        self._tenant_table.persist = False
+        self._image_table.persist = False
+        self._instance_type_table.persist = False
+        self._instance_table.persist = False
+        self._instance_group_table.persist = False
+        self._host_table.persist = False
+        self._host_group_table.persist = False
+        self._host_aggregate_table.persist = False
+
         self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._tenant_table._tenant_table',
                                              self._tenant_table))
         self.useFixture(fixtures.MonkeyPatch('nfv_vim.tables._host_table._host_table',

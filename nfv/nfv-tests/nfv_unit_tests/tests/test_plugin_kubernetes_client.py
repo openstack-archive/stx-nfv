@@ -48,10 +48,10 @@ class TestNFVPluginsK8SNodeTaint(testcase.NFVTestCase):
     test_value1 = 'testValue1'
     test_key2 = 'testKey2'
     test_value2 = 'testValue2'
-    test_node_repo = {}
 
     def setUp(self):
         super(TestNFVPluginsK8SNodeTaint, self).setUp()
+        self.test_node_repo = {}
         self.setup_node_repo(self.test_node_name)
 
         def mock_patch_node(obj, node_name, body):
