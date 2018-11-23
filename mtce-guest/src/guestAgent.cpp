@@ -379,7 +379,7 @@ int _socket_init ( void )
     /* UDP Tx Message Socket Towards guestServer                      */
     /******************************************************************/
 
-    _ctrl.sock.agent_tx_sock = new msgClassTx(guestAgent_ip.c_str(), guest_config.client_rx_port, IPPROTO_UDP, guest_config.mgmnt_iface);
+    _ctrl.sock.agent_tx_sock = new msgClassTx(guestAgent_ip.data(), guest_config.client_rx_port, IPPROTO_UDP, guest_config.mgmnt_iface);
     rc = _ctrl.sock.agent_tx_sock->return_status;
     if ( rc )
     {
@@ -392,7 +392,7 @@ int _socket_init ( void )
     /******************************************************************/
 
     _ctrl.sock.mtc_event_tx_port = guest_config.hbs_to_mtc_event_port ;
-    _ctrl.sock.mtc_event_tx_sock = new msgClassTx(LOOPBACK_IP, guest_config.hbs_to_mtc_event_port, IPPROTO_UDP);
+    _ctrl.sock.mtc_event_tx_sock = new msgClassTx(guestAgent_ip.data(), guest_config.hbs_to_mtc_event_port, IPPROTO_UDP, guest_config.mgmnt_iface);
     rc = _ctrl.sock.mtc_event_tx_sock->return_status;
     if ( rc )
     {
@@ -407,7 +407,7 @@ int _socket_init ( void )
     /***************************************************************/
 
     _ctrl.sock.mtc_cmd_port = guest_config.mtc_to_guest_cmd_port ;
-    _ctrl.sock.mtc_cmd_sock = new msgClassRx(LOOPBACK_IP, guest_config.mtc_to_guest_cmd_port, IPPROTO_UDP);
+    _ctrl.sock.mtc_cmd_sock = new msgClassRx(guestAgent_ip.data(), guest_config.mtc_to_guest_cmd_port, IPPROTO_UDP);
     rc = _ctrl.sock.mtc_cmd_sock->return_status;
     if ( rc )    
     {
