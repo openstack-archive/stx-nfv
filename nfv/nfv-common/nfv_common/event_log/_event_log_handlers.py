@@ -55,19 +55,19 @@ class EventLogHandlers(stevedore.enabled.EnabledExtensionManager):
         """
         Log a particular event using the handlers
         """
-        for handler_type, handler in self._handlers.iteritems():
+        for handler_type, handler in self._handlers.items():
             handler.obj.log(log_data)
 
     def initialize(self, config_file):
         """
         Initialize handlers
         """
-        for handler_id, handler in self._handlers.iteritems():
+        for handler_id, handler in self._handlers.items():
             handler.obj.initialize(config_file)
 
     def finalize(self):
         """
         Finalize handlers
         """
-        for handler_id, handler in self._handlers.iteritems():
+        for handler_id, handler in self._handlers.items():
             handler.obj.finalize()

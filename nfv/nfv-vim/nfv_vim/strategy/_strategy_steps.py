@@ -1072,7 +1072,7 @@ class MigrateInstancesStep(strategy.StrategyStep):
         Returns true if all instances have migrated from the source hosts
         """
         source_host_names = []
-        for host_name in self._instance_host_names.itervalues():
+        for host_name in self._instance_host_names.values():
             if host_name not in source_host_names:
                 source_host_names.append(host_name)
 

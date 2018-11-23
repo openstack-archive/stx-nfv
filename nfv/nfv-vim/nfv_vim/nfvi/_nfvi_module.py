@@ -102,5 +102,5 @@ def nfvi_finalize():
     nfvi_guest_finalize()
     nfvi_sw_mgmt_finalize()
 
-    for pool in _task_worker_pools.itervalues():
+    for pool in _task_worker_pools.values():
         pool.shutdown()

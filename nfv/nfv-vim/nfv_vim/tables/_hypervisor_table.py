@@ -18,7 +18,7 @@ class HypervisorTable(Table):
         super(HypervisorTable, self).__init__()
 
     def get_by_host_name(self, host_name, default=None):
-        for hypervisor in self._entries.itervalues():
+        for hypervisor in self._entries.values():
             if hypervisor.host_name == host_name:
                 return hypervisor
         return default

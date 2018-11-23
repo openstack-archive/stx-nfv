@@ -182,7 +182,7 @@ def vim_image_api_get_images(connection, msg):
     """
     DLOG.verbose("Get image, all=%s." % msg.get_all)
     image_table = tables.tables_get_image_table()
-    for image in image_table.itervalues():
+    for image in image_table.values():
         response = rpc.APIResponseGetImage()
         response.uuid = image.uuid
         response.name = image.name

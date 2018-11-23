@@ -254,7 +254,7 @@ class SwUpdateStrategy(strategy.Strategy):
             # service disruption when the remaining instances are stopped or
             # migrated.
             if reboot:
-                for instance in instance_table.itervalues():
+                for instance in instance_table.values():
                     if instance.is_locked():
                         for instance_group in instance_group_table.get_by_instance(
                                 instance.uuid):
@@ -866,7 +866,7 @@ class SwPatchStrategy(SwUpdateStrategy):
                 self.save()
                 return
 
-            for host in host_table.itervalues():
+            for host in host_table.values():
                 if HOST_PERSONALITY.COMPUTE in host.personality and \
                         HOST_PERSONALITY.CONTROLLER not in host.personality:
                     # Allow patch orchestration when compute hosts are available,
@@ -1465,7 +1465,7 @@ class SwUpgradeStrategy(SwUpdateStrategy):
                 return
 
             host_table = tables.tables_get_host_table()
-            for host in host_table.itervalues():
+            for host in host_table.values():
                 # Only allow upgrade orchestration when all hosts are
                 # available. It is not safe to automate upgrade application
                 # when we do not have full redundancy.
@@ -1494,7 +1494,7 @@ class SwUpgradeStrategy(SwUpdateStrategy):
                 self._add_upgrade_start_stage()
 
                 # All hosts will be upgraded
-                for host in host_table.itervalues():
+                for host in host_table.values():
                     if HOST_PERSONALITY.CONTROLLER in host.personality:
                         controller_hosts.append(host)
 
@@ -1506,7 +1506,7 @@ class SwUpgradeStrategy(SwUpdateStrategy):
             else:
                 # Only hosts not yet upgraded will be upgraded
                 to_load = self.nfvi_upgrade.to_release
-                for host in host_table.itervalues():
+                for host in host_table.values():
                     if host.software_load == to_load:
                         # No need to upgrade this host
                         continue

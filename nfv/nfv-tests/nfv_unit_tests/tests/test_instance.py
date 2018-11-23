@@ -173,7 +173,7 @@ class TestInstance(testcase.NFVTestCase):
         Create an instance group
         """
         member_uuids = []
-        for instance_uuid, instance in self._instance_table.iteritems():
+        for instance_uuid, instance in self._instance_table.items():
             if instance.name in members:
                 member_uuids.append(instance_uuid)
 
@@ -231,7 +231,7 @@ class TestInstance(testcase.NFVTestCase):
         Create a host group
         """
         member_uuids = []
-        for instance_uuid, instance in self._instance_table.iteritems():
+        for instance_uuid, instance in self._instance_table.items():
             if instance.name in members:
                 member_uuids.append(instance_uuid)
 

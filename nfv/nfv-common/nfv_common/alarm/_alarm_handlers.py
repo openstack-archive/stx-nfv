@@ -55,33 +55,33 @@ class AlarmHandlers(stevedore.enabled.EnabledExtensionManager):
         """
         Raise an alarm using the handlers
         """
-        for handler_type, handler in self._handlers.iteritems():
+        for handler_type, handler in self._handlers.items():
             handler.obj.raise_alarm(alarm_uuid, alarm_data)
 
     def clear_alarm(self, alarm_uuid):
         """
         Clear an alarm using the handlers
         """
-        for handler_type, handler in self._handlers.iteritems():
+        for handler_type, handler in self._handlers.items():
             handler.obj.clear_alarm(alarm_uuid)
 
     def audit_alarms(self):
         """
         Audit alarms using the handlers
         """
-        for handler_type, handler in self._handlers.iteritems():
+        for handler_type, handler in self._handlers.items():
             handler.obj.audit_alarms()
 
     def initialize(self, config_file):
         """
         Initialize handlers
         """
-        for handler_id, handler in self._handlers.iteritems():
+        for handler_id, handler in self._handlers.items():
             handler.obj.initialize(config_file)
 
     def finalize(self):
         """
         Finalize handlers
         """
-        for handler_id, handler in self._handlers.iteritems():
+        for handler_id, handler in self._handlers.items():
             handler.obj.finalize()

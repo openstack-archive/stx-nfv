@@ -18,7 +18,7 @@ class ObjectData(collections.MutableMapping):
         super(ObjectData, self).__setattr__('_fields', dict())
 
         if data is not None:
-            for key, value in data.iteritems():
+            for key, value in data.items():
                 self._do_set(key, value)
 
     @property

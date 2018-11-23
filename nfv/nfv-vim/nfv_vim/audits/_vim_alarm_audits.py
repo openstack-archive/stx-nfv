@@ -25,7 +25,7 @@ def _audit_alarms():
         timer_id = (yield)
         DLOG.verbose("Audit alarms called, timer_id=%s." % timer_id)
         instance_table = tables.tables_get_instance_table()
-        for instance in instance_table.itervalues():
+        for instance in instance_table.values():
             if not instance.is_deleted():
                 alarm.instance_manage_alarms(instance)
 

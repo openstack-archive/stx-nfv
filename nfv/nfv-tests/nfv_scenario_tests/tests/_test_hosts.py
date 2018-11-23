@@ -106,7 +106,7 @@ class TestHost(_test_base.Test):
         with open(self._output_dir + '/test_result', 'w') as f:
             f.write("success=%s, reason=%s\n" % (test_success, test_reason))
 
-        for log_name, log_file in self.LOG_FILES.iteritems():
+        for log_name, log_file in self.LOG_FILES.items():
             shutil.copyfile(log_file, self._output_dir + '/' + log_name + '.log')
 
         if self._host_data is not None:

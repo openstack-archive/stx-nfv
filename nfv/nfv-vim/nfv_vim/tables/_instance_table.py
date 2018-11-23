@@ -18,12 +18,12 @@ class InstanceTable(Table):
         super(InstanceTable, self).__init__()
 
     def on_host(self, host_name):
-        for instance in self._entries.itervalues():
+        for instance in self._entries.values():
             if instance.on_host(host_name):
                 yield instance
 
     def exist_on_host(self, host_name):
-        for instance in self._entries.itervalues():
+        for instance in self._entries.values():
             if instance.on_host(host_name):
                 return True
         return False

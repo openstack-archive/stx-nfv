@@ -334,7 +334,7 @@ def vim_instance_api_get_instances(connection, msg):
     """
     DLOG.verbose("Get instance, all=%s." % msg.get_all)
     instance_table = tables.tables_get_instance_table()
-    for instance in instance_table.itervalues():
+    for instance in instance_table.values():
         response = rpc.APIResponseGetInstance()
         response.uuid = instance.uuid
         response.name = instance.name
