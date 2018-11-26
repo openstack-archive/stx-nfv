@@ -1473,8 +1473,6 @@ class Instance(ObjectData):
         config_option = None
         if STORAGE_TYPE.LOCAL_IMAGE_BACKED == storage_type:
             config_option = 'max_cold_migrate_local_image_disk_gb'
-        elif STORAGE_TYPE.LOCAL_LVM_BACKED == storage_type:
-            config_option = 'max_cold_migrate_local_lvm_disk_gb'
 
         if (config_option is not None and
                 config.section_exists('instance-configuration')):
@@ -1511,8 +1509,6 @@ class Instance(ObjectData):
         config_option = None
         if STORAGE_TYPE.LOCAL_IMAGE_BACKED == storage_type:
             config_option = 'max_evacuate_local_image_disk_gb'
-        elif STORAGE_TYPE.LOCAL_LVM_BACKED == storage_type:
-            config_option = 'max_evacuate_local_lvm_disk_gb'
 
         if (config_option is not None and
                 config.section_exists('instance-configuration')):
