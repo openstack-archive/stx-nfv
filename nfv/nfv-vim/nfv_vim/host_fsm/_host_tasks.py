@@ -8,6 +8,8 @@ import weakref
 from nfv_common import state_machine
 from nfv_common import debug
 
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import PLATFORM_SERVICE
 from nfv_vim.host_fsm._host_defs import HOST_EVENT
 from nfv_vim.host_fsm._host_task_work import QueryHypervisorTaskWork
 from nfv_vim.host_fsm._host_task_work import NotifyHostEnabledTaskWork
@@ -27,6 +29,8 @@ from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisabledTaskWork
 from nfv_vim.host_fsm._host_task_work import AuditHostServicesTaskWork
 from nfv_vim.host_fsm._host_task_work import AuditInstancesTaskWork
 
+from nfv_vim import nfvi
+
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host_task')
 
 
@@ -37,7 +41,15 @@ class AddHostTask(state_machine.StateTask):
     def __init__(self, host):
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(CreateHostServicesTaskWork(self, host))
+        if not nfvi.nfvi_compute_plugin_disabled():
+            task_work_list.append(CreateHostServicesTaskWork(
+                self, host, OPENSTACK_SERVICE.NOVA))
+        if not nfvi.nfvi_network_plugin_disabled():
+            task_work_list.append(CreateHostServicesTaskWork(
+                self, host, OPENSTACK_SERVICE.NEUTRON))
+        if not nfvi.nfvi_guest_plugin_disabled():
+            task_work_list.append(CreateHostServicesTaskWork(
+                self, host, PLATFORM_SERVICE.GUEST))
         super(AddHostTask, self).__init__(
             'add-host_%s' % host.name, task_work_list)
 
@@ -74,7 +86,17 @@ class DeleteHostTask(state_machine.StateTask):
     def __init__(self, host):
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(DeleteHostServicesTaskWork(self, host))
+        if not nfvi.nfvi_compute_plugin_disabled():
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, OPENSTACK_SERVICE.NOVA))
+        if not nfvi.nfvi_network_plugin_disabled():
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, OPENSTACK_SERVICE.NEUTRON))
+        if not nfvi.nfvi_guest_plugin_disabled():
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, PLATFORM_SERVICE.GUEST))
+        task_work_list.append(DeleteHostServicesTaskWork(
+            self, host, PLATFORM_SERVICE.KUBERNETES))
         task_work_list.append(NotifyHostServicesDeletedTaskWork(
             self, host, force_pass=True))
         super(DeleteHostTask, self).__init__(
@@ -113,8 +135,18 @@ class EnableHostTask(state_machine.StateTask):
     def __init__(self, host):
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(NotifyHostEnabledTaskWork(self, host))
-        task_work_list.append(EnableHostServicesTaskWork(self, host))
+        if not nfvi.nfvi_compute_plugin_disabled():
+            task_work_list.append(NotifyHostEnabledTaskWork(self, host))
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, OPENSTACK_SERVICE.NOVA))
+        if not nfvi.nfvi_network_plugin_disabled():
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, OPENSTACK_SERVICE.NEUTRON))
+        if not nfvi.nfvi_guest_plugin_disabled():
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, PLATFORM_SERVICE.GUEST))
+        task_work_list.append(EnableHostServicesTaskWork(
+            self, host, PLATFORM_SERVICE.KUBERNETES))
         task_work_list.append(NotifyHostServicesEnabledTaskWork(
             self, host, force_pass=True))
         task_work_list.append(QueryHypervisorTaskWork(
@@ -172,11 +204,23 @@ class DisableHostTask(state_machine.StateTask):
             notify_host_services_task = NotifyHostServicesDisabledTaskWork
 
         task_work_list = list()
-        task_work_list.append(DisableHostServicesTaskWork(self, host))
+        if not nfvi.nfvi_compute_plugin_disabled():
+            task_work_list.append(DisableHostServicesTaskWork(
+                self, host, OPENSTACK_SERVICE.NOVA))
+        if not nfvi.nfvi_guest_plugin_disabled():
+            task_work_list.append(DisableHostServicesTaskWork(
+                self, host, PLATFORM_SERVICE.GUEST))
+        task_work_list.append(DisableHostServicesTaskWork(
+            self, host, PLATFORM_SERVICE.KUBERNETES))
         task_work_list.append(QueryHypervisorTaskWork(
             self, host, force_pass=True))
         task_work_list.append(NotifyInstancesHostDisablingTaskWork(self, host))
-        task_work_list.append(NotifyHostDisabledTaskWork(self, host))
+        if not nfvi.nfvi_compute_plugin_disabled():
+            task_work_list.append(NotifyHostDisabledTaskWork(
+                self, host, OPENSTACK_SERVICE.NOVA))
+        if not nfvi.nfvi_network_plugin_disabled():
+            task_work_list.append(NotifyHostDisabledTaskWork(
+                self, host, OPENSTACK_SERVICE.NEUTRON))
         task_work_list.append(NotifyInstancesHostDisabledTaskWork(self, host))
         task_work_list.append(notify_host_services_task(
             self, host, force_pass=True))
@@ -414,6 +458,7 @@ class AuditEnabledHostTask(state_machine.StateTask):
         task_work_list = list()
         task_work_list.append(AuditHostServicesTaskWork(
             self, host, force_pass=True))
+
         super(AuditEnabledHostTask, self).__init__(
             'audit-enabled-host_%s' % host.name, task_work_list)
 

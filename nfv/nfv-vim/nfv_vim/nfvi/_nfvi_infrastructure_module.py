@@ -85,63 +85,42 @@ def nfvi_upgrade_complete(callback):
     return cmd_id
 
 
-def nfvi_create_host_services(host_uuid, host_name, host_personality,
-                              callback):
+def nfvi_disable_containerization_host_services(host_uuid, host_name,
+                                                host_personality,
+                                                callback):
     """
-    Create host services on a host
+    Disable containerization services on a host
     """
-    cmd_id = _infrastructure_plugin.invoke_plugin('create_host_services',
-                                                  host_uuid, host_name,
-                                                  host_personality,
-                                                  callback=callback)
+    cmd_id = _infrastructure_plugin.invoke_plugin(
+        'disable_host_services',
+        host_uuid, host_name, host_personality,
+        callback=callback)
     return cmd_id
 
 
-def nfvi_delete_host_services(host_uuid, host_name, host_personality,
-                              callback):
+def nfvi_enable_containerization_host_services(host_uuid, host_name,
+                                               host_personality,
+                                               callback):
     """
-    Delete host services from a host
+    Enable containerization services on a host
     """
-    cmd_id = _infrastructure_plugin.invoke_plugin('delete_host_services',
-                                                  host_uuid, host_name,
-                                                  host_personality,
-                                                  callback=callback)
+    cmd_id = _infrastructure_plugin.invoke_plugin(
+        'enable_host_services',
+        host_uuid, host_name, host_personality,
+        callback=callback)
     return cmd_id
 
 
-def nfvi_enable_host_services(host_uuid, host_name, host_personality,
-                              callback):
+def nfvi_delete_containerization_host_services(host_uuid, host_name,
+                                               host_personality,
+                                               callback):
     """
-    Enable host services on a host
+    Delete containerization services on a host
     """
-    cmd_id = _infrastructure_plugin.invoke_plugin('enable_host_services',
-                                                  host_uuid, host_name,
-                                                  host_personality,
-                                                  callback=callback)
-    return cmd_id
-
-
-def nfvi_disable_host_services(host_uuid, host_name, host_personality,
-                               callback):
-    """
-    Disable host services on a host
-    """
-    cmd_id = _infrastructure_plugin.invoke_plugin('disable_host_services',
-                                                  host_uuid, host_name,
-                                                  host_personality,
-                                                  callback=callback)
-    return cmd_id
-
-
-def nfvi_query_host_services(host_uuid, host_name, host_personality,
-                             callback):
-    """
-    Query the administrative state of host services on a host
-    """
-    cmd_id = _infrastructure_plugin.invoke_plugin('query_host_services',
-                                                  host_uuid, host_name,
-                                                  host_personality,
-                                                  callback=callback)
+    cmd_id = _infrastructure_plugin.invoke_plugin(
+        'delete_host_services',
+        host_uuid, host_name, host_personality,
+        callback=callback)
     return cmd_id
 
 
@@ -204,29 +183,6 @@ def nfvi_notify_host_services_delete_failed(host_uuid, host_name,
     cmd_id = _infrastructure_plugin.invoke_plugin(
         'notify_host_services_delete_failed', host_uuid, host_name,
         reason, callback=callback)
-    return cmd_id
-
-
-def nfvi_notify_host_enabled(host_uuid, host_name, host_personality, callback):
-    """
-    Notify host is enabled
-    """
-    cmd_id = _infrastructure_plugin.invoke_plugin('notify_host_enabled',
-                                                  host_uuid, host_name,
-                                                  host_personality,
-                                                  callback=callback)
-    return cmd_id
-
-
-def nfvi_notify_host_disabled(host_uuid, host_name, host_personality,
-                              callback):
-    """
-    Notify host is disabled
-    """
-    cmd_id = _infrastructure_plugin.invoke_plugin('notify_host_disabled',
-                                                  host_uuid, host_name,
-                                                  host_personality,
-                                                  callback=callback)
     return cmd_id
 
 

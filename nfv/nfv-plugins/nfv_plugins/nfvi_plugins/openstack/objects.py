@@ -40,6 +40,7 @@ class PlatformServices(Constants):
     SYSINV = Constant('sysinv')
     PATCHING = Constant('patching')
     FM = Constant('fm')
+    KUBERNETES = Constant('kubernetes')
 
 
 # Platform Services Constant

@@ -9,6 +9,9 @@ from nfv_common import debug
 from nfv_common.helpers import coroutine
 from nfv_common.helpers import Singleton
 
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
+from nfv_plugins.nfvi_plugins.openstack.objects import PLATFORM_SERVICE
+
 from nfv_vim import nfvi
 from nfv_vim import objects
 from nfv_vim import tables
@@ -68,18 +71,19 @@ class HostDirector(object):
         nfvi.nfvi_lock_host(host_uuid, host_name, self._nfvi_lock_host_callback())
 
     @coroutine
-    def _nfvi_disable_host_services_callback(self):
+    def _nfvi_disable_host_services_callback(self, service):
         """
         NFVI Disable Host Services Callback
         """
         from nfv_vim import directors
 
         response = (yield)
-        DLOG.verbose("NFVI Disable Host Services callback response=%s." %
-                     response)
+        DLOG.verbose("NFVI Disable Host %s Services callback "
+                     "response=%s." % (service, response))
         if not response['completed']:
-            DLOG.info("Disable of host services on host %s failed, reason=%s."
-                      % (response['host_name'], response['reason']))
+            DLOG.info("Disable of %s services on host %s failed"
+                      ", reason=%s."
+                      % (service, response['host_name'], response['reason']))
 
             host_table = tables.tables_get_host_table()
             host = host_table.get(response['host_name'], None)
@@ -100,28 +104,49 @@ class HostDirector(object):
             sw_mgmt_director = directors.get_sw_mgmt_director()
             sw_mgmt_director.disable_host_services_failed(host)
 
-    def _nfvi_disable_host_services(self, host_uuid, host_name,
-                                    host_personality):
+    def _nfvi_disable_containerization_host_services(self, host_uuid,
+                                                     host_name,
+                                                     host_personality):
         """
-        NFVI Disable Host Services
+        NFVI Disable Containerization Services on host
         """
-        nfvi.nfvi_disable_host_services(
+        nfvi.nfvi_disable_containerization_host_services(
             host_uuid, host_name, host_personality,
-            self._nfvi_disable_host_services_callback())
+            self._nfvi_disable_host_services_callback(
+                PLATFORM_SERVICE.KUBERNETES))
+
+    def _nfvi_disable_guest_host_services(self, host_uuid, host_name,
+                                          host_personality):
+        """
+        NFVI Disable Guest Services on host
+        """
+        nfvi.nfvi_disable_guest_host_services(
+            host_uuid, host_name, host_personality,
+            self._nfvi_disable_host_services_callback(PLATFORM_SERVICE.GUEST))
+
+    def _nfvi_disable_compute_host_services(self, host_uuid, host_name,
+                                            host_personality):
+        """
+        NFVI Disable Compute Services on host
+        """
+        nfvi.nfvi_disable_compute_host_services(
+            host_uuid, host_name, host_personality,
+            self._nfvi_disable_host_services_callback(
+                OPENSTACK_SERVICE.NOVA))
 
     @coroutine
-    def _nfvi_enable_host_services_callback(self):
+    def _nfvi_enable_host_services_callback(self, service):
         """
         NFVI Enable Host Services Callback
         """
         from nfv_vim import directors
 
         response = (yield)
-        DLOG.verbose("NFVI Enable Host Services callback response=%s." %
-                     response)
+        DLOG.verbose("NFVI Enable Host %s Services callback "
+                     "response=%s." % (service, response))
         if not response['completed']:
-            DLOG.info("Enable of host services on host %s failed, reason=%s."
-                      % (response['host_name'], response['reason']))
+            DLOG.info("Enable of %s services on host %s failed, reason=%s."
+                      % (service, response['host_name'], response['reason']))
 
             host_table = tables.tables_get_host_table()
             host = host_table.get(response['host_name'], None)
@@ -136,20 +161,52 @@ class HostDirector(object):
             if OPERATION_TYPE.ENABLE_HOST_SERVICES != \
                     self._host_operation.operation_type:
                 DLOG.verbose("Unexpected host %s operation %s, ignoring."
-                             % (host.name, self._host_operation.operation_type))
+                             % (host.name,
+                                self._host_operation.operation_type))
                 return
 
             sw_mgmt_director = directors.get_sw_mgmt_director()
             sw_mgmt_director.enable_host_services_failed(host)
 
-    def _nfvi_enable_host_services(self, host_uuid, host_name,
-                                   host_personality):
+    def _nfvi_enable_containerization_host_services(self, host_uuid, host_name,
+                                                    host_personality):
         """
-        NFVI Enable Host Services
+        NFVI Enable Containerization Services
         """
-        nfvi.nfvi_enable_host_services(
+        nfvi.nfvi_enable_containerization_host_services(
             host_uuid, host_name, host_personality,
-            self._nfvi_enable_host_services_callback())
+            self._nfvi_enable_host_services_callback(
+                PLATFORM_SERVICE.KUBERNETES))
+
+    def _nfvi_enable_guest_host_services(self, host_uuid, host_name,
+                                         host_personality):
+        """
+        NFVI Enable Guest Services for a host
+        """
+        nfvi.nfvi_enable_guest_host_services(
+            host_uuid, host_name, host_personality,
+            self._nfvi_enable_host_services_callback(
+                PLATFORM_SERVICE.GUEST))
+
+    def _nfvi_enable_compute_host_services(self, host_uuid, host_name,
+                                           host_personality):
+        """
+        NFVI Enable Compute Services a host
+        """
+        nfvi.nfvi_enable_compute_host_services(
+            host_uuid, host_name, host_personality,
+            self._nfvi_enable_host_services_callback(
+                OPENSTACK_SERVICE.NOVA))
+
+    def _nfvi_enable_network_host_services(self, host_uuid, host_name,
+                                           host_personality):
+        """
+        NFVI Enable Network Services a host
+        """
+        nfvi.nfvi_enable_network_host_services(
+            host_uuid, host_name, host_personality,
+            self._nfvi_enable_host_services_callback(
+                OPENSTACK_SERVICE.NEUTRON))
 
     @coroutine
     def _nfvi_unlock_host_callback(self):
@@ -659,8 +716,17 @@ class HostDirector(object):
                 host_operation.add_host(host.name, OPERATION_STATE.COMPLETED)
             else:
                 host_operation.add_host(host.name, OPERATION_STATE.INPROGRESS)
-                self._nfvi_disable_host_services(host.uuid, host.name,
-                                                 host.personality)
+                if not nfvi.nfvi_compute_plugin_disabled():
+                    self._nfvi_disable_compute_host_services(host.uuid,
+                                                             host.name,
+                                                             host.personality)
+                if not nfvi.nfvi_guest_plugin_disabled():
+                    self._nfvi_disable_guest_host_services(host.uuid,
+                                                           host.name,
+                                                           host.personality)
+                self._nfvi_disable_containerization_host_services(host.uuid,
+                                                                  host.name,
+                                                                  host.personality)
 
         if host_operation.is_inprogress():
             self._host_operation = host_operation
@@ -696,8 +762,21 @@ class HostDirector(object):
                 host_operation.add_host(host.name, OPERATION_STATE.COMPLETED)
             else:
                 host_operation.add_host(host.name, OPERATION_STATE.INPROGRESS)
-                self._nfvi_enable_host_services(host.uuid, host.name,
-                                                host.personality)
+                if not nfvi.nfvi_compute_plugin_disabled():
+                    self._nfvi_enable_compute_host_services(host.uuid,
+                                                            host.name,
+                                                            host.personality)
+                if not nfvi.nfvi_guest_plugin_disabled():
+                    self._nfvi_enable_guest_host_services(host.uuid,
+                                                          host.name,
+                                                          host.personality)
+                if not nfvi.nfvi_network_plugin_disabled():
+                    self._nfvi_enable_network_host_services(host.uuid,
+                                                            host.name,
+                                                            host.personality)
+                self._nfvi_enable_containerization_host_services(host.uuid,
+                                                                 host.name,
+                                                                 host.personality)
 
         if host_operation.is_inprogress():
             self._host_operation = host_operation
