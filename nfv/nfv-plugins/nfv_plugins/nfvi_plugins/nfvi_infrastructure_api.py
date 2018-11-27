@@ -20,9 +20,6 @@ from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import sysinv
 from nfv_plugins.nfvi_plugins.openstack import fm
 from nfv_plugins.nfvi_plugins.openstack import mtc
-from nfv_plugins.nfvi_plugins.openstack import nova
-from nfv_plugins.nfvi_plugins.openstack import neutron
-from nfv_plugins.nfvi_plugins.openstack import guest
 from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.infrastructure_api')
@@ -122,7 +119,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
     @staticmethod
     def _host_supports_kubernetes(personality):
-        # TODO(bwensley): This check will disappear once kubernetes is the default
+        # TODO(bwensley): This check will disappear once kubernetes is the
+        # default
         if os.path.isfile('/etc/kubernetes/admin.conf'):
             return ('compute' in personality or 'controller' in personality)
         else:
@@ -167,15 +165,10 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         self._data_port_fault_handling_enabled = False
         self._host_listener = None
 
-    def _host_supports_neutron(self, personality):
-        return (('compute' in personality or 'controller' in personality) and
-                (self._openstack_directory.get_service_info(
-                     OPENSTACK_SERVICE.NEUTRON) is not None))
-
     def _host_supports_nova_compute(self, personality):
         return (('compute' in personality) and
-            (self._openstack_directory.get_service_info(
-                OPENSTACK_SERVICE.NOVA) is not None))
+                (self._openstack_directory.get_service_info(
+                    OPENSTACK_SERVICE.NOVA) is not None))
 
     def get_system_info(self, future, callback):
         """
@@ -787,239 +780,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             callback.send(response)
             callback.close()
 
-    def create_host_services(self, future, host_uuid, host_name,
-                             host_personality, callback):
-        """
-        Create Host Services, notifies Nova, Neutron and Guest to create their
-        services for the specified host
-        """
-        response = dict()
-        response['completed'] = False
-        response['reason'] = ''
-
-        try:
-            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if (self._host_supports_neutron(host_personality) or
-                    self._host_supports_nova_compute(host_personality)):
-                response['reason'] = 'failed to get openstack token from ' \
-                                     'keystone'
-                if self._openstack_token is None or \
-                        self._openstack_token.is_expired():
-                    future.work(openstack.get_token, self._openstack_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._openstack_token = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to get platform token from ' \
-                                     'keystone'
-                if self._platform_token is None or \
-                        self._platform_token.is_expired():
-                    future.work(openstack.get_token, self._platform_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._platform_token = future.result.data
-
-            if self._host_supports_neutron(host_personality):
-                response['reason'] = 'failed to get neutron extensions'
-                if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._openstack_token)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron get-extensions did not complete.")
-                        return
-
-                    self._neutron_extensions = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to create nova services'
-
-                # Send the create request to Nova.
-                future.work(nova.create_host_services, self._openstack_token,
-                            host_name)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Nova create-host-services failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
-
-                result_data = future.result.data['service']
-                if not ('created' == result_data['status'] and
-                        host_name == result_data['host'] and
-                        'nova-compute' == result_data['binary']):
-                    DLOG.error("Nova create-host-services failed, invalid "
-                               "response, host_uuid=%s, host_name=%s, response=%s."
-                               % (host_uuid, host_name, response))
-                    return
-
-                response['reason'] = 'failed to disable nova services'
-
-                # Send the disable request to Nova.
-                future.work(nova.disable_host_services, self._openstack_token,
-                            host_name)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Nova disable-host-services failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
-
-                result_data = future.result.data['service']
-
-                if not ('disabled' == result_data['status'] and
-                        host_name == result_data['host'] and
-                        'nova-compute' == result_data['binary']):
-                    DLOG.error("Nova disable-host-services failed, invalid "
-                               "response, host_uuid=%s, host_name=%s, response=%s."
-                               % (host_uuid, host_name, response))
-                    return
-
-            if self._host_supports_neutron(host_personality):
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
-                                            self._neutron_extensions):
-
-                    # Send Delete request to Neutron
-                    response['reason'] = \
-                        'failed to delete existing neutron services'
-
-                    future.work(neutron.delete_host_services_by_name,
-                                self._openstack_token,
-                                host_name, host_uuid, only_if_changed=True)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron delete-host-services-by-name failed, "
-                                   "operation did not complete, host_uuid=%s, "
-                                   "host_name=%s." % (host_uuid, host_name))
-                        return
-
-                    response['reason'] = 'failed to create neutron services'
-
-                    # Send the create request to Neutron.
-                    future.work(neutron.create_host_services,
-                                self._openstack_token,
-                                host_name, host_uuid)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron create-host-services failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                    result_data = future.result.data['host']
-                    if not ('down' == result_data['availability'] and
-                            host_name == result_data['name'] and
-                            host_uuid == result_data['id']):
-                        DLOG.error("Neutron create-host-services failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                    response['reason'] = 'failed to disable neutron services'
-
-                    # Send the disable request to Neutron
-                    future.work(neutron.disable_host_services,
-                                self._openstack_token,
-                                host_uuid)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron disable-host-services failed, "
-                                   "operation did not complete, host_uuid=%s, "
-                                   "host_name=%s." % (host_uuid, host_name))
-                        return
-
-                    result_data = future.result.data['host']
-                    if not ('down' == result_data['availability'] and
-                            host_name == result_data['name'] and
-                            host_uuid == result_data['id']):
-                        DLOG.error("Neutron disable-host-services failed, "
-                                   "operation did not complete, host_uuid=%s, "
-                                   "host_name=%s." % (host_uuid, host_name))
-                        return
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to create guest services'
-
-                try:
-                    # Send the create request to Guest.
-                    future.work(guest.host_services_create,
-                                self._platform_token,
-                                host_uuid, host_name)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Guest host-services-create failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                    response['reason'] = 'failed to disable guest services'
-
-                    # Send the disable request to Guest
-                    future.work(guest.host_services_disable,
-                                self._platform_token,
-                                host_uuid, host_name)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        # do not return since the disable will be retried by audit
-                        DLOG.error("Guest host-services-disable failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-
-                except exceptions.OpenStackRestAPIException as e:
-                    # Guest can send a 404 if it hasn't got the host inventory yet.
-                    # Guest will catch up later, no need to fail here.
-                    if httplib.NOT_FOUND != e.http_status_code:
-                        raise
-
-            response['completed'] = True
-            response['reason'] = ''
-
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._platform_token is not None:
-                    self._platform_token.set_expired()
-                if self._openstack_token is not None:
-                    self._openstack_token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to create "
-                               "host services, error=%s." % e)
-
-        except Exception as e:
-            DLOG.exception("Caught exception while trying to create %s nova "
-                           "or neutron services, error=%s." % (host_name, e))
-
-        finally:
-            callback.send(response)
-            callback.close()
-
     def delete_host_services(self, future, host_uuid, host_name,
                              host_personality, callback):
         """
-        Delete Host Services, notifies Nova, Neutron and Guest to delete their
-        services for the specified host
+        Delete Host Services, notifies kubernetes client to delete services
+        for a host.
         """
         response = dict()
         response['completed'] = False
@@ -1027,107 +792,6 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if (self._host_supports_neutron(host_personality) or
-                    self._host_supports_nova_compute(host_personality)):
-                response['reason'] = 'failed to get openstack token from ' \
-                                     'keystone'
-                if self._openstack_token is None or \
-                        self._openstack_token.is_expired():
-                    future.work(openstack.get_token, self._openstack_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._openstack_token = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to get platform token from ' \
-                                     'keystone'
-                if self._platform_token is None or \
-                        self._platform_token.is_expired():
-                    future.work(openstack.get_token, self._platform_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._platform_token = future.result.data
-
-            if self._host_supports_neutron(host_personality):
-                response['reason'] = 'failed to get neutron extensions'
-
-                if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._openstack_token)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron get-extensions did not complete.")
-                        return
-
-                    self._neutron_extensions = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to delete nova services'
-
-                # Send the delete request to Nova.
-                future.work(nova.delete_host_services, self._openstack_token,
-                            host_name)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Nova delete-host-services failed, operation did "
-                               "not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
-
-            if self._host_supports_neutron(host_personality):
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
-                                            self._neutron_extensions):
-
-                    response['reason'] = 'failed to delete neutron services'
-
-                    # Send the delete request to Neutron.
-                    future.work(neutron.delete_host_services,
-                                self._openstack_token, host_uuid)
-                    try:
-                        future.result = (yield)
-
-                        if not future.result.is_complete():
-                            DLOG.error("Neutron delete-host-services failed, "
-                                       "operation did not complete, host_uuid=%s, "
-                                       "host_name=%s." % (host_uuid, host_name))
-                            return
-
-                    except exceptions.OpenStackRestAPIException as e:
-                        if httplib.NOT_FOUND != e.http_status_code:
-                            raise
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to delete guest services'
-
-                # Send the delete request to Guest.
-                future.work(guest.host_services_delete, self._platform_token,
-                            host_uuid)
-                try:
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Guest host-services-delete failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                except exceptions.OpenStackRestAPIException as e:
-                    if httplib.NOT_FOUND != e.http_status_code:
-                        raise
 
             if self._host_supports_kubernetes(host_personality):
                 response['reason'] = 'failed to delete kubernetes services'
@@ -1145,21 +809,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             response['completed'] = True
             response['reason'] = ''
 
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._openstack_token is not None:
-                    self._openstack_token.set_expired()
-                if self._platform_token is not None:
-                    self._platform_token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to delete "
-                               "host services, error=%s." % e)
-
         except Exception as e:
             DLOG.exception("Caught exception while trying to delete %s "
-                           "nova or neutron openstack services, error=%s."
+                           "kubernetes host services, error=%s."
                            % (host_name, e))
 
         finally:
@@ -1169,8 +821,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
     def enable_host_services(self, future, host_uuid, host_name,
                              host_personality, callback):
         """
-        Enable Host Services, notifies Nova, Neutron, Guest and Kubernetes to
-        enable their services for the specified host
+        Enable Host Services, notify kubernetes client to enable services
+        for a host.
         """
         response = dict()
         response['completed'] = False
@@ -1178,39 +830,6 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if (self._host_supports_neutron(host_personality) or
-                    self._host_supports_nova_compute(host_personality)):
-                response['reason'] = 'failed to get openstack token from ' \
-                                     'keystone'
-                if self._openstack_token is None or \
-                        self._openstack_token.is_expired():
-                    future.work(openstack.get_token, self._openstack_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._openstack_token = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to get platform token from ' \
-                                     'keystone'
-                if self._platform_token is None or \
-                        self._platform_token.is_expired():
-                    future.work(openstack.get_token, self._platform_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._platform_token = future.result.data
 
             if self._host_supports_kubernetes(host_personality):
                 response['reason'] = 'failed to enable kubernetes services'
@@ -1227,110 +846,24 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                % (host_uuid, host_name))
                     return
 
-            if self._host_supports_neutron(host_personality):
-                response['reason'] = 'failed to get neutron extensions'
-
-                if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._openstack_token)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron get-extensions did not complete.")
-                        return
-
-                    self._neutron_extensions = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to enable nova services'
-
-                # Send the Enable request to Nova.
-                future.work(nova.enable_host_services, self._openstack_token,
-                            host_name)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Nova enable-host-services failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
-
-                result_data = future.result.data['service']
-                if not ('enabled' == result_data['status'] and
-                        host_name == result_data['host'] and
-                        'nova-compute' == result_data['binary']):
-                    DLOG.error("Nova enable-host-services failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
-
-            if self._host_supports_neutron(host_personality):
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
-                                            self._neutron_extensions):
-                    response['reason'] = 'failed to enable neutron services'
-
-                    # Send the Enable request to Neutron
-                    future.work(neutron.enable_host_services,
-                                self._openstack_token, host_uuid)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron enable-host-services failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                    result_data = future.result.data['host']
-                    if not ('up' == result_data['availability'] and
-                            host_name == result_data['name'] and
-                            host_uuid == result_data['id']):
-                        DLOG.error("Neutron enable-host-services failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to enable guest services'
-
-                # Send the Enable request to Guest
-                future.work(guest.host_services_enable, self._platform_token,
-                            host_uuid, host_name)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    # do not return since the enable will be retried by audit
-                    DLOG.error("Guest host-services-enable failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-
             response['completed'] = True
             response['reason'] = ''
 
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._openstack_token is not None:
-                    self._openstack_token.set_expired()
-                if self._platform_token is not None:
-                    self._platform_token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to enable "
-                               "host services, error=%s." % e)
-
         except Exception as e:
             DLOG.exception("Caught exception while trying to enable %s "
-                           "host services, error=%s."
+                           "kubernetes host services, error=%s."
                            % (host_name, e))
 
         finally:
             callback.send(response)
             callback.close()
 
-    def disable_host_services(self, future, host_uuid, host_name,
-                              host_personality, callback):
+    def disable_host_services(self, future, host_uuid,
+                              host_name, host_personality,
+                              callback):
         """
-        Disable Host Services, notifies Nova, Guest and Kubernetes to disable
-        their services for the specified host (as applicable)
+        Disable Host Services, notifies kubernetes client to disable services
+        for a host.
         """
         response = dict()
         response['completed'] = False
@@ -1338,85 +871,6 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            # The following only applies to compute hosts
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to get openstack token from ' \
-                                     'keystone'
-                if self._openstack_token is None or \
-                        self._openstack_token.is_expired():
-                    future.work(openstack.get_token, self._openstack_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._openstack_token = future.result.data
-
-                response['reason'] = 'failed to get platform token from ' \
-                                     'keystone'
-                if self._platform_token is None or \
-                        self._platform_token.is_expired():
-                    future.work(openstack.get_token, self._platform_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._platform_token = future.result.data
-
-                response['reason'] = 'failed to disable nova services'
-
-                # Send the Disable request to Nova.
-                future.work(nova.disable_host_services, self._openstack_token,
-                            host_name)
-
-                try:
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Nova disable-host-services failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                    result_data = future.result.data['service']
-                    if not ('disabled' == result_data['status'] and
-                            host_name == result_data['host'] and
-                            'nova-compute' == result_data['binary']):
-                        DLOG.error("Nova disable-host-services failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                except exceptions.OpenStackRestAPIException as e:
-                    if httplib.NOT_FOUND != e.http_status_code:
-                        raise
-
-                response['reason'] = 'failed to disable guest services'
-
-                # Send the Disable request to Guest.
-                future.work(guest.host_services_disable, self._platform_token,
-                            host_uuid, host_name)
-
-                try:
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        # Do not return since the disable will be retried by audit
-                        DLOG.error("Guest host-services-disable failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-
-                except exceptions.OpenStackRestAPIException as e:
-                    if httplib.NOT_FOUND != e.http_status_code:
-                        raise
 
             if self._host_supports_kubernetes(host_personality):
                 if True:
@@ -1451,21 +905,9 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             response['completed'] = True
             response['reason'] = ''
 
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._openstack_token is not None:
-                    self._openstack_token.set_expired()
-                if self._platform_token is not None:
-                    self._platform_token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to disable "
-                               "host services, error=%s." % e)
-
         except Exception as e:
             DLOG.exception("Caught exception while trying to disable %s "
-                           "host services, error=%s."
+                           "kubernetes host services, error=%s."
                            % (host_name, e))
 
         finally:
@@ -1475,32 +917,21 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
     def query_host_services(self, future, host_uuid, host_name,
                             host_personality, callback):
         """
-        Query Host Services, returns the aggregate administrative state
-        of the Nova and Neutron services for the specified host.
+        Query Host Services, return state of Kubernetes services for a host
+        Just a stub for now.
         """
         response = dict()
-        response['completed'] = False
+        response['completed'] = True
         response['result-data'] = 'enabled'
         response['reason'] = ''
 
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            if (self._host_supports_neutron(host_personality) or
-                    self._host_supports_nova_compute(host_personality)):
-                if self._openstack_token is None or \
-                        self._openstack_token.is_expired():
-                    future.work(openstack.get_token, self._openstack_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
-                        return
-
-                    self._openstack_token = future.result.data
-
+            if True:
+               pass
+            else:
+                # just grab a token, as it seems we have to do something.
                 if self._platform_token is None or \
                         self._platform_token.is_expired():
                     future.work(openstack.get_token, self._platform_directory)
@@ -1508,102 +939,14 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                     if not future.result.is_complete():
                         DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s, host_name=%s." % (host_uuid,
-                                                                    host_name))
+                                   "host_uuid=%s." % host_uuid)
                         return
 
                     self._platform_token = future.result.data
 
-            if self._host_supports_neutron(host_personality):
-                if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._openstack_token)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron get-extensions did not complete.")
-                        return
-
-                    self._neutron_extensions = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                # Send Query request to Nova.
-                future.work(nova.query_host_services, self._openstack_token,
-                            host_name)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Nova query-host-services failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-                    return
-
-                if future.result.data != 'enabled':
-                    response['result-data'] = 'disabled'
-                    response['completed'] = True
-                    return
-
-            if self._host_supports_neutron(host_personality):
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
-                                            self._neutron_extensions):
-                    # Send Query request to Neutron
-                    future.work(neutron.query_host_services,
-                                self._openstack_token, host_name)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron query-host-services failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
-
-                    if future.result.data is None or future.result.data != 'up':
-                        response['result-data'] = 'disabled'
-                        response['completed'] = True
-                        return
-
-            if self._host_supports_nova_compute(host_personality):
-                # Send Query request to Guest
-                future.work(guest.host_services_query, self._platform_token,
-                            host_uuid, host_name)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("Guest query-host-services failed, operation "
-                               "did not complete, host_uuid=%s, host_name=%s."
-                               % (host_uuid, host_name))
-
-                else:
-                    result_data = future.result.data
-                    if 'disabled' == result_data['state']:
-                        future.work(guest.host_services_enable,
-                                    self._platform_token,
-                                    host_uuid, host_name)
-                        future.result = (yield)
-                        if not future.result.is_complete():
-                            DLOG.error("Guest host-services-enable failed,"
-                                       " operation did not complete, host_uuid=%s,"
-                                       "host_name=%s."
-                                       % (host_uuid, host_name))
-
-            response['completed'] = True
-
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._openstack_token is not None:
-                    self._openstack_token.set_expired()
-                if self._platform_token is not None:
-                    self._platform_token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to query "
-                               "host services, error=%s." % e)
-
         except Exception as e:
-            DLOG.exception("Caught exception while trying to query %s "
-                           "nova or neutron openstack services, error=%s."
-                           % (host_name, e))
-
+            DLOG.exception("Caught exception while trying to query "
+                           "kubernetes services, error=%s." % e)
         finally:
             callback.send(response)
             callback.close()
@@ -2225,172 +1568,6 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         except Exception as e:
             DLOG.exception("Caught exception while trying to notify "
                            "host services delete failed, error=%s." % e)
-
-        finally:
-            callback.send(response)
-            callback.close()
-
-    def notify_host_enabled(self, future, host_uuid, host_name,
-                            host_personality, callback):
-        """
-        Notify host enabled
-        """
-        response = dict()
-        response['completed'] = False
-        response['reason'] = ''
-
-        try:
-            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            # Only applies to compute hosts
-            if not self._host_supports_nova_compute(host_personality):
-                response['completed'] = True
-                response['reason'] = ''
-                return
-
-            response['reason'] = 'failed to get token from keystone'
-
-            if self._openstack_token is None or \
-                    self._openstack_token.is_expired():
-                future.work(openstack.get_token, self._openstack_directory)
-                future.result = (yield)
-
-                if not future.result.is_complete():
-                    DLOG.error("OpenStack get-token did not complete, "
-                               "host_uuid=%s." % host_uuid)
-                    return
-
-                self._openstack_token = future.result.data
-
-            response['reason'] = 'failed to notify nova that host is enabled'
-
-            future.work(nova.notify_host_enabled, self._openstack_token,
-                        host_name)
-            future.result = (yield)
-
-            if not future.result.is_complete():
-                return
-
-            response['completed'] = True
-            response['reason'] = ''
-
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._openstack_token is not None:
-                    self._openstack_token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to notify "
-                               "host services enabled, error=%s." % e)
-
-        except Exception as e:
-            DLOG.exception("Caught exception while trying to notify "
-                           "host that a host is enabled, error=%s." % e)
-
-        finally:
-            callback.send(response)
-            callback.close()
-
-    def notify_host_disabled(self, future, host_uuid, host_name,
-                             host_personality, callback):
-        """
-        Notify host disabled
-        """
-        response = dict()
-        response['completed'] = False
-        response['reason'] = ''
-
-        try:
-            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
-
-            if (self._host_supports_neutron(host_personality) or
-                    self._host_supports_nova_compute(host_personality)):
-                response['reason'] = 'failed to get token from keystone'
-                if self._openstack_token is None or \
-                        self._openstack_token.is_expired():
-                    future.work(openstack.get_token, self._openstack_directory)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("OpenStack get-token did not complete, "
-                                   "host_uuid=%s." % host_uuid)
-                        return
-
-                    self._openstack_token = future.result.data
-
-            if self._host_supports_neutron(host_personality):
-                response['reason'] = 'failed to get neutron extensions'
-
-                if self._neutron_extensions is None:
-                    future.work(neutron.get_extensions, self._openstack_token)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron get-extensions did not complete.")
-                        return
-
-                    self._neutron_extensions = future.result.data
-
-            if self._host_supports_nova_compute(host_personality):
-                response['reason'] = 'failed to notify nova that host is disabled'
-
-                future.work(nova.notify_host_disabled, self._openstack_token,
-                            host_name)
-
-                try:
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Nova notify-host-disabled.")
-                        return
-
-                except exceptions.OpenStackRestAPIException as e:
-                    if httplib.NOT_FOUND != e.http_status_code:
-                        raise
-
-            if self._host_supports_neutron(host_personality):
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
-                                            self._neutron_extensions):
-                    response['reason'] = 'failed to disable neutron services'
-
-                    # Send the Disable request to Neutron
-                    future.work(neutron.disable_host_services,
-                                self._openstack_token,
-                                host_uuid)
-                    future.result = (yield)
-
-                    if not future.result.is_complete():
-                        DLOG.error("Neutron disable-host-services failed, "
-                                   "operation did not complete, host_uuid=%s, "
-                                   "host_name=%s." % (host_uuid, host_name))
-                        return
-
-                    result_data = future.result.data['host']
-                    if not ('down' == result_data['availability'] and
-                            host_name == result_data['name'] and
-                            host_uuid == result_data['id']):
-                        DLOG.error("Neutron disable-host-services failed, "
-                                   "operation did not complete, host_uuid=%s, "
-                                   "host_name=%s." % (host_uuid, host_name))
-                        return
-
-            response['completed'] = True
-            response['reason'] = ''
-
-        except exceptions.OpenStackRestAPIException as e:
-            if httplib.UNAUTHORIZED == e.http_status_code:
-                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
-                if self._openstack_token is not None:
-                    self._openstack_token.set_expired()
-
-            else:
-                DLOG.exception("Caught exception while trying to notify "
-                               "host services disabled, error=%s." % e)
-
-        except Exception as e:
-            DLOG.exception("Caught exception while trying to notify "
-                           "host that a host is disabled, error=%s." % e)
 
         finally:
             callback.send(response)

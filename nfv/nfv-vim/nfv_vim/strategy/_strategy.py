@@ -777,8 +777,9 @@ class SwPatchStrategy(SwUpdateStrategy):
                             # Disable host services before migrating to ensure
                             # instances do not migrate to compute hosts in the
                             # same set of hosts.
-                            stage.add_step(strategy.DisableHostServicesStep(
-                                host_list))
+                            for service in host_list[0].disable_host_services_funcs:
+                                stage.add_step(strategy.DisableHostServicesStep(
+                                    host_list, service))
                         stage.add_step(strategy.MigrateInstancesStep(
                             instance_list))
                     else:
@@ -1375,7 +1376,9 @@ class SwUpgradeStrategy(SwUpdateStrategy):
                 # Disable host services before migrating to ensure
                 # instances do not migrate to compute hosts in the
                 # same set of hosts.
-                stage.add_step(strategy.DisableHostServicesStep(host_list))
+                for service in host_list[0].disable_host_services_funcs:
+                    stage.add_step(strategy.DisableHostServicesStep(host_list,
+                                                                    service))
             stage.add_step(strategy.MigrateInstancesStep(instance_list))
             stage.add_step(strategy.LockHostsStep(host_list))
             stage.add_step(strategy.UpgradeHostsStep(host_list))

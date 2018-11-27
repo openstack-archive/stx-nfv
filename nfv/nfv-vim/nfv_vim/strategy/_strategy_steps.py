@@ -1793,12 +1793,14 @@ class DisableHostServicesStep(strategy.StrategyStep):
     """
     Disable Host Services - Strategy Step
     """
-    def __init__(self, hosts):
+    def __init__(self, hosts, service):
         super(DisableHostServicesStep, self).__init__(
-            STRATEGY_STEP_NAME.DISABLE_HOST_SERVICES, timeout_in_secs=180)
+            "%s" % STRATEGY_STEP_NAME.DISABLE_HOST_SERVICES,
+            timeout_in_secs=180)
         self._hosts = hosts
         self._host_names = list()
         self._host_uuids = list()
+        self._service = service
         for host in hosts:
             self._host_names.append(host.name)
             self._host_uuids.append(host.uuid)
@@ -1807,7 +1809,7 @@ class DisableHostServicesStep(strategy.StrategyStep):
         """
         Returns the abort step related to this step
         """
-        return [EnableHostServicesStep(self._hosts)]
+        return [EnableHostServicesStep(self._hosts, self._service)]
 
     def _total_hosts_services_disabled(self):
         """
@@ -1820,7 +1822,8 @@ class DisableHostServicesStep(strategy.StrategyStep):
             if host is None:
                 return -1
 
-            if objects.HOST_SERVICE_STATE.DISABLED == host.host_service_state:
+            if (objects.HOST_SERVICE_STATE.DISABLED ==
+                    host.host_service_state(self._service)):
                 total_hosts_services_disabled += 1
 
         return total_hosts_services_disabled
@@ -1831,10 +1834,11 @@ class DisableHostServicesStep(strategy.StrategyStep):
         """
         from nfv_vim import directors
 
-        DLOG.info("Step (%s) apply for hosts %s." % (self._name,
-                                                     self._host_names))
+        DLOG.info("Step (%s) apply for hosts %s service %s." %
+                  (self._name, self._host_names, self._service))
         host_director = directors.get_host_director()
-        operation = host_director.disable_host_services(self._host_names)
+        operation = host_director.disable_host_services(self._host_names,
+                                                        self._service)
         if operation.is_inprogress():
             return strategy.STRATEGY_STEP_RESULT.WAIT, ""
         elif operation.is_failed():
@@ -1880,6 +1884,7 @@ class DisableHostServicesStep(strategy.StrategyStep):
         self._hosts = list()
         self._host_uuids = list()
         self._host_names = data['entity_names']
+        self._service = data['entity_service']
         host_table = tables.tables_get_host_table()
         for host_name in self._host_names:
             host = host_table.get(host_name, None)
@@ -1896,6 +1901,7 @@ class DisableHostServicesStep(strategy.StrategyStep):
         data['entity_type'] = 'hosts'
         data['entity_names'] = self._host_names
         data['entity_uuids'] = self._host_uuids
+        data['entity_service'] = self._service
         return data
 
 
@@ -1903,12 +1909,14 @@ class EnableHostServicesStep(strategy.StrategyStep):
     """
     Enable Host Services - Strategy Step
     """
-    def __init__(self, hosts):
+    def __init__(self, hosts, service):
         super(EnableHostServicesStep, self).__init__(
-            STRATEGY_STEP_NAME.ENABLE_HOST_SERVICES, timeout_in_secs=180)
+            "%s" % STRATEGY_STEP_NAME.ENABLE_HOST_SERVICES,
+            timeout_in_secs=180)
         self._hosts = hosts
         self._host_names = list()
         self._host_uuids = list()
+        self._service = service
         for host in hosts:
             self._host_names.append(host.name)
             self._host_uuids.append(host.uuid)
@@ -1924,7 +1932,8 @@ class EnableHostServicesStep(strategy.StrategyStep):
             if host is None:
                 return -1
 
-            if objects.HOST_SERVICE_STATE.ENABLED == host.host_service_state:
+            if (objects.HOST_SERVICE_STATE.ENABLED ==
+                    host.host_service_state(self._service)):
                 total_hosts_services_enabled += 1
 
         return total_hosts_services_enabled
@@ -1935,10 +1944,11 @@ class EnableHostServicesStep(strategy.StrategyStep):
         """
         from nfv_vim import directors
 
-        DLOG.info("Step (%s) apply for hosts %s." % (self._name,
-                                                     self._host_names))
+        DLOG.info("Step (%s) apply for hosts %s service %s." %
+                  (self._name, self._host_names, self._service))
         host_director = directors.get_host_director()
-        operation = host_director.enable_host_services(self._host_names)
+        operation = host_director.enable_host_services(self._host_names,
+                                                       self._service)
         if operation.is_inprogress():
             return strategy.STRATEGY_STEP_RESULT.WAIT, ""
         elif operation.is_failed():
@@ -1984,6 +1994,7 @@ class EnableHostServicesStep(strategy.StrategyStep):
         self._hosts = list()
         self._host_uuids = list()
         self._host_names = data['entity_names']
+        self._service = data['entity_service']
         host_table = tables.tables_get_host_table()
         for host_name in self._host_names:
             host = host_table.get(host_name, None)
@@ -2000,6 +2011,7 @@ class EnableHostServicesStep(strategy.StrategyStep):
         data['entity_type'] = 'hosts'
         data['entity_names'] = self._host_names
         data['entity_uuids'] = self._host_uuids
+        data['entity_service'] = self._service
         return data
 
 

@@ -69,34 +69,36 @@ class NFVIInfrastructureAPI(object):
         pass
 
     @abc.abstractmethod
-    def create_host_services(self, future, host_uuid, host_name,
-                             host_personality, callback):
-        """
-        Create host services on a host using the plugin
-        """
-        pass
-
-    @abc.abstractmethod
     def delete_host_services(self, future, host_uuid, host_name,
                              host_personality, callback):
         """
-        Delete host services on a host using the plugin
+        Delete infrastructure host services using the plugin
         """
         pass
 
     @abc.abstractmethod
-    def enable_host_services(self, future, host_uuid, host_name,
-                             host_personality, callback):
+    def enable_host_services(self, future, host_uuid,
+                             host_name, host_personality,
+                             callback):
         """
-        Enable host services on a host using the plugin
+        Enable infrastructure host services using the plugin
         """
         pass
 
     @abc.abstractmethod
-    def disable_host_services(self, future, host_uuid, host_name,
-                              host_personality, callback):
+    def disable_host_services(self, future, host_uuid,
+                              host_name, host_personality,
+                              callback):
         """
-        Disable host services on a host using the plugin
+        Disable infrastructure host services using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def notify_host_services_enabled(self, future, host_uuid, host_name,
+                                     callback):
+        """
+        Notify host services are now enabled using the plugin
         """
         pass
 
@@ -107,13 +109,6 @@ class NFVIInfrastructureAPI(object):
         Query host services on a host using the plugin
         """
         pass
-
-    @abc.abstractmethod
-    def notify_host_services_enabled(self, future, host_uuid, host_name,
-                                     callback):
-        """
-        Notify host services are now enabled using the plugin
-        """
 
     @abc.abstractmethod
     def notify_host_services_disabled(self, future, host_uuid, host_name,
@@ -152,22 +147,6 @@ class NFVIInfrastructureAPI(object):
                                            reason, callback):
         """
         Notify host services delete failed using the plugin
-        """
-        pass
-
-    @abc.abstractmethod
-    def notify_host_enabled(self, future, host_uuid, host_name,
-                            host_personality, callback):
-        """
-        Notify host enabled using the plugin
-        """
-        pass
-
-    @abc.abstractmethod
-    def notify_host_disabled(self, future, host_uuid, host_name,
-                             host_personality, callback):
-        """
-        Notify host disabled using the plugin
         """
         pass
 

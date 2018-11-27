@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import collections
 import six
 
 from nfv_common import debug
@@ -53,10 +54,32 @@ class HostServicesState(object):
     FAILED = Constant('failed')
 
 
+@six.add_metaclass(Singleton)
+class HostServices(object):
+    """
+    Host-Services Constants
+    """
+    GUEST = Constant('guest')
+    NETWORK = Constant('network')
+    COMPUTE = Constant('compute')
+    KUBERNETES = Constant('kubernetes')
+
+
+@six.add_metaclass(Singleton)
+class HostServicesAuditState(object):
+    """
+    Host-Services Audit State Constants
+    """
+    INPROGRESS = Constant('inprogress')
+    DONE = Constant('done')
+
+
 # Host-Services Constant Instantiation
 HOST_SERVICE_STATE = HostServicesState()
 HOST_PERSONALITY = HostPersonality()
 HOST_NAME = HostNames()
+HOST_SERVICE_AUDIT_STATE = HostServicesAuditState()
+HOST_SERVICES = HostServices()
 
 
 class Host(ObjectData):
@@ -92,10 +115,95 @@ class Host(ObjectData):
         self._last_state_timestamp = timers.get_monotonic_timestamp_in_ms()
         self._fail_notification_required = False
         self._fsm_start_time = None
-        if self.is_enabled():
-            self._host_service_state = HOST_SERVICE_STATE.ENABLED
-        else:
-            self._host_service_state = HOST_SERVICE_STATE.DISABLED
+        self._host_service_state = dict()
+        self._host_service_audit_state = dict()
+
+        self._query_host_services_funcs = collections.OrderedDict()
+        self._disable_host_services_funcs = collections.OrderedDict()
+        self._enable_host_services_funcs = collections.OrderedDict()
+        self._create_host_services_funcs = collections.OrderedDict()
+        self._delete_host_services_funcs = collections.OrderedDict()
+        self._notify_host_disabled_funcs = collections.OrderedDict()
+        self._notify_host_enabled_funcs = collections.OrderedDict()
+
+        # Ordering is important below.  The order the functions are added to
+        # the dictionary is the order they should be applied.
+
+        self._enable_host_services_funcs[HOST_SERVICES.KUBERNETES] = \
+            nfvi.nfvi_enable_containerization_host_services
+
+        if not nfvi.nfvi_compute_plugin_disabled():
+            self._host_service_state[HOST_SERVICES.COMPUTE] = \
+                HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+                HOST_SERVICE_STATE.DISABLED
+            self._query_host_services_funcs[HOST_SERVICES.COMPUTE] = \
+                nfvi.nfvi_query_compute_host_services
+            self._disable_host_services_funcs[HOST_SERVICES.COMPUTE] = \
+                nfvi.nfvi_disable_compute_host_services
+            self._enable_host_services_funcs[HOST_SERVICES.COMPUTE] = \
+                nfvi.nfvi_enable_compute_host_services
+            self._delete_host_services_funcs[HOST_SERVICES.COMPUTE] = \
+                nfvi.nfvi_delete_compute_host_services
+            self._create_host_services_funcs[HOST_SERVICES.COMPUTE] = \
+                nfvi.nfvi_create_compute_host_services
+            self._notify_host_disabled_funcs[HOST_SERVICES.COMPUTE] = \
+                nfvi.nfvi_notify_compute_host_disabled
+            self._notify_host_enabled_funcs[HOST_SERVICES.COMPUTE] = \
+                nfvi.nfvi_notify_compute_host_enabled
+        if not nfvi.nfvi_network_plugin_disabled():
+            self._host_service_state[HOST_SERVICES.NETWORK] = \
+                HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+                HOST_SERVICE_STATE.DISABLED
+            self._query_host_services_funcs[HOST_SERVICES.NETWORK] = \
+                nfvi.nfvi_query_network_host_services
+            self._enable_host_services_funcs[HOST_SERVICES.NETWORK] = \
+                nfvi.nfvi_enable_network_host_services
+            self._delete_host_services_funcs[HOST_SERVICES.NETWORK] = \
+                nfvi.nfvi_delete_network_host_services
+            self._create_host_services_funcs[HOST_SERVICES.NETWORK] = \
+                nfvi.nfvi_create_network_host_services
+            self._notify_host_disabled_funcs[HOST_SERVICES.NETWORK] = \
+                nfvi.nfvi_notify_network_host_disabled
+        if not nfvi.nfvi_guest_plugin_disabled():
+            self._host_service_state[HOST_SERVICES.GUEST] = \
+                HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+                HOST_SERVICE_STATE.DISABLED
+            self._query_host_services_funcs[HOST_SERVICES.GUEST] = \
+                nfvi.nfvi_query_guest_host_services
+            self._disable_host_services_funcs[HOST_SERVICES.GUEST] = \
+                nfvi.nfvi_disable_guest_host_services
+            self._enable_host_services_funcs[HOST_SERVICES.GUEST] = \
+                nfvi.nfvi_enable_guest_host_services
+            self._delete_host_services_funcs[HOST_SERVICES.GUEST] = \
+                nfvi.nfvi_delete_guest_host_services
+            self._create_host_services_funcs[HOST_SERVICES.GUEST] = \
+                nfvi.nfvi_create_guest_host_services
+
+        # currently Kubernetes is managed via infrastructure plugin, which
+        # is always enabled.
+        self._host_service_state[HOST_SERVICES.KUBERNETES] = \
+            HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+            HOST_SERVICE_STATE.DISABLED
+
+        # TODO(ksmith)
+        # The disable doesn't actually do anything yet, and we can't
+        # have a disable func for a service for which there is no
+        # way to tell if it is actually disabled or not, otherwise,
+        # the disable host services step of patch orchestration will
+        # fail.
+        #self._disable_host_services_funcs[HOST_SERVICES.KUBERNETES] = \
+        #    nfvi.nfvi_disable_containerization_host_services
+        self._delete_host_services_funcs[HOST_SERVICES.KUBERNETES] = \
+            nfvi.nfvi_delete_containerization_host_services
+        # See above comment wrt to the disable for KUBERNETES.
+        #self._query_host_services_funcs[HOST_SERVICES.KUBERNETES] = \
+        #    nfvi.nfvi_query_containerization_host_services
+
+        # Audit all services whose corresponding plugin is enabled
+        self._host_service_audit_state = dict()
+        for service in self._host_service_state:
+            self._host_service_audit_state[service] = \
+                HOST_SERVICE_AUDIT_STATE.DONE
 
         self._alarms = list()
         self._events = list()
@@ -128,12 +236,152 @@ class Host(ObjectData):
         """
         return self._fsm.current_state.name
 
+    def host_service_state(self, service):
+        """
+        Returns the state for a host service
+        """
+        return self._host_service_state[service]
+
+    def host_service_state_aggregate(self):
+        """
+        Returns the overall state of the host services
+        """
+        all_enabled = True
+        at_least_one_failed = False
+        for service_state in self._host_service_state.values():
+            all_enabled = all_enabled and \
+                (service_state == HOST_SERVICE_STATE.ENABLED)
+            at_least_one_failed = at_least_one_failed or \
+                (service_state == HOST_SERVICE_STATE.FAILED)
+
+            DLOG.debug("service_state: %s" % service_state)
+
+        if all_enabled:
+            return HOST_SERVICE_STATE.ENABLED
+        elif at_least_one_failed:
+            return HOST_SERVICE_STATE.FAILED
+        else:
+            return HOST_SERVICE_STATE.DISABLED
+
+    def host_services_audit_finish(self, host_service):
+
+        """
+        Host services audit state finish
+        """
+        self._host_service_audit_state[host_service] = \
+            HOST_SERVICE_AUDIT_STATE.DONE
+
+    def host_services_audit_start(self, host_service):
+        """
+        Host services audit state start
+        """
+        self._host_service_audit_state[host_service] = \
+            HOST_SERVICE_AUDIT_STATE.INPROGRESS
+
+    def host_service_audit_state(self):
+        """
+        Returns the current state of the host services audit
+        """
+        all_done = True
+        for audit_state in self._host_service_audit_state.values():
+            all_done = all_done and \
+                (audit_state == HOST_SERVICE_AUDIT_STATE.DONE)
+
+        if all_done:
+            return HOST_SERVICE_AUDIT_STATE.DONE
+        else:
+            return HOST_SERVICE_AUDIT_STATE.INPROGRESS
+
+    def query_host_services_func(self, service):
+        """
+        Returns the query host services function for the service.
+        """
+        return self._query_host_services_funcs[service]
+
     @property
-    def host_service_state(self):
+    def query_host_services_funcs(self):
         """
-        Returns the current state of the host services
+        Returns the query host service functions
         """
-        return self._host_service_state
+        return self._query_host_services_funcs
+
+    def disable_host_services_func(self, service):
+        """
+        Returns the disable host services function for the service.
+        """
+        return self._disable_host_services_funcs[service]
+
+    @property
+    def disable_host_services_funcs(self):
+        """
+        Returns the disable host services functions
+        """
+        return self._disable_host_services_funcs
+
+    def enable_host_services_func(self, service):
+        """
+        Returns the enable host services function for the service
+        """
+        return self._enable_host_services_funcs[service]
+
+    @property
+    def enable_host_services_funcs(self):
+        """
+        Returns the enable host services functions
+        """
+        return self._enable_host_services_funcs
+
+    def create_host_services_func(self, service):
+        """
+        Returns the create host services function for the service
+        """
+        return self._create_host_services_funcs[service]
+
+    @property
+    def create_host_services_funcs(self):
+        """
+        Returns the create host services functions
+        """
+        return self._create_host_services_funcs
+
+    def delete_host_services_func(self, service):
+        """
+        Returns the delete host services function for the service
+        """
+        return self._delete_host_services_funcs[service]
+
+    @property
+    def delete_host_services_funcs(self):
+        """
+        Returns the delete host services functions
+        """
+        return self._delete_host_services_funcs
+
+    def notify_host_disabled_func(self, service):
+        """
+        Returns the notify host disabled function for the service
+        """
+        return self._notify_host_disabled_funcs[service]
+
+    @property
+    def notify_host_disabled_funcs(self):
+        """
+        Returns the notify disabled functions
+        """
+        return self._notify_host_disabled_funcs
+
+    def notify_host_enabled_func(self, service):
+        """
+        Returns the notify host enabled function for the service
+        """
+        return self._notify_host_enabled_funcs[service]
+
+    @property
+    def notify_host_enabled_funcs(self):
+        """
+        Returns the notify host enabled functions
+        """
+        return self._notify_host_enabled_funcs
 
     @property
     def host_services_locked(self):
@@ -645,28 +893,54 @@ class Host(ObjectData):
         alarm.host_clear_alarm(self._alarms)
         self._fsm.handle_event(host_fsm.HOST_EVENT.DELETE)
 
-    def host_services_update(self, host_service_state, reason=None):
+    def host_services_update_all(self, host_service_state, reason=None):
         """
-        Host services update
+        Host services update all
         """
-        if host_service_state == self._host_service_state:
-            return
+        at_least_one_change = False
+
+        for service, state in self._host_service_state.items():
+            if state != host_service_state:
+                at_least_one_change = True
+                self._host_service_state[service] = host_service_state
+
+        if at_least_one_change:
+            self.host_services_update(None, host_service_state, reason)
+
+    def host_services_update(self, service,
+                             host_service_state, reason=None):
+        """
+        Host services update.  None input service parameter indicates
+        that the _host_service_state has already been updated through
+        host_services_update_all.
+        """
+
+        if service is not None:
+            if host_service_state == self._host_service_state[service]:
+                return
+
+            self._host_service_state[service] = host_service_state
 
         # Host services logs and alarms only apply to compute hosts
         if 'compute' in self.personality:
-            if HOST_SERVICE_STATE.ENABLED == host_service_state:
+            host_service_state_overall = \
+                self.host_service_state_aggregate()
+            if (HOST_SERVICE_STATE.ENABLED ==
+                    host_service_state_overall):
                 self._events = event_log.host_issue_log(
                     self, event_log.EVENT_ID.HOST_SERVICES_ENABLED)
                 alarm.host_clear_alarm(self._alarms)
                 self._alarms[:] = list()
 
-            elif HOST_SERVICE_STATE.DISABLED == host_service_state:
+            elif (HOST_SERVICE_STATE.DISABLED ==
+                    host_service_state_overall):
                 self._events = event_log.host_issue_log(
                     self, event_log.EVENT_ID.HOST_SERVICES_DISABLED)
                 alarm.host_clear_alarm(self._alarms)
                 self._alarms[:] = list()
 
-            elif HOST_SERVICE_STATE.FAILED == host_service_state:
+            elif (HOST_SERVICE_STATE.FAILED ==
+                    host_service_state_overall):
                 if reason is None:
                     additional_text = ''
                 else:
@@ -678,8 +952,6 @@ class Host(ObjectData):
                 self._alarms = alarm.host_raise_alarm(
                     self, alarm.ALARM_TYPE.HOST_SERVICES_FAILED,
                     additional_text=additional_text)
-
-        self._host_service_state = host_service_state
 
     def nfvi_host_upgrade_status(self, upgrade_inprogress, recover_instances):
         """

@@ -37,7 +37,9 @@ class AddHostTask(state_machine.StateTask):
     def __init__(self, host):
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(CreateHostServicesTaskWork(self, host))
+        for service in host.create_host_services_funcs:
+            task_work_list.append(CreateHostServicesTaskWork(
+                self, host, service))
         super(AddHostTask, self).__init__(
             'add-host_%s' % host.name, task_work_list)
 
@@ -74,7 +76,9 @@ class DeleteHostTask(state_machine.StateTask):
     def __init__(self, host):
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(DeleteHostServicesTaskWork(self, host))
+        for service in host.delete_host_services_funcs:
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, service))
         task_work_list.append(NotifyHostServicesDeletedTaskWork(
             self, host, force_pass=True))
         super(DeleteHostTask, self).__init__(
@@ -113,8 +117,12 @@ class EnableHostTask(state_machine.StateTask):
     def __init__(self, host):
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(NotifyHostEnabledTaskWork(self, host))
-        task_work_list.append(EnableHostServicesTaskWork(self, host))
+        for service in host.notify_host_enabled_funcs:
+            task_work_list.append(NotifyHostEnabledTaskWork(
+                self, host, service))
+        for service in host.enable_host_services_funcs:
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, service))
         task_work_list.append(NotifyHostServicesEnabledTaskWork(
             self, host, force_pass=True))
         task_work_list.append(QueryHypervisorTaskWork(
@@ -172,11 +180,15 @@ class DisableHostTask(state_machine.StateTask):
             notify_host_services_task = NotifyHostServicesDisabledTaskWork
 
         task_work_list = list()
-        task_work_list.append(DisableHostServicesTaskWork(self, host))
+        for service in host.disable_host_services_funcs:
+            task_work_list.append(DisableHostServicesTaskWork(
+                self, host, service))
         task_work_list.append(QueryHypervisorTaskWork(
             self, host, force_pass=True))
         task_work_list.append(NotifyInstancesHostDisablingTaskWork(self, host))
-        task_work_list.append(NotifyHostDisabledTaskWork(self, host))
+        for service in host.notify_host_disabled_funcs:
+            task_work_list.append(NotifyHostDisabledTaskWork(
+                self, host, service))
         task_work_list.append(NotifyInstancesHostDisabledTaskWork(self, host))
         task_work_list.append(notify_host_services_task(
             self, host, force_pass=True))
@@ -412,8 +424,10 @@ class AuditEnabledHostTask(state_machine.StateTask):
     def __init__(self, host):
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(AuditHostServicesTaskWork(
-            self, host, force_pass=True))
+        for service in host.query_host_services_funcs:
+            task_work_list.append(AuditHostServicesTaskWork(self, host, service))
+            host.host_services_audit_start(service)
+
         super(AuditEnabledHostTask, self).__init__(
             'audit-enabled-host_%s' % host.name, task_work_list)
 
