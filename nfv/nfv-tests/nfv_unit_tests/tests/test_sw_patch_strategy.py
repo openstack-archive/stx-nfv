@@ -450,9 +450,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_0']},
@@ -469,9 +470,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_1']},
@@ -560,9 +562,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_0',
@@ -580,9 +583,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_3',
@@ -600,9 +604,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_6',
@@ -620,9 +625,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_8',
@@ -723,9 +729,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_0',
@@ -743,9 +750,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_2',
@@ -763,9 +771,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_3',
@@ -783,9 +792,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_4',
@@ -896,9 +906,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_0',
@@ -916,9 +927,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_2',
@@ -936,9 +948,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_3',
@@ -956,9 +969,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_4',
@@ -1045,9 +1059,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
             'total_stages': 5,
             'stages': [
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_0',
@@ -1065,9 +1080,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_1',
@@ -1085,9 +1101,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_4',
@@ -1105,9 +1122,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_5',
@@ -1125,9 +1143,10 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                  ]
                  },
                 {'name': 'sw-patch-compute-hosts',
-                 'total_steps': 8,
+                 'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_6',

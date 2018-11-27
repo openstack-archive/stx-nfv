@@ -90,11 +90,12 @@ class NotifyHostEnabledTaskWork(state_machine.StateTaskWork):
     """
     Notify Host Enabled Task Work
     """
-    def __init__(self, task, host, force_pass=False):
+    def __init__(self, task, host, service, force_pass=False):
         super(NotifyHostEnabledTaskWork, self).__init__(
-            'notify-host-enabled_%s' % host.name, task,
+            'notify-host-enabled_%s_%s' % (host.name, service), task,
             force_pass=force_pass, timeout_in_secs=120)
         self._host_reference = weakref.ref(host)
+        self._service = service
 
     @property
     def _host(self):
@@ -133,10 +134,22 @@ class NotifyHostEnabledTaskWork(state_machine.StateTaskWork):
         """
         Run notify host enabled
         """
-        DLOG.verbose("Notify-Host-Enabled for %s." % self._host.name)
-        nfvi.nfvi_notify_host_enabled(self._host.uuid, self._host.name,
-                                      self._host.personality,
-                                      self._callback())
+        from nfv_vim import objects
+
+        DLOG.verbose("Notify-Host-Enabled for %s %s." % (self._host.name,
+                                                         self._service))
+
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_notify_compute_host_enabled(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to notify host enabled for unknown "
+                      "host service %s" % self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
 
@@ -144,11 +157,12 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
     """
     Notify Host Disabled Task Work
     """
-    def __init__(self, task, host, force_pass=False):
+    def __init__(self, task, host, service, force_pass=False):
         super(NotifyHostDisabledTaskWork, self).__init__(
-            'notify-host-disabled_%s' % host.name, task,
+            'notify-host-disabled_%s_%s' % (host.name, service), task,
             force_pass=force_pass, timeout_in_secs=120)
         self._host_reference = weakref.ref(host)
+        self._service = service
 
     @property
     def _host(self):
@@ -187,10 +201,26 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
         """
         Run notify host disabled
         """
-        DLOG.verbose("Notify-Host-Disabled for %s." % self._host.name)
-        nfvi.nfvi_notify_host_disabled(self._host.uuid, self._host.name,
-                                       self._host.personality,
-                                       self._callback())
+        from nfv_vim import objects
+
+        DLOG.verbose("Notify-Host-Disabled for %s %s." % (self._host.name,
+                                                          self._service))
+
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_notify_compute_host_disabled(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.NETWORK:
+            nfvi.nfvi_notify_network_host_disabled(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to notify host disabled for unknown "
+                      "host service %s" % self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
 
@@ -478,11 +508,12 @@ class CreateHostServicesTaskWork(state_machine.StateTaskWork):
     """
     Create Host Services Task Work
     """
-    def __init__(self, task, host, force_pass=False):
+    def __init__(self, task, host, service, force_pass=False):
         super(CreateHostServicesTaskWork, self).__init__(
-            'create-host-services_%s' % host.name, task,
+            'create-host-services_%s_%s' % (host.name, service), task,
             force_pass=force_pass, timeout_in_secs=120)
         self._host_reference = weakref.ref(host)
+        self._service = service
 
     @property
     def _host(self):
@@ -501,8 +532,10 @@ class CreateHostServicesTaskWork(state_machine.StateTaskWork):
 
         response = (yield)
         if self.task is not None:
-            DLOG.verbose("Create-Host-Services callback for %s, response=%s."
-                         % (self._host.name, response))
+            DLOG.verbose("Create-Host-Services callback for %s %s, "
+                         "response=%s." % (self._host.name,
+                                           self._service,
+                                           response))
             if response['completed']:
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
@@ -516,6 +549,7 @@ class CreateHostServicesTaskWork(state_machine.StateTaskWork):
                         empty_reason)
                 else:
                     self._host.host_services_update(
+                        self._service,
                         objects.HOST_SERVICE_STATE.FAILED,
                         response.get('reason', None))
 
@@ -527,10 +561,29 @@ class CreateHostServicesTaskWork(state_machine.StateTaskWork):
         """
         Run create host services
         """
-        DLOG.verbose("Create-Host-Services for %s." % self._host.name)
-        nfvi.nfvi_create_host_services(self._host.uuid, self._host.name,
-                                       self._host.personality,
-                                       self._callback())
+        from nfv_vim import objects
+        DLOG.verbose("Create-Host-Services for %s %s."
+                     % (self._host.name, self._service))
+
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_create_compute_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.GUEST:
+            nfvi.nfvi_create_guest_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.NETWORK:
+            nfvi.nfvi_create_network_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to create unknown "
+                      "host service %s" % self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
 
@@ -538,11 +591,12 @@ class DeleteHostServicesTaskWork(state_machine.StateTaskWork):
     """
     Delete Host Services Task Work
     """
-    def __init__(self, task, host, force_pass=False):
+    def __init__(self, task, host, service, force_pass=False):
         super(DeleteHostServicesTaskWork, self).__init__(
-            'delete-host-services_%s' % host.name, task,
+            'delete-host-services_%s_%s' % (host.name, service), task,
             force_pass=force_pass, timeout_in_secs=120)
         self._host_reference = weakref.ref(host)
+        self._service = service
 
     @property
     def _host(self):
@@ -561,8 +615,9 @@ class DeleteHostServicesTaskWork(state_machine.StateTaskWork):
 
         response = (yield)
         if self.task is not None:
-            DLOG.verbose("Delete-Host-Services callback for %s, response=%s."
-                         % (self._host.name, response))
+            DLOG.verbose("Delete-Host-Services callback for %s %s, "
+                         "response=%s."
+                         % (self._host.name, self._service, response))
             if response['completed']:
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
@@ -580,6 +635,7 @@ class DeleteHostServicesTaskWork(state_machine.StateTaskWork):
                         self._host.update_failure_reason(reason)
 
                     self._host.host_services_update(
+                        self._service,
                         objects.HOST_SERVICE_STATE.FAILED, reason)
 
                     self.task.task_work_complete(
@@ -590,6 +646,7 @@ class DeleteHostServicesTaskWork(state_machine.StateTaskWork):
         Run delete host services
         """
         from nfv_vim import directors
+        from nfv_vim import objects
 
         DLOG.verbose("Delete-Host-Services for %s." % self._host.name)
 
@@ -601,9 +658,25 @@ class DeleteHostServicesTaskWork(state_machine.StateTaskWork):
             self._host.update_failure_reason(reason)
             return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
 
-        nfvi.nfvi_delete_host_services(self._host.uuid, self._host.name,
-                                       self._host.personality,
-                                       self._callback())
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_delete_compute_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.GUEST:
+            nfvi.nfvi_delete_guest_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.NETWORK:
+            nfvi.nfvi_delete_network_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to delete unknown "
+                      "host service %s" % self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
 
@@ -611,11 +684,12 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
     """
     Enable Host Services Task Work
     """
-    def __init__(self, task, host, force_pass=False):
+    def __init__(self, task, host, service, force_pass=False):
         super(EnableHostServicesTaskWork, self).__init__(
-            'enable-host-services_%s' % host.name, task,
+            'enable-host-services_%s_%s' % (host.name, service), task,
             force_pass=force_pass, timeout_in_secs=120)
         self._host_reference = weakref.ref(host)
+        self._service = service
 
     @property
     def _host(self):
@@ -634,8 +708,9 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
 
         response = (yield)
         if self.task is not None:
-            DLOG.verbose("Enable-Host-Services callback for %s, response=%s."
-                         % (self._host.name, response))
+            DLOG.verbose("Enable-Host-Services callback for service: %s %s %s, "
+                         "response=%s." % (self._service, self._host.name,
+                                           self._service, response))
             if response['completed']:
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
@@ -649,6 +724,7 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
                         empty_reason)
                 else:
                     self._host.host_services_update(
+                        self._service,
                         objects.HOST_SERVICE_STATE.FAILED,
                         response.get('reason', None))
 
@@ -660,11 +736,35 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
         """
         Run enable host services
         """
-        DLOG.verbose("Enable-Host-Services for %s." % self._host.name)
+        from nfv_vim import objects
+
+        DLOG.verbose("Enable-Host-Services for %s for service %s."
+                     % (self._host.name, self._service))
         self._host.host_services_locked = False
-        nfvi.nfvi_enable_host_services(self._host.uuid, self._host.name,
-                                       self._host.personality,
-                                       self._callback())
+
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_enable_compute_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.GUEST:
+            nfvi.nfvi_enable_guest_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.NETWORK:
+            nfvi.nfvi_enable_network_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.KUBERNETES:
+            nfvi.nfvi_enable_containerization_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to enable unknown "
+                      "host service %s" % self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
 
@@ -672,11 +772,12 @@ class DisableHostServicesTaskWork(state_machine.StateTaskWork):
     """
     Disable Host Services Task Work
     """
-    def __init__(self, task, host, force_pass=False):
+    def __init__(self, task, host, service, force_pass=False):
         super(DisableHostServicesTaskWork, self).__init__(
-            'disable-host-services_%s' % host.name, task,
+            'disable-host-services_%s_%s' % (host.name, service), task,
             force_pass=force_pass, timeout_in_secs=120)
         self._host_reference = weakref.ref(host)
+        self._service = service
 
     @property
     def _host(self):
@@ -695,8 +796,9 @@ class DisableHostServicesTaskWork(state_machine.StateTaskWork):
 
         response = (yield)
         if self.task is not None:
-            DLOG.verbose("Disable-Host-Services callback for %s, response=%s."
-                         % (self._host.name, response))
+            DLOG.verbose("Disable-Host-Services callback for service: %s, %s %s, "
+                         "response=%s." % (self._service, self._host.name,
+                                           self._service, response))
             if response['completed']:
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
@@ -710,6 +812,7 @@ class DisableHostServicesTaskWork(state_machine.StateTaskWork):
                         empty_reason)
                 else:
                     self._host.host_services_update(
+                        self._service,
                         objects.HOST_SERVICE_STATE.FAILED,
                         response.get('reason', None))
 
@@ -721,10 +824,30 @@ class DisableHostServicesTaskWork(state_machine.StateTaskWork):
         """
         Run disable host services
         """
-        DLOG.verbose("Disable-Host-Services for %s." % self._host.name)
-        nfvi.nfvi_disable_host_services(self._host.uuid, self._host.name,
-                                        self._host.personality,
-                                        self._callback())
+        from nfv_vim import objects
+
+        DLOG.verbose("Disable-Host-Services for %s service %s."
+                     % (self._host.name, self._service))
+
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_disable_compute_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.GUEST:
+            nfvi.nfvi_disable_guest_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.KUBERNETES:
+            nfvi.nfvi_disable_containerization_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to disable unknown "
+                      "host service %s" % self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
 
@@ -769,7 +892,7 @@ class NotifyHostServicesEnabledTaskWork(state_machine.StateTaskWork):
                         state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                         empty_reason)
                 else:
-                    self._host.host_services_update(
+                    self._host.host_services_update_all(
                         objects.HOST_SERVICE_STATE.FAILED,
                         response.get('reason', None))
 
@@ -829,7 +952,7 @@ class NotifyHostServicesDisabledTaskWork(state_machine.StateTaskWork):
                         state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                         empty_reason)
                 else:
-                    self._host.host_services_update(
+                    self._host.host_services_update_all(
                         objects.HOST_SERVICE_STATE.FAILED,
                         response.get('reason', None))
 
@@ -842,6 +965,7 @@ class NotifyHostServicesDisabledTaskWork(state_machine.StateTaskWork):
         Run notify host services disabled
         """
         DLOG.verbose("Notify-Host-Services-Disabled for %s." % self._host.name)
+
         nfvi.nfvi_notify_host_services_disabled(self._host.uuid,
                                                 self._host.name,
                                                 self._callback())
@@ -906,11 +1030,12 @@ class AuditHostServicesTaskWork(state_machine.StateTaskWork):
     """
     Audit Host Services Task Work
     """
-    def __init__(self, task, host, force_pass=False):
+    def __init__(self, task, host, service, force_pass=False):
         super(AuditHostServicesTaskWork, self).__init__(
-            'audit-host-services_%s' % host.name, task,
+            'audit-host-services_%s_%s' % (host.name, service), task,
             force_pass=force_pass, timeout_in_secs=120)
         self._host_reference = weakref.ref(host)
+        self._service = service
 
     @property
     def _host(self):
@@ -928,18 +1053,21 @@ class AuditHostServicesTaskWork(state_machine.StateTaskWork):
         from nfv_vim import directors
         from nfv_vim import objects
 
+        DLOG.verbose("query callback for service: %s" % self._service)
         response = (yield)
         if self.task is not None:
+            DLOG.verbose("query callback for service %s %s"
+                         % (self._service, response['result-data']))
+
             if response['completed']:
                 if 'enabled' == response['result-data']:
                     self._host.host_services_update(
+                        self._service,
                         objects.HOST_SERVICE_STATE.ENABLED)
                 else:
                     self._host.host_services_update(
+                        self._service,
                         objects.HOST_SERVICE_STATE.DISABLED)
-
-                host_director = directors.get_host_director()
-                host_director.host_audit(self._host)
 
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
@@ -948,24 +1076,26 @@ class AuditHostServicesTaskWork(state_machine.StateTaskWork):
                 if self.force_pass:
                     if self._host.is_enabled():
                         self._host.host_services_update(
+                            self._service,
                             objects.HOST_SERVICE_STATE.ENABLED)
                     else:
                         self._host.host_services_update(
+                            self._service,
                             objects.HOST_SERVICE_STATE.DISABLED)
 
-                    DLOG.info("Audit-Host-Services callback for %s, failed, "
-                              "force-passing, defaulting state to %s."
-                              % (self._host.name, self._host.host_service_state))
-
-                    host_director = directors.get_host_director()
-                    host_director.host_audit(self._host)
+                    DLOG.info("Audit-Host-Services callback for %s, "
+                              "failed, force-passing, "
+                              "defaulting state to %s."
+                              % (self._host.name,
+                                 self._host.host_service_state(self._service)))
 
                     self.task.task_work_complete(
                         state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                         empty_reason)
                 else:
-                    DLOG.error("Audit-Host-Services callback for %s, "
-                               "response=%s." % (self._host.name, response))
+                    DLOG.error("Audit-Host-Services callback for %s, %s"
+                               "response=%s." % (self._host.name,
+                                                 self._service, response))
                     self.task.task_work_complete(
                         state_machine.STATE_TASK_WORK_RESULT.FAILED,
                         response['reason'])
@@ -974,9 +1104,62 @@ class AuditHostServicesTaskWork(state_machine.StateTaskWork):
         """
         Run audit host services
         """
-        nfvi.nfvi_query_host_services(self._host.uuid, self._host.name,
-                                      self._host.personality, self._callback())
+        from nfv_vim import directors
+        from nfv_vim import objects
+
+        DLOG.verbose("Query-Host-Services for %s %s" % (self._host.name,
+                                                        self._service))
+
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_query_compute_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.GUEST:
+            nfvi.nfvi_query_guest_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.NETWORK:
+            nfvi.nfvi_query_network_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to query unknown "
+                      "host service %s" % self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
+
+
+class AuditHostServicesCompleteTaskWork(state_machine.StateTaskWork):
+    """
+    Audit Host Services Complete Task Work
+    """
+    def __init__(self, task, host, force_pass=False):
+        super(AuditHostServicesCompleteTaskWork, self).__init__(
+            'audit-host-services_%s' % host.name, task,
+            force_pass=force_pass, timeout_in_secs=120)
+        self._host_reference = weakref.ref(host)
+
+    @property
+    def _host(self):
+        """
+        Returns the host
+        """
+        host = self._host_reference()
+        return host
+
+    def run(self):
+        """
+        Run audit instances
+        """
+        from nfv_vim import directors
+
+        host_director = directors.get_host_director()
+        host_director.host_audit(self._host)
+
+        return state_machine.STATE_TASK_WORK_RESULT.SUCCESS, empty_reason
 
 
 class AuditInstancesTaskWork(state_machine.StateTaskWork):

@@ -68,18 +68,19 @@ class HostDirector(object):
         nfvi.nfvi_lock_host(host_uuid, host_name, self._nfvi_lock_host_callback())
 
     @coroutine
-    def _nfvi_disable_host_services_callback(self):
+    def _nfvi_disable_host_services_callback(self, service):
         """
         NFVI Disable Host Services Callback
         """
         from nfv_vim import directors
 
         response = (yield)
-        DLOG.verbose("NFVI Disable Host Services callback response=%s." %
-                     response)
+        DLOG.verbose("NFVI Disable Host %s Services callback "
+                     "response=%s." % (service, response))
         if not response['completed']:
-            DLOG.info("Disable of host services on host %s failed, reason=%s."
-                      % (response['host_name'], response['reason']))
+            DLOG.info("Disable of %s services on host %s failed"
+                      ", reason=%s."
+                      % (service, response['host_name'], response['reason']))
 
             host_table = tables.tables_get_host_table()
             host = host_table.get(response['host_name'], None)
@@ -101,27 +102,41 @@ class HostDirector(object):
             sw_mgmt_director.disable_host_services_failed(host)
 
     def _nfvi_disable_host_services(self, host_uuid, host_name,
-                                    host_personality):
+                                    host_personality, service):
         """
         NFVI Disable Host Services
         """
-        nfvi.nfvi_disable_host_services(
-            host_uuid, host_name, host_personality,
-            self._nfvi_disable_host_services_callback())
+        if service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_disable_compute_host_services(
+                host_uuid, host_name, host_personality,
+                self._nfvi_disable_host_services_callback(
+                    objects.HOST_SERVICES.COMPUTE))
+        elif service == objects.HOST_SERVICES.GUEST:
+            nfvi.nfvi_disable_guest_host_services(
+                host_uuid, host_name, host_personality,
+                self._nfvi_disable_host_services_callback(
+                    objects.HOST_SERVICES.GUEST))
+        elif service == objects.HOST_SERVICES.KUBERNETES:
+            nfvi.nfvi_disable_containerization_host_services(
+                host_uuid, host_name, host_personality,
+                self._nfvi_disable_host_services_callback(
+                    objects.HOST_SERVICES.KUBERNETES))
+        else:
+            DLOG.error("Trying to disable unknown service: %s" % service)
 
     @coroutine
-    def _nfvi_enable_host_services_callback(self):
+    def _nfvi_enable_host_services_callback(self, service):
         """
         NFVI Enable Host Services Callback
         """
         from nfv_vim import directors
 
         response = (yield)
-        DLOG.verbose("NFVI Enable Host Services callback response=%s." %
-                     response)
+        DLOG.verbose("NFVI Enable Host %s Services callback "
+                     "response=%s." % (service, response))
         if not response['completed']:
-            DLOG.info("Enable of host services on host %s failed, reason=%s."
-                      % (response['host_name'], response['reason']))
+            DLOG.info("Enable of %s services on host %s failed, reason=%s."
+                      % (service, response['host_name'], response['reason']))
 
             host_table = tables.tables_get_host_table()
             host = host_table.get(response['host_name'], None)
@@ -136,20 +151,40 @@ class HostDirector(object):
             if OPERATION_TYPE.ENABLE_HOST_SERVICES != \
                     self._host_operation.operation_type:
                 DLOG.verbose("Unexpected host %s operation %s, ignoring."
-                             % (host.name, self._host_operation.operation_type))
+                             % (host.name,
+                                self._host_operation.operation_type))
                 return
 
             sw_mgmt_director = directors.get_sw_mgmt_director()
             sw_mgmt_director.enable_host_services_failed(host)
 
     def _nfvi_enable_host_services(self, host_uuid, host_name,
-                                   host_personality):
+                                   host_personality, service):
         """
         NFVI Enable Host Services
         """
-        nfvi.nfvi_enable_host_services(
-            host_uuid, host_name, host_personality,
-            self._nfvi_enable_host_services_callback())
+        if service == objects.HOST_SERVICES.COMPUTE:
+            nfvi.nfvi_enable_compute_host_services(
+                host_uuid, host_name, host_personality,
+                self._nfvi_enable_host_services_callback(
+                    objects.HOST_SERVICES.COMPUTE))
+        elif service == objects.HOST_SERVICES.GUEST:
+            nfvi.nfvi_enable_guest_host_services(
+                host_uuid, host_name, host_personality,
+                self._nfvi_enable_host_services_callback(
+                    objects.HOST_SERVICES.GUEST))
+        elif service == objects.HOST_SERVICES.KUBERNETES:
+            nfvi.nfvi_enable_containerization_host_services(
+                host_uuid, host_name, host_personality,
+                self._nfvi_enable_host_services_callback(
+                    objects.HOST_SERVICES.KUBERNETES))
+        elif service == objects.HOST_SERVICES.NETWORK:
+            nfvi.nfvi_enable_network_host_services(
+                host_uuid, host_name, host_personality,
+                self._nfvi_enable_host_services_callback(
+                    objects.HOST_SERVICES.NETWORK))
+        else:
+            DLOG.error("Trying to enable unknown service: %s" % service)
 
     @coroutine
     def _nfvi_unlock_host_callback(self):
@@ -630,11 +665,12 @@ class HostDirector(object):
 
         return host_operation
 
-    def disable_host_services(self, host_names):
+    def disable_host_services(self, host_names, service):
         """
-        Disable host services on a list of hosts
+        Disable a host service on a list of hosts
         """
-        DLOG.info("Disable host services: %s" % host_names)
+        DLOG.info("Disable host services: %s service: %s" %
+                  (host_names, service))
 
         host_operation = Operation(OPERATION_TYPE.DISABLE_HOST_SERVICES)
 
@@ -646,6 +682,7 @@ class HostDirector(object):
             self._host_operation = None
 
         host_table = tables.tables_get_host_table()
+        host_list = list()
         for host_name in host_names:
             host = host_table.get(host_name, None)
             if host is None:
@@ -655,23 +692,28 @@ class HostDirector(object):
                 return host_operation
 
             host.host_services_locked = True
-            if objects.HOST_SERVICE_STATE.DISABLED == host.host_service_state:
+            if (objects.HOST_SERVICE_STATE.DISABLED ==
+                    host.host_service_state(service)):
                 host_operation.add_host(host.name, OPERATION_STATE.COMPLETED)
             else:
                 host_operation.add_host(host.name, OPERATION_STATE.INPROGRESS)
-                self._nfvi_disable_host_services(host.uuid, host.name,
-                                                 host.personality)
+                host_list.append(host)
+
+        for host in host_list:
+            self._nfvi_disable_host_services(
+                host.uuid, host.name, host.personality, service)
 
         if host_operation.is_inprogress():
             self._host_operation = host_operation
 
         return host_operation
 
-    def enable_host_services(self, host_names):
+    def enable_host_services(self, host_names, service):
         """
-        Enable host services on a list of hosts
+        Enable a host service on a list of hosts
         """
-        DLOG.info("Enable host services: %s" % host_names)
+        DLOG.info("Enable host services: %s service: %s" % 
+            (host_names, service))
 
         host_operation = Operation(OPERATION_TYPE.ENABLE_HOST_SERVICES)
 
@@ -683,6 +725,7 @@ class HostDirector(object):
             self._host_operation = None
 
         host_table = tables.tables_get_host_table()
+        host_list = list()
         for host_name in host_names:
             host = host_table.get(host_name, None)
             if host is None:
@@ -692,12 +735,16 @@ class HostDirector(object):
                 return host_operation
 
             host.host_services_locked = False
-            if objects.HOST_SERVICE_STATE.ENABLED == host.host_service_state:
+            if (objects.HOST_SERVICE_STATE.ENABLED ==
+                    host.host_service_state(service)):
                 host_operation.add_host(host.name, OPERATION_STATE.COMPLETED)
             else:
                 host_operation.add_host(host.name, OPERATION_STATE.INPROGRESS)
-                self._nfvi_enable_host_services(host.uuid, host.name,
-                                                host.personality)
+                host_list.append(host)
+
+        for host in host_list:
+            self._nfvi_enable_host_services(
+                host.uuid, host.name, host.personality, service)
 
         if host_operation.is_inprogress():
             self._host_operation = host_operation

@@ -452,9 +452,10 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-upgrade-compute-hosts',
-                 'total_steps': 7,
+                 'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_0']},
@@ -468,9 +469,10 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-upgrade-compute-hosts',
-                 'total_steps': 7,
+                 'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_1']},
@@ -555,9 +557,10 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-upgrade-compute-hosts',
-                 'total_steps': 7,
+                 'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_0',
@@ -573,9 +576,10 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-upgrade-compute-hosts',
-                 'total_steps': 7,
+                 'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_4',
@@ -591,9 +595,10 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                  ]
                 },
                 {'name': 'sw-upgrade-compute-hosts',
-                 'total_steps': 7,
+                 'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': ['test_instance_8',
@@ -702,9 +707,10 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         for x in range(1, len(stage_hosts)):
             expected_results['stages'].append(
                 {'name': 'sw-upgrade-compute-hosts',
-                 'total_steps': 7,
+                 'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
+                     {'name': 'disable-host-services'},
                      {'name': 'disable-host-services'},
                      {'name': 'migrate-instances',
                       'entity_names': stage_instances[x]},

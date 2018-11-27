@@ -80,6 +80,66 @@ def nfvi_guest_services_notify(instance_uuid, host_name, action_type,
     return cmd_id
 
 
+def nfvi_disable_guest_host_services(host_uuid, host_name,
+                                     host_personality, callback):
+    """
+    Disable guest services
+    """
+    cmd_id = _guest_plugin.invoke_plugin('disable_host_services',
+                                         host_uuid, host_name,
+                                         host_personality,
+                                         callback=callback)
+    return cmd_id
+
+
+def nfvi_enable_guest_host_services(host_uuid, host_name, host_personality,
+                                    callback):
+    """
+    Enable guest services
+    """
+    cmd_id = _guest_plugin.invoke_plugin('enable_host_services',
+                                         host_uuid, host_name,
+                                         host_personality,
+                                         callback=callback)
+    return cmd_id
+
+
+def nfvi_delete_guest_host_services(host_uuid, host_name, host_personality,
+                                    callback):
+    """
+    Delete guest services
+    """
+    cmd_id = _guest_plugin.invoke_plugin('delete_host_services',
+                                         host_uuid, host_name,
+                                         host_personality,
+                                         callback=callback)
+    return cmd_id
+
+
+def nfvi_create_guest_host_services(host_uuid, host_name, host_personality,
+                                    callback):
+    """
+    Create guest services
+    """
+    cmd_id = _guest_plugin.invoke_plugin('create_host_services',
+                                         host_uuid, host_name,
+                                         host_personality,
+                                         callback=callback)
+    return cmd_id
+
+
+def nfvi_query_guest_host_services(host_uuid, host_name, host_personality,
+                                   callback):
+    """
+    Query guest services
+    """
+    cmd_id = _guest_plugin.invoke_plugin('query_host_services',
+                                         host_uuid, host_name,
+                                         host_personality,
+                                         callback=callback)
+    return cmd_id
+
+
 def nfvi_register_host_services_query_callback(callback):
     """
     Register for host services query
