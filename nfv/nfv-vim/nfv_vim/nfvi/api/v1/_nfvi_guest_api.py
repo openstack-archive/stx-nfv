@@ -87,6 +87,46 @@ class NFVIGuestAPI(object):
         pass
 
     @abc.abstractmethod
+    def disable_host_services(self, future, host_uuid, host_name,
+                              host_personality, callback):
+        """
+        Disable guest services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def enable_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Enable guest services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def delete_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Delete guest services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def create_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Create guest services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def query_host_services(self, future, host_uuid, host_name,
+                            host_personality, callback):
+        """
+        Query guest services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
     def register_host_services_query_callback(self, callback):
         """
         Register for Host Services query

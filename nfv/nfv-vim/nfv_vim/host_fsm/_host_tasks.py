@@ -25,6 +25,7 @@ from nfv_vim.host_fsm._host_task_work import NotifyHostServicesDeleteFailedTaskW
 from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisablingTaskWork
 from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisabledTaskWork
 from nfv_vim.host_fsm._host_task_work import AuditHostServicesTaskWork
+from nfv_vim.host_fsm._host_task_work import AuditHostServicesCompleteTaskWork
 from nfv_vim.host_fsm._host_task_work import AuditInstancesTaskWork
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host_task')
@@ -34,10 +35,21 @@ class AddHostTask(state_machine.StateTask):
     """
     Add Host Task
     """
+
     def __init__(self, host):
+        from nfv_vim import objects
+
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(CreateHostServicesTaskWork(self, host))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(CreateHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
+        if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
+            task_work_list.append(CreateHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.NETWORK))
+        if host.host_service_configured(objects.HOST_SERVICES.GUEST):
+            task_work_list.append(CreateHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.GUEST))
         super(AddHostTask, self).__init__(
             'add-host_%s' % host.name, task_work_list)
 
@@ -71,10 +83,24 @@ class DeleteHostTask(state_machine.StateTask):
     """
     Delete Host Task
     """
+
     def __init__(self, host):
+        from nfv_vim import objects
+
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(DeleteHostServicesTaskWork(self, host))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
+        if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.NETWORK))
+        if host.host_service_configured(objects.HOST_SERVICES.GUEST):
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.GUEST))
+        if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
+            task_work_list.append(DeleteHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.CONTAINER))
         task_work_list.append(NotifyHostServicesDeletedTaskWork(
             self, host, force_pass=True))
         super(DeleteHostTask, self).__init__(
@@ -110,11 +136,27 @@ class EnableHostTask(state_machine.StateTask):
     """
     Enable Host Task
     """
+
     def __init__(self, host):
+        from nfv_vim import objects
+
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(NotifyHostEnabledTaskWork(self, host))
-        task_work_list.append(EnableHostServicesTaskWork(self, host))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(NotifyHostEnabledTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
+        if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.CONTAINER))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
+        if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.NETWORK))
+        if host.host_service_configured(objects.HOST_SERVICES.GUEST):
+            task_work_list.append(EnableHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.GUEST))
         task_work_list.append(NotifyHostServicesEnabledTaskWork(
             self, host, force_pass=True))
         task_work_list.append(QueryHypervisorTaskWork(
@@ -172,11 +214,24 @@ class DisableHostTask(state_machine.StateTask):
             notify_host_services_task = NotifyHostServicesDisabledTaskWork
 
         task_work_list = list()
-        task_work_list.append(DisableHostServicesTaskWork(self, host))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(DisableHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
+        if host.host_service_configured(objects.HOST_SERVICES.GUEST):
+            task_work_list.append(DisableHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.GUEST))
+        if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
+            task_work_list.append(DisableHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.CONTAINER))
         task_work_list.append(QueryHypervisorTaskWork(
             self, host, force_pass=True))
         task_work_list.append(NotifyInstancesHostDisablingTaskWork(self, host))
-        task_work_list.append(NotifyHostDisabledTaskWork(self, host))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(NotifyHostDisabledTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
+        if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
+            task_work_list.append(NotifyHostDisabledTaskWork(
+                self, host, objects.HOST_SERVICES.NETWORK))
         task_work_list.append(NotifyInstancesHostDisabledTaskWork(self, host))
         task_work_list.append(notify_host_services_task(
             self, host, force_pass=True))
@@ -409,11 +464,23 @@ class AuditEnabledHostTask(state_machine.StateTask):
     """
     Audit Enabled Host Task
     """
+
     def __init__(self, host):
+        from nfv_vim import objects
+
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        task_work_list.append(AuditHostServicesTaskWork(
-            self, host, force_pass=True))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(AuditHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE, force_pass=True))
+        if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
+            task_work_list.append(AuditHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.NETWORK, force_pass=True))
+        if host.host_service_configured(objects.HOST_SERVICES.GUEST):
+            task_work_list.append(AuditHostServicesTaskWork(
+                self, host, objects.HOST_SERVICES.GUEST, force_pass=True))
+        task_work_list.append(AuditHostServicesCompleteTaskWork(
+            self, host))
         super(AuditEnabledHostTask, self).__init__(
             'audit-enabled-host_%s' % host.name, task_work_list)
 

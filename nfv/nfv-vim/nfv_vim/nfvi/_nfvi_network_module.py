@@ -117,6 +117,66 @@ def nfvi_get_subnet(subnet_id, callback):
     return cmd_id
 
 
+def nfvi_notify_network_host_disabled(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Notify network host is disabled
+    """
+    cmd_id = _network_plugin.invoke_plugin('notify_host_disabled',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_enable_network_host_services(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Enable network services
+    """
+    cmd_id = _network_plugin.invoke_plugin('enable_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_delete_network_host_services(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Delete network services
+    """
+    cmd_id = _network_plugin.invoke_plugin('delete_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_create_network_host_services(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Create network services
+    """
+    cmd_id = _network_plugin.invoke_plugin('create_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_query_network_host_services(host_uuid, host_name, host_personality,
+                                     callback):
+    """
+    Query network services
+    """
+    cmd_id = _network_plugin.invoke_plugin('query_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
 def nfvi_network_initialize(config, pool):
     """
     Initialize the NFVI network package
