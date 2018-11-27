@@ -115,6 +115,46 @@ class NFVINetworkAPI(object):
         pass
 
     @abc.abstractmethod
+    def notify_host_disabled(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Notify network host disabled using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def enable_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Enable network services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def delete_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Delete network services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def create_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Create network services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def query_host_services(self, future, host_uuid, host_name,
+                            host_personality, callback):
+        """
+        Query network services on a host using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
     def initialize(self, config_file):
         """
         Initialize the plugin

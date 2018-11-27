@@ -380,6 +380,90 @@ def nfvi_register_instance_delete_callback(callback):
                                   callback=callback)
 
 
+def nfvi_notify_compute_host_enabled(host_uuid, host_name, host_personality,
+                                     callback):
+    """
+    Notify compute host is enabled
+    """
+    cmd_id = _compute_plugin.invoke_plugin('notify_host_enabled',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_notify_compute_host_disabled(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Notify compute host is disabled
+    """
+    cmd_id = _compute_plugin.invoke_plugin('notify_host_disabled',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_disable_compute_host_services(host_uuid, host_name, host_personality,
+                                       callback):
+    """
+    Disable compute host services
+    """
+    cmd_id = _compute_plugin.invoke_plugin('disable_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_enable_compute_host_services(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Enable compute host services
+    """
+    cmd_id = _compute_plugin.invoke_plugin('enable_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_delete_compute_host_services(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Delete compute services
+    """
+    cmd_id = _compute_plugin.invoke_plugin('delete_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_create_compute_host_services(host_uuid, host_name, host_personality,
+                                      callback):
+    """
+    Create compute services
+    """
+    cmd_id = _compute_plugin.invoke_plugin('create_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
+def nfvi_query_compute_host_services(host_uuid, host_name, host_personality,
+                                     callback):
+    """
+    Query compute services
+    """
+    cmd_id = _compute_plugin.invoke_plugin('query_host_services',
+                                           host_uuid, host_name,
+                                           host_personality,
+                                           callback=callback)
+    return cmd_id
+
+
 def nfvi_compute_initialize(config, pool):
     """
     Initialize the NFVI compute package
