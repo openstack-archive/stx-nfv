@@ -43,9 +43,9 @@ function init_nfv(){
     sudo groupadd -g 172 nfv
 
     # create the nfv user
-    sudo useradd -d /var/lib/nfv -g 172 -u 172 -G nobody,nfv -s /sbin/nologin nfv
+    sudo useradd -d /var/lib/nfv -g 172 -u 172 -G nogroup,nfv -s /sbin/nologin nfv
 
-    sudo mkdir /opt/platform/nfv
+    sudo mkdir -p /opt/platform/nfv
 }
 
 function install_guest_client(){
@@ -95,77 +95,59 @@ function install_nfv(){
 }
 
 function install_nfv_client(){
-    pushd $NFV_DIR
-    python_build nfv-client
+    pushd $NFV_CLIENT_DIR
+    python setup.py build
+    sudo python setup.py install
 
     sudo install -d -m 755 /etc/bash_completion.d
-    sudo install -m 444 nfv-client/scripts/sw-manager.completion /etc/bash_completion.d/sw-manager
+    sudo install -m 444 scripts/sw-manager.completion /etc/bash_completion.d/sw-manager
     popd
 }
 
 function install_nfv_common(){
-    pushd $NFV_DIR
-    python_build nfv-common
-    sudo python_install nfv-common
+    pushd $NFV_COMMON_DIR
+    python setup.py build
+    sudo python setup.py install
     popd
 }
 
 function install_nfv_plugins(){
-    pushd $NFV_DIR
-    python_build nfv-plugins
-    sudo python_install nfv-plugins
+    pushd $NFV_PLUGINS_DIR
+    python setup.py build
+    sudo python setup.py install
 
     sudo install -d -m 755 /etc/nfv/
     sudo install -d -m 755 /etc/nfv/nfv_plugins/
     sudo install -d -m 755 /etc/nfv/nfv_plugins/alarm_handlers/
-    sudo install -p -D -m 600 nfv-plugins/nfv_plugins/alarm_handlers/config.ini /etc/nfv/nfv_plugins/alarm_handlers/config.ini
+    sudo install -p -D -m 600 nfv_plugins/alarm_handlers/config.ini /etc/nfv/nfv_plugins/alarm_handlers/config.ini
     sudo install -d -m 755 /etc/nfv/nfv_plugins/event_log_handlers/
-    sudo install -p -D -m 600 nfv-plugins/nfv_plugins/event_log_handlers/config.ini /etc/nfv/nfv_plugins/event_log_handlers/config.ini
+    sudo install -p -D -m 600 nfv_plugins/event_log_handlers/config.ini /etc/nfv/nfv_plugins/event_log_handlers/config.ini
     sudo install -d -m 755 /etc/nfv/nfv_plugins/nfvi_plugins/
-    sudo install -p -D -m 600 nfv-plugins/nfv_plugins/nfvi_plugins/config.ini /etc/nfv/nfv_plugins/nfvi_plugins/config.ini
+    sudo install -p -D -m 600 nfv_plugins/nfvi_plugins/config.ini /etc/nfv/nfv_plugins/nfvi_plugins/config.ini
     sudo install -d -m 755 /
-    sudo install -p -D -m 644 nfv-plugins/scripts/nfvi-plugins.logrotate /etc/logrotate.d/nfvi-plugins.logrotate
+    sudo install -p -D -m 644 scripts/nfvi-plugins.logrotate /etc/logrotate.d/nfvi-plugins.logrotate
     popd
 }
 
 function install_nfv_tools(){
-    pushd $NFV_DIR
-    python_build nfv-tools
-    sudo python_install nfv-tools
+    pushd $NFV_TOOLS_DIR
+    python setup.py build
+    sudo python setup.py install
     popd
 }
 
 function install_nfv_vim(){
-    pushd $NFV_DIR
-    python_build nfv-vim
-    sudo python_install nfv-vim
+    pushd $NFV_VIM_DIR
+    python setup.py build
+    sudo python setup.py install
+
     sudo install -d -m 755 /usr/lib/ocf/resource.d/nfv
-    sudo install -p -D -m 755 nfv-vim/scripts/vim /usr/lib/ocf/resource.d/nfv/vim
-    sudo install -p -D -m 755 nfv-vim/scripts/vim-api /usr/lib/ocf/resource.d/nfv/vim-api
-    sudo install -p -D -m 755 nfv-vim/scripts/vim-webserver /usr/lib/ocf/resource.d/nfv/vim-webserver
+    sudo install -p -D -m 755 scripts/vim /usr/lib/ocf/resource.d/nfv/vim
+    sudo install -p -D -m 755 scripts/vim-api /usr/lib/ocf/resource.d/nfv/vim-api
+    sudo install -p -D -m 755 scripts/vim-webserver /usr/lib/ocf/resource.d/nfv/vim-webserver
     sudo install -d -m 755 /etc/nfv/
     sudo install -d -m 755 /etc/nfv/vim/
-    sudo install -p -D -m 600 nfv-vim/nfv_vim/config.ini /etc/nfv/vim/config.ini
-    sudo install -p -D -m 600 nfv-vim/nfv_vim/debug.ini /etc/nfv/vim/debug.ini
+    sudo install -p -D -m 600 nfv_vim/config.ini /etc/nfv/vim/config.ini
+    sudo install -p -D -m 600 nfv_vim/debug.ini /etc/nfv/vim/debug.ini
     popd
 }
-
-
-# build a python project
-function python_build(){
-    pushd $1
-    python2 setup.py build
-    popd
-}
-
-# Install python project
-function python_install(){
-    pushd $1
-    sudo python2 setup.py install \
-	 --root=/ \
-	 --prefix=$PREFIX \
-	 --install-data=/usr/share \
-	 --single-version-externally-managed
-    popd
-}
-
