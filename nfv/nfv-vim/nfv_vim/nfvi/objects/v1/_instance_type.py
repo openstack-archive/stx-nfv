@@ -17,7 +17,6 @@ class InstanceTypeStorage(Constants):
     """
     UNKNOWN = Constant('unknown')
     REMOTE_BACKED = Constant('remote')
-    LOCAL_LVM_BACKED = Constant('local_lvm')
     LOCAL_IMAGE_BACKED = Constant('local_image')
 
 
