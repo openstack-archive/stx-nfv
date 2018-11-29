@@ -1419,20 +1419,17 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                         raise
 
             if self._host_supports_kubernetes(host_personality):
-                if 'controller' in host_personality and \
-                        'compute' in host_personality:
-                    # This is an AIO host (either simplex or duplex). For now,
-                    # we do not want to apply the NoExecute taint. When
-                    # the host reboots (e.g. on a lock/unlock), the VIM will
-                    # not initialize if it cannot register with rabbitmq
-                    # (which is running in a pod). But the VIM must first
-                    # remove the NoExecute taint, before that pod will run.
-                    # This is only necessary on AIO simplex hosts, but we have
-                    # no way to know whether the host is simplex or duplex
-                    # in this plugin. Long term, this decision will be moved to
-                    # the VIM, before invoking the plugin, once the plugins are
-                    # refactored into separate enable/disable functions for
-                    # nova, neutron, kubernetes, etc...
+                if True:
+                    # For now, we do not want to apply the NoExecute taint.
+                    # When the VIM detects that a service is failed on a host,
+                    # it goes through a disable/enable cycle. This would cause
+                    # the NoExecute taint to be applied/removed which causes
+                    # most pods to be stopped/started. If the pods don't come
+                    # back quickly enough the VIM will attempt another
+                    # disable/enable, which can go on forever. For now,
+                    # we will just avoid tainting hosts.
+                    # TODO(bwensley): Rework when support for pure k8s hosts is
+                    # added.
                     pass
                 else:
                     response['reason'] = 'failed to disable kubernetes services'
