@@ -7,11 +7,11 @@
 STX_NFV_NAME=stx-nfv
 
 ######### Plugin Specific ##########
-enable_service $STX_NFV_NAME
+enable_service $STX_NFV_NAME nfv
 
-if is_service_enabled stx-nfv; then
-	# Enable prerequisites here
-	:
+# nfv services
+if is_service_enabled nfv; then
+    enable_service nfv-vim nfv-vim-api nfv-vim-webserver
 fi
 
 # Initial source of lib script
