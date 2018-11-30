@@ -10,8 +10,8 @@ STX_NFV_NAME=stx-nfv
 enable_service $STX_NFV_NAME
 
 if is_service_enabled stx-nfv; then
-	# Enable prerequisites here
-	:
+    # Enable prerequisites here
+    :
 fi
 
 # Initial source of lib script
