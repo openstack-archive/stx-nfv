@@ -1,3 +1,6 @@
+# Initial source of lib script
+source $DEST/stx-nfv/devstack/lib/stx-nfv
+
 #!/bin/bash
 # Devstack settings
 
@@ -8,11 +11,8 @@ STX_NFV_NAME=stx-nfv
 
 ######### Plugin Specific ##########
 enable_service $STX_NFV_NAME
-
-if is_service_enabled stx-nfv; then
-	# Enable prerequisites here
-	:
-fi
+# nfv services
+enable_service nfv nfv-vim nfv-vim-api nfv-vim-webserver
 
 # Initial source of lib script
 source $DEST/stx-nfv/devstack/lib/stx-nfv
