@@ -2900,18 +2900,18 @@ class Instance(ObjectData):
                 prev_action_type != INSTANCE_ACTION_TYPE.DELETE and
                 not (self._action_data.is_cancelled() or
                      self._action_data.is_completed())):
-                    DLOG.info("Reject action %s for instance %s, %s action is "
-                              "already inprogress, state=%s."
-                              % (nfvi_action_data.action_type, self.name,
-                                 self._action_data.action_type,
-                                 self._action_data.action_state))
+                DLOG.info("Reject action %s for instance %s, %s action is "
+                          "already inprogress, state=%s."
+                          % (nfvi_action_data.action_type, self.name,
+                             self._action_data.action_type,
+                             self._action_data.action_state))
 
-                    reason = ("Cannot '%s' instance %s action '%s' is in progress"
-                              % (nfvi_action_data.action_type, self.uuid,
-                                 self._action_data.action_type))
-                    nfvi.nfvi_reject_instance_action(self.uuid, reason,
-                                                     nfvi_action_data.context)
-                    return
+                reason = ("Cannot '%s' instance %s action '%s' is in progress"
+                          % (nfvi_action_data.action_type, self.uuid,
+                             self._action_data.action_type))
+                nfvi.nfvi_reject_instance_action(self.uuid, reason,
+                                                 nfvi_action_data.context)
+                return
 
             if new_action_type == INSTANCE_ACTION_TYPE.START:
                 host_table = tables.tables_get_host_table()
