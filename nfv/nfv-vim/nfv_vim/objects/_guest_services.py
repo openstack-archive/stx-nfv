@@ -73,7 +73,7 @@ class GuestServices(ObjectData):
         """
         if nfvi.objects.v1.GUEST_SERVICE_ADMIN_STATE.LOCKED \
                 == nfvi_service_admin_state:
-                return GuestServices.SERVICE_DISABLED
+            return GuestServices.SERVICE_DISABLED
         else:
             if nfvi.objects.v1.GUEST_SERVICE_OPER_STATE.ENABLED \
                     == nfvi_service_oper_state:

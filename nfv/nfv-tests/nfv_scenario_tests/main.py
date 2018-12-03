@@ -58,16 +58,16 @@ def process_finalize():
 
 def process_progress_marker_start(marker_name):
 
-        space_str = '.' * (60 - len(marker_name))
-        sys.stdout.write("%s  %s %s "
-                         % (str(datetime.datetime.now())[:-3], marker_name,
-                            space_str))
-        sys.stdout.flush()
+    space_str = '.' * (60 - len(marker_name))
+    sys.stdout.write("%s  %s %s "
+                     % (str(datetime.datetime.now())[:-3], marker_name,
+                        space_str))
+    sys.stdout.flush()
 
 
 def process_progress_marker_end(marker_result):
-        sys.stdout.write("%s\n" % marker_result)
-        sys.stdout.flush()
+    sys.stdout.write("%s\n" % marker_result)
+    sys.stdout.flush()
 
 
 def process_do_setup(loads_dir, setup_data):
