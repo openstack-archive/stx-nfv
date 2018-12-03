@@ -716,7 +716,6 @@ def process_main():
 
     except KeyboardInterrupt:
         print("Keyboard Interrupt received.")
-        pass
 
     except Exception as e:
         print("Exception: %s" % e)

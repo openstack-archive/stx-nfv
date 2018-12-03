@@ -166,7 +166,6 @@ def process_main():
 
     except KeyboardInterrupt:
         print("Keyboard Interrupt received.")
-        pass
 
     except Exception as e:
         DLOG.exception("%s" % e)

@@ -28,14 +28,13 @@ load-plugins=
 # it should appear only once).
 # E1101 no-member
 # E1121: Too many positional arguments for function call
-# W0107 unnecessary-pass
 # W0404 reimported
 # W0601 Global variable %r undefined at the module level
 # W0603 Using the global statement warning
 # W0613 Unused argument warning
 # W0621 Redefining name %r from outer scope
 # W0703 broad except warning
-disable=C, R, E1101, E1121, W0107, W0404, W0601, W0603, W0613, W0621, W0703
+disable=C, R, E1101, E1121, W0404, W0601, W0603, W0613, W0621, W0703
 
 
 [REPORTS]

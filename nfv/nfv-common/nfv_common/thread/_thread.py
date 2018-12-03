@@ -222,7 +222,6 @@ def _thread_main(thread_name, progress_marker, debug_config, thread_worker,
 
     except KeyboardInterrupt:
         print("Keyboard Interrupt received.")
-        pass
 
     except Exception as e:
         DLOG.exception("%s" % e)

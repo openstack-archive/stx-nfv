@@ -91,7 +91,6 @@ def main():
 
     except KeyboardInterrupt:
         LOG.info("Keyboard Interrupt received.")
-        pass
 
     except Exception as e:
         LOG.exception(e)
