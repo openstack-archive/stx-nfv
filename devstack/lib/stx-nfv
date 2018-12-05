@@ -22,6 +22,9 @@ NFV_PLUGINS_DIR=$NFV_DIR/nfv-plugins
 NFV_TOOLS_DIR=$NFV_DIR/nfv-tools
 NFV_VIM_DIR=$NFV_DIR/nfv-vim
 
+NOVA_API_PROXY_CONF=$STXNFV_SYSCONFDIR/proxy
+NOVA_API_PROXY_DIR=$STXNFV_DIR/nova-api-proxy/nova-api-proxy
+
 GUEST_CLIENT_VERSION="3.0.1"
 
 STX_SDK_DEPLOY_DIR=${STX_SDK_DEPLOY_DIR:-/opt/deploy/cgcs_sdk}
@@ -72,6 +75,10 @@ function cleanup_nfv_tools {
 
 function cleanup_nfv_vim {
     pip_uninstall nfv-vim
+}
+
+function cleanup_nova_api_proxy {
+    pip_uninstall api-proxy
 }
 
 function install_guest_client {
@@ -198,6 +205,29 @@ function install_nfv_vim {
     iniset -sudo $NFV_CONF_DIR/vim/config.ini "sw-mgmt-configuration" "single_controller" "True"
 }
 
+function install_nova_api_proxy {
+    pushd $NOVA_API_PROXY_DIR
+    python setup.py build
+    sudo python setup.py install --root=/ --install-lib=${PYTHON_SITE_DIR} --single-version-externally-managed
+    popd
+
+    sudo install -d -m 755 $NOVA_API_PROXY_CONF
+    sudo install -p -D -m 744 $NOVA_API_PROXY_DIR/nova_api_proxy/nova-api-proxy.conf $NOVA_API_PROXY_CONF/nova-api-proxy.conf
+    sudo install -p -D -m 744 $NOVA_API_PROXY_DIR/nova_api_proxy/api-proxy-paste.ini $NOVA_API_PROXY_CONF/api-proxy-paste.ini
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "pool_size" "256"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "nfvi_compute_listen_port" "30003"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "nfvi_compute_listen" "127.0.0.1"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "auth_type" "password"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "auth_url" "$KEYSTONE_SERVICE_URI"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "user_domain_name" "$SERVICE_DOMAIN_NAME"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "username" "nova"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "password" "$SERVICE_PASSWORD"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "project_domain_name" "$SERVICE_DOMAIN_NAME"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "project_name" "$SERVICE_PROJECT_NAME"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "admin_user" "nova"
+    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "admin_tenant_name" "$SERVICE_PROJECT_NAME"
+}
+
 function start_nfv {
     if is_service_enabled nfv-vim; then
         start_nfv_vim
@@ -228,6 +258,13 @@ function start_nfv_vim_webserver {
     run_process nfv-vim-webserver "$NFV_OCF_DIR/vim-webserver start" root root
 }
 
+function start_nova_api_proxy {
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@nova-api-proxy.service "Service" "Type" "simple"
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@nova-api-proxy.service "Service" "PIDFile" "/var/run/nova-api-proxy.pid"
+    local daemon=$(which nova-api-proxy)
+    run_process nova-api-proxy "$daemon --config-file=$NOVA_API_PROXY_CONF/nova-api-proxy.conf" root root
+}
+
 function stop_nfv {
     if is_service_enabled nfv-vim; then
         stop_nfv_vim
@@ -250,6 +287,10 @@ function stop_nfv_vim_api {
 
 function stop_nfv_vim_webserver {
     stop_process nfv-vim-webserver
+}
+
+function stop_nova_api_proxy {
+    stop_process nova-api-proxy
 }
 
 $_XTRACE_STX_NFV
