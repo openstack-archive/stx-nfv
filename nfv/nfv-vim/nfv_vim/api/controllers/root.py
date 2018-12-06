@@ -3,15 +3,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from six.moves import http_client as httplib
 import pecan
 from pecan import rest
+from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
-from .._link import Link
-
 from nfv_vim.api.controllers.v1 import APIController
+from nfv_vim.api._link import Link
 
 
 class Root(wsme_types.Base):

@@ -9,7 +9,7 @@ import subprocess
 from nfv_vim import database
 from nfv_vim import tables
 
-from . import testcase
+from . import testcase  # noqa: H304
 
 
 class TestNFVDatabaseUpgrade(testcase.NFVTestCase):

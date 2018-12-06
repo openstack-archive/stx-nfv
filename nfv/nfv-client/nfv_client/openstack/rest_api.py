@@ -4,9 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-from six.moves.urllib import error as urllib_error
-from six.moves.urllib import request as urllib_request
 from six.moves import http_client as httplib
+from six.moves import urllib
 
 
 def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=None):
@@ -18,7 +17,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
                        'transfer-encoding', 'upgrade']
 
     try:
-        request_info = urllib_request.Request(api_cmd)
+        request_info = urllib.request.Request(api_cmd)
         request_info.get_method = lambda: method
         if token_id is not None:
             request_info.add_header("X-Auth-Token", token_id)
@@ -31,7 +30,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
         if api_cmd_payload is not None:
             request_info.add_data(api_cmd_payload)
 
-        url_request = urllib_request.urlopen(request_info)
+        url_request = urllib.request.urlopen(request_info)
 
         headers = list()  # list of tuples
         for key, value in url_request.info().items():
@@ -50,7 +49,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
 
         return response
 
-    except urllib_error.HTTPError as e:
+    except urllib.error.HTTPError as e:
         headers = list()
         response_raw = dict()
 
@@ -97,7 +96,7 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
                  response_raw))
         raise
 
-    except urllib_error.URLError as e:
+    except urllib.error.URLError as e:
         print("Rest-API status=ERR, %s, %s, headers=%s, payload=%s"
               % (method, api_cmd, api_cmd_headers, api_cmd_payload,))
         raise

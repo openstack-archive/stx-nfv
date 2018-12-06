@@ -13,22 +13,22 @@ from nfv_vim import host_fsm
 from nfv_vim import nfvi
 from nfv_vim import objects
 
-from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
-from nfv_vim.objects import SW_UPDATE_INSTANCE_ACTION
-from nfv_vim.objects import SW_UPDATE_ALARM_RESTRICTION
 from nfv_vim.objects import HOST_PERSONALITY
+from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
+from nfv_vim.objects import SW_UPDATE_ALARM_RESTRICTION
+from nfv_vim.objects import SW_UPDATE_INSTANCE_ACTION
 from nfv_vim.objects import SwPatch
-from nfv_vim.tables._table import Table
-from nfv_vim.tables._host_table import HostTable
-from nfv_vim.tables._host_group_table import HostGroupTable
-from nfv_vim.tables._host_aggregate_table import HostAggregateTable
-from nfv_vim.tables._instance_table import InstanceTable
-from nfv_vim.tables._instance_group_table import InstanceGroupTable
 from nfv_vim.strategy._strategy import strategy_rebuild_from_dict
 from nfv_vim.strategy._strategy import SwPatchStrategy
+from nfv_vim.tables._host_aggregate_table import HostAggregateTable
+from nfv_vim.tables._host_group_table import HostGroupTable
+from nfv_vim.tables._host_table import HostTable
+from nfv_vim.tables._instance_group_table import InstanceGroupTable
+from nfv_vim.tables._instance_table import InstanceTable
+from nfv_vim.tables._table import Table
 
-from . import testcase
-from . import utils
+from . import testcase  # noqa: H304
+from . import utils  # noqa: H304
 
 
 DEBUG_PRINTING = False

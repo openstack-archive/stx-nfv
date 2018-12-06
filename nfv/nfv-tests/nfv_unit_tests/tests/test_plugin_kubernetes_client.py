@@ -3,11 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import mock
 import kubernetes
 from kubernetes.client.rest import ApiException
-from . import testcase
+import mock
+
 from nfv_plugins.nfvi_plugins.clients import kubernetes_client
+
+from . import testcase  # noqa: H304
 
 
 def mock_load_kube_config(path):

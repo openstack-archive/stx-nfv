@@ -30,8 +30,8 @@ from nfv_vim.strategy._strategy import strategy_rebuild_from_dict
 
 from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
 
-from . import testcase
-from . import utils
+from . import testcase  # noqa: H304
+from . import utils  # noqa: H304
 
 
 DEBUG_PRINTING = False

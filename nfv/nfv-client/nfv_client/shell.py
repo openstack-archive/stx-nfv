@@ -3,11 +3,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
-import sys
 import argparse
+import os
+from six.moves import urllib
+import sys
 
-from six.moves.urllib import request as urllib_request
 from nfv_client import sw_update
 
 
@@ -156,9 +156,9 @@ def process_main(argv=sys.argv[1:]):  # pylint: disable=dangerous-default-value
 
         if args.debug:
             # Enable Debug
-            handler = urllib_request.HTTPHandler(debuglevel=1)
-            opener = urllib_request.build_opener(handler)
-            urllib_request.install_opener(opener)
+            handler = urllib.request.HTTPHandler(debuglevel=1)
+            opener = urllib.request.build_opener(handler)
+            urllib.request.install_opener(opener)
 
         if args.os_auth_url is None:
             args.os_auth_url = os.environ.get('OS_AUTH_URL', None)
