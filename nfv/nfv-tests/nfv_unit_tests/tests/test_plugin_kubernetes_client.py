@@ -55,6 +55,8 @@ class TestNFVPluginsK8SNodeTaint(testcase.NFVTestCase):
         super(TestNFVPluginsK8SNodeTaint, self).setUp()
         self.test_node_repo = {}
         self.setup_node_repo(self.test_node_name)
+        self.token = mock.MagicMock()
+        self.token.token_id = "3bcc3d3a03f44e3d8377f9247b0ad155"
 
         def mock_patch_node(obj, node_name, body):
             if node_name in self.test_node_repo:
@@ -83,9 +85,9 @@ class TestNFVPluginsK8SNodeTaint(testcase.NFVTestCase):
         self.mocked_read_node.stop()
         self.node_repo_clear()
 
-    def check_taint_exist(self, node_name, effect, key, value):
+    def check_taint_exist(self, token, node_name, effect, key, value):
         try:
-            kube_client = kubernetes_client.get_client()
+            kube_client = kubernetes_client.get_client(token.token_id)
             response = kube_client.read_node(node_name)
         except ApiException as e:
             return False
@@ -110,95 +112,116 @@ class TestNFVPluginsK8SNodeTaint(testcase.NFVTestCase):
         self.test_node_repo.clear()
 
     def test_when_add_taint_and_get_then_get_it(self):
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is False
-        kubernetes_client.taint_node(self.test_node_name,
+        kubernetes_client.taint_node(self.token,
+                                     self.test_node_name,
                                      'NoExecute',
                                      self.test_key1,
                                      self.test_value1)
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is True
 
     def test_when_add_two_taints_and_get_then_get_them(self):
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is False
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key2,
                                       self.test_value2) is False
 
-        kubernetes_client.taint_node(self.test_node_name,
+        kubernetes_client.taint_node(self.token,
+                                     self.test_node_name,
                                      'NoExecute',
                                      self.test_key2,
                                      self.test_value2)
-        kubernetes_client.taint_node(self.test_node_name,
+        kubernetes_client.taint_node(self.token,
+                                     self.test_node_name,
                                      'NoExecute',
                                      self.test_key1,
                                      self.test_value1)
 
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is True
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key2,
                                       self.test_value2) is True
 
     def test_when_delete_exist_taint_and_get_then_get_none(self):
-        kubernetes_client.taint_node(self.test_node_name,
+        kubernetes_client.taint_node(self.token,
+                                     self.test_node_name,
                                      'NoExecute',
                                      self.test_key1,
                                      self.test_value1)
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is True
-        kubernetes_client.untaint_node(self.test_node_name,
+        kubernetes_client.untaint_node(self.token,
+                                       self.test_node_name,
                                        'NoExecute',
                                        self.test_key1)
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is False
 
     def test_when_delete_no_exist_taint_and_get_then_get_none(self):
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is False
-        kubernetes_client.untaint_node(self.test_node_name,
+        kubernetes_client.untaint_node(self.token,
+                                       self.test_node_name,
                                        'NoExecute',
                                        self.test_key1)
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoExecute',
                                       self.test_key1,
                                       self.test_value1) is False
 
     def test_when_add_taint_twice_and_delete_it_and_get_then_get_none(self):
-        kubernetes_client.taint_node(self.test_node_name,
+        kubernetes_client.taint_node(self.token,
+                                     self.test_node_name,
                                      'NoSchedule',
                                      self.test_key1,
                                      self.test_value1)
-        kubernetes_client.taint_node(self.test_node_name,
+        kubernetes_client.taint_node(self.token,
+                                     self.test_node_name,
                                      'NoSchedule',
                                      self.test_key1,
                                      self.test_value1)
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoSchedule',
                                       self.test_key1,
                                       self.test_value1) is True
 
-        kubernetes_client.untaint_node(self.test_node_name,
+        kubernetes_client.untaint_node(self.token,
+                                       self.test_node_name,
                                        'NoSchedule',
                                        self.test_key1)
-        assert self.check_taint_exist(self.test_node_name,
+        assert self.check_taint_exist(self.token,
+                                      self.test_node_name,
                                       'NoSchedule',
                                       self.test_key1,
                                       self.test_value1) is False

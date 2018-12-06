@@ -14,23 +14,29 @@ from nfv_common.helpers import Result
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.clients.kubernetes_client')
 
 
-def get_client():
+def get_client(token):
     kubernetes.config.load_kube_config('/etc/kubernetes/admin.conf')
-
-    # Workaround: Turn off SSL/TLS verification
     c = kubernetes.client.Configuration()
+    # Pass a Bearer Token with Vim to access the Kube-API
+    c.api_key_prefix['authorization'] = 'Bearer'
+    c.api_key['authorization'] = token
+    # Workaround: Turn off SSL/TLS verification
     c.verify_ssl = False
-    kubernetes.client.Configuration.set_default(c)
+    apiclient = kubernetes.client.ApiClient(c)
+    kubeClient = kubernetes.client.CoreV1Api(apiclient)
 
-    return kubernetes.client.CoreV1Api()
+    return kubeClient
 
 
-def taint_node(node_name, effect, key, value):
+def taint_node(token, node_name, effect, key, value):
     """
     Apply a taint to a node
     """
+    # Get the Token id
+    api_key = token.get_id()
+
     # Get the client.
-    kube_client = get_client()
+    kube_client = get_client(api_key)
 
     # Retrieve the node to access any existing taints.
     try:
@@ -79,12 +85,15 @@ def taint_node(node_name, effect, key, value):
     return Result(response)
 
 
-def untaint_node(node_name, effect, key):
+def untaint_node(token, node_name, effect, key):
     """
     Remove a taint from a node
     """
+    # Get the Token id
+    api_key = token.get_id()
+
     # Get the client.
-    kube_client = get_client()
+    kube_client = get_client(api_key)
 
     # Retrieve the node to access any existing taints.
     response = kube_client.read_node(node_name)
@@ -110,12 +119,15 @@ def untaint_node(node_name, effect, key):
     return Result(response)
 
 
-def delete_node(node_name):
+def delete_node(token, node_name):
     """
     Delete a node
     """
+    # Get the Token id
+    api_key = token.get_id()
+
     # Get the client.
-    kube_client = get_client()
+    kube_client = get_client(api_key)
 
     # Delete the node
     body = kubernetes.client.V1DeleteOptions()
