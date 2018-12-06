@@ -804,11 +804,24 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                    return
+
+                self._platform_token = future.result.data
+
             if self._host_supports_kubernetes(host_personality):
                 response['reason'] = 'failed to delete kubernetes services'
 
                 # Send the delete request to kubernetes.
-                future.work(kubernetes_client.delete_node, host_name)
+                future.work(kubernetes_client.delete_node, self._platform_token, host_name)
                 future.result = (yield)
 
                 if not future.result.is_complete():
@@ -842,12 +855,25 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                host_name))
+                    return
+
+                self._platform_token = future.result.data
+
             if self._host_supports_kubernetes(host_personality):
                 response['reason'] = 'failed to enable kubernetes services'
 
                 # To enable kubernetes we remove the NoExecute taint from the
                 # node. This allows new pods to be scheduled on the node.
-                future.work(kubernetes_client.untaint_node,
+                future.work(kubernetes_client.untaint_node, self._platform_token,
                             host_name, "NoExecute", "services")
                 future.result = (yield)
 
@@ -883,6 +909,20 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
+            # # Retrieve the tokens from keystone
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                host_name))
+                    return
+
+                self._platform_token = future.result.data
+
             if self._host_supports_kubernetes(host_personality):
                 if True:
                     # For now, we do not want to apply the NoExecute taint.
@@ -902,7 +942,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                     # To disable kubernetes we add the NoExecute taint to the
                     # node. This removes pods that can be scheduled elsewhere
                     # and prevents new pods from scheduling on the node.
-                    future.work(kubernetes_client.taint_node,
+                    future.work(kubernetes_client.taint_node, self._platform_token,
                                 host_name, "NoExecute", "services", "disabled")
 
                     future.result = (yield)
