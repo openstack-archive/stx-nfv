@@ -5,8 +5,10 @@
 #
 import mock
 import os
-from . import testcase
+
 from nfv_client import shell
+
+from . import testcase  # noqa: H304
 
 
 class TestNFVClientShell(testcase.NFVTestCase):

@@ -10,8 +10,8 @@ from nfv_plugins.nfvi_plugins import config
 from nfv_plugins.nfvi_plugins.openstack import nova
 from nfv_plugins.nfvi_plugins.openstack import openstack
 
-import _alarms
-import _event_logs
+from . import _alarms # noqa: H304
+from . import _event_logs # noqa: H304
 
 DLOG = debug.debug_get_logger('nfv_tests.instances')
 

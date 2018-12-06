@@ -23,7 +23,7 @@ from nfv_common import debug
 from nfv_common import forensic
 from nfv_plugins.nfvi_plugins import config
 
-import tests
+from . import tests  # noqa: H304
 
 DLOG = debug.debug_get_logger('nfv_tests')
 
