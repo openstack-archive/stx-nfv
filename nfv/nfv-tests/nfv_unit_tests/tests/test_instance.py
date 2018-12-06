@@ -12,20 +12,19 @@ from nfv_vim import host_fsm
 from nfv_vim import nfvi
 from nfv_vim import objects
 
+from nfv_vim.nfvi.objects import v1 as nfvi_objects
 from nfv_vim.objects import HOST_PERSONALITY
-from nfv_vim.tables._table import Table
-from nfv_vim.tables._host_table import HostTable
-from nfv_vim.tables._host_group_table import HostGroupTable
 from nfv_vim.tables._host_aggregate_table import HostAggregateTable
-from nfv_vim.tables._instance_table import InstanceTable
-from nfv_vim.tables._instance_type_table import InstanceTypeTable
+from nfv_vim.tables._host_group_table import HostGroupTable
+from nfv_vim.tables._host_table import HostTable
 from nfv_vim.tables._image_table import ImageTable
 from nfv_vim.tables._instance_group_table import InstanceGroupTable
+from nfv_vim.tables._instance_table import InstanceTable
+from nfv_vim.tables._instance_type_table import InstanceTypeTable
+from nfv_vim.tables._table import Table
 
-from nfv_vim.nfvi.objects import v1 as nfvi_objects
-
-from . import testcase
-from . import utils
+from . import testcase  # noqa: H304
+from . import utils  # noqa: H304
 
 
 def fake_event_issue(a, b, c, d):

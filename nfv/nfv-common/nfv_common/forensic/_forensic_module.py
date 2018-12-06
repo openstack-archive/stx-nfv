@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import _parsers
+from nfv_common.forensic import _parsers
 
 
 def forensic_initialize():
