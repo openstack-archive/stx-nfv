@@ -5,10 +5,9 @@
 #
 import pecan
 
-import _config
-import _hooks
-
 from nfv_vim.api import acl
+from nfv_vim.api import _config
+from nfv_vim.api import _hooks
 
 
 def get_pecan_config():

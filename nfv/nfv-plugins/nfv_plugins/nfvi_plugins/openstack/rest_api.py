@@ -3,13 +3,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from six.moves import http_client as httplib
 import json
 import re
+from six.moves import http_client as httplib
+from six.moves import urllib
 import socket
 import struct
-from six.moves.urllib import error as urllib_error
-from six.moves.urllib import request as urllib_request
 
 import BaseHTTPServer
 import SocketServer
@@ -17,14 +16,15 @@ import SocketServer
 from nfv_common import debug
 from nfv_common import selobj
 from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 from nfv_common.helpers import Object
 from nfv_common.helpers import Result
 
-from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_error
-from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_info
 from nfv_plugins.nfvi_plugins.openstack.exceptions import OpenStackException
 from nfv_plugins.nfvi_plugins.openstack.exceptions import OpenStackRestAPIException
+from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_error
+from nfv_plugins.nfvi_plugins.openstack.openstack_log import log_info
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.rest_api')
 
@@ -299,7 +299,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
     start_ms = timers.get_monotonic_timestamp_in_ms()
 
     try:
-        request_info = urllib_request.Request(api_cmd)
+        request_info = urllib.request.Request(api_cmd)
         request_info.get_method = lambda: method
         request_info.add_header("X-Auth-Token", token_id)
         request_info.add_header("Accept", "application/json")
@@ -316,11 +316,11 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                              api_cmd_payload))
 
         # Enable Debug
-        # handler = urllib_request.HTTPHandler(debuglevel=1)
-        # opener = urllib_request.build_opener(handler)
-        # urllib_request.install_opener(opener)
+        # handler = urllib.request.HTTPHandler(debuglevel=1)
+        # opener = urllib.request.build_opener(handler)
+        # urllib.request.install_opener(opener)
 
-        request = urllib_request.urlopen(request_info)
+        request = urllib.request.urlopen(request_info)
 
         headers = list()  # list of tuples
         for key, value in request.info().items():
@@ -352,7 +352,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                        response=response_raw,
                                        execution_time=elapsed_secs))
 
-    except urllib_error.HTTPError as e:
+    except urllib.error.HTTPError as e:
         headers = list()
         response_raw = dict()
 
@@ -413,7 +413,7 @@ def _rest_api_request(token_id, method, api_cmd, api_cmd_headers=None,
                                         api_cmd_payload, e.code, str(e),
                                         str(e), headers, response_raw, reason)
 
-    except urllib_error.URLError as e:
+    except urllib.error.URLError as e:
         now_ms = timers.get_monotonic_timestamp_in_ms()
         elapsed_ms = now_ms - start_ms
 

@@ -9,12 +9,12 @@ import uuid
 from nfv_vim import nfvi
 from nfv_vim import objects
 
+from nfv_vim.directors._instance_director import InstanceDirector
 from nfv_vim.tables._image_table import ImageTable
 from nfv_vim.tables._table import Table
-from nfv_vim.directors._instance_director import InstanceDirector
 
-from . import testcase
-from . import utils
+from . import testcase  # noqa: H304
+from . import utils  # noqa: H304
 
 # Constants
 _audit_interval = 330

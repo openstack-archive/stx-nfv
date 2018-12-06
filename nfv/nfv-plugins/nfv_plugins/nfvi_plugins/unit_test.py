@@ -5,20 +5,20 @@
 #
 import argparse
 import config
-import time
-import socket
 from six.moves import http_client as httplib
+import socket
+import time
 
-from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import ceilometer
 from nfv_plugins.nfvi_plugins.openstack import cinder
 from nfv_plugins.nfvi_plugins.openstack import exceptions
 from nfv_plugins.nfvi_plugins.openstack import glance
 from nfv_plugins.nfvi_plugins.openstack import guest
+from nfv_plugins.nfvi_plugins.openstack import heat
 from nfv_plugins.nfvi_plugins.openstack import keystone
 from nfv_plugins.nfvi_plugins.openstack import neutron
 from nfv_plugins.nfvi_plugins.openstack import nova
-from nfv_plugins.nfvi_plugins.openstack import heat
+from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import sysinv
 
 
@@ -455,10 +455,10 @@ def do_unit_tests(test_set=None, rest_api_debug=False, test_config=None):
     """
     if rest_api_debug:
         # Enable debugging of request and response headers for rest-api calls
-        from six.moves.urllib import request as urllib_request
-        handler = urllib_request.HTTPHandler(debuglevel=1)
-        opener = urllib_request.build_opener(handler)
-        urllib_request.install_opener(opener)
+        from six.moves import urllib
+        handler = urllib.request.HTTPHandler(debuglevel=1)
+        opener = urllib.request.build_opener(handler)
+        urllib.request.install_opener(opener)
 
     platform_directory = openstack.get_directory(
         config, openstack.SERVICE_CATEGORY.PLATFORM)

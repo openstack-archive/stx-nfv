@@ -4,8 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from nfv_common import debug
-
-import _parsers
+from nfv_common.forensic import _parsers
 
 DLOG = debug.debug_get_logger('forensic-evidence')
 

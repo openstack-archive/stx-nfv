@@ -4,15 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-from six.moves.urllib import error as urllib_error
-from six.moves.urllib import request as urllib_request
+from six.moves import urllib
 
 from nfv_common import debug
-
-from nfv_vim.api.openstack._objects import OPENSTACK_SERVICE
 from nfv_plugins.nfvi_plugins.openstack.objects import PLATFORM_SERVICE
 from nfv_plugins.nfvi_plugins.openstack.objects import SERVICE_CATEGORY
 from nfv_vim.api.openstack._objects import Directory
+from nfv_vim.api.openstack._objects import OPENSTACK_SERVICE
 from nfv_vim.api.openstack._objects import Token
 
 DLOG = debug.debug_get_logger('nfv_vim.api.openstack')
@@ -30,7 +28,7 @@ def validate_token(directory, admin_token, token_id):
         else:
             url = directory.auth_uri + "/v3/auth/tokens"
 
-        request_info = urllib_request.Request(url)
+        request_info = urllib.request.Request(url)
         request_info.add_header("Content-Type", "application/json")
         request_info.add_header("Accept", "application/json")
         request_info.add_header("X-Auth-Token", admin_token.get_id())
@@ -57,7 +55,7 @@ def validate_token(directory, admin_token, token_id):
 
         request_info.add_data(payload)
 
-        request = urllib_request.urlopen(request_info)
+        request = urllib.request.urlopen(request_info)
         # Identity API v3 returns token id in X-Subject-Token
         # response header.
         token_id = request.info().getheader('X-Subject-Token')
@@ -65,11 +63,11 @@ def validate_token(directory, admin_token, token_id):
         request.close()
         return Token(response, directory, token_id)
 
-    except urllib_error.HTTPError as e:
+    except urllib.error.HTTPError as e:
         DLOG.error("%s" % e)
         return None
 
-    except urllib_error.URLError as e:
+    except urllib.error.URLError as e:
         DLOG.error("%s" % e)
         return None
 
@@ -86,7 +84,7 @@ def get_token(directory):
         else:
             url = directory.auth_uri + "/v3/auth/tokens"
 
-        request_info = urllib_request.Request(url)
+        request_info = urllib.request.Request(url)
         request_info.add_header("Content-Type", "application/json")
         request_info.add_header("Accept", "application/json")
 
@@ -118,7 +116,7 @@ def get_token(directory):
                     }}}})
         request_info.add_data(payload)
 
-        request = urllib_request.urlopen(request_info)
+        request = urllib.request.urlopen(request_info)
         # Identity API v3 returns token id in X-Subject-Token
         # response header.
         token_id = request.info().getheader('X-Subject-Token')
@@ -126,11 +124,11 @@ def get_token(directory):
         request.close()
         return Token(response, directory, token_id)
 
-    except urllib_error.HTTPError as e:
+    except urllib.error.HTTPError as e:
         DLOG.error("%s" % e)
         return None
 
-    except urllib_error.URLError as e:
+    except urllib.error.URLError as e:
         DLOG.error("%s" % e)
         return None
 

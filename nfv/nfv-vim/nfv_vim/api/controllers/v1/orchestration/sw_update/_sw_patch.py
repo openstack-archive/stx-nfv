@@ -3,17 +3,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from six.moves import http_client as httplib
 import pecan
 from pecan import rest
+from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
-from ....._link import Link
-
 from nfv_common import debug
-
 from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_strategy import SwPatchStrategyAPI
+from nfv_vim.api._link import Link
 
 DLOG = debug.debug_get_logger('nfv_vim.api.sw_patch')
 

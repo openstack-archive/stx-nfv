@@ -23,7 +23,8 @@ from nfv_common import debug
 from nfv_common import forensic
 from nfv_plugins.nfvi_plugins import config
 
-import tests
+import tests  # pylint: disable=relative-import
+
 
 DLOG = debug.debug_get_logger('nfv_tests')
 
