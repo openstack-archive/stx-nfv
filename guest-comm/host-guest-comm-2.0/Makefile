@@ -92,9 +92,10 @@ sdk/$(EXPORT_SDK).tgz:
 	@echo " host_guest_msg.h server_group.h misc.h" >> sdk/sdk.d
 	@echo '*' > sdk/.gitignore
 
+LIBHOSTGUESTMSG_LDFLAGS = -Wl,-z,noexecstack,-z,relro,-z,now
 $(LIBHOSTGUESTMSG_DEP): CFLAGS2 = -fPIC
 $(LIBHOSTGUESTMSG_DEP): $(LIBHOSTGUESTMSG_OBJ)
-	$(CC) -shared -Wl,-soname,$(LIBHOSTGUESTMSG_SO).$(MAJOR) $^ -o $(LIBHOSTGUESTMSG_DEP).$(MAJOR).$(MINOR).$(PATCH)
+	$(CC) $(LIBHOSTGUESTMSG_LDFLAGS) -shared -Wl,-soname,$(LIBHOSTGUESTMSG_SO).$(MAJOR) $^ -o $(LIBHOSTGUESTMSG_DEP).$(MAJOR).$(MINOR).$(PATCH)
 	ln -sf $(LIBHOSTGUESTMSG_SO).$(MAJOR).$(MINOR).$(PATCH) $(LIBHOSTGUESTMSG_DEP).$(MAJOR)
 	ln -sf $(LIBHOSTGUESTMSG_SO).$(MAJOR) $(LIBHOSTGUESTMSG_DEP)
 

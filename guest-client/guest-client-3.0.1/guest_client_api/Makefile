@@ -51,7 +51,7 @@ common_NAME := guest_common_api
 common_C_SRCS := guest_api_types.c guest_api_debug.c guest_api_stream.c
 common_C_SRCS += guest_api_unix.c
 common_C_OBJS := ${common_C_SRCS:.c=.o}
-common_LDFLAGS := -fPIC -g -shared
+common_LDFLAGS := -fPIC -g -shared -Wl,-z,noexecstack,-z,relro,-z,now
 common_LIB_NAME := lib$(common_NAME).so
 common_LIB_VER_MJR_NAME := $(common_LIB_NAME).3
 common_LIB_VER_NAME := $(common_LIB_VER_MJR_NAME).0.1
@@ -60,7 +60,7 @@ common_BUILD_OBJS := $(addprefix $(BUILD_DIR)/, $(common_C_OBJS))
 heartbeat_NAME := guest_heartbeat_api
 heartbeat_C_SRCS := guest_heartbeat_api.c
 heartbeat_C_OBJS := ${heartbeat_C_SRCS:.c=.o}
-heartbeat_LDFLAGS := -fPIC -g -shared
+heartbeat_LDFLAGS := -fPIC -g -shared -Wl,-z,noexecstack,-z,relro,-z,now
 heartbeat_LIB_NAME := lib$(heartbeat_NAME).so
 heartbeat_LIB_VER_MJR_NAME := $(heartbeat_LIB_NAME).3
 heartbeat_LIB_VER_NAME := $(heartbeat_LIB_VER_MJR_NAME).0.1
@@ -73,6 +73,7 @@ sample_LDLIBS :=  -L$(BUILD_DIR) -l$(common_NAME) -l$(heartbeat_NAME) -lrt
 sample_BUILD_OBJS := $(addprefix $(BUILD_DIR)/, $(sample_C_OBJS))
 
 CFLAGS = -g -O2 -Wall -Werror -Wformat -fPIC -DSYSCONFDIR=$(sysconfdir)
+CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security
 
 all: build
 

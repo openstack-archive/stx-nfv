@@ -55,6 +55,7 @@ heartbeat_C_SRCS := $(wildcard *.c)
 heartbeat_C_OBJS := ${heartbeat_C_SRCS:.c=.o}
 
 CFLAGS = -g -O2 -Wall -Werror -Wformat -DSYSCONFDIR=$(sysconfdir)
+CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wformat-security
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(heartbeat_C_INCLUDES) -c $< -o $(BUILD_DIR)/$@ -ljson-c

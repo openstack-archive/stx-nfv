@@ -34,7 +34,8 @@
 
 EXECS = guest_scale_helper guest_scale_agent
 
-CFLAGS= -g -Wall
+CFLAGS= -g -Wall -fstack-protector-strong -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security
+LDFLAGS=-Wl,-z,noexecstack,-z,relro,-z,now
 ODIR=obj
 BINDIR=bin
 

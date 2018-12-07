@@ -33,8 +33,8 @@
 
 EXECS= guest_agent server_group_app
 
-CFLAGS= -g -Wall
-LDFLAGS = 
+CFLAGS= -g -Wall -fstack-protector-strong -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security
+LDFLAGS = -Wl,-z,noexecstack,-z,relro,-z,now
 
 ODIR=obj
 BINDIR=bin
@@ -95,17 +95,17 @@ vpath %.h .
 # for LDFLAGS below.  This seems to work as a workaround.
 $(LIBSERVERGROUP_DEP): CFLAGS2 = -fPIC
 $(LIBSERVERGROUP_DEP): $(LIBSERVERGROUP_OBJ)
-	$(CC) -shared -Wl,-soname,$(LIBSERVERGROUP_SO).$(MAJOR) $^ -o $(LIBSERVERGROUP_DEP).$(MAJOR).$(MINOR).$(PATCH)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(LIBSERVERGROUP_SO).$(MAJOR) $^ -o $(LIBSERVERGROUP_DEP).$(MAJOR).$(MINOR).$(PATCH)
 	ln -sf $(LIBSERVERGROUP_SO).$(MAJOR).$(MINOR).$(PATCH) $(LIBSERVERGROUP_DEP).$(MAJOR)
 	ln -sf $(LIBSERVERGROUP_SO).$(MAJOR) $(LIBSERVERGROUP_DEP)
 
 $(LIBGUESTHOSTMSG_DEP): CFLAGS2 = -fPIC
 $(LIBGUESTHOSTMSG_DEP): $(LIBGUESTHOSTMSG_OBJ)
-	$(CC) -shared -Wl,-soname,$(LIBGUESTHOSTMSG_SO).$(MAJOR) $^ -o $(LIBGUESTHOSTMSG_DEP).$(MAJOR).$(MINOR).$(PATCH)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(LIBGUESTHOSTMSG_SO).$(MAJOR) $^ -o $(LIBGUESTHOSTMSG_DEP).$(MAJOR).$(MINOR).$(PATCH)
 	ln -sf $(LIBGUESTHOSTMSG_SO).$(MAJOR).$(MINOR).$(PATCH) $(LIBGUESTHOSTMSG_DEP).$(MAJOR)
 	ln -sf $(LIBGUESTHOSTMSG_SO).$(MAJOR) $(LIBGUESTHOSTMSG_DEP)
 
-$(BINDIR)/guest_agent: LDFLAGS2 = -rdynamic
+$(BINDIR)/guest_agent: LDFLAGS2 = -rdynamic -Wl,-z,noexecstack,-z,relro,-z,now
 $(BINDIR)/guest_agent: $(GUEST_AGENT_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS) $(LDFLAGS2) -ljson-c
 

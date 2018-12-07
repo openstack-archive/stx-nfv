@@ -66,6 +66,8 @@ program_BUILD_OBJS := $(addprefix $(BUILD_DIR)/, $(heartbeat_C_OBJS))
 program_BUILD_OBJS += $(addprefix $(BUILD_DIR)/, $(program_C_OBJS))
 
 CFLAGS = -g -O2 -Wall -Werror -Wformat -DSYSCONFDIR=$(sysconfdir)
+CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wformat-security
+LDFLAGS = -Wl,-z,noexecstack,-z,relro,-z,now
 
 all: build
 
@@ -78,7 +80,7 @@ heartbeat:
 
 $(program_NAME): heartbeat $(program_C_OBJS)
 	$(CC) $(CFLAGS) $(program_BUILD_OBJS) $(program_LDLIBS) \
-	-o $(BUILD_DIR)/$(program_NAME) -ljson-c
+	-o $(BUILD_DIR)/$(program_NAME) $(LDFLAGS) -ljson-c
 
 build: $(program_NAME)
 
