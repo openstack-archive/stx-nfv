@@ -23,6 +23,9 @@ if is_service_enabled stx-nfv; then
     elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
         # Configure after the other layer 1 and 2 services have been configured
         echo_summary "Configuring stx-nfv"
+        if is_service_enabled nfv-vim || is_service_enabled nfv-vim-api || is_service_enabled nfv-vim-webserver; then
+            configure_nfv
+        fi
         if is_service_enabled nova-api-proxy; then
             configure_nova_api_proxy
         fi
