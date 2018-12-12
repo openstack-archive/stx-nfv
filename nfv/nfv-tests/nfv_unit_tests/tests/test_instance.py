@@ -199,9 +199,9 @@ class TestInstance(testcase.NFVTestCase):
         if host_name.startswith('controller'):
             personality = HOST_PERSONALITY.CONTROLLER
             if cpe:
-                personality = personality + ',' + HOST_PERSONALITY.COMPUTE
+                personality = personality + ',' + HOST_PERSONALITY.WORKER
         elif host_name.startswith('compute'):
-            personality = HOST_PERSONALITY.COMPUTE
+            personality = HOST_PERSONALITY.WORKER
         elif host_name.startswith('storage'):
             personality = HOST_PERSONALITY.STORAGE
         else:

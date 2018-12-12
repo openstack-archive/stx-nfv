@@ -1326,7 +1326,7 @@ void guestHostClass::memDumpAllState ( void )
     for ( struct guest_host * ptr = guest_head ; ptr != NULL ; ptr = ptr->next )
     {
         memDumpNodeState  ( ptr->hostname );
-        if ( (ptr->hosttype & COMPUTE_TYPE) == COMPUTE_TYPE) 
+        if ( (ptr->hosttype & WORKER_TYPE) == WORKER_TYPE)
         {
             mem_log_info_inst ( ptr );
         }

@@ -217,8 +217,8 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
        "controller-apply-type": "serial",
        "current-phase-completion-percentage": 100,
        "uuid": "c1971c42-b494-4ff0-8abf-dbde17929972",
-       "compute-apply-type": "serial",
-       "max-parallel-compute-hosts": 2,
+       "worker-apply-type": "serial",
+       "max-parallel-worker-hosts": 2,
        "alarm-restrictions": "strict",
        "current-phase": "build",
        "apply-phase": {
@@ -537,7 +537,7 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
              "timeout": 4621,
              "total-steps": 6,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -643,7 +643,7 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
              "timeout": 4621,
              "total-steps": 6,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -745,7 +745,7 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
              "timeout": 4621,
              "total-steps": 6,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -847,7 +847,7 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
              "timeout": 4621,
              "total-steps": 6,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            }
          ],
          "current-stage": 0
@@ -963,8 +963,8 @@ forbidden (403), badMethod (405), overLimit (413)
 
    "controller-apply-type", "plain", "xsd:string", "The apply type for controller hosts: ``serial`` or ``ignore``."
    "storage-apply-type", "plain", "xsd:string", "The apply type for storage hosts: ``serial``, ``parallel`` or ``ignore``."
-   "compute-apply-type", "plain", "xsd:string", "The apply type for compute hosts: ``serial``, ``parallel`` or ``ignore``."
-   "max-parallel-compute-hosts (Optional)", "plain", "xsd:integer", "The maximum number of compute hosts to patch in parallel; only applicable if ``compute-apply-type = parallel``. Default value is ``2``."
+   "worker-apply-type", "plain", "xsd:string", "The apply type for worker hosts: ``serial``, ``parallel`` or ``ignore``."
+   "max-parallel-worker-hosts (Optional)", "plain", "xsd:integer", "The maximum number of worker hosts to patch in parallel; only applicable if ``worker-apply-type = parallel``. Default value is ``2``."
    "swift-apply-type", "plain", "xsd:string", "The apply type for swift hosts: ``serial``, ``parallel`` or ``ignore``."
    "default-instance-action", "plain", "xsd:string", "The default instance action: ``stop-start`` or ``migrate``."
    "alarm-restrictions (Optional)", "plain", "xsd:string", "The strictness of alarm checks: ``strict`` or ``relaxed``."
@@ -974,7 +974,7 @@ forbidden (403), badMethod (405), overLimit (413)
    {
      "controller-apply-type": "serial",
      "default-instance-action": "stop-start",
-     "compute-apply-type": "serial",
+     "worker-apply-type": "serial",
      "storage-apply-type": "serial",
      "swift-apply-type": "ignore",
      "alarm-restrictions": "strict"
@@ -987,8 +987,8 @@ forbidden (403), badMethod (405), overLimit (413)
        "controller-apply-type": "serial",
        "current-phase-completion-percentage": 0,
        "uuid": "15dc4b63-ae5f-48ca-b76e-ec367ef817f5",
-       "compute-apply-type": "serial",
-       "max-parallel-compute-hosts": 2,
+       "worker-apply-type": "serial",
+       "max-parallel-worker-hosts": 2,
        "alarm-restrictions": "strict",
        "current-phase": "build",
        "apply-phase": {
@@ -1143,8 +1143,8 @@ forbidden (403), badMethod (405), overLimit (413)
        "controller-apply-type": "serial",
        "current-phase-completion-percentage": 0,
        "uuid": "15dc4b63-ae5f-48ca-b76e-ec367ef817f5",
-       "compute-apply-type": "serial",
-       "max-parallel-compute-hosts": 2,
+       "worker-apply-type": "serial",
+       "max-parallel-worker-hosts": 2,
        "alarm-restrictions": "strict",
        "current-phase": "apply",
        "apply-phase": {
@@ -1265,7 +1265,7 @@ forbidden (403), badMethod (405), overLimit (413)
              "timeout": 1921,
              "total-steps": 3,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -1319,7 +1319,7 @@ forbidden (403), badMethod (405), overLimit (413)
              "timeout": 1921,
              "total-steps": 3,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -1373,7 +1373,7 @@ forbidden (403), badMethod (405), overLimit (413)
              "timeout": 1921,
              "total-steps": 3,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -1427,7 +1427,7 @@ forbidden (403), badMethod (405), overLimit (413)
              "timeout": 1921,
              "total-steps": 3,
              "inprogress": false,
-             "stage-name": "sw-patch-compute-hosts"
+             "stage-name": "sw-patch-worker-hosts"
            }
          ],
          "current-stage": 0
@@ -1550,8 +1550,8 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
        "current-phase-completion-percentage": 100,
        "uuid": "ac9b953a-caf1-4abe-8d53-498b598e6731",
        "name": "sw-upgrade",
-       "compute-apply-type": "serial",
-       "max-parallel-compute-hosts": 2,
+       "worker-apply-type": "serial",
+       "max-parallel-worker-hosts": 2,
        "current-phase": "build",
        "apply-phase": {
          "start-date-time": "",
@@ -1735,7 +1735,7 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
              "timeout": 3721,
              "total-steps": 5,
              "inprogress": false,
-             "stage-name": "sw-upgrade-compute-hosts"
+             "stage-name": "sw-upgrade-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -1821,7 +1821,7 @@ forbidden (403), badMethod (405), overLimit (413), itemNotFound (404)
              "timeout": 3721,
              "total-steps": 5,
              "inprogress": false,
-             "stage-name": "sw-upgrade-compute-hosts"
+             "stage-name": "sw-upgrade-worker-hosts"
            }
          ],
          "current-stage": 0
@@ -1925,14 +1925,14 @@ forbidden (403), badMethod (405), overLimit (413)
    :widths: 20, 20, 20, 60
 
    "storage-apply-type", "plain", "xsd:string", "The apply type for storage hosts: ``serial``, ``parallel`` or ``ignore``."
-   "compute-apply-type", "plain", "xsd:string", "The apply type for compute hosts: ``serial``, ``parallel`` or ``ignore``."
-   "max-parallel-compute-hosts (Optional)", "plain", "xsd:integer", "The maximum number of compute hosts to upgrade in parallel; only applicable if ``compute-apply-type = parallel``. Default value is ``2``."
+   "worker-apply-type", "plain", "xsd:string", "The apply type for worker hosts: ``serial``, ``parallel`` or ``ignore``."
+   "max-parallel-worker-hosts (Optional)", "plain", "xsd:integer", "The maximum number of worker hosts to upgrade in parallel; only applicable if ``worker-apply-type = parallel``. Default value is ``2``."
    "alarm-restrictions (Optional)", "plain", "xsd:string", "The strictness of alarm checks: ``strict`` or ``relaxed``."
 
 ::
 
    {
-     "compute-apply-type": "serial",
+     "worker-apply-type": "serial",
      "storage-apply-type": "serial",
      "alarm-restrictions": "relaxed"
    }
@@ -1945,8 +1945,8 @@ forbidden (403), badMethod (405), overLimit (413)
        "current-phase-completion-percentage": 0,
        "uuid": "ac9b953a-caf1-4abe-8d53-498b598e6731",
        "name": "sw-upgrade",
-       "compute-apply-type": "serial",
-       "max-parallel-compute-hosts": 2,
+       "worker-apply-type": "serial",
+       "max-parallel-worker-hosts": 2,
        "current-phase": "build",
        "apply-phase": {
          "start-date-time": "",
@@ -2090,8 +2090,8 @@ forbidden (403), badMethod (405), overLimit (413)
        "current-phase-completion-percentage": 0,
        "uuid": "ac9b953a-caf1-4abe-8d53-498b598e6731",
        "name": "sw-upgrade",
-       "compute-apply-type": "serial",
-       "max-parallel-compute-hosts": 2,
+       "worker-apply-type": "serial",
+       "max-parallel-worker-hosts": 2,
        "current-phase": "apply",
        "apply-phase": {
          "start-date-time": "2017-01-10 16:19:12",
@@ -2275,7 +2275,7 @@ forbidden (403), badMethod (405), overLimit (413)
              "timeout": 3721,
              "total-steps": 5,
              "inprogress": false,
-             "stage-name": "sw-upgrade-compute-hosts"
+             "stage-name": "sw-upgrade-worker-hosts"
            },
            {
              "start-date-time": "",
@@ -2361,7 +2361,7 @@ forbidden (403), badMethod (405), overLimit (413)
              "timeout": 3721,
              "total-steps": 5,
              "inprogress": false,
-             "stage-name": "sw-upgrade-compute-hosts"
+             "stage-name": "sw-upgrade-worker-hosts"
            }
          ],
          "current-stage": 0

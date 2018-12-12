@@ -31,8 +31,8 @@ class SwPatch(SwUpdate):
         self._nfvi_sw_patch_hosts = list()
 
     def strategy_build(self, strategy_uuid, controller_apply_type,
-                       storage_apply_type, swift_apply_type, compute_apply_type,
-                       max_parallel_compute_hosts,
+                       storage_apply_type, swift_apply_type, worker_apply_type,
+                       max_parallel_worker_hosts,
                        default_instance_action, alarm_restrictions,
                        ignore_alarms,
                        single_controller):
@@ -47,7 +47,7 @@ class SwPatch(SwUpdate):
 
         self._strategy = strategy.SwPatchStrategy(
             strategy_uuid, controller_apply_type, storage_apply_type,
-            swift_apply_type, compute_apply_type, max_parallel_compute_hosts,
+            swift_apply_type, worker_apply_type, max_parallel_worker_hosts,
             default_instance_action,
             alarm_restrictions, ignore_alarms,
             single_controller)

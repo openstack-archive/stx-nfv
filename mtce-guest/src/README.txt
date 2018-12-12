@@ -9,9 +9,9 @@ orchestration under VIM (system management) control.
    a. image.inc and filter_out packaging files are modified to exclude the
       heartbeat daemon from being packaged on the controller.
 
-   b. because the heartbeat daemon is still packaged on the compute
+   b. because the heartbeat daemon is still packaged on the worker
       heartbeat_init script is modified to prevent the heartbeat
-      daemon from being spawned on the compute host.
+      daemon from being spawned on the worker host.
 
 2. Compute Function: Heartbeats the guest and reports failures.
 
@@ -37,7 +37,7 @@ orchestration under VIM (system management) control.
 
 Behavioral Executive Summary:
 
-The guestServer daemon (on the compute) listens for (using inotify) 'uuid'
+The guestServer daemon (on the worker) listens for (using inotify) 'uuid'
 UNIX named heartbeat communication channels that nova:libvirt creates and
 opens in /var/lib/libvirt/qemu whenever an instance is created. Example: 
 
