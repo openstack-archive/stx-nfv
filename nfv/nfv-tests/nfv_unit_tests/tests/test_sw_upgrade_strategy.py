@@ -255,9 +255,9 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         if host_name.startswith('controller'):
             personality = HOST_PERSONALITY.CONTROLLER
             if cpe:
-                personality = personality + ',' + HOST_PERSONALITY.COMPUTE
+                personality = personality + ',' + HOST_PERSONALITY.WORKER
         elif host_name.startswith('compute'):
-            personality = HOST_PERSONALITY.COMPUTE
+            personality = HOST_PERSONALITY.WORKER
         elif host_name.startswith('storage'):
             personality = HOST_PERSONALITY.STORAGE
         else:
@@ -316,8 +316,8 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     def create_sw_upgrade_strategy(self,
             storage_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
-            max_parallel_compute_hosts=10,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
+            max_parallel_worker_hosts=10,
             alarm_restrictions=SW_UPDATE_ALARM_RESTRICTION.STRICT,
             start_upgrade=False,
             complete_upgrade=False,
@@ -329,8 +329,8 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         strategy = SwUpgradeStrategy(
             uuid=str(uuid.uuid4()),
             storage_apply_type=storage_apply_type,
-            compute_apply_type=compute_apply_type,
-            max_parallel_compute_hosts=max_parallel_compute_hosts,
+            worker_apply_type=worker_apply_type,
+            max_parallel_worker_hosts=max_parallel_worker_hosts,
             alarm_restrictions=alarm_restrictions,
             start_upgrade=start_upgrade,
             complete_upgrade=complete_upgrade,
@@ -341,9 +341,9 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
-    def test_sw_upgrade_strategy_compute_stages_ignore(self):
+    def test_sw_upgrade_strategy_worker_stages_ignore(self):
         """
-        Test the sw_upgrade strategy add compute strategy stages:
+        Test the sw_upgrade strategy add worker strategy stages:
         - ignore apply
         Verify:
         - stages not created
@@ -364,19 +364,19 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                               ['test_instance_0', 'test_instance_1'],
                               [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE
         )
 
-        success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        success, reason = strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         assert success is True, "Strategy creation failed"
@@ -392,9 +392,9 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
-    def test_sw_upgrade_strategy_compute_stages_parallel_migrate_anti_affinity(self):
+    def test_sw_upgrade_strategy_worker_stages_parallel_migrate_anti_affinity(self):
         """
-        Test the sw_upgrade strategy add compute strategy stages:
+        Test the sw_upgrade strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -417,20 +417,20 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
-            max_parallel_compute_hosts=2
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            max_parallel_worker_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -438,7 +438,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 3,
             'stages': [
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -451,7 +451,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -467,7 +467,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -491,9 +491,9 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
-    def test_sw_upgrade_strategy_compute_stages_parallel_migrate_ten_hosts(self):
+    def test_sw_upgrade_strategy_worker_stages_parallel_migrate_ten_hosts(self):
         """
-        Test the sw_upgrade strategy add compute strategy stages:
+        Test the sw_upgrade strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -520,20 +520,20 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         self.create_instance('small', "test_instance_8", 'compute-8')
         self.create_instance('small', "test_instance_9", 'compute-9')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
-            max_parallel_compute_hosts=3
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            max_parallel_worker_hosts=3
         )
 
-        strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -541,7 +541,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -554,7 +554,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -572,7 +572,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -590,7 +590,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -615,9 +615,9 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
-    def test_sw_upgrade_strategy_compute_stages_parallel_migrate_fifty_hosts(self):
+    def test_sw_upgrade_strategy_worker_stages_parallel_migrate_fifty_hosts(self):
         """
-        Test the sw_upgrade strategy add compute strategy stages:
+        Test the sw_upgrade strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -637,20 +637,20 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         self.create_host_aggregate('aggregate-2',
                                    ["compute-%02d" % x for x in range(25, 50)])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
-            max_parallel_compute_hosts=5
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            max_parallel_worker_hosts=5
         )
 
-        strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -683,7 +683,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 13,
             'stages': [
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -701,7 +701,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
         for x in range(1, len(stage_hosts)):
             expected_results['stages'].append(
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -724,9 +724,9 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
-    def test_sw_upgrade_strategy_compute_stages_serial_migrate(self):
+    def test_sw_upgrade_strategy_worker_stages_serial_migrate(self):
         """
-        Test the sw_upgrade strategy add compute strategy stages:
+        Test the sw_upgrade strategy add worker strategy stages:
         - serial apply
         - migrate instance action
         Verify:
@@ -748,18 +748,18 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -767,7 +767,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -780,7 +780,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -793,7 +793,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -808,7 +808,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -831,9 +831,9 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
-    def test_sw_upgrade_strategy_compute_stages_serial_migrate_locked_instance(self):
+    def test_sw_upgrade_strategy_worker_stages_serial_migrate_locked_instance(self):
         """
-        Test the sw_upgrade strategy add compute strategy stages:
+        Test the sw_upgrade strategy add worker strategy stages:
         - serial apply
         - migrate instance action
         - locked instance in instance group
@@ -857,19 +857,19 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
-        success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        success, reason = strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         assert success is False, "Strategy creation did not fail"
@@ -1280,7 +1280,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
         strategy = self.create_sw_upgrade_strategy(
             storage_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             start_upgrade=True,
             complete_upgrade=True
         )
@@ -1367,7 +1367,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                       'timeout': 7200}
                  ]
                  },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1381,7 +1381,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1435,7 +1435,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                              'compute-0')
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
                 '12.01',
@@ -1483,7 +1483,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                       'timeout': 14400}
                  ]
                  },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1497,7 +1497,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-upgrade-compute-hosts',
+                {'name': 'sw-upgrade-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1543,7 +1543,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                              'compute-1')
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.DATA_MIGRATION_COMPLETE,
                 '12.01',
@@ -1588,7 +1588,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                              'compute-1')
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL
         )
 
         fake_upgrade_obj = SwUpgrade()
@@ -1629,7 +1629,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                              'compute-1')
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.DATA_MIGRATION_COMPLETE,
                 '12.01',
@@ -1674,7 +1674,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                              'compute-1')
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
                 '12.01',
@@ -1721,7 +1721,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                              'compute-1')
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
                 '12.01',
@@ -1744,10 +1744,10 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     @mock.patch('nfv_vim.strategy._strategy.get_local_host_name',
                 fake_host_name_controller_1)
-    def test_sw_upgrade_strategy_build_complete_locked_compute(self):
+    def test_sw_upgrade_strategy_build_complete_locked_worker(self):
         """
         Test the sw_upgrade strategy build_complete:
-        - locked compute host
+        - locked worker host
         Verify:
         - build fails
         """
@@ -1767,7 +1767,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                              'compute-1')
 
         strategy = self.create_sw_upgrade_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             nfvi_upgrade=nfvi.objects.v1.Upgrade(
                 UPGRADE_STATE.UPGRADING_CONTROLLERS,
                 '12.01',
@@ -1783,7 +1783,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 0,
             'result': 'failed',
-            'result_reason': 'all compute hosts must be unlocked-enabled-available'
+            'result_reason': 'all worker hosts must be unlocked-enabled-available'
         }
 
         validate_phase(build_phase, expected_results)

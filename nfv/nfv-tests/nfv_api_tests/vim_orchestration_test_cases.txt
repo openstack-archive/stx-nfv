@@ -10,7 +10,7 @@ cat > create_serial.txt << EOF
 {
   "controller-apply-type": "serial",
   "default-instance-action": "stop-start",
-  "compute-apply-type": "serial",
+  "worker-apply-type": "serial",
   "storage-apply-type": "serial",
   "swift-apply-type": "ignore",
   "alarm-restrictions": "relaxed"
@@ -22,8 +22,8 @@ cat > create_parallel.txt << EOF
 {
   "controller-apply-type": "serial",
   "default-instance-action": "migrate",
-  "compute-apply-type": "parallel",
-  "max-parallel-compute-hosts": "3",
+  "worker-apply-type": "parallel",
+  "max-parallel-worker-hosts": "3",
   "storage-apply-type": "parallel",
   "swift-apply-type": "ignore",
   "alarm-restrictions": "relaxed"
@@ -79,12 +79,12 @@ TOKEN_ID=`openstack token issue | grep "| id         |" | cut -f3 -d'|' | tr -d 
 Create strategy
 ---------------
 cat > create_serial.txt << EOF
-{ "compute-apply-type": "serial", "storage-apply-type": "serial", "alarm-restrictions": "relaxed" }
+{ "worker-apply-type": "serial", "storage-apply-type": "serial", "alarm-restrictions": "relaxed" }
 EOF
 curl -i -X POST -H "Accept: application/json" -H "X-Auth-Token: ${TOKEN_ID}" -H "Content-Type: application/json" http://192.168.204.2:4545/api/orchestration/sw-upgrade/strategy -d @create_serial.txt
 
 cat > create_parallel.txt << EOF
-{ "compute-apply-type": "parallel", "max-parallel-compute-hosts": "3", "storage-apply-type": "parallel", "alarm-restrictions": "relaxed" }
+{ "worker-apply-type": "parallel", "max-parallel-worker-hosts": "3", "storage-apply-type": "parallel", "alarm-restrictions": "relaxed" }
 EOF
 curl -i -X POST -H "Accept: application/json" -H "X-Auth-Token: ${TOKEN_ID}" -H "Content-Type: application/json" http://192.168.204.2:4545/api/orchestration/sw-upgrade/strategy -d @create_parallel.txt
 

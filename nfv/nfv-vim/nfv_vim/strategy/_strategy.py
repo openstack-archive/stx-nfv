@@ -52,16 +52,16 @@ class SwUpdateStrategy(strategy.Strategy):
     """
     def __init__(self, uuid, strategy_name, controller_apply_type,
                  storage_apply_type,
-                 swift_apply_type, compute_apply_type,
-                 max_parallel_compute_hosts, default_instance_action,
+                 swift_apply_type, worker_apply_type,
+                 max_parallel_worker_hosts, default_instance_action,
                  alarm_restrictions,
                  ignore_alarms):
         super(SwUpdateStrategy, self).__init__(uuid, strategy_name)
         self._controller_apply_type = controller_apply_type
         self._storage_apply_type = storage_apply_type
         self._swift_apply_type = swift_apply_type
-        self._compute_apply_type = compute_apply_type
-        self._max_parallel_compute_hosts = max_parallel_compute_hosts
+        self._worker_apply_type = worker_apply_type
+        self._max_parallel_worker_hosts = max_parallel_worker_hosts
         self._default_instance_action = default_instance_action
         self._alarm_restrictions = alarm_restrictions
         self._ignore_alarms = ignore_alarms
@@ -159,9 +159,9 @@ class SwUpdateStrategy(strategy.Strategy):
 
         return host_lists, ''
 
-    def _create_compute_host_lists(self, compute_hosts, reboot):
+    def _create_worker_host_lists(self, worker_hosts, reboot):
         """
-        Create host lists for updating compute hosts
+        Create host lists for updating worker hosts
         """
         from nfv_vim import tables
 
@@ -180,17 +180,17 @@ class SwUpdateStrategy(strategy.Strategy):
             """
             Calculate limit for each host aggregate
             """
-            # Use the ratio of the max parallel compute hosts to the total
-            # number of compute hosts to limit the number of hosts in each
+            # Use the ratio of the max parallel worker hosts to the total
+            # number of worker hosts to limit the number of hosts in each
             # aggregate that will be patched at the same time. If there
             # are multiple aggregates, that will help us select hosts
             # from more than one aggregate for each stage.
             host_table = tables.tables_get_host_table()
-            num_compute_hosts = host_table.total_by_personality(
-                HOST_PERSONALITY.COMPUTE)
+            num_worker_hosts = host_table.total_by_personality(
+                HOST_PERSONALITY.WORKER)
             aggregate_ratio = \
-                float(self._max_parallel_compute_hosts) / num_compute_hosts
-            # Limit the ratio to half the compute hosts in an aggregate
+                float(self._max_parallel_worker_hosts) / num_worker_hosts
+            # Limit the ratio to half the worker hosts in an aggregate
             if aggregate_ratio > 0.5:
                 aggregate_ratio = 0.5
 
@@ -242,12 +242,12 @@ class SwUpdateStrategy(strategy.Strategy):
         instance_table = tables.tables_get_instance_table()
         instance_group_table = tables.tables_get_instance_group_table()
 
-        if SW_UPDATE_APPLY_TYPE.IGNORE != self._compute_apply_type:
-            for host in compute_hosts:
-                if HOST_PERSONALITY.COMPUTE not in host.personality:
-                    DLOG.error("Host inventory personality compute mismatch "
+        if SW_UPDATE_APPLY_TYPE.IGNORE != self._worker_apply_type:
+            for host in worker_hosts:
+                if HOST_PERSONALITY.WORKER not in host.personality:
+                    DLOG.error("Host inventory personality worker mismatch "
                                "detected for host %s." % host.name)
-                    reason = 'host inventory personality compute mismatch detected'
+                    reason = 'host inventory personality worker mismatch detected'
                     return None, reason
 
             # Do not allow reboots if there are locked instances that
@@ -269,21 +269,21 @@ class SwUpdateStrategy(strategy.Strategy):
 
         host_lists = list()
 
-        if SW_UPDATE_APPLY_TYPE.SERIAL == self._compute_apply_type:
+        if SW_UPDATE_APPLY_TYPE.SERIAL == self._worker_apply_type:
             host_with_instances_lists = list()
 
-            # handle the computes with no instances first
-            for host in compute_hosts:
+            # handle the workers with no instances first
+            for host in worker_hosts:
                 if not instance_table.exist_on_host(host.name):
                     host_lists.append([host])
                 else:
                     host_with_instances_lists.append([host])
 
-            # then add computes with instances
+            # then add workers with instances
             if host_with_instances_lists:
                 host_lists += host_with_instances_lists
 
-        elif SW_UPDATE_APPLY_TYPE.PARALLEL == self._compute_apply_type:
+        elif SW_UPDATE_APPLY_TYPE.PARALLEL == self._worker_apply_type:
             policies = [INSTANCE_GROUP_POLICY.ANTI_AFFINITY,
                         INSTANCE_GROUP_POLICY.ANTI_AFFINITY_BEST_EFFORT]
 
@@ -291,26 +291,26 @@ class SwUpdateStrategy(strategy.Strategy):
             host_aggregate_limit = {}
             calculate_host_aggregate_limits()
             controller_list = list()
-            host_lists.append([])  # start with empty list of computes
+            host_lists.append([])  # start with empty list of workers
 
-            for host in compute_hosts:
+            for host in worker_hosts:
                 if HOST_PERSONALITY.CONTROLLER in host.personality:
                     # have to swact the controller so put it in its own list
                     controller_list.append([host])
                     continue
                 elif not reboot:
-                    # parallel no-reboot can group all computes together
+                    # parallel no-reboot can group all workers together
                     host_lists[0].append(host)
                     continue
                 elif not instance_table.exist_on_host(host.name):
-                    # group the computes with no instances together
+                    # group the workers with no instances together
                     host_lists[0].append(host)
                     continue
 
                 # find the first list that can add this host else create a new list
                 for idx in range(1, len(host_lists), 1):
                     host_list = host_lists[idx]
-                    if len(host_list) >= self._max_parallel_compute_hosts:
+                    if len(host_list) >= self._max_parallel_worker_hosts:
                         # this list is full - don't add the host
                         continue
 
@@ -337,21 +337,21 @@ class SwUpdateStrategy(strategy.Strategy):
             DLOG.verbose("Compute apply type set to ignore.")
 
         # Drop empty lists and enforce a maximum number of hosts to be updated
-        # at once (only required list of computes with no instances, as we
-        # enforced the limit for compute hosts with instances above).
+        # at once (only required list of workers with no instances, as we
+        # enforced the limit for worker hosts with instances above).
         sized_host_lists = list()
         for host_list in host_lists:
             # drop empty host lists
             if not host_list:
                 continue
 
-            if self._max_parallel_compute_hosts < len(host_list):
+            if self._max_parallel_worker_hosts < len(host_list):
                 start = 0
-                end = self._max_parallel_compute_hosts
+                end = self._max_parallel_worker_hosts
                 while start < len(host_list):
                     sized_host_lists.append(host_list[start:end])
                     start = end
-                    end += self._max_parallel_compute_hosts
+                    end += self._max_parallel_worker_hosts
             else:
                 sized_host_lists.append(host_list)
 
@@ -424,8 +424,8 @@ class SwUpdateStrategy(strategy.Strategy):
         self._controller_apply_type = data['controller_apply_type']
         self._storage_apply_type = data['storage_apply_type']
         self._swift_apply_type = data['swift_apply_type']
-        self._compute_apply_type = data['compute_apply_type']
-        self._max_parallel_compute_hosts = data['max_parallel_compute_hosts']
+        self._worker_apply_type = data['worker_apply_type']
+        self._max_parallel_worker_hosts = data['max_parallel_worker_hosts']
         self._default_instance_action = data['default_instance_action']
         self._alarm_restrictions = data['alarm_restrictions']
         self._ignore_alarms = data['ignore_alarms']
@@ -450,8 +450,8 @@ class SwUpdateStrategy(strategy.Strategy):
         data['controller_apply_type'] = self._controller_apply_type
         data['storage_apply_type'] = self._storage_apply_type
         data['swift_apply_type'] = self._swift_apply_type
-        data['compute_apply_type'] = self._compute_apply_type
-        data['max_parallel_compute_hosts'] = self._max_parallel_compute_hosts
+        data['worker_apply_type'] = self._worker_apply_type
+        data['max_parallel_worker_hosts'] = self._max_parallel_worker_hosts
         data['default_instance_action'] = self._default_instance_action
         data['alarm_restrictions'] = self._alarm_restrictions
         data['ignore_alarms'] = self._ignore_alarms
@@ -469,8 +469,8 @@ class SwPatchStrategy(SwUpdateStrategy):
     Software Patch - Strategy
     """
     def __init__(self, uuid, controller_apply_type, storage_apply_type,
-                 swift_apply_type, compute_apply_type,
-                 max_parallel_compute_hosts, default_instance_action,
+                 swift_apply_type, worker_apply_type,
+                 max_parallel_worker_hosts, default_instance_action,
                  alarm_restrictions,
                  ignore_alarms,
                  single_controller):
@@ -480,8 +480,8 @@ class SwPatchStrategy(SwUpdateStrategy):
             controller_apply_type,
             storage_apply_type,
             swift_apply_type,
-            compute_apply_type,
-            max_parallel_compute_hosts,
+            worker_apply_type,
+            max_parallel_worker_hosts,
             default_instance_action,
             alarm_restrictions,
             ignore_alarms)
@@ -572,7 +572,7 @@ class SwPatchStrategy(SwUpdateStrategy):
             local_host_name = get_local_host_name()
 
             for host in controllers:
-                if HOST_PERSONALITY.COMPUTE not in host.personality:
+                if HOST_PERSONALITY.WORKER not in host.personality:
                     if local_host_name == host.name:
                         local_host = host
                     else:
@@ -713,18 +713,18 @@ class SwPatchStrategy(SwUpdateStrategy):
 
         return True, ''
 
-    def _add_compute_strategy_stages(self, compute_hosts, reboot):
+    def _add_worker_strategy_stages(self, worker_hosts, reboot):
         """
-        Add compute software patch strategy stages
+        Add worker software patch strategy stages
         """
         from nfv_vim import tables
         from nfv_vim import strategy
 
-        if SW_UPDATE_APPLY_TYPE.IGNORE != self._compute_apply_type:
-            # When using a single controller/compute host, only allow the
+        if SW_UPDATE_APPLY_TYPE.IGNORE != self._worker_apply_type:
+            # When using a single controller/worker host, only allow the
             # stop/start instance action.
             if self._single_controller:
-                for host in compute_hosts:
+                for host in worker_hosts:
                     if HOST_PERSONALITY.CONTROLLER in host.personality and \
                             SW_UPDATE_INSTANCE_ACTION.STOP_START != \
                             self._default_instance_action:
@@ -734,7 +734,7 @@ class SwPatchStrategy(SwUpdateStrategy):
                                  'controller configuration'
                         return False, reason
 
-        host_lists, reason = self._create_compute_host_lists(compute_hosts, reboot)
+        host_lists, reason = self._create_worker_host_lists(worker_hosts, reboot)
         if host_lists is None:
             return False, reason
 
@@ -757,7 +757,7 @@ class SwPatchStrategy(SwUpdateStrategy):
                 hosts_to_reboot = [x for x in host_list if x.is_locked()]
 
             stage = strategy.StrategyStage(
-                strategy.STRATEGY_STAGE_NAME.SW_PATCH_COMPUTE_HOSTS)
+                strategy.STRATEGY_STAGE_NAME.SW_PATCH_WORKER_HOSTS)
 
             stage.add_step(strategy.QueryAlarmsStep(
                 True, ignore_alarms=self._ignore_alarms))
@@ -774,9 +774,9 @@ class SwPatchStrategy(SwUpdateStrategy):
                     if SW_UPDATE_INSTANCE_ACTION.MIGRATE == \
                             self._default_instance_action:
                         if SW_UPDATE_APPLY_TYPE.PARALLEL == \
-                                self._compute_apply_type:
+                                self._worker_apply_type:
                             # Disable host services before migrating to ensure
-                            # instances do not migrate to compute hosts in the
+                            # instances do not migrate to worker hosts in the
                             # same set of hosts.
                             if host_list[0].host_service_configured(
                                     HOST_SERVICES.COMPUTE):
@@ -874,9 +874,9 @@ class SwPatchStrategy(SwUpdateStrategy):
                 return
 
             for host in host_table.values():
-                if HOST_PERSONALITY.COMPUTE in host.personality and \
+                if HOST_PERSONALITY.WORKER in host.personality and \
                         HOST_PERSONALITY.CONTROLLER not in host.personality:
-                    # Allow patch orchestration when compute hosts are available,
+                    # Allow patch orchestration when worker hosts are available,
                     # locked or powered down.
                     if not ((host.is_unlocked() and host.is_enabled() and
                              host.is_available()) or
@@ -885,14 +885,14 @@ class SwPatchStrategy(SwUpdateStrategy):
                             (host.is_locked() and host.is_disabled() and
                              host.is_online())):
                         DLOG.warn(
-                            "All compute hosts must be unlocked-enabled-available, "
+                            "All worker hosts must be unlocked-enabled-available, "
                             "locked-disabled-online or locked-disabled-offline, "
                             "can't apply software patches.")
                         self._state = strategy.STRATEGY_STATE.BUILD_FAILED
                         self.build_phase.result = \
                             strategy.STRATEGY_PHASE_RESULT.FAILED
                         self.build_phase.result_reason = (
-                            'all compute hosts must be unlocked-enabled-available, '
+                            'all worker hosts must be unlocked-enabled-available, '
                             'locked-disabled-online or locked-disabled-offline')
                         self.sw_update_obj.strategy_build_complete(
                             False, self.build_phase.result_reason)
@@ -925,8 +925,8 @@ class SwPatchStrategy(SwUpdateStrategy):
             storage_hosts_no_reboot = list()
             swift_hosts = list()
             swift_hosts_no_reboot = list()
-            compute_hosts = list()
-            compute_hosts_no_reboot = list()
+            worker_hosts = list()
+            worker_hosts_no_reboot = list()
 
             for sw_patch_host in self.nfvi_sw_patch_hosts:
                 host = host_table.get(sw_patch_host.name, None)
@@ -982,13 +982,13 @@ class SwPatchStrategy(SwUpdateStrategy):
 
                 # Separate if check to handle CPE where host has multiple
                 # personality disorder.
-                if HOST_PERSONALITY.COMPUTE in sw_patch_host.personality:
-                    # Ignore compute hosts that are powered down
+                if HOST_PERSONALITY.WORKER in sw_patch_host.personality:
+                    # Ignore worker hosts that are powered down
                     if not host.is_offline():
                         if sw_patch_host.requires_reboot:
-                            compute_hosts.append(host)
+                            worker_hosts.append(host)
                         else:
-                            compute_hosts_no_reboot.append(host)
+                            worker_hosts_no_reboot.append(host)
 
             STRATEGY_CREATION_COMMANDS = [
                 (self._add_controller_strategy_stages,
@@ -1003,10 +1003,10 @@ class SwPatchStrategy(SwUpdateStrategy):
                  swift_hosts_no_reboot, False),
                 (self._add_swift_strategy_stages,
                  swift_hosts, True),
-                (self._add_compute_strategy_stages,
-                 compute_hosts_no_reboot, False),
-                (self._add_compute_strategy_stages,
-                 compute_hosts, True)
+                (self._add_worker_strategy_stages,
+                 worker_hosts_no_reboot, False),
+                (self._add_worker_strategy_stages,
+                 worker_hosts, True)
             ]
 
             for add_strategy_stages_function, host_list, reboot in \
@@ -1097,8 +1097,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
     """
     Software Upgrade - Strategy
     """
-    def __init__(self, uuid, storage_apply_type, compute_apply_type,
-                 max_parallel_compute_hosts,
+    def __init__(self, uuid, storage_apply_type, worker_apply_type,
+                 max_parallel_worker_hosts,
                  alarm_restrictions, start_upgrade, complete_upgrade,
                  ignore_alarms):
         super(SwUpgradeStrategy, self).__init__(
@@ -1107,8 +1107,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
             SW_UPDATE_APPLY_TYPE.SERIAL,
             storage_apply_type,
             SW_UPDATE_APPLY_TYPE.IGNORE,
-            compute_apply_type,
-            max_parallel_compute_hosts,
+            worker_apply_type,
+            max_parallel_worker_hosts,
             SW_UPDATE_INSTANCE_ACTION.MIGRATE,
             alarm_restrictions,
             ignore_alarms)
@@ -1232,7 +1232,7 @@ class SwUpgradeStrategy(SwUpdateStrategy):
         controller_1_host = None
 
         for host in controllers:
-            if HOST_PERSONALITY.COMPUTE in host.personality:
+            if HOST_PERSONALITY.WORKER in host.personality:
                 DLOG.warn("Cannot apply software upgrades to CPE configuration.")
                 reason = 'cannot apply software upgrades to CPE configuration'
                 return False, reason
@@ -1331,14 +1331,14 @@ class SwUpgradeStrategy(SwUpdateStrategy):
 
         return True, ''
 
-    def _add_compute_strategy_stages(self, compute_hosts, reboot):
+    def _add_worker_strategy_stages(self, worker_hosts, reboot):
         """
-        Add compute software upgrade strategy stages
+        Add worker software upgrade strategy stages
         """
         from nfv_vim import tables
         from nfv_vim import strategy
 
-        host_lists, reason = self._create_compute_host_lists(compute_hosts, reboot)
+        host_lists, reason = self._create_worker_host_lists(worker_hosts, reboot)
         if host_lists is None:
             return False, reason
 
@@ -1361,7 +1361,7 @@ class SwUpgradeStrategy(SwUpdateStrategy):
             # Computes with no instances
             if 0 == len(instance_list):
                 stage = strategy.StrategyStage(
-                    strategy.STRATEGY_STAGE_NAME.SW_UPGRADE_COMPUTE_HOSTS)
+                    strategy.STRATEGY_STAGE_NAME.SW_UPGRADE_WORKER_HOSTS)
                 stage.add_step(strategy.QueryAlarmsStep(
                     True, ignore_alarms=self._ignore_alarms))
                 stage.add_step(strategy.LockHostsStep(host_list))
@@ -1373,14 +1373,14 @@ class SwUpgradeStrategy(SwUpdateStrategy):
 
             # Computes with instances
             stage = strategy.StrategyStage(
-                strategy.STRATEGY_STAGE_NAME.SW_UPGRADE_COMPUTE_HOSTS)
+                strategy.STRATEGY_STAGE_NAME.SW_UPGRADE_WORKER_HOSTS)
 
             stage.add_step(strategy.QueryAlarmsStep(
                 True, ignore_alarms=self._ignore_alarms))
 
-            if SW_UPDATE_APPLY_TYPE.PARALLEL == self._compute_apply_type:
+            if SW_UPDATE_APPLY_TYPE.PARALLEL == self._worker_apply_type:
                 # Disable host services before migrating to ensure
-                # instances do not migrate to compute hosts in the
+                # instances do not migrate to worker hosts in the
                 # same set of hosts.
                 if host_list[0].host_service_configured(
                         HOST_SERVICES.COMPUTE):
@@ -1502,7 +1502,7 @@ class SwUpgradeStrategy(SwUpdateStrategy):
 
             controller_hosts = list()
             storage_hosts = list()
-            compute_hosts = list()
+            worker_hosts = list()
 
             if self.nfvi_upgrade is None:
                 # Start upgrade
@@ -1516,8 +1516,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
                     elif HOST_PERSONALITY.STORAGE in host.personality:
                         storage_hosts.append(host)
 
-                    elif HOST_PERSONALITY.COMPUTE in host.personality:
-                        compute_hosts.append(host)
+                    elif HOST_PERSONALITY.WORKER in host.personality:
+                        worker_hosts.append(host)
             else:
                 # Only hosts not yet upgraded will be upgraded
                 to_load = self.nfvi_upgrade.to_release
@@ -1532,16 +1532,16 @@ class SwUpgradeStrategy(SwUpdateStrategy):
                     elif HOST_PERSONALITY.STORAGE in host.personality:
                         storage_hosts.append(host)
 
-                    elif HOST_PERSONALITY.COMPUTE in host.personality:
-                        compute_hosts.append(host)
+                    elif HOST_PERSONALITY.WORKER in host.personality:
+                        worker_hosts.append(host)
 
             STRATEGY_CREATION_COMMANDS = [
                 (self._add_controller_strategy_stages,
                  controller_hosts, True),
                 (self._add_storage_strategy_stages,
                  storage_hosts, True),
-                (self._add_compute_strategy_stages,
-                 compute_hosts, True)
+                (self._add_worker_strategy_stages,
+                 worker_hosts, True)
             ]
 
             for add_strategy_stages_function, host_list, reboot in \

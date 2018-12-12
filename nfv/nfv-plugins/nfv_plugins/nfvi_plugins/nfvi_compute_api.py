@@ -385,7 +385,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         self._auto_accept_action_requests = False
 
     def _host_supports_nova_compute(self, personality):
-        return (('compute' in personality) and
+        return (('worker' in personality) and
                 (self._directory.get_service_info(
                     OPENSTACK_SERVICE.NOVA) is not None))
 
@@ -401,7 +401,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            # Only applies to compute hosts
+            # Only applies to worker hosts
             if not self._host_supports_nova_compute(host_personality):
                 response['completed'] = True
                 response['reason'] = ''
@@ -758,7 +758,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            # The following only applies to compute hosts
+            # The following only applies to worker hosts
             if self._host_supports_nova_compute(host_personality):
                 response['reason'] = 'failed to get openstack token from ' \
                                      'keystone'

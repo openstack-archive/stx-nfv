@@ -86,7 +86,7 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
         return self._signature
 
     def _host_supports_neutron(self, personality):
-        return (('compute' in personality or 'controller' in personality) and
+        return (('worker' in personality or 'controller' in personality) and
                 (self._directory.get_service_info(
                     OPENSTACK_SERVICE.NEUTRON) is not None))
 

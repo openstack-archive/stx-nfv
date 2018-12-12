@@ -215,7 +215,7 @@ class NFVIGuestAPI(nfvi.api.v1.NFVIGuestAPI):
         self._guest_services_action_notify_callbacks = list()
 
     def _host_supports_nova_compute(self, personality):
-        return (('compute' in personality) and
+        return (('worker' in personality) and
                 (self._openstack_directory.get_service_info(
                     OPENSTACK_SERVICE.NOVA) is not None))
 
@@ -829,7 +829,7 @@ class NFVIGuestAPI(nfvi.api.v1.NFVIGuestAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            # The following only applies to compute hosts
+            # The following only applies to worker hosts
             if self._host_supports_nova_compute(host_personality):
                 response['reason'] = 'failed to get platform token from ' \
                                      'keystone'

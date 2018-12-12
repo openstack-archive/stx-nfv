@@ -418,7 +418,7 @@ int _socket_init ( void )
 
     /* Get a socket that listens to the controller's FLOATING IP */
     /* This is the socket that the guestAgent receives events from 
-     * the guestServer from the compute on */
+     * the guestServer from the worker on */
     _ctrl.sock.agent_rx_float_sock = new msgClassRx(hostInv.hostBase.my_float_ip.c_str(), guest_config.agent_rx_port, IPPROTO_UDP);
     rc = _ctrl.sock.agent_rx_float_sock->return_status;
     if ( rc )
@@ -430,7 +430,7 @@ int _socket_init ( void )
 
     /* Get a socket that listens to the controller's LOCAL IP */
     /* This is the socket that the guestAgent receives events from 
-     * the guestServer from the compute on */
+     * the guestServer from the worker on */
     _ctrl.sock.agent_rx_local_sock = new msgClassRx(hostInv.hostBase.my_local_ip.c_str(), guest_config.agent_rx_port, IPPROTO_UDP);
     rc = _ctrl.sock.agent_rx_local_sock->return_status;
     if ( rc )
@@ -509,7 +509,7 @@ int daemon_init ( string iface, string nodetype )
  *
  * Description: Messaging interface capable of building command specific
  *              messages and sending them to the guestServer daemon on
- *              the specified compute host.
+ *              the specified worker host.
  *
  * TODO: setup acknowledge mechanism using guestHost
  *
@@ -1116,8 +1116,8 @@ void guestHostClass::run_fsm ( string hostname )
     guest_host_ptr = guestHostClass::getHost ( hostname );
     if ( guest_host_ptr != NULL )
     {
-        /* This FSM is only run on computes */
-        if (( guest_host_ptr->hosttype & COMPUTE_TYPE ) == COMPUTE_TYPE)
+        /* This FSM is only run on workers */
+        if (( guest_host_ptr->hosttype & WORKER_TYPE ) == WORKER_TYPE)
         {
             flog ("%s FSM\n", hostname.c_str() );
         }

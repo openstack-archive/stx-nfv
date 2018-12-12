@@ -123,7 +123,7 @@ typedef struct
 {
     /** Guest Services Messaging Agent Receive (from guestServer) Socket
      *
-     * Note: This socket supports receiving from the computes specifying
+     * Note: This socket supports receiving from the workers specifying
      *       either the floating or local IP */
     int                agent_rx_port       ;
     msgClassSock*      agent_rx_float_sock ;

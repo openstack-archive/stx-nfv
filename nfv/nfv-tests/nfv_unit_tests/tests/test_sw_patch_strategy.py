@@ -38,8 +38,8 @@ def create_sw_patch_strategy(
         controller_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
         storage_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
         swift_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
-        compute_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
-        max_parallel_compute_hosts=10,
+        worker_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
+        max_parallel_worker_hosts=10,
         default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START,
         alarm_restrictions=SW_UPDATE_ALARM_RESTRICTION.STRICT,
         single_controller=False):
@@ -51,8 +51,8 @@ def create_sw_patch_strategy(
         controller_apply_type=controller_apply_type,
         storage_apply_type=storage_apply_type,
         swift_apply_type=swift_apply_type,
-        compute_apply_type=compute_apply_type,
-        max_parallel_compute_hosts=max_parallel_compute_hosts,
+        worker_apply_type=worker_apply_type,
+        max_parallel_worker_hosts=max_parallel_worker_hosts,
         default_instance_action=default_instance_action,
         alarm_restrictions=alarm_restrictions,
         ignore_alarms=[],
@@ -277,9 +277,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         if host_name.startswith('controller'):
             personality = HOST_PERSONALITY.CONTROLLER
             if cpe:
-                personality = personality + ',' + HOST_PERSONALITY.COMPUTE
+                personality = personality + ',' + HOST_PERSONALITY.WORKER
         elif host_name.startswith('compute'):
-            personality = HOST_PERSONALITY.COMPUTE
+            personality = HOST_PERSONALITY.WORKER
         elif host_name.startswith('storage'):
             personality = HOST_PERSONALITY.STORAGE
         else:
@@ -336,9 +336,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         host_aggregate = objects.HostAggregate(nfvi_host_aggregate)
         self._host_aggregate_table[host_aggregate.name] = host_aggregate
 
-    def test_sw_patch_strategy_compute_stages_ignore(self):
+    def test_sw_patch_strategy_worker_stages_ignore(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - ignore apply
         - stop start instance action
         Verify:
@@ -360,20 +360,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.IGNORE,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        success, reason = strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         assert success is True, "Strategy creation failed"
@@ -387,9 +387,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_migrate_anti_affinity(self):
+    def test_sw_patch_strategy_worker_stages_parallel_migrate_anti_affinity(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -412,20 +412,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE,
-            max_parallel_compute_hosts=2
+            max_parallel_worker_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -433,7 +433,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 3,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -449,7 +449,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -468,7 +468,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -493,9 +493,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_migrate_ten_hosts(self):
+    def test_sw_patch_strategy_worker_stages_parallel_migrate_ten_hosts(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -522,20 +522,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         self.create_instance('small', "test_instance_8", 'compute-8')
         self.create_instance('small', "test_instance_9", 'compute-9')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE,
-            max_parallel_compute_hosts=2
+            max_parallel_worker_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -543,7 +543,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 5,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -559,7 +559,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -579,7 +579,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -599,7 +599,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -619,7 +619,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -645,9 +645,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_migrate_host_aggregate(self):
+    def test_sw_patch_strategy_worker_stages_parallel_migrate_host_aggregate(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -685,20 +685,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         self.create_instance('small', "test_instance_8", 'compute-8')
         self.create_instance('small', "test_instance_9", 'compute-9')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE,
-            max_parallel_compute_hosts=2
+            max_parallel_worker_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -706,7 +706,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 5,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -722,7 +722,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -742,7 +742,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -762,7 +762,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -782,7 +782,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -808,9 +808,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_migrate_overlap_host_aggregate(self):
+    def test_sw_patch_strategy_worker_stages_parallel_migrate_overlap_host_aggregate(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -858,20 +858,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         self.create_instance('small', "test_instance_8", 'compute-8')
         self.create_instance('small', "test_instance_9", 'compute-9')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE,
-            max_parallel_compute_hosts=2
+            max_parallel_worker_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -879,7 +879,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 5,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -895,7 +895,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -915,7 +915,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -935,7 +935,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -955,7 +955,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -981,9 +981,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_migrate_small_host_aggregate(self):
+    def test_sw_patch_strategy_worker_stages_parallel_migrate_small_host_aggregate(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - migrate instance action
         Verify:
@@ -1023,20 +1023,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         self.create_instance('small', "test_instance_8", 'compute-8')
         self.create_instance('small', "test_instance_9", 'compute-9')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE,
-            max_parallel_compute_hosts=2
+            max_parallel_worker_hosts=2
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1044,7 +1044,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 5,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1064,7 +1064,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1084,7 +1084,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1104,7 +1104,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1124,7 +1124,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1150,9 +1150,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_anti_affinity(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_anti_affinity(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         Verify:
@@ -1175,19 +1175,19 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1195,7 +1195,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 3,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1211,7 +1211,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1231,7 +1231,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1257,9 +1257,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_anti_affinity_locked_instance(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_anti_affinity_locked_instance(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         - locked instance in instance group
@@ -1283,27 +1283,27 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        success, reason = strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         assert success is False, "Strategy creation did not fail"
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_host_aggregate(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_host_aggregate(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         - test both reboot and no reboot cases
@@ -1325,20 +1325,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              "test_instance_1",
                              'compute-1')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1346,7 +1346,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 3,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1362,7 +1362,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1382,7 +1382,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1410,23 +1410,23 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
         # Test no reboot patches.
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START,
-            max_parallel_compute_hosts=3,
+            max_parallel_worker_hosts=3,
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
 
-        # Perform no-reboot parallel compute patches without any
+        # Perform no-reboot parallel worker patches without any
         # grouping by aggregates or determining which hosts have VMs
-        # max_parallel_compute_hosts is 3 (for 4 hosts) resulting in 2 stages
+        # max_parallel_worker_hosts is 3 (for 4 hosts) resulting in 2 stages
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1435,7 +1435,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize', 'timeout': 30}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1450,9 +1450,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_locked_host(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_locked_host(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         - locked host
@@ -1473,20 +1473,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              "test_instance_1",
                              'compute-1')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1494,7 +1494,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1510,7 +1510,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize', 'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1534,9 +1534,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_host_aggregate_locked_instance(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_host_aggregate_locked_instance(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         - locked instance not in an instance group
@@ -1560,20 +1560,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              'compute-1',
                              admin_state=nfvi.objects.v1.INSTANCE_ADMIN_STATE.LOCKED)
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1581,7 +1581,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 3,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1597,7 +1597,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1617,7 +1617,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1639,9 +1639,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_host_aggregate_single_host(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_host_aggregate_single_host(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         Verify:
@@ -1660,19 +1660,19 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              "test_instance_1",
                              'compute-1')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1680,7 +1680,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 1,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1706,9 +1706,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_anti_affinity_host_aggregate(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_anti_affinity_host_aggregate(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         Verify:
@@ -1739,19 +1739,19 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1759,7 +1759,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1779,7 +1779,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1805,9 +1805,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_serial_stop_start(self):
+    def test_sw_patch_strategy_worker_stages_serial_stop_start(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - serial apply
         - stop start instance action
         - test both reboot and no reboot cases
@@ -1830,20 +1830,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1851,7 +1851,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1866,7 +1866,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1881,7 +1881,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1900,7 +1900,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1928,11 +1928,11 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
         # Test no reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -1940,7 +1940,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1950,7 +1950,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1960,7 +1960,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1970,7 +1970,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -1986,9 +1986,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_serial_stop_start_locked_host(self):
+    def test_sw_patch_strategy_worker_stages_serial_stop_start_locked_host(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - serial apply
         - stop start instance action
         - locked host
@@ -2017,20 +2017,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -2038,7 +2038,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 5,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2052,7 +2052,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2072,7 +2072,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2092,7 +2092,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2120,11 +2120,11 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
         # Test no reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -2132,7 +2132,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2142,7 +2142,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2152,7 +2152,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2162,7 +2162,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2178,9 +2178,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_parallel_stop_start_max_hosts(self):
+    def test_sw_patch_strategy_worker_stages_parallel_stop_start_max_hosts(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - parallel apply
         - stop start instance action
         Verify:
@@ -2189,20 +2189,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         for x in range(0, 13):
             self.create_host('compute-%02d' % x)
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START,
-            max_parallel_compute_hosts=5
+            max_parallel_worker_hosts=5
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -2210,7 +2210,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 3,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2238,7 +2238,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2266,7 +2266,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2294,9 +2294,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_serial_migrate(self):
+    def test_sw_patch_strategy_worker_stages_serial_migrate(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - serial apply
         - migrate instance action
         - test both reboot and no reboot cases
@@ -2319,20 +2319,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -2340,7 +2340,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2356,7 +2356,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2372,7 +2372,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2390,7 +2390,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2416,11 +2416,11 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
         # Test no reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -2428,7 +2428,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2438,7 +2438,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30},
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2448,7 +2448,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30},
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2458,7 +2458,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30},
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2474,9 +2474,9 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         validate_strategy_persists(strategy)
         validate_phase(apply_phase, expected_results)
 
-    def test_sw_patch_strategy_compute_stages_serial_migrate_locked_instance(self):
+    def test_sw_patch_strategy_worker_stages_serial_migrate_locked_instance(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - serial apply
         - migrate instance action
         - locked instance in instance group
@@ -2504,32 +2504,32 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                                    ['test_instance_0', 'test_instance_1'],
                                    [nfvi.objects.v1.INSTANCE_GROUP_POLICY.ANTI_AFFINITY])
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE
         )
 
-        success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts=sorted_compute_hosts,
+        success, reason = strategy._add_worker_strategy_stages(
+            worker_hosts=sorted_worker_hosts,
             reboot=True)
 
         assert success is False, "Strategy creation did not fail"
 
         # Test no reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -2537,7 +2537,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 4,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2547,7 +2547,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30},
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2557,7 +2557,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30},
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -2567,7 +2567,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 30},
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3032,7 +3032,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
     def test_sw_patch_strategy_cpe_stages_parallel_stop_start(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - cpe hosts
         - parallel apply treated as serial
         - stop start instance action
@@ -3048,20 +3048,20 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              "test_instance_1",
                              'controller-1')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         # Test reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -3069,7 +3069,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3091,7 +3091,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60},
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3121,11 +3121,11 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
         # Test no reboot patches
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=False)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -3133,7 +3133,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3142,7 +3142,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                      {'name': 'system-stabilize'}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 3,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3159,7 +3159,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
     def test_sw_patch_strategy_cpe_stages_serial_stop_start(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - cpe hosts
         - serial apply
         - stop start instance action
@@ -3174,19 +3174,19 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              "test_instance_1",
                              'controller-1')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -3194,7 +3194,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3216,7 +3216,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 9,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3246,7 +3246,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
     def test_sw_patch_strategy_cpe_stages_serial_stop_start_no_instances(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - cpe hosts
         - no instances
         - serial apply
@@ -3255,19 +3255,19 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         self.create_host('controller-0', cpe=True)
         self.create_host('controller-1', cpe=True)
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
-        # Sort compute hosts so the order of the steps is deterministic
-        sorted_compute_hosts = sorted(compute_hosts, key=lambda host: host.name)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
+        # Sort worker hosts so the order of the steps is deterministic
+        sorted_worker_hosts = sorted(worker_hosts, key=lambda host: host.name)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=sorted_compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=sorted_worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -3275,7 +3275,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3293,7 +3293,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                 },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 7,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3319,7 +3319,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
     def test_sw_patch_strategy_cpe_simplex_stages_serial_migrate(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - simplex cpe host
         - serial apply
         - migrate instance action
@@ -3335,26 +3335,26 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              "test_instance_1",
                              'controller-0')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.MIGRATE,
             single_controller=True
         )
 
-        success, reason = strategy._add_compute_strategy_stages(
-            compute_hosts=compute_hosts,
+        success, reason = strategy._add_worker_strategy_stages(
+            worker_hosts=worker_hosts,
             reboot=True)
 
         assert success is False, "Strategy creation did not fail"
 
     def test_sw_patch_strategy_cpe_simplex_stages_serial_stop_start(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - simplex cpe host
         - serial apply
         - stop start instance action
@@ -3365,18 +3365,18 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              "test_instance_0",
                              'controller-0')
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START,
             single_controller=True
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -3384,7 +3384,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 1,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3412,7 +3412,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
 
     def test_sw_patch_strategy_cpe_simplex_stages_serial_stop_start_no_instances(self):
         """
-        Test the sw_patch strategy add compute strategy stages:
+        Test the sw_patch strategy add worker strategy stages:
         - simplex cpe host
         - no instances
         - serial apply
@@ -3420,18 +3420,18 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         """
         self.create_host('controller-0', cpe=True)
 
-        compute_hosts = []
+        worker_hosts = []
         for host in self._host_table.values():
-            if HOST_PERSONALITY.COMPUTE in host.personality:
-                compute_hosts.append(host)
+            if HOST_PERSONALITY.WORKER in host.personality:
+                worker_hosts.append(host)
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.SERIAL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START,
             single_controller=True
         )
 
-        strategy._add_compute_strategy_stages(compute_hosts=compute_hosts,
+        strategy._add_worker_strategy_stages(worker_hosts=worker_hosts,
                                               reboot=True)
 
         apply_phase = strategy.apply_phase.as_dict()
@@ -3439,7 +3439,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 1,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3478,7 +3478,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                              'compute-0')
 
         strategy = create_sw_patch_strategy(
-            compute_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
+            worker_apply_type=SW_UPDATE_APPLY_TYPE.PARALLEL,
             default_instance_action=SW_UPDATE_INSTANCE_ACTION.STOP_START
         )
 
@@ -3494,7 +3494,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         nfvi_sw_patch_hosts = list()
         for host_name in ['compute-0', 'compute-1']:
             host = nfvi.objects.v1.HostSwPatch(
-                host_name, 'compute', '12.01', True, False, 'idle', False,
+                host_name, 'worker', '12.01', True, False, 'idle', False,
                 False)
             nfvi_sw_patch_hosts.append(host)
         strategy.nfvi_sw_patch_hosts = nfvi_sw_patch_hosts
@@ -3506,7 +3506,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
         expected_results = {
             'total_stages': 2,
             'stages': [
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 6,
                  'steps': [
                      {'name': 'query-alarms'},
@@ -3522,7 +3522,7 @@ class TestSwPatchStrategy(testcase.NFVTestCase):
                       'timeout': 60}
                  ]
                  },
-                {'name': 'sw-patch-compute-hosts',
+                {'name': 'sw-patch-worker-hosts',
                  'total_steps': 8,
                  'steps': [
                      {'name': 'query-alarms'},

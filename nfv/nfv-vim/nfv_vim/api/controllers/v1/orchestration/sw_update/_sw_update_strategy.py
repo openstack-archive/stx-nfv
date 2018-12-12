@@ -108,10 +108,10 @@ class SwUpdateStrategyData(wsme_types.Base):
                                            name='storage-apply-type')
     swift_apply_type = wsme_types.wsattr(SwUpdateApplyTypes,
                                          name='swift-apply-type')
-    compute_apply_type = wsme_types.wsattr(SwUpdateApplyTypes,
-                                           name='compute-apply-type')
-    max_parallel_compute_hosts = wsme_types.wsattr(
-        int, name='max-parallel-compute-hosts')
+    worker_apply_type = wsme_types.wsattr(SwUpdateApplyTypes,
+                                          name='worker-apply-type')
+    max_parallel_worker_hosts = wsme_types.wsattr(
+        int, name='max-parallel-worker-hosts')
     default_instance_action = wsme_types.wsattr(SwUpdateInstanceActionTypes,
                                                 name='default-instance-action')
     alarm_restrictions = wsme_types.wsattr(SwUpdateAlarmRestrictionTypes,
@@ -135,10 +135,10 @@ class SwPatchStrategyCreateData(wsme_types.Base):
                                            name='storage-apply-type')
     swift_apply_type = wsme_types.wsattr(SwUpdateApplyTypes, mandatory=False,
                                          name='swift-apply-type')
-    compute_apply_type = wsme_types.wsattr(SwUpdateApplyTypes, mandatory=True,
-                                           name='compute-apply-type')
-    max_parallel_compute_hosts = wsme_types.wsattr(
-        int, mandatory=False, name='max-parallel-compute-hosts')
+    worker_apply_type = wsme_types.wsattr(SwUpdateApplyTypes, mandatory=True,
+                                          name='worker-apply-type')
+    max_parallel_worker_hosts = wsme_types.wsattr(
+        int, mandatory=False, name='max-parallel-worker-hosts')
     default_instance_action = wsme_types.wsattr(SwUpdateInstanceActionTypes,
                                                 mandatory=True,
                                                 name='default-instance-action')
@@ -154,10 +154,10 @@ class SwUpgradeStrategyCreateData(wsme_types.Base):
     """
     storage_apply_type = wsme_types.wsattr(SwUpdateApplyTypes, mandatory=True,
                                            name='storage-apply-type')
-    compute_apply_type = wsme_types.wsattr(SwUpdateApplyTypes, mandatory=True,
-                                           name='compute-apply-type')
-    max_parallel_compute_hosts = wsme_types.wsattr(
-        int, mandatory=False, name='max-parallel-compute-hosts')
+    worker_apply_type = wsme_types.wsattr(SwUpdateApplyTypes, mandatory=True,
+                                          name='worker-apply-type')
+    max_parallel_worker_hosts = wsme_types.wsattr(
+        int, mandatory=False, name='max-parallel-worker-hosts')
     # Disable support for start-upgrade as it was not completed
     # start_upgrade = wsme_types.wsattr(
     #     bool, mandatory=False, default=False, name='start-upgrade')
@@ -243,9 +243,9 @@ class SwUpdateStrategyQueryData(wsme_types.Base):
         strategy.controller_apply_type = strategy_data['controller_apply_type']
         strategy.storage_apply_type = strategy_data['storage_apply_type']
         strategy.swift_apply_type = strategy_data['swift_apply_type']
-        strategy.compute_apply_type = strategy_data['compute_apply_type']
-        strategy.max_parallel_compute_hosts = \
-            strategy_data['max_parallel_compute_hosts']
+        strategy.worker_apply_type = strategy_data['worker_apply_type']
+        strategy.max_parallel_worker_hosts = \
+            strategy_data['max_parallel_worker_hosts']
         strategy.default_instance_action = strategy_data['default_instance_action']
         strategy.alarm_restrictions = strategy_data['alarm_restrictions']
         strategy.state = strategy_data['state']
@@ -470,16 +470,16 @@ class SwPatchStrategyAPI(SwUpdateStrategyAPI):
             rpc_request.swift_apply_type = SW_UPDATE_APPLY_TYPE.IGNORE
         else:
             rpc_request.swift_apply_type = request_data.swift_apply_type
-        rpc_request.compute_apply_type = request_data.compute_apply_type
-        if wsme_types.Unset != request_data.max_parallel_compute_hosts:
-            if request_data.max_parallel_compute_hosts < MIN_PARALLEL_HOSTS \
-                    or request_data.max_parallel_compute_hosts > \
+        rpc_request.worker_apply_type = request_data.worker_apply_type
+        if wsme_types.Unset != request_data.max_parallel_worker_hosts:
+            if request_data.max_parallel_worker_hosts < MIN_PARALLEL_HOSTS \
+                    or request_data.max_parallel_worker_hosts > \
                     MAX_PARALLEL_PATCH_HOSTS:
                 return pecan.abort(
                     httplib.BAD_REQUEST,
-                    "Invalid value for max-parallel-compute-hosts")
-            rpc_request.max_parallel_compute_hosts = \
-                request_data.max_parallel_compute_hosts
+                    "Invalid value for max-parallel-worker-hosts")
+            rpc_request.max_parallel_worker_hosts = \
+                request_data.max_parallel_worker_hosts
         rpc_request.default_instance_action = request_data.default_instance_action
         rpc_request.alarm_restrictions = request_data.alarm_restrictions
         vim_connection = pecan.request.vim.open_connection()
@@ -521,16 +521,16 @@ class SwUpgradeStrategyAPI(SwUpdateStrategyAPI):
         rpc_request.controller_apply_type = SW_UPDATE_APPLY_TYPE.SERIAL
         rpc_request.storage_apply_type = request_data.storage_apply_type
         rpc_request.swift_apply_type = SW_UPDATE_APPLY_TYPE.IGNORE
-        rpc_request.compute_apply_type = request_data.compute_apply_type
-        if wsme_types.Unset != request_data.max_parallel_compute_hosts:
-            if request_data.max_parallel_compute_hosts < MIN_PARALLEL_HOSTS \
-                    or request_data.max_parallel_compute_hosts > \
+        rpc_request.worker_apply_type = request_data.worker_apply_type
+        if wsme_types.Unset != request_data.max_parallel_worker_hosts:
+            if request_data.max_parallel_worker_hosts < MIN_PARALLEL_HOSTS \
+                    or request_data.max_parallel_worker_hosts > \
                     MAX_PARALLEL_UPGRADE_HOSTS:
                 return pecan.abort(
                     httplib.BAD_REQUEST,
-                    "Invalid value for max-parallel-compute-hosts")
-            rpc_request.max_parallel_compute_hosts = \
-                request_data.max_parallel_compute_hosts
+                    "Invalid value for max-parallel-worker-hosts")
+            rpc_request.max_parallel_worker_hosts = \
+                request_data.max_parallel_worker_hosts
         rpc_request.default_instance_action = SW_UPDATE_INSTANCE_ACTION.MIGRATE
         rpc_request.alarm_restrictions = request_data.alarm_restrictions
         # rpc_request.start_upgrade = request_data.start_upgrade
