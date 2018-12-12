@@ -61,7 +61,7 @@ def _system_state_query_callback():
             for host_data in result_data:
                 host = host_table.get(host_data['hostname'], None)
                 if host is not None:
-                    if objects.HOST_PERSONALITY.COMPUTE in host.personality:
+                    if objects.HOST_PERSONALITY.WORKER in host.personality:
                         DLOG.info("Host %s uptime is %s, host_uuid=%s."
                                   % (host_data['hostname'], host_data['uptime'],
                                      host_data['uuid']))

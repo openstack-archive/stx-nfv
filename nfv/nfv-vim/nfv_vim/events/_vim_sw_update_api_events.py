@@ -70,17 +70,17 @@ def vim_sw_update_api_create_strategy(connection, msg):
     else:
         swift_apply_type = objects.SW_UPDATE_APPLY_TYPE.IGNORE
 
-    if 'parallel' == msg.compute_apply_type:
-        compute_apply_type = objects.SW_UPDATE_APPLY_TYPE.PARALLEL
-    elif 'serial' == msg.compute_apply_type:
-        compute_apply_type = objects.SW_UPDATE_APPLY_TYPE.SERIAL
+    if 'parallel' == msg.worker_apply_type:
+        worker_apply_type = objects.SW_UPDATE_APPLY_TYPE.PARALLEL
+    elif 'serial' == msg.worker_apply_type:
+        worker_apply_type = objects.SW_UPDATE_APPLY_TYPE.SERIAL
     else:
-        compute_apply_type = objects.SW_UPDATE_APPLY_TYPE.IGNORE
+        worker_apply_type = objects.SW_UPDATE_APPLY_TYPE.IGNORE
 
-    if msg.max_parallel_compute_hosts is not None:
-        max_parallel_compute_hosts = msg.max_parallel_compute_hosts
+    if msg.max_parallel_worker_hosts is not None:
+        max_parallel_worker_hosts = msg.max_parallel_worker_hosts
     else:
-        max_parallel_compute_hosts = 2
+        max_parallel_worker_hosts = 2
 
     if 'migrate' == msg.default_instance_action:
         default_instance_action = objects.SW_UPDATE_INSTANCE_ACTION.MIGRATE
@@ -96,14 +96,14 @@ def vim_sw_update_api_create_strategy(connection, msg):
     if 'sw-patch' == msg.sw_update_type:
         uuid, reason = sw_mgmt_director.create_sw_patch_strategy(
             controller_apply_type, storage_apply_type,
-            swift_apply_type, compute_apply_type, max_parallel_compute_hosts,
+            swift_apply_type, worker_apply_type, max_parallel_worker_hosts,
             default_instance_action,
             alarm_restrictions, _vim_sw_update_api_create_strategy_callback)
     elif 'sw-upgrade' == msg.sw_update_type:
         start_upgrade = msg.start_upgrade
         complete_upgrade = msg.complete_upgrade
         uuid, reason = sw_mgmt_director.create_sw_upgrade_strategy(
-            storage_apply_type, compute_apply_type, max_parallel_compute_hosts,
+            storage_apply_type, worker_apply_type, max_parallel_worker_hosts,
             alarm_restrictions,
             start_upgrade, complete_upgrade,
             _vim_sw_update_api_create_strategy_callback)

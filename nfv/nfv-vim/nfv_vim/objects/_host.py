@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 Wind River Systems, Inc.
+# Copyright (c) 2015-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -30,7 +30,7 @@ class HostPersonality(object):
     CONTROLLER = Constant('controller')
     STORAGE = Constant('storage')
     SWIFT = Constant('swift')
-    COMPUTE = Constant('compute')
+    WORKER = Constant('worker')
 
 
 @six.add_metaclass(Singleton)
@@ -652,8 +652,8 @@ class Host(ObjectData):
         if host_service_state == self._host_service_state:
             return
 
-        # Host services logs and alarms only apply to compute hosts
-        if 'compute' in self.personality:
+        # Host services logs and alarms only apply to worker nodes
+        if 'worker' in self.personality:
             if HOST_SERVICE_STATE.ENABLED == host_service_state:
                 self._events = event_log.host_issue_log(
                     self, event_log.EVENT_ID.HOST_SERVICES_ENABLED)

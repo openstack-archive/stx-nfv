@@ -230,7 +230,7 @@ snapshot will start with the number of vCPUs specified by the flavor.
 
 CAVEATS
 =======
-It is possible for the scale-up operation to fail if the compute node has
+It is possible for the scale-up operation to fail if the worker node has
 already allocated all of its resources to other guests.  If this happens,
 the system will not do any automatic migration to try to free up resources.
 Manual action will be required to free up resources.

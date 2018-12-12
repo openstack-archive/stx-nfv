@@ -43,7 +43,7 @@ Titanium Cloud Setup
 
             If support is indicated, then as soon as the VM's Titanium Cloud
             Guest-Client daemon registers with the Titanium Cloud Compute
-            Services on the compute node host, heartbeating will be enabled.
+            Services on the worker node host, heartbeating will be enabled.
 
             a) Create a new flavor:
 
@@ -129,14 +129,14 @@ VM Setup
     Configuring Guest Heartbeat & Application Health Check
     ------------------------------------------------------
     The Guest-Client within your VM will register with the Titanium Cloud
-    Compute Services on the compute node host.  Part of that registration
+    Compute Services on the worker node host.  Part of that registration
     process is the specification of a heartbeat interval and a corrective
     action for a failed/unhealthy VM.  The values of heartbeat interval and
     corrective action come from the guest_heartbeat.conf file and is located
     in /etc/guest-client/heartbeat directory by default.
 
     Guest heartbeat works on a challenge response model.  The Titanium
-    Server Compute Services on the compute node host will challenge the
+    Server Compute Services on the worker node host will challenge the
     Guest-Client daemon with a message each interval.  The Guest-Client
     must respond prior to the next interval with a message indicating good
     health.  If the Titanium Cloud Compute Services does not receive a valid
@@ -147,7 +147,7 @@ VM Setup
     specific scripts and processes, to register for heartbeating.  Each script
     or process can specify its own heartbeat interval, and its own corrective
     action to be taken against the VM as a whole.  On ill health the Guest-Client
-    reports ill health to the Titanium Cloud Compute Services on the compute node
+    reports ill health to the Titanium Cloud Compute Services on the worker node
     host on the next challenge, and provoke the corrective action.
 
     This mechanism allows for detection of a failed or hung QEMU/KVM instance,
@@ -162,7 +162,7 @@ VM Setup
         /etc/guest-client/heartbeat/guest_heartbeat.conf:
             ## This specifies the interval between heartbeats in milliseconds between the
             ## guest-client heartbeat and the Titanium Cloud Compute Services on the
-            ## compute node host.
+            ## worker node host.
             HB_INTERVAL=1000
 
         The corrective action defaults to 'reboot' and can be overridden by the
@@ -171,7 +171,7 @@ VM Setup
         /etc/guest-client/heartbeat/guest_heartbeat.conf:
             ## This specifies the corrective action against the VM in the case of a
             ## heartbeat failure between the guest-client and Titanium Cloud Compute
-            ## Services on the compute node host and also when the health script
+            ## Services on the worker node host and also when the health script
             ## configured below fails.
             ##
             ## Your options are:
@@ -251,7 +251,7 @@ VM Setup
     While post-notification handlers are running, or waiting to be run,
     the Titanium Cloud will not be able to declare the action complete.
     Keep in mind that many events that offer a post notification will
-    require the VM's Guest-Client to reconnect to the compute host, and
+    require the VM's Guest-Client to reconnect to the worker host, and
     that may be further delayed while the VM is rebooted as in a cold
     migration.  When post-notification is finally triggered, it is subject
     to a timeout as well.  If the timeout is reached, the event will be
@@ -259,7 +259,7 @@ VM Setup
 
     NOTE: A post-event notification that follows a reboot, as in the
     cold_migrate_end event, is a special case.  It will be triggered as
-    soon as the local heartbeat server reconnects with the compute host,
+    soon as the local heartbeat server reconnects with the worker host,
     and likely before any processes have a chance to register a handler.
     The only handler guaranteed to see such a notification is a script
     directly registered by the Guest-Client itself via guest_heartbeat.conf.

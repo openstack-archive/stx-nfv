@@ -23,12 +23,12 @@ class StrategyStageNames(Constants):
     SW_PATCH_CONTROLLERS = Constant('sw-patch-controllers')
     SW_PATCH_STORAGE_HOSTS = Constant('sw-patch-storage-hosts')
     SW_PATCH_SWIFT_HOSTS = Constant('sw-patch-swift-hosts')
-    SW_PATCH_COMPUTE_HOSTS = Constant('sw-patch-compute-hosts')
+    SW_PATCH_WORKER_HOSTS = Constant('sw-patch-worker-hosts')
     SW_UPGRADE_QUERY = Constant('sw-upgrade-query')
     SW_UPGRADE_START = Constant('sw-upgrade-start')
     SW_UPGRADE_CONTROLLERS = Constant('sw-upgrade-controllers')
     SW_UPGRADE_STORAGE_HOSTS = Constant('sw-upgrade-storage-hosts')
-    SW_UPGRADE_COMPUTE_HOSTS = Constant('sw-upgrade-compute-hosts')
+    SW_UPGRADE_WORKER_HOSTS = Constant('sw-upgrade-worker-hosts')
     SW_UPGRADE_COMPLETE = Constant('sw-upgrade-complete')
 
 

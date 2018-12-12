@@ -162,9 +162,9 @@ class DisableHostTask(state_machine.StateTask):
 
         self._host_reference = weakref.ref(host)
 
-        if objects.HOST_PERSONALITY.COMPUTE in self._host.personality and \
+        if objects.HOST_PERSONALITY.WORKER in self._host.personality and \
                 self._host.is_force_lock():
-            # When a compute host is being disabled due to a force lock, we
+            # When a worker host is being disabled due to a force lock, we
             # want it to be rebooted. To do this we need to indicate that
             # the host services disable failed.
             notify_host_services_task = NotifyHostServicesDisableFailedTaskWork

@@ -38,8 +38,8 @@ class SwMgmtDirector(object):
         return self._sw_update
 
     def create_sw_patch_strategy(self, controller_apply_type, storage_apply_type,
-                                 swift_apply_type, compute_apply_type,
-                                 max_parallel_compute_hosts,
+                                 swift_apply_type, worker_apply_type,
+                                 max_parallel_worker_hosts,
                                  default_instance_action, alarm_restrictions,
                                  callback):
         """
@@ -58,7 +58,7 @@ class SwMgmtDirector(object):
         success, reason = self._sw_update.strategy_build(
             strategy_uuid, controller_apply_type,
             storage_apply_type, swift_apply_type,
-            compute_apply_type, max_parallel_compute_hosts,
+            worker_apply_type, max_parallel_worker_hosts,
             default_instance_action, alarm_restrictions,
             self._ignore_alarms, self._single_controller)
 
@@ -66,8 +66,8 @@ class SwMgmtDirector(object):
                                         self._sw_update.strategy)
         return strategy_uuid, ''
 
-    def create_sw_upgrade_strategy(self, storage_apply_type, compute_apply_type,
-                                   max_parallel_compute_hosts,
+    def create_sw_upgrade_strategy(self, storage_apply_type, worker_apply_type,
+                                   max_parallel_worker_hosts,
                                    alarm_restrictions, start_upgrade,
                                    complete_upgrade, callback):
         """
@@ -85,7 +85,7 @@ class SwMgmtDirector(object):
         self._sw_update = objects.SwUpgrade()
         success, reason = self._sw_update.strategy_build(
             strategy_uuid, storage_apply_type,
-            compute_apply_type, max_parallel_compute_hosts,
+            worker_apply_type, max_parallel_worker_hosts,
             alarm_restrictions, start_upgrade,
             complete_upgrade, self._ignore_alarms)
 

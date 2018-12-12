@@ -105,7 +105,7 @@ Requires: libpthread.so.0()(64bit)
 
 %description -n mtce-guestServer
 Maintenance Guest Server assists in VM guest
-heartbeat control and failure reporting at the compute level.
+heartbeat control and failure reporting at the worker level.
 
 %define local_dir /usr/local
 %define local_bindir %{local_dir}/bin

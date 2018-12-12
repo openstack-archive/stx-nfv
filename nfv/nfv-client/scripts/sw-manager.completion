@@ -46,8 +46,8 @@ function _swmanager()
                             local createopts="
                                 --controller-apply-type
                                 --storage-apply-type
-                                --compute-apply-type
-                                --max-parallel-compute-hosts
+                                --worker-apply-type
+                                --max-parallel-worker-hosts
                                 --instance-action
                                 --alarm-restrictions
                             "
@@ -57,11 +57,11 @@ function _swmanager()
                                     COMPREPLY=($(compgen -W "serial ignore" -- ${cur}))
                                     return 0
                                     ;;
-                                --storage-apply-type|--compute-apply-type)
+                                --storage-apply-type|--worker-apply-type)
                                     COMPREPLY=($(compgen -W "serial parallel ignore" -- ${cur}))
                                     return 0
                                     ;;
-                                --max-parallel-compute-hosts)
+                                --max-parallel-worker-hosts)
                                     COMPREPLY=( $(compgen -- ${cur}))
                                     return 0
                                     ;;
@@ -122,8 +122,8 @@ function _swmanager()
                         create)
                             local createopts="
                                 --storage-apply-type
-                                --compute-apply-type
-                                --max-parallel-compute-hosts
+                                --worker-apply-type
+                                --max-parallel-worker-hosts
                                 --alarm-restrictions
                             "
                             local createopt=${prev}
@@ -132,11 +132,11 @@ function _swmanager()
                                     COMPREPLY=($(compgen -W "serial parallel ignore" -- ${cur}))
                                     return 0
                                     ;;
-                                --compute-apply-type)
+                                --worker-apply-type)
                                     COMPREPLY=($(compgen -W "serial parallel ignore" -- ${cur}))
                                     return 0
                                     ;;
-                                --max-parallel-compute-hosts)
+                                --max-parallel-worker-hosts)
                                     COMPREPLY=( $(compgen -- ${cur}))
                                     return 0
                                     ;;
