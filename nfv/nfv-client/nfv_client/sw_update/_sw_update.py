@@ -111,10 +111,10 @@ def _display_strategy(strategy, details=False):
     _print(2, "strategy-uuid", strategy.uuid)
     _print(2, "controller-apply-type", strategy.controller_apply_type)
     _print(2, "storage-apply-type", strategy.storage_apply_type)
-    _print(2, "compute-apply-type", strategy.compute_apply_type)
-    if APPLY_TYPE_PARALLEL == strategy.compute_apply_type:
-        _print(2, "max-parallel-compute-hosts",
-               strategy.max_parallel_compute_hosts)
+    _print(2, "worker-apply-type", strategy.worker_apply_type)
+    if APPLY_TYPE_PARALLEL == strategy.worker_apply_type:
+        _print(2, "max-parallel-worker-hosts",
+               strategy.max_parallel_worker_hosts)
     _print(2, "default-instance-action", strategy.default_instance_action)
     _print(2, "alarm-restrictions", strategy.alarm_restrictions)
     _print(2, "current-phase", strategy.current_phase)
@@ -162,8 +162,8 @@ def create_strategy(os_auth_uri, os_project_name, os_project_domain_name,
                     os_username, os_password, os_user_domain_name,
                     os_region_name, os_interface,
                     strategy_name, controller_apply_type,
-                    storage_apply_type, swift_apply_type, compute_apply_type,
-                    max_parallel_compute_hosts,
+                    storage_apply_type, swift_apply_type, worker_apply_type,
+                    max_parallel_worker_hosts,
                     default_instance_action, alarm_restrictions, **kwargs):
     """
     Software Update - Create Strategy
@@ -181,8 +181,8 @@ def create_strategy(os_auth_uri, os_project_name, os_project_domain_name,
                                          strategy_name,
                                          controller_apply_type,
                                          storage_apply_type, swift_apply_type,
-                                         compute_apply_type,
-                                         max_parallel_compute_hosts,
+                                         worker_apply_type,
+                                         max_parallel_worker_hosts,
                                          default_instance_action,
                                          alarm_restrictions,
                                          **kwargs)

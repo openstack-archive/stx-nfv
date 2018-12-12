@@ -345,13 +345,13 @@ do
 
         7)
             echo "${TODAY}: ${CMD_COUNT}. Add Hosts (compute40, compute41, compute42, compute43, compute44, compute45, compute46)"
-            system host-add --hostname compute40 --personality compute --mgmt_mac 5a:ec:8b:20:02:65 --bm_mac 58:20:B2:0A:6A:72 --bm_ip 10.32.254.71 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
-            system host-add --hostname compute41 --personality compute --mgmt_mac 5a:ec:8b:20:02:66 --bm_mac 58:20:B2:0A:6A:73 --bm_ip 10.32.254.72 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
-            system host-add --hostname compute42 --personality compute --mgmt_mac 5a:ec:8b:20:02:69 --bm_mac 58:20:b2:0b:73:30 --bm_ip 10.32.254.73 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
-            system host-add --hostname compute43 --personality compute --mgmt_mac 5a:ec:8b:20:02:70 --bm_mac 58:20:b2:0b:73:31 --bm_ip 10.32.254.74 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
-            system host-add --hostname compute44 --personality compute --mgmt_mac 5a:ec:8b:20:02:6d --bm_mac 58:20:b2:0b:9a:6a --bm_ip 10.32.254.75 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
-            system host-add --hostname compute45 --personality compute --mgmt_mac 5a:ec:8b:20:02:6f --bm_mac 58:20:B2:0B:DA:06 --bm_ip 10.32.254.76 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
-            system host-add --hostname compute46 --personality compute --mgmt_mac 5a:ec:8b:20:02:71 --bm_mac 58:20:B2:0A:68:38 --bm_ip 10.32.254.77 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
+            system host-add --hostname compute40 --personality worker --mgmt_mac 5a:ec:8b:20:02:65 --bm_mac 58:20:B2:0A:6A:72 --bm_ip 10.32.254.71 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
+            system host-add --hostname compute41 --personality worker --mgmt_mac 5a:ec:8b:20:02:66 --bm_mac 58:20:B2:0A:6A:73 --bm_ip 10.32.254.72 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
+            system host-add --hostname compute42 --personality worker --mgmt_mac 5a:ec:8b:20:02:69 --bm_mac 58:20:b2:0b:73:30 --bm_ip 10.32.254.73 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
+            system host-add --hostname compute43 --personality worker --mgmt_mac 5a:ec:8b:20:02:70 --bm_mac 58:20:b2:0b:73:31 --bm_ip 10.32.254.74 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
+            system host-add --hostname compute44 --personality worker --mgmt_mac 5a:ec:8b:20:02:6d --bm_mac 58:20:b2:0b:9a:6a --bm_ip 10.32.254.75 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
+            system host-add --hostname compute45 --personality worker --mgmt_mac 5a:ec:8b:20:02:6f --bm_mac 58:20:B2:0B:DA:06 --bm_ip 10.32.254.76 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
+            system host-add --hostname compute46 --personality worker --mgmt_mac 5a:ec:8b:20:02:71 --bm_mac 58:20:B2:0A:68:38 --bm_ip 10.32.254.77 --bm_type ilo4 --bm_username hpadmin  --bm_password HPinvent2016 2>&1 >/dev/null
             echo "${TODAY}: ${CMD_COUNT}. Added Hosts (compute40, compute41, compute42, compute43, compute44, compute45, compute46)"
             sleep 30
             echo "${TODAY}: ${CMD_COUNT}. Delete Hosts (compute40, compute41, compute42, compute43, compute44, compute45, compute46)"

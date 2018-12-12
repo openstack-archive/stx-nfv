@@ -64,8 +64,8 @@ class Strategy(object):
     controller_apply_type = None
     storage_apply_type = None
     swift_apply_type = None
-    compute_apply_type = None
-    max_parallel_compute_hosts = None
+    worker_apply_type = None
+    max_parallel_worker_hosts = None
     default_instance_action = None
     alarm_restrictions = None
     current_phase = None
@@ -157,9 +157,9 @@ def _get_strategy_object_from_response(response):
     strategy.controller_apply_type = strategy_data['controller-apply-type']
     strategy.storage_apply_type = strategy_data['storage-apply-type']
     strategy.swift_apply_type = strategy_data['swift-apply-type']
-    strategy.compute_apply_type = strategy_data['compute-apply-type']
-    strategy.max_parallel_compute_hosts = \
-        strategy_data['max-parallel-compute-hosts']
+    strategy.worker_apply_type = strategy_data['worker-apply-type']
+    strategy.max_parallel_worker_hosts = \
+        strategy_data['max-parallel-worker-hosts']
     strategy.default_instance_action = strategy_data['default-instance-action']
     strategy.alarm_restrictions = strategy_data['alarm-restrictions']
     strategy.current_phase = strategy_data['current-phase']
@@ -211,8 +211,8 @@ def get_strategy(token_id, url, strategy_name, strategy_uuid):
 
 
 def create_strategy(token_id, url, strategy_name, controller_apply_type,
-                    storage_apply_type, swift_apply_type, compute_apply_type,
-                    max_parallel_compute_hosts,
+                    storage_apply_type, swift_apply_type, worker_apply_type,
+                    max_parallel_worker_hosts,
                     default_instance_action, alarm_restrictions, **kwargs):
     """
     Software Update - Create Strategy
@@ -234,10 +234,10 @@ def create_strategy(token_id, url, strategy_name, controller_apply_type,
         if 'complete_upgrade' in kwargs and kwargs['complete_upgrade']:
             api_cmd_payload['complete-upgrade'] = True
     api_cmd_payload['storage-apply-type'] = storage_apply_type
-    api_cmd_payload['compute-apply-type'] = compute_apply_type
-    if max_parallel_compute_hosts is not None:
-        api_cmd_payload['max-parallel-compute-hosts'] = \
-            max_parallel_compute_hosts
+    api_cmd_payload['worker-apply-type'] = worker_apply_type
+    if max_parallel_worker_hosts is not None:
+        api_cmd_payload['max-parallel-worker-hosts'] = \
+            max_parallel_worker_hosts
     api_cmd_payload['alarm-restrictions'] = alarm_restrictions
 
     response = rest_api.request(token_id, "POST", api_cmd, api_cmd_headers,

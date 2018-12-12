@@ -21,8 +21,8 @@ class APIRequestCreateSwUpdateStrategy(RPCMessage):
     controller_apply_type = None
     storage_apply_type = None
     swift_apply_type = None
-    compute_apply_type = None
-    max_parallel_compute_hosts = None
+    worker_apply_type = None
+    max_parallel_worker_hosts = None
     default_instance_action = None
     alarm_restrictions = None
 
@@ -37,8 +37,8 @@ class APIRequestCreateSwUpdateStrategy(RPCMessage):
         msg['controller_apply_type'] = self.controller_apply_type
         msg['storage_apply_type'] = self.storage_apply_type
         msg['swift_apply_type'] = self.swift_apply_type
-        msg['compute_apply_type'] = self.compute_apply_type
-        msg['max_parallel_compute_hosts'] = self.max_parallel_compute_hosts
+        msg['worker_apply_type'] = self.worker_apply_type
+        msg['max_parallel_worker_hosts'] = self.max_parallel_worker_hosts
         msg['default_instance_action'] = self.default_instance_action
         msg['alarm_restrictions'] = self.alarm_restrictions
 
@@ -47,9 +47,9 @@ class APIRequestCreateSwUpdateStrategy(RPCMessage):
         self.controller_apply_type = msg.get('controller_apply_type', None)
         self.storage_apply_type = msg.get('storage_apply_type', None)
         self.swift_apply_type = msg.get('swift_apply_type', None)
-        self.compute_apply_type = msg.get('compute_apply_type', None)
-        self.max_parallel_compute_hosts = msg.get(
-            'max_parallel_compute_hosts', None)
+        self.worker_apply_type = msg.get('worker_apply_type', None)
+        self.max_parallel_worker_hosts = msg.get(
+            'max_parallel_worker_hosts', None)
         self.default_instance_action = msg.get('default_instance_action', None)
         self.alarm_restrictions = msg.get('alarm_restrictions', None)
 

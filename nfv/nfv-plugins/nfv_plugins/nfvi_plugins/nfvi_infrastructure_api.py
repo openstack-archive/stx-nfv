@@ -53,9 +53,9 @@ def host_state(host_uuid, host_name, host_personality, host_sub_functions,
     nfvi_data['data_ports_oper'] = 'n/a'
     nfvi_data['data_ports_avail'] = 'n/a'
 
-    if 'compute' != host_personality and 'compute' in host_sub_functions:
+    if 'worker' != host_personality and 'worker' in host_sub_functions:
         if sub_function_oper_state is not None:
-            nfvi_data['subfunction_name'] = 'compute'
+            nfvi_data['subfunction_name'] = 'worker'
             nfvi_data['subfunction_oper'] = sub_function_oper_state
             nfvi_data['subfunction_avail'] = sub_function_avail_status
 
@@ -68,12 +68,12 @@ def host_state(host_uuid, host_name, host_personality, host_sub_functions,
         return (host_admin_state, host_oper_state, host_avail_status,
                 nfvi_data)
 
-    if 'compute' != host_personality and 'compute' in host_sub_functions:
+    if 'worker' != host_personality and 'worker' in host_sub_functions:
         if nfvi.objects.v1.HOST_OPER_STATE.ENABLED != sub_function_oper_state:
             return (host_admin_state, sub_function_oper_state,
                     sub_function_avail_status, nfvi_data)
 
-    if 'compute' == host_personality or 'compute' in host_sub_functions:
+    if 'worker' == host_personality or 'worker' in host_sub_functions:
         if data_port_fault_handling_enabled:
             if data_port_oper_state is not None:
                 if data_port_avail_status in \
@@ -124,7 +124,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
     def _host_supports_kubernetes(personality):
         # TODO(bwensley): This check will disappear once kubernetes is the default
         if os.path.isfile('/etc/kubernetes/admin.conf'):
-            return ('compute' in personality or 'controller' in personality)
+            return ('worker' in personality or 'controller' in personality)
         else:
             return False
 
@@ -168,12 +168,12 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         self._host_listener = None
 
     def _host_supports_neutron(self, personality):
-        return (('compute' in personality or 'controller' in personality) and
+        return (('worker' in personality or 'controller' in personality) and
                 (self._openstack_directory.get_service_info(
                      OPENSTACK_SERVICE.NEUTRON) is not None))
 
     def _host_supports_nova_compute(self, personality):
-        return (('compute' in personality) and
+        return (('worker' in personality) and
             (self._openstack_directory.get_service_info(
                 OPENSTACK_SERVICE.NOVA) is not None))
 
@@ -1339,7 +1339,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            # The following only applies to compute hosts
+            # The following only applies to worker hosts
             if self._host_supports_nova_compute(host_personality):
                 response['reason'] = 'failed to get openstack token from ' \
                                      'keystone'
@@ -2242,7 +2242,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            # Only applies to compute hosts
+            # Only applies to worker hosts
             if not self._host_supports_nova_compute(host_personality):
                 response['completed'] = True
                 response['reason'] = ''
@@ -2408,7 +2408,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
         try:
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
-            # Only applies to compute hosts
+            # Only applies to worker hosts
             if not self._host_supports_nova_compute(host_personality):
                 response['completed'] = True
                 return
