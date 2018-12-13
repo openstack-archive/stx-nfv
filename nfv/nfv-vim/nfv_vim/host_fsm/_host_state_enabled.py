@@ -53,7 +53,8 @@ class EnabledState(state_machine.State):
             return HOST_STATE.DISABLING
 
         elif HOST_EVENT.TASK_COMPLETED == event:
-            if objects.HOST_SERVICE_STATE.ENABLED != host.host_service_state:
+            if objects.HOST_SERVICE_STATE.ENABLED != \
+                    host.host_service_state_aggregate():
                 if not host.host_services_locked:
                     DLOG.info("Host services are not enabled on %s. "
                               "Disabling host." % host.name)

@@ -19,6 +19,7 @@ from nfv_vim.objects import HOST_PERSONALITY
 from nfv_vim.objects import HOST_GROUP_POLICY
 from nfv_vim.objects import HOST_NAME
 from nfv_vim.objects import INSTANCE_GROUP_POLICY
+from nfv_vim.objects import HOST_SERVICES
 
 from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
 
@@ -777,8 +778,14 @@ class SwPatchStrategy(SwUpdateStrategy):
                             # Disable host services before migrating to ensure
                             # instances do not migrate to compute hosts in the
                             # same set of hosts.
-                            stage.add_step(strategy.DisableHostServicesStep(
-                                host_list))
+                            if host_list[0].host_service_configured(
+                                    HOST_SERVICES.COMPUTE):
+                                stage.add_step(strategy.DisableHostServicesStep(
+                                    host_list, HOST_SERVICES.COMPUTE))
+                            # TODO(ksmith)
+                            # When support is added for orchestration on
+                            # non-OpenStack worker nodes, support for disabling
+                            # kubernetes services will have to be added.
                         stage.add_step(strategy.MigrateInstancesStep(
                             instance_list))
                     else:
@@ -1375,7 +1382,15 @@ class SwUpgradeStrategy(SwUpdateStrategy):
                 # Disable host services before migrating to ensure
                 # instances do not migrate to compute hosts in the
                 # same set of hosts.
-                stage.add_step(strategy.DisableHostServicesStep(host_list))
+                if host_list[0].host_service_configured(
+                        HOST_SERVICES.COMPUTE):
+                    stage.add_step(strategy.DisableHostServicesStep(
+                        host_list, HOST_SERVICES.COMPUTE))
+                # TODO(ksmith)
+                # When support is added for orchestration on
+                # non-OpenStack worker nodes, support for disabling
+                # kubernetes services will have to be added.
+
             stage.add_step(strategy.MigrateInstancesStep(instance_list))
             stage.add_step(strategy.LockHostsStep(host_list))
             stage.add_step(strategy.UpgradeHostsStep(host_list))

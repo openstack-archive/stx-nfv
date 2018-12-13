@@ -15,6 +15,7 @@ from nfv_plugins.nfvi_plugins.openstack import rest_api
 from nfv_plugins.nfvi_plugins.openstack import exceptions
 from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import guest
+from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.guest_api')
 
@@ -205,12 +206,18 @@ class NFVIGuestAPI(nfvi.api.v1.NFVIGuestAPI):
         super(NFVIGuestAPI, self).__init__()
         self._token = None
         self._directory = None
+        self._openstack_directory = None
         self._rest_api_server = None
         self._host_services_query_callback = None
         self._guest_services_query_callback = None
         self._guest_services_state_notify_callbacks = list()
         self._guest_services_alarm_notify_callbacks = list()
         self._guest_services_action_notify_callbacks = list()
+
+    def _host_supports_nova_compute(self, personality):
+        return (('compute' in personality) and
+                (self._openstack_directory.get_service_info(
+                    OPENSTACK_SERVICE.NOVA) is not None))
 
     def guest_services_create(self, future, instance_uuid, host_name,
                               services, callback):
@@ -589,6 +596,361 @@ class NFVIGuestAPI(nfvi.api.v1.NFVIGuestAPI):
             callback.send(response)
             callback.close()
 
+    def create_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Create Host Services, notify Guest to create services for a host
+        """
+        response = dict()
+        response['completed'] = False
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._token is None or \
+                        self._token.is_expired():
+                    future.work(openstack.get_token, self._directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._token = future.result.data
+
+                response['reason'] = 'failed to create guest services'
+
+                try:
+                    # Send the create request to Guest.
+                    future.work(guest.host_services_create,
+                                self._token,
+                                host_uuid, host_name)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("Guest host-services-create failed, "
+                                   "operation did not complete, host_uuid=%s, "
+                                   "host_name=%s."
+                                   % (host_uuid, host_name))
+                        return
+
+                    response['reason'] = 'failed to disable guest services'
+
+                    # Send the disable request to Guest
+                    future.work(guest.host_services_disable,
+                                self._token,
+                                host_uuid, host_name)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        # do not return since the disable will be retried
+                        # by audit
+                        DLOG.error("Guest host-services-disable failed, "
+                                   "operation did not complete, host_uuid=%s, "
+                                   "host_name=%s."
+                                   % (host_uuid, host_name))
+
+                except exceptions.OpenStackRestAPIException as e:
+                    # Guest can send a 404 if it hasn't got the host
+                    # inventory yet.
+                    # Guest will catch up later, no need to fail here.
+                    if httplib.NOT_FOUND != e.http_status_code:
+                        raise
+
+            response['completed'] = True
+            response['reason'] = ''
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to create "
+                               "guest services on host, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to create %s "
+                           "guest services, error=%s." % (host_name, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def delete_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Delete Host Services, notify Guest to delete services for a host
+        """
+        response = dict()
+        response['completed'] = False
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._token is None or \
+                        self._token.is_expired():
+                    future.work(openstack.get_token, self._directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._token = future.result.data
+
+                response['reason'] = 'failed to delete guest services'
+
+                # Send the delete request to Guest.
+                future.work(guest.host_services_delete, self._token,
+                            host_uuid)
+                try:
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("Guest host-services-delete for host "
+                                   "failed, operation did not complete, "
+                                   "host_uuid=%s, host_name=%s."
+                                   % (host_uuid, host_name))
+                        return
+
+                except exceptions.OpenStackRestAPIException as e:
+                    if httplib.NOT_FOUND != e.http_status_code:
+                        raise
+
+            response['completed'] = True
+            response['reason'] = ''
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to delete "
+                               "host services on host, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to delete %s "
+                           "guest services, error=%s."
+                           % (host_name, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def enable_host_services(self, future, host_uuid, host_name,
+                             host_personality, callback):
+        """
+        Enable Host Services, notify Guest to enable services for a host.
+        """
+        response = dict()
+        response['completed'] = False
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._token is None or \
+                        self._token.is_expired():
+                    future.work(openstack.get_token, self._directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._token = future.result.data
+
+                response['reason'] = 'failed to enable guest services'
+
+                # Send the Enable request to Guest
+                future.work(guest.host_services_enable, self._token,
+                            host_uuid, host_name)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Guest host-services-enable failed, operation "
+                               "did not complete, host_uuid=%s, host_name=%s."
+                               % (host_uuid, host_name))
+                    return
+
+            response['completed'] = True
+            response['reason'] = ''
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to enable "
+                               "guest services on host, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to enable %s "
+                           "guest services, error=%s."
+                           % (host_name, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def disable_host_services(self, future, host_uuid, host_name,
+                              host_personality, callback):
+        """
+        Notifies Guest to disable their services for the specified
+        host (as applicable)
+        """
+        response = dict()
+        response['completed'] = False
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            # The following only applies to compute hosts
+            if self._host_supports_nova_compute(host_personality):
+                response['reason'] = 'failed to get platform token from ' \
+                                     'keystone'
+                if self._token is None or \
+                        self._token.is_expired():
+                    future.work(openstack.get_token, self._directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._token = future.result.data
+
+                response['reason'] = 'failed to disable guest services'
+
+                # Send the Disable request to Guest.
+                future.work(guest.host_services_disable, self._token,
+                            host_uuid, host_name)
+
+                try:
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        # Do not return since the disable will be retried
+                        # by audit
+                        DLOG.error("Guest host-services-disable failed, "
+                                   "operation did not complete, host_uuid=%s, "
+                                   "host_name=%s."
+                                   % (host_uuid, host_name))
+
+                except exceptions.OpenStackRestAPIException as e:
+                    if httplib.NOT_FOUND != e.http_status_code:
+                        raise
+
+            response['completed'] = True
+            response['reason'] = ''
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to disable "
+                               "guest services, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to disable %s "
+                           "guest services, error=%s."
+                           % (host_name, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def query_host_services(self, future, host_uuid, host_name,
+                            host_personality, callback):
+        """
+        Query Host Services, return state of Guest services for a host.
+        """
+        response = dict()
+        response['completed'] = False
+        response['result-data'] = 'enabled'
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._host_supports_nova_compute(host_personality):
+                if self._token is None or \
+                        self._token.is_expired():
+                    future.work(openstack.get_token, self._directory)
+                    future.result = (yield)
+
+                    if not future.result.is_complete():
+                        DLOG.error("OpenStack get-token did not complete, "
+                                   "host_uuid=%s, host_name=%s." % (host_uuid,
+                                                                    host_name))
+                        return
+
+                    self._token = future.result.data
+
+                # Send Query request to Guest
+                future.work(guest.host_services_query, self._token,
+                            host_uuid, host_name)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Guest query-host-services failed, operation "
+                               "did not complete, host_uuid=%s, host_name=%s."
+                               % (host_uuid, host_name))
+
+                else:
+                    result_data = future.result.data
+                    response['result-data'] = result_data['state']
+
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to query "
+                               "host services, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to query %s "
+                           "nova or neutron openstack services, error=%s."
+                           % (host_name, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
     def host_services_rest_api_get_handler(self, request_dispatch):
         """
         Host-Services Rest-API GET handler
@@ -852,6 +1214,8 @@ class NFVIGuestAPI(nfvi.api.v1.NFVIGuestAPI):
         config.load(config_file)
         self._directory = openstack.get_directory(
             config, openstack.SERVICE_CATEGORY.PLATFORM)
+        self._openstack_directory = openstack.get_directory(
+            config, openstack.SERVICE_CATEGORY.OPENSTACK)
 
         self._rest_api_server = rest_api.rest_api_get_server(
             config.CONF['guest-rest-api']['host'],

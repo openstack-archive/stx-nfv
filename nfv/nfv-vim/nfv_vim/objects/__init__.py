@@ -8,6 +8,7 @@ from nfv_vim.objects._system import System  # noqa: F401
 from nfv_vim.objects._host import HOST_PERSONALITY  # noqa: F401
 from nfv_vim.objects._host import HOST_NAME  # noqa: F401
 from nfv_vim.objects._host import HOST_SERVICE_STATE  # noqa: F401
+from nfv_vim.objects._host import HOST_SERVICES  # noqa: F401
 from nfv_vim.objects._host import Host  # noqa: F401
 from nfv_vim.objects._host_group import HOST_GROUP_POLICY  # noqa: F401
 from nfv_vim.objects._host_group import HostGroup  # noqa: F401

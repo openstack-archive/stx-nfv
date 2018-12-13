@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import six
+import os
 
 from nfv_common import debug
 from nfv_common import state_machine
@@ -53,10 +54,22 @@ class HostServicesState(object):
     FAILED = Constant('failed')
 
 
+@six.add_metaclass(Singleton)
+class HostServices(object):
+    """
+    Host-Services Constants
+    """
+    GUEST = Constant('guest')
+    NETWORK = Constant('network')
+    COMPUTE = Constant('compute')
+    CONTAINER = Constant('container')
+
+
 # Host-Services Constant Instantiation
 HOST_SERVICE_STATE = HostServicesState()
 HOST_PERSONALITY = HostPersonality()
 HOST_NAME = HostNames()
+HOST_SERVICES = HostServices()
 
 
 class Host(ObjectData):
@@ -92,10 +105,24 @@ class Host(ObjectData):
         self._last_state_timestamp = timers.get_monotonic_timestamp_in_ms()
         self._fail_notification_required = False
         self._fsm_start_time = None
-        if self.is_enabled():
-            self._host_service_state = HOST_SERVICE_STATE.ENABLED
-        else:
-            self._host_service_state = HOST_SERVICE_STATE.DISABLED
+        self._host_service_state = dict()
+
+        if self.host_service_configured(HOST_SERVICES.COMPUTE):
+            self._host_service_state[HOST_SERVICES.COMPUTE] = \
+                HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+                HOST_SERVICE_STATE.DISABLED
+        if self.host_service_configured(HOST_SERVICES.NETWORK):
+            self._host_service_state[HOST_SERVICES.NETWORK] = \
+                HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+                HOST_SERVICE_STATE.DISABLED
+        if self.host_service_configured(HOST_SERVICES.GUEST):
+            self._host_service_state[HOST_SERVICES.GUEST] = \
+                HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+                HOST_SERVICE_STATE.DISABLED
+        if self.host_service_configured(HOST_SERVICES.CONTAINER):
+            self._host_service_state[HOST_SERVICES.CONTAINER] = \
+                HOST_SERVICE_STATE.ENABLED if self.is_enabled() else \
+                HOST_SERVICE_STATE.DISABLED
 
         self._alarms = list()
         self._events = list()
@@ -128,12 +155,70 @@ class Host(ObjectData):
         """
         return self._fsm.current_state.name
 
-    @property
-    def host_service_state(self):
+    def host_service_configured(self, service):
         """
-        Returns the current state of the host services
+        Returns whether a host service is configured or not
         """
-        return self._host_service_state
+        kubernetes_config = True
+        if not os.path.isfile('/etc/kubernetes/admin.conf'):
+            kubernetes_config = False
+
+        configured = True
+
+        if kubernetes_config:
+            if service == HOST_SERVICES.COMPUTE:
+                configured = (not nfvi.nfvi_compute_plugin_disabled() and
+                              self._nfvi_host.openstack_compute)
+            elif service == HOST_SERVICES.NETWORK:
+                configured = (not nfvi.nfvi_network_plugin_disabled() and
+                              (self._nfvi_host.openstack_compute or
+                               self._nfvi_host.openstack_control))
+            elif service == HOST_SERVICES.GUEST:
+                configured = (not nfvi.nfvi_guest_plugin_disabled() and
+                              self._nfvi_host.openstack_compute)
+            elif service != HOST_SERVICES.CONTAINER:
+                DLOG.error("unknown service %s" % service)
+                configured = False
+        else:
+            if service == HOST_SERVICES.CONTAINER:
+                configured = False
+
+        DLOG.verbose("Host configure check for service %s, result %s" %
+                     (service, configured))
+
+        return configured
+
+    def host_service_state(self, service):
+        """
+        Returns the state for a host service
+        """
+        return self._host_service_state[service]
+
+    def host_service_state_aggregate(self):
+        """
+        Returns the overall state of the host services
+        """
+        all_enabled = True
+        at_least_one_failed = False
+        for service, service_state in self._host_service_state.items():
+            # Ignore state of kubernetes, plugin as
+            # there is no query function for that sevice.
+            if service == HOST_SERVICES.CONTAINER:
+                continue
+            all_enabled = all_enabled and \
+                (service_state == HOST_SERVICE_STATE.ENABLED)
+            at_least_one_failed = at_least_one_failed or \
+                (service_state == HOST_SERVICE_STATE.FAILED)
+
+            DLOG.verbose("service_state: %s, all_enabled: %s" %
+                         (service_state, all_enabled))
+
+        if all_enabled:
+            return HOST_SERVICE_STATE.ENABLED
+        elif at_least_one_failed:
+            return HOST_SERVICE_STATE.FAILED
+        else:
+            return HOST_SERVICE_STATE.DISABLED
 
     @property
     def host_services_locked(self):
@@ -645,28 +730,54 @@ class Host(ObjectData):
         alarm.host_clear_alarm(self._alarms)
         self._fsm.handle_event(host_fsm.HOST_EVENT.DELETE)
 
-    def host_services_update(self, host_service_state, reason=None):
+    def host_services_update_all(self, host_service_state, reason=None):
         """
-        Host services update
+        Host services update all
         """
-        if host_service_state == self._host_service_state:
-            return
+        at_least_one_change = False
+
+        for service, state in self._host_service_state.items():
+            if state != host_service_state:
+                at_least_one_change = True
+                self._host_service_state[service] = host_service_state
+
+        if at_least_one_change:
+            self.host_services_update(None, host_service_state, reason)
+
+    def host_services_update(self, service,
+                             host_service_state, reason=None):
+        """
+        Host services update.  None input service parameter indicates
+        that the _host_service_state has already been updated through
+        host_services_update_all.
+        """
+
+        if service is not None:
+            if host_service_state == self._host_service_state[service]:
+                return
+
+            self._host_service_state[service] = host_service_state
 
         # Host services logs and alarms only apply to compute hosts
         if 'compute' in self.personality:
-            if HOST_SERVICE_STATE.ENABLED == host_service_state:
+            host_service_state_overall = \
+                self.host_service_state_aggregate()
+            if (HOST_SERVICE_STATE.ENABLED ==
+                    host_service_state_overall):
                 self._events = event_log.host_issue_log(
                     self, event_log.EVENT_ID.HOST_SERVICES_ENABLED)
                 alarm.host_clear_alarm(self._alarms)
                 self._alarms[:] = list()
 
-            elif HOST_SERVICE_STATE.DISABLED == host_service_state:
+            elif (HOST_SERVICE_STATE.DISABLED ==
+                    host_service_state_overall):
                 self._events = event_log.host_issue_log(
                     self, event_log.EVENT_ID.HOST_SERVICES_DISABLED)
                 alarm.host_clear_alarm(self._alarms)
                 self._alarms[:] = list()
 
-            elif HOST_SERVICE_STATE.FAILED == host_service_state:
+            elif (HOST_SERVICE_STATE.FAILED ==
+                    host_service_state_overall):
                 if reason is None:
                     additional_text = ''
                 else:
@@ -678,8 +789,6 @@ class Host(ObjectData):
                 self._alarms = alarm.host_raise_alarm(
                     self, alarm.ALARM_TYPE.HOST_SERVICES_FAILED,
                     additional_text=additional_text)
-
-        self._host_service_state = host_service_state
 
     def nfvi_host_upgrade_status(self, upgrade_inprogress, recover_instances):
         """
