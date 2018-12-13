@@ -1,0 +1,9 @@
+Code-Review+2: Bart Wensley <barton.wensley@windriver.com>
+Code-Review+2: Al Bailey <al.bailey@windriver.com>
+Workflow+1: Al Bailey <al.bailey@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Thu, 13 Dec 2018 21:46:00 +0000
+Reviewed-on: https://review.openstack.org/620407
+Project: openstack/stx-nfv
+Branch: refs/heads/master
