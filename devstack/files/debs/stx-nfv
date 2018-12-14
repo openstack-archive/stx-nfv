@@ -1,2 +1,6 @@
+cppcheck
+libevent-dev
 libjson-c-dev
+libssl-dev
 resource-agents
+uuid-dev
