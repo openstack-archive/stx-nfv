@@ -1,2 +1,6 @@
 json-c-devel
 resource-agents
+openssl-devel
+libevent-devel
+libuuid-devel
+cppcheck

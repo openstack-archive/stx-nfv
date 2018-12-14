@@ -19,6 +19,9 @@ if is_service_enabled stx-nfv; then
         if is_service_enabled guest-client; then
             install_guest_client
         fi
+        if is_service_enabled guest-agent || is_service_enabled guest-server; then
+            install_mtce_guest
+        fi
 
     elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
         # Configure after the other layer 1 and 2 services have been configured
@@ -29,6 +32,9 @@ if is_service_enabled stx-nfv; then
         if is_service_enabled nova-api-proxy; then
             configure_nova_api_proxy
         fi
+        if is_service_enabled guest-agent || is_service_enabled guest-server; then
+            configure_mtce_guest
+        fi
 
     elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
         echo_summary "Starting stx-nfv"
@@ -37,6 +43,9 @@ if is_service_enabled stx-nfv; then
         fi
         if is_service_enabled nova-api-proxy; then
             start_nova_api_proxy
+        fi
+        if is_service_enabled guest-agent || is_service_enabled guest-server; then
+            start_mtce_guest
         fi
     fi
 
@@ -47,6 +56,9 @@ if is_service_enabled stx-nfv; then
         fi
         if is_service_enabled nova-api-proxy; then
             stop_nova_api_proxy
+        fi
+        if is_service_enabled guest-agent || is_service_enabled guest-server; then
+            stop_mtce_guest
         fi
     fi
 
@@ -60,6 +72,9 @@ if is_service_enabled stx-nfv; then
         fi
         if is_service_enabled guest-client; then
             cleanup_guest_client
+        fi
+        if is_service_enabled guest-agent || is_service_enabled guest-server; then
+            cleanup_mtce_guest
         fi
     fi
 fi
