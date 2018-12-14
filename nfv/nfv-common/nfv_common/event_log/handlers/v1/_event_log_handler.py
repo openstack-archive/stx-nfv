@@ -14,35 +14,35 @@ class EventLogHandler(object):
     """
     @abc.abstractproperty
     def name(self):
-        """ The name of handler """
+        """The name of handler """
         pass
 
     @abc.abstractproperty
     def version(self):
-        """ The versions of the handler  """
+        """The versions of the handler  """
         pass
 
     @abc.abstractproperty
     def provider(self):
-        """ Who created the handler """
+        """Who created the handler """
         pass
 
     @abc.abstractproperty
     def signature(self):
-        """ Signature of the handler """
+        """Signature of the handler """
         pass
 
     @abc.abstractmethod
     def log(self, log_data):
-        """ Log an event via the handler """
+        """Log an event via the handler """
         pass
 
     @abc.abstractmethod
     def initialize(self, config_file):
-        """ Initialize the handler """
+        """Initialize the handler """
         pass
 
     @abc.abstractmethod
     def finalize(self):
-        """ Finalize the handler """
+        """Finalize the handler """
         pass

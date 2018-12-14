@@ -10,7 +10,7 @@ import functools
 
 
 def syscall_retry_on_interrupt(func, *args):
-    """ Attempt system call again if interrupted by EINTR """
+    """Attempt system call again if interrupted by EINTR """
     for _ in range(0, 5):
         try:
             return func(*args)

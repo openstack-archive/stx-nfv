@@ -36,7 +36,7 @@ class CatalogBackend(stevedore.named.NamedExtensionManager):
 
     @staticmethod
     def valid_plugin(plugin):
-        """ Verify signature of plugin is valid """
+        """Verify signature of plugin is valid """
         if CatalogBackend._signature == plugin.obj.signature:
             return True
         else:
@@ -46,7 +46,7 @@ class CatalogBackend(stevedore.named.NamedExtensionManager):
         return False
 
     def read_vnf_descriptor(self, vnfd_id, vnf_vendor, vnf_version):
-        """ Read a particular vnf descriptor """
+        """Read a particular vnf descriptor """
         vnfd_record = None
         if self.plugin is not None:
             vnfd_record = self.plugin.obj.read_vnf_descriptor(vnfd_id,
@@ -55,11 +55,11 @@ class CatalogBackend(stevedore.named.NamedExtensionManager):
         return vnfd_record
 
     def initialize(self):
-        """ Initialize plugin """
+        """Initialize plugin """
         if self.plugin is not None:
             self.plugin.obj.initialize(self._version)
 
     def finalize(self):
-        """ Finalize plugin """
+        """Finalize plugin """
         if self.plugin is not None:
             self.plugin.obj.finalize()

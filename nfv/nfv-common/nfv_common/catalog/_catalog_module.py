@@ -9,7 +9,7 @@ _catalog_backend = None
 
 
 def read_vnf_descriptor(vnfd_id, vnf_vendor, vnf_version):
-    """ Read a vnf descriptor """
+    """Read a vnf descriptor """
     if _catalog_backend is not None:
         return _catalog_backend.read_vnf_descriptor(vnfd_id, vnf_vendor,
                                                     vnf_version)
@@ -17,12 +17,12 @@ def read_vnf_descriptor(vnfd_id, vnf_vendor, vnf_version):
 
 
 def catalog_initialize(plugin_namespace, plugin_name):
-    """ Catalog Initialize """
+    """Catalog Initialize """
     global _catalog_backend
     _catalog_backend = CatalogBackend(plugin_namespace, plugin_name)
 
 
 def catalog_finalize():
-    """ Catalog Finalize """
+    """Catalog Finalize """
     global _catalog_backend
     _catalog_backend = None
