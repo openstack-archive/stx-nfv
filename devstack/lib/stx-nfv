@@ -6,6 +6,7 @@
 _XTRACE_STX_NFV=$(set +o | grep xtrace)
 set -o xtrace
 
+# all
 STXNFV_DIR=$DEST/stx-nfv
 STXNFV_SYSCONFDIR=/etc
 STXNFV_OCF_ROOT=/usr/lib/ocf
@@ -13,6 +14,7 @@ STXNFV_OCF_ROOT=/usr/lib/ocf
 STX_BIN_DIR=$(get_python_exec_prefix)
 STX_PREFIX=${STX_BIN_DIR%/*}
 
+# nfv
 NFV_DIR=$STXNFV_DIR/nfv
 NFV_CONF_DIR=$STXNFV_SYSCONFDIR/nfv
 NFV_OCF_DIR=$STXNFV_OCF_ROOT/resource.d/nfv
@@ -22,39 +24,86 @@ NFV_PLUGINS_DIR=$NFV_DIR/nfv-plugins
 NFV_TOOLS_DIR=$NFV_DIR/nfv-tools
 NFV_VIM_DIR=$NFV_DIR/nfv-vim
 
+# nova-api-proxy
 NOVA_API_PROXY_CONF=$STXNFV_SYSCONFDIR/proxy
 NOVA_API_PROXY_DIR=$STXNFV_DIR/nova-api-proxy/nova-api-proxy
 
+# mtce-guest
+MTCE_GUEST_DIR=$STXNFV_DIR/mtce-guest
+MTCE_GUEST_CONF=$STXNFV_SYSCONFDIR/mtc
+MTCE_GUEST_OCF_DIR=$STXNFV_OCF_ROOT/resource.d/platform
+
+# guest-client
 GUEST_CLIENT_VERSION="3.0.1"
 
 STX_SDK_DEPLOY_DIR=${STX_SDK_DEPLOY_DIR:-/opt/deploy/cgcs_sdk}
 
 PYTHON_SITE_DIR=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 
+function cleanup_guest_agent {
+    sudo rm -rf $MTCE_GUEST_OCF_DIR/guestAgent
+    sudo rm -rf $MTCE_GUEST_CONF/guestAgent.ini
+    sudo rm -rf $STX_PREFIX/bin/guestAgent
+    sudo rm -rf $STXNFV_SYSCONFDIR/init.d/guestAgent
+    sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestAgent.logrotate
+}
+
 function cleanup_guest_client {
-    sudo rm -rf $STX_PREFIX/include/guest-client
-    sudo rm -rf $STX_SDK_DEPLOY_DIR
-    sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
-    sudo rm -rf $STXNFV_SYSCONFDIR/guest-client
-    sudo rm -rf $STX_PREFIX/bin/guest-client
-    sudo rm -rf $STX_PREFIX/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    sudo rm -rf $STX_PREFIX/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+    if is_service_enabled guest-client; then
+        sudo rm -rf $STX_PREFIX/include/guest-client
+        sudo rm -rf $STX_SDK_DEPLOY_DIR
+        sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
+        sudo rm -rf $STXNFV_SYSCONFDIR/guest-client
+        sudo rm -rf $STX_PREFIX/bin/guest-client
+        sudo rm -rf $STX_PREFIX/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+        sudo rm -rf $STX_PREFIX/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+    fi
+}
+
+function cleanup_guest_server {
+    sudo rm -rf $MTCE_GUEST_CONF/guestServer.ini
+    sudo rm -rf $STX_PREFIX/bin/guestServer
+    sudo rm -rf $STXNFV_SYSCONFDIR/init.d/guestServer
+    sudo rm -rf $STXNFV_SYSCONFDIR/pmon.d/guestServer.conf
+    sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestServer.logrotate
+}
+
+function cleanup_mtce_guest {
+    if is_service_enabled guest-agent || is_service_enabled guest-server; then 
+        pushd $MTCE_GUEST_DIR/src
+        make clean
+        popd
+    fi
+
+    if is_service_enabled guest-agent; then
+        cleanup_guest_agent
+    fi
+    if is_service_enabled guest-server; then
+        cleanup_guest_server
+    fi
 }
 
 function cleanup_nfv {
-    sudo rm -rf $NFV_CONF_DIR
-    sudo rm -rf $NFV_OCF_DIR
-    sudo rm -rf $STXNFV_SYSCONFDIR/bash_completion.d/sw-manager
+    if is_service_enabled nfv-vim || is_service_enabled nfv-vim-api || is_service_enabled nfv-vim-webserver; then
+        sudo rm -rf $NFV_CONF_DIR
+        sudo rm -rf $NFV_OCF_DIR
+        sudo rm -rf $STXNFV_SYSCONFDIR/bash_completion.d/sw-manager
 
-    sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/devstack@nfv-vim.service
-    sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/devstack@nfv-vim-api.service
-    sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/devstack@nfv-vim-webserver.service
-
-    cleanup_nfv_vim
-    cleanup_nfv_common
-    cleanup_nfv_plugins
-    cleanup_nfv_tools
-    cleanup_nfv_client
+        cleanup_nfv_vim
+        cleanup_nfv_common
+        cleanup_nfv_plugins
+        cleanup_nfv_tools
+        cleanup_nfv_client
+    fi
+    if is_service_enabled nfv-vim; then
+        sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/devstack@nfv-vim.service
+    fi
+    if is_service_enabled nfv-vim-api; then
+        sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/devstack@nfv-vim-api.service
+    fi
+    if is_service_enabled nfv-vim-webserver; then
+        sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/devstack@nfv-vim-webserver.service
+    fi
 }
 
 function cleanup_nfv_client {
@@ -78,11 +127,56 @@ function cleanup_nfv_vim {
 }
 
 function cleanup_nova_api_proxy {
-    pip_uninstall api-proxy
+    if is_service_enabled nova-api-proxy; then
+        pip_uninstall api-proxy
+    fi
+}
+
+function configure_guest_agent {
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-agent.service "Service" "Type" "forking"
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-agent.service "Service" "PIDFile" "/var/run/guestAgent.pid"
+}
+
+function configure_guest_server {
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "Type" "forking"
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "PIDFile" "/var/run/guestServer.pid"
+}
+
+function configure_mtce_guest {
+    if is_service_enabled guest-agent || is_service_enabled guest-server; then
+        # the content related to "controller" in /etc/hosts is generated by stx-metal
+        # devstack plugin. for the time being, there are no entries about oamcontroller,
+        # pxecontroller, ipv6, etc. so here we use a simple regular expression.
+        if grep -q "^[0-9]\{1,3\}.*\s\+controller$" /etc/hosts; then
+            sudo sed -i "s%^[0-9]\{1,3\}.*\s\+controller$%$HOST_IP controller%" /etc/hosts
+        else
+            echo "$HOST_IP controller" | sudo tee -a "/etc/hosts"
+        fi
+        if grep -q "^[0-9]\{1,3\}.*\s\+.*controller-0$" /etc/hosts; then
+            sudo sed -i "s%^[0-9]\{1,3\}.*\s\+controller-0$%$HOST_IP controller-0%" /etc/hosts
+        else
+            echo "$HOST_IP controller-0" | sudo tee -a "/etc/hosts"
+        fi
+        if [ -f "/etc/platform/.initial_config_complete" ]; then
+            sudo touch /etc/platform/.initial_config_complete
+        fi
+        if [ -f "/var/run/.goenabled" ]; then
+            sudo touch /var/run/.goenabled
+        fi
+    fi
+
+    if is_service_enabled guest-agent; then
+        configure_guest_agent
+    fi
+    if is_service_enabled guest-server; then
+        configure_guest_server
+    fi
 }
 
 function configure_nfv {
-    configure_nfv_common
+    if is_service_enabled nfv-vim || is_service_enabled nfv-vim-api || is_service_enabled nfv-vim-webserver; then
+        configure_nfv_common
+    fi
 
     if is_service_enabled nfv-vim; then
         configure_nfv_vim
@@ -142,59 +236,117 @@ function configure_nfv_vim_webserver {
 }
 
 function configure_nova_api_proxy {
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "pool_size" "256"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "nfvi_compute_listen_port" "30003"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "nfvi_compute_listen" "127.0.0.1"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "auth_type" "password"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "auth_url" "$KEYSTONE_SERVICE_URI"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "user_domain_name" "$SERVICE_DOMAIN_NAME"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "username" "nova"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "password" "$SERVICE_PASSWORD"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "project_domain_name" "$SERVICE_DOMAIN_NAME"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "project_name" "$SERVICE_PROJECT_NAME"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "admin_user" "nova"
-    iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "admin_tenant_name" "$SERVICE_PROJECT_NAME"
+    if is_service_enabled nova-api-proxy; then
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "pool_size" "256"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "nfvi_compute_listen_port" "30003"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "DEFAULT" "nfvi_compute_listen" "127.0.0.1"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "auth_type" "password"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "auth_url" "$KEYSTONE_SERVICE_URI"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "user_domain_name" "$SERVICE_DOMAIN_NAME"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "username" "nova"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "password" "$SERVICE_PASSWORD"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "project_domain_name" "$SERVICE_DOMAIN_NAME"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "project_name" "$SERVICE_PROJECT_NAME"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "admin_user" "nova"
+        iniset -sudo $NOVA_API_PROXY_CONF/nova-api-proxy.conf "keystone_authtoken" "admin_tenant_name" "$SERVICE_PROJECT_NAME"
 
-    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@nova-api-proxy.service "Service" "Type" "simple"
-    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@nova-api-proxy.service "Service" "PIDFile" "/var/run/nova-api-proxy.pid"
+        iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@nova-api-proxy.service "Service" "Type" "simple"
+        iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@nova-api-proxy.service "Service" "PIDFile" "/var/run/nova-api-proxy.pid"
+    fi
 }
 
-function install_guest_client {
-    pushd $STXNFV_DIR/guest-client/guest-client-$GUEST_CLIENT_VERSION
+function install_guest_agent {
+    pushd $MTCE_GUEST_DIR/src
 
-    make clean
-    make build sysconfdir=$STXNFV_SYSCONFDIR
-    make sample
-    make tar ARCHIVE_NAME=wrs-guest-heartbeat-$GUEST_CLIENT_VERSION
-    find build
-
-    # Sudo Install for guest-client package
-    sudo install -m 755 -d $STX_PREFIX/include/guest-client
-    sudo install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $STX_PREFIX/include/guest-client/guest_heartbeat_msg_defs.h
-    sudo install -d $STX_SDK_DEPLOY_DIR
-    sudo install -m 640 build/wrs-guest-heartbeat-$GUEST_CLIENT_VERSION.tgz $STX_SDK_DEPLOY_DIR
-
-    # Systemd services
-    sudo install -m 644 -p -D guest_client/scripts/guest-client.service $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
-    sudo install -m 744 -p -D guest_client/scripts/guest-client.systemd $STXNFV_SYSCONFDIR/guest-client/guest-client.systemd
-
-    sudo install -m 750 -d $STXNFV_SYSCONFDIR/guest-client/heartbeat
-    sudo install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf $STXNFV_SYSCONFDIR/guest-client/heartbeat/guest_heartbeat.conf
-    sudo install -m 755 -p -D guest_client/scripts/sample_event_handling_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_event_handling_script
-    sudo install -m 755 -p -D guest_client/scripts/sample_health_check_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_health_check_script
-    sudo install -m 640 -p -D build/guest-client $STX_PREFIX/bin/guest-client
-    sudo install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION $STX_PREFIX/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    sudo install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION $STX_PREFIX/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+    sudo install -m 755 -d $MTCE_GUEST_OCF_DIR
+    sudo install -m 755 -p -D scripts/guestAgent.ocf $MTCE_GUEST_OCF_DIR/guestAgent
+    sudo install -m 644 -p -D scripts/guest.ini $MTCE_GUEST_CONF/guestAgent.ini
+    sudo install -m 755 -p -D guestAgent $STX_PREFIX/bin/guestAgent
+    sudo install -m 755 -p -D scripts/guestAgent $STXNFV_SYSCONFDIR/init.d/guestAgent
+    sudo install -m 644 -p -D scripts/guestAgent.logrotate $STXNFV_SYSCONFDIR/logrotate.d/guestAgent.logrotate
 
     popd
 }
 
+function install_guest_client {
+    if is_service_enabled guest-client; then
+        pushd $STXNFV_DIR/guest-client/guest-client-$GUEST_CLIENT_VERSION
+
+        make clean
+        make build sysconfdir=$STXNFV_SYSCONFDIR
+        make sample
+        make tar ARCHIVE_NAME=wrs-guest-heartbeat-$GUEST_CLIENT_VERSION
+        find build
+
+        # Sudo Install for guest-client package
+        sudo install -m 755 -d $STX_PREFIX/include/guest-client
+        sudo install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $STX_PREFIX/include/guest-client/guest_heartbeat_msg_defs.h
+        sudo install -d $STX_SDK_DEPLOY_DIR
+        sudo install -m 640 build/wrs-guest-heartbeat-$GUEST_CLIENT_VERSION.tgz $STX_SDK_DEPLOY_DIR
+
+        # Systemd services
+        sudo install -m 644 -p -D guest_client/scripts/guest-client.service $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
+        sudo install -m 744 -p -D guest_client/scripts/guest-client.systemd $STXNFV_SYSCONFDIR/guest-client/guest-client.systemd
+
+        sudo install -m 750 -d $STXNFV_SYSCONFDIR/guest-client/heartbeat
+        sudo install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf $STXNFV_SYSCONFDIR/guest-client/heartbeat/guest_heartbeat.conf
+        sudo install -m 755 -p -D guest_client/scripts/sample_event_handling_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_event_handling_script
+        sudo install -m 755 -p -D guest_client/scripts/sample_health_check_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_health_check_script
+        sudo install -m 640 -p -D build/guest-client $STX_PREFIX/bin/guest-client
+        sudo install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION $STX_PREFIX/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+        sudo install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION $STX_PREFIX/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+
+        popd
+    fi
+}
+
+function install_guest_server {
+    pushd $MTCE_GUEST_DIR/src
+
+    sudo install -m 644 -p -D scripts/guest.ini $MTCE_GUEST_CONF/guestServer.ini
+    sudo install -m 755 -p -D guestServer $STX_PREFIX/bin/guestServer
+    sudo install -m 755 -p -D scripts/guestServer $STXNFV_SYSCONFDIR/init.d/guestServer
+    sudo install -m 755 -d $(STXNFV_SYSCONFDIR)/pmon.d
+    sudo install -m 644 -p -D scripts/guestServer.pmon $STXNFV_SYSCONFDIR/pmon.d/guestServer.conf
+    sudo install -m 644 -p -D scripts/guestServer.logrotate $STXNFV_SYSCONFDIR/logrotate.d/guestServer.logrotate
+
+    popd
+}
+
+function install_mtce_guest {
+    if is_service_enabled guest-agent || is_service_enabled guest-server; then
+        # guest-client: to install guest_heartbeat_api_msg_defs.h
+        # stx-metal: to install mtce_common header files and libraries
+        # fm-common: to install fmcommon library
+        local req_services="guest-client stx-metal fm-common"
+        for srv in $req_services;do
+            if ! is_service_enabled "$srv"; then
+                die $LINENO "$srv should be enabled for guestAgent/guestServer"
+            fi
+        done
+
+        pushd $MTCE_GUEST_DIR/src
+        make build
+        popd
+
+        sudo install -m 755 -d $(STXNFV_SYSCONFDIR)/logrotate.d
+    fi
+    if is_service_enabled guest-agent; then
+        install_guest_agent
+    fi
+    if is_service_enabled guest-server; then
+        install_guest_server
+    fi
+}
+
 function install_nfv {
-    install_nfv_vim
-    install_nfv_common
-    install_nfv_plugins
-    install_nfv_tools
-    install_nfv_client
+    if is_service_enabled nfv-vim || is_service_enabled nfv-vim-api || is_service_enabled nfv-vim-webserver; then
+        install_nfv_vim
+        install_nfv_common
+        install_nfv_plugins
+        install_nfv_tools
+        install_nfv_client
+    fi
 }
 
 function install_nfv_client {
@@ -258,14 +410,33 @@ function install_nfv_vim {
 }
 
 function install_nova_api_proxy {
-    pushd $NOVA_API_PROXY_DIR
-    python setup.py build
-    sudo python setup.py install --root=/ --install-lib=${PYTHON_SITE_DIR} --single-version-externally-managed
-    popd
+    if is_service_enabled nova-api-proxy; then
+        pushd $NOVA_API_PROXY_DIR
+        python setup.py build
+        sudo python setup.py install --root=/ --install-lib=${PYTHON_SITE_DIR} --single-version-externally-managed
+        popd
 
-    sudo install -d -m 755 $NOVA_API_PROXY_CONF
-    sudo install -p -D -m 744 $NOVA_API_PROXY_DIR/nova_api_proxy/nova-api-proxy.conf $NOVA_API_PROXY_CONF/nova-api-proxy.conf
-    sudo install -p -D -m 744 $NOVA_API_PROXY_DIR/nova_api_proxy/api-proxy-paste.ini $NOVA_API_PROXY_CONF/api-proxy-paste.ini
+        sudo install -d -m 755 $NOVA_API_PROXY_CONF
+        sudo install -p -D -m 744 $NOVA_API_PROXY_DIR/nova_api_proxy/nova-api-proxy.conf $NOVA_API_PROXY_CONF/nova-api-proxy.conf
+        sudo install -p -D -m 744 $NOVA_API_PROXY_DIR/nova_api_proxy/api-proxy-paste.ini $NOVA_API_PROXY_CONF/api-proxy-paste.ini
+    fi
+}
+
+function start_guest_agent {
+    run_process guest-agent "$STXNFV_SYSCONFDIR/init.d/guestAgent start" root root
+}
+
+function start_guest_server {
+    run_process guest-server "$STXNFV_SYSCONFDIR/init.d/guestServer start" root root
+}
+
+function start_mtce_guest {
+    if is_service_enabled guest-agent; then
+        start_guest_agent
+    fi
+    if is_service_enabled guest-server; then
+        start_guest_server
+    fi
 }
 
 function start_nfv {
@@ -293,8 +464,27 @@ function start_nfv_vim_webserver {
 }
 
 function start_nova_api_proxy {
-    local daemon=$(which nova-api-proxy)
-    run_process nova-api-proxy "$daemon --config-file=$NOVA_API_PROXY_CONF/nova-api-proxy.conf" root root
+    if is_service_enabled nova-api-proxy; then
+        local daemon=$(which nova-api-proxy)
+        run_process nova-api-proxy "$daemon --config-file=$NOVA_API_PROXY_CONF/nova-api-proxy.conf" root root
+    fi
+}
+
+function stop_guest_agent {
+    stop_process guest-agent
+}
+
+function stop_guest_server {
+    stop_process guest-server
+}
+
+function stop_mtce_guest {
+    if is_service_enabled guest-agent; then
+        stop_guest_agent
+    fi
+    if is_service_enabled guest-server; then
+        stop_guest_server
+    fi
 }
 
 function stop_nfv {
@@ -322,7 +512,9 @@ function stop_nfv_vim_webserver {
 }
 
 function stop_nova_api_proxy {
-    stop_process nova-api-proxy
+    if is_service_enabled nova-api-proxy; then
+        stop_process nova-api-proxy
+    fi
 }
 
 $_XTRACE_STX_NFV
