@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import os
 import sys
 import signal
 import argparse
@@ -63,6 +64,8 @@ def process_initialize():
     """
     Virtual Infrastructure Manager - Initialize
     """
+    init_complete = True
+
     debug.debug_initialize(config.CONF['debug'], 'VIM')
     profiler.profiler_initialize()
     selobj.selobj_initialize()
@@ -72,7 +75,9 @@ def process_initialize():
     schedule.schedule_initialize()
     event_log.event_log_initialize(config.CONF['event-log'])
     alarm.alarm_initialize(config.CONF['alarm'])
-    nfvi.nfvi_initialize(config.CONF['nfvi'])
+    if not nfvi.nfvi_initialize(config.CONF['nfvi']):
+        DLOG.info("nfvi_initialize failed")
+        init_complete = False
     database.database_initialize(config.CONF['database'])
     database.database_migrate_data()
     tables.tables_initialize()
@@ -80,6 +85,21 @@ def process_initialize():
     events.events_initialize()
     audits.audits_initialize()
     dor.dor_initialize()
+    return init_complete
+
+
+def process_reinitialize():
+    """
+    Virtual Infrastructure Manager - Reinitialize
+    """
+    init_complete = True
+
+    if not nfvi.nfvi_reinitialize(config.CONF['nfvi']):
+        DLOG.info("nfvi_reinitialize failed")
+        init_complete = False
+    else:
+        DLOG.info("nfvi_reinitialize succeeded")
+    return init_complete
 
 
 def process_finalize():
@@ -106,7 +126,12 @@ def process_main():
     """
     Virtual Infrastructure Manager - Main
     """
+    def _force_exit():
+        os._exit(-1)
+
     global do_reload, dump_data_captured, reset_data_captured
+
+    process_start_time = timers.get_monotonic_timestamp_in_ms()
 
     try:
         # signal.signal(signal.SIGTERM, process_signal_handler)
@@ -128,7 +153,8 @@ def process_main():
             debug_ini = sys.prefix + '/' + config.CONF['debug']['config_file']
             config.CONF['debug']['config_file'] = debug_ini
 
-        process_initialize()
+        init_complete = process_initialize()
+        last_init_time = timers.get_monotonic_timestamp_in_ms()
 
         DLOG.info("Started")
 
@@ -164,6 +190,20 @@ def process_main():
                 DLOG.info("Reset captured data complete.")
                 reset_data_captured = False
 
+            if not init_complete:
+                # Retry initialization for up to 3 minutes.
+                now_ms = timers.get_monotonic_timestamp_in_ms()
+                secs_expired = (now_ms - process_start_time) / 1000
+                if secs_expired < 180:
+                    time_since_init = (now_ms - last_init_time) / 1000
+                    # Reattempt initialization every 10 seconds.
+                    if time_since_init > 10:
+                        init_complete = process_reinitialize()
+                        last_init_time = timers.get_monotonic_timestamp_in_ms()
+                else:
+                    DLOG.warn("Initialization failed - exiting.")
+                    sys.exit(200)
+
     except KeyboardInterrupt:
         print("Keyboard Interrupt received.")
 
@@ -173,4 +213,8 @@ def process_main():
 
     finally:
         open(PROCESS_NOT_RUNNING_FILE, 'w').close()
+        # Allow up to 10 seconds for the process to shut down. If the
+        # process_finalize hangs, we will do a hard exit.
+        signal.signal(signal.SIGALRM, _force_exit)
+        signal.alarm(10)
         process_finalize()

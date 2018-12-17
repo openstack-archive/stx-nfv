@@ -77,6 +77,15 @@ class NFVIPlugin(object):
             tasks.TASK_PRIORITY.MED, command, *command_args, **command_kwargs)
         return command_id
 
+    def ready_to_initialize(self, config_file):
+        """
+        Check if we are ready to initialize plugin
+        """
+        if self._plugin is not None:
+            return self._plugin.obj.ready_to_initialize(config_file)
+        else:
+            return False
+
     def initialize(self, config_file):
         """
         Initialize plugin

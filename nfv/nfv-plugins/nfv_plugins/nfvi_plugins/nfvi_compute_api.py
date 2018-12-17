@@ -3405,6 +3405,22 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         """
         self._instance_delete_callbacks.append(callback)
 
+    def ready_to_initialize(self, config_file):
+        """
+        Check if the plugin is ready to initialize
+        """
+        config.load(config_file)
+
+        # In order for the compute plugin to initialize successfully, the
+        # rabbitmq server must be running. If it is not running, the plugin
+        # initialization cannot register with rabbitmq and will throw an
+        # exception. It is essentially impossible to clean up the plugin in
+        # that case, so we must avoid it.
+        return rpc_listener.test_connection(
+            config.CONF['amqp']['host'], config.CONF['amqp']['port'],
+            config.CONF['amqp']['user_id'], config.CONF['amqp']['password'],
+            config.CONF['amqp']['virt_host'], "nova")
+
     def initialize(self, config_file):
         """
         Initialize the plugin
