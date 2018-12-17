@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
 import ctypes
+import os
 
 CLOCK_MONOTONIC_RAW = 4  # from <linux/time.h>
 
