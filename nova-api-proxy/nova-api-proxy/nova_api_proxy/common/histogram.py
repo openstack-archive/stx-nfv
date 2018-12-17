@@ -3,9 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import math
 import array
 import datetime
+import math
 
 from oslo_log import log as logging
 

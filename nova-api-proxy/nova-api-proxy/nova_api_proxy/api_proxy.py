@@ -5,16 +5,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import os
-import sys
-import signal
 import eventlet
+import os
+import signal
+import sys
 
 from oslo_config import cfg
 from oslo_log import log as logging
+
 from nova_api_proxy.common import config
-from nova_api_proxy.common.service import Server
 from nova_api_proxy.common import histogram
+from nova_api_proxy.common.service import Server
 
 LOG = logging.getLogger(__name__)
 

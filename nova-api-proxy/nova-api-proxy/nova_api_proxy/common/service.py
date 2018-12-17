@@ -15,14 +15,16 @@
 #
 
 import errno
-import os
 import eventlet
-import webob.dec
-import webob.exc
 import eventlet.greenio
 import eventlet.wsgi
+import os
+import webob.dec
+import webob.exc
+
 from eventlet.green import socket
 from eventlet.green import ssl
+
 from oslo_config import cfg
 from oslo_log import log as logging
 

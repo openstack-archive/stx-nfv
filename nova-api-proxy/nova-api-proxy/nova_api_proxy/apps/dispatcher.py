@@ -10,8 +10,9 @@ import webob.exc
 
 from oslo_config import cfg
 from oslo_log import log as proxy_log
-from nova_api_proxy.common import utils
+
 from nova_api_proxy.common.service import Middleware
+from nova_api_proxy.common import utils
 
 LOG = proxy_log.getLogger(__name__)
 
