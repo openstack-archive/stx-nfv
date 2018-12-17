@@ -4,19 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
+from paste.request import construct_url
 import routes
 import webob.dec
 import webob.exc
 
-from paste.request import construct_url
 from oslo_config import cfg
 from oslo_log import log as logging
-from nova_api_proxy.common import utils
+
+from nova_api_proxy.apps.dispatcher import APIDispatcher
+from nova_api_proxy.apps.dispatcher import Router
+from nova_api_proxy.apps.proxy import Proxy
 from nova_api_proxy.common.service import Middleware
 from nova_api_proxy.common.service import Request
-from nova_api_proxy.apps.dispatcher import Router
-from nova_api_proxy.apps.dispatcher import APIDispatcher
-from nova_api_proxy.apps.proxy import Proxy
+from nova_api_proxy.common import utils
 
 
 LOG = logging.getLogger(__name__)
