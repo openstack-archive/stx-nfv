@@ -5,6 +5,7 @@
 from six.moves import http_client as httplib
 import json
 import pecan
+import six
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
@@ -25,7 +26,7 @@ class ComputeOperateRequestData(wsme_types.Base):
     Virtualised Resources - Compute Operate Request Data
     """
     compute_operation = wsme_types.wsattr(ComputeOperationType, mandatory=True)
-    compute_operation_data = wsme_types.wsattr(unicode, mandatory=False,
+    compute_operation_data = wsme_types.wsattr(six.text_type, mandatory=False,
                                                default=None)
 
 
@@ -57,7 +58,7 @@ class ComputeOperateAPI(pecan.rest.RestController):
                    % (rpc_request, response.result))
         return httplib.INTERNAL_SERVER_ERROR
 
-    @wsme_pecan.wsexpose(None, unicode, body=ComputeOperateRequestData,
+    @wsme_pecan.wsexpose(None, six.text_type, body=ComputeOperateRequestData,
                          status_code=httplib.ACCEPTED)
     def post(self, compute_id, request_data):
         """
@@ -153,7 +154,7 @@ class ComputeMigrateAPI(pecan.rest.RestController):
                    % (rpc_request, response.result))
         return httplib.INTERNAL_SERVER_ERROR
 
-    @wsme_pecan.wsexpose(None, unicode, body=ComputeMigrateRequestData,
+    @wsme_pecan.wsexpose(None, six.text_type, body=ComputeMigrateRequestData,
                          status_code=httplib.ACCEPTED)
     def post(self, compute_id, request_data):
         """
@@ -201,17 +202,17 @@ class ComputeCreateVirtualCpuPinningType(wsme_types.Base):
     Virtualised Resources - Compute Create Virtual CPU Pinning Type
     """
     cpu_pinning_policy = wsme_types.wsattr(CpuPinningPolicy, mandatory=False)
-    cpu_pinning_map = wsme_types.wsattr(unicode, mandatory=False)
+    cpu_pinning_map = wsme_types.wsattr(six.text_type, mandatory=False)
 
 
 class ComputeCreateVirtualCpuType(wsme_types.Base):
     """
     Virtualised Resources - Compute Create Virtual CPU Type
     """
-    cpu_architecture = wsme_types.wsattr(unicode, mandatory=False)
+    cpu_architecture = wsme_types.wsattr(six.text_type, mandatory=False)
     num_virtual_cpu = wsme_types.wsattr(int, mandatory=True)
     virtual_cpu_clock = wsme_types.wsattr(int, mandatory=False)
-    virtual_cpu_oversubscription_policy = wsme_types.wsattr(unicode,
+    virtual_cpu_oversubscription_policy = wsme_types.wsattr(six.text_type,
                                                             mandatory=False)
     virtual_cpu_pinning = wsme_types.wsattr(ComputeCreateVirtualCpuPinningType,
                                             mandatory=False)
@@ -222,7 +223,7 @@ class ComputeCreateVirtualMemoryType(wsme_types.Base):
     Virtualised Resources - Compute Create Virtual Memory Type
     """
     virtual_mem_size = wsme_types.wsattr(int, mandatory=True)
-    virtual_mem_oversubscription_policy = wsme_types.wsattr(unicode,
+    virtual_mem_oversubscription_policy = wsme_types.wsattr(six.text_type,
                                                             mandatory=False)
     numa_enabled = wsme_types.wsattr(bool, mandatory=False)
 
@@ -239,7 +240,7 @@ class ComputeCreateFlavourType(wsme_types.Base):
     """
     Virtualised Resources - Compute Create Flavour Type
     """
-    flavour_id = wsme_types.wsattr(unicode, mandatory=True)
+    flavour_id = wsme_types.wsattr(six.text_type, mandatory=True)
     virtual_cpu = wsme_types.wsattr(ComputeCreateVirtualCpuType,
                                     mandatory=True)
     virtual_memory = wsme_types.wsattr(ComputeCreateVirtualMemoryType,
@@ -252,11 +253,11 @@ class ComputeCreateData(wsme_types.Base):
     """
     Virtualised Resources - Compute Create Data
     """
-    compute_id = wsme_types.wsattr(unicode, mandatory=True)
-    reservation_id = wsme_types.wsattr(unicode, mandatory=False)
+    compute_id = wsme_types.wsattr(six.text_type, mandatory=True)
+    reservation_id = wsme_types.wsattr(six.text_type, mandatory=False)
     compute_data = wsme_types.wsattr(ComputeCreateFlavourType, mandatory=True)
-    image_id = wsme_types.wsattr(unicode, mandatory=True)
-    meta_data = wsme_types.wsattr(unicode, mandatory=False, default=None)
+    image_id = wsme_types.wsattr(six.text_type, mandatory=True)
+    meta_data = wsme_types.wsattr(six.text_type, mandatory=False, default=None)
 
 
 class ComputeQueryVirtualCpuPinningType(wsme_types.Base):
@@ -264,17 +265,17 @@ class ComputeQueryVirtualCpuPinningType(wsme_types.Base):
     Virtualised Resources - Compute Query Virtual CPU Pinning Type
     """
     cpu_pinning_policy = CpuPinningPolicy
-    cpu_pinning_map = [unicode]
+    cpu_pinning_map = [six.text_type]
 
 
 class ComputeQueryVirtualCpuType(wsme_types.Base):
     """
     Virtualised Resources - Compute Query Virtual CPU Type
     """
-    cpu_architecture = unicode
+    cpu_architecture = six.text_type
     num_virtual_cpu = int
     virtual_cpu_clock = int
-    virtual_cpu_oversubscription_policy = unicode
+    virtual_cpu_oversubscription_policy = six.text_type
     virtual_cpu_pinning = ComputeQueryVirtualCpuPinningType
 
 
@@ -283,7 +284,7 @@ class ComputeQueryVirtualMemoryType(wsme_types.Base):
     Virtualised Resources - Compute Query Virtual Memory Type
     """
     virtual_mem_size = int
-    virtual_mem_oversubscription_policy = unicode
+    virtual_mem_oversubscription_policy = six.text_type
     numa_enabled = bool
 
 
@@ -299,36 +300,36 @@ class ComputeQueryStorageResourceType(wsme_types.Base):
     """
     Virtualised Resources - Compute Query Storage Resource Type
     """
-    resource_id = unicode
+    resource_id = six.text_type
     storage_attributes = ComputeQueryVirtualStorageType
-    owner_id = unicode
-    host_id = unicode
-    status = unicode
-    meta_data = unicode
+    owner_id = six.text_type
+    host_id = six.text_type
+    status = six.text_type
+    meta_data = six.text_type
 
 
 class ComputeQueryAttributesResourceType(wsme_types.Base):
     """
     Virtualised Resources - Compute Query Attributes Resource Type
     """
-    flavour_id = unicode
-    acceleration_capabilities = unicode
+    flavour_id = six.text_type
+    acceleration_capabilities = six.text_type
     virtual_memory = ComputeQueryVirtualMemoryType
     virtual_cpu = ComputeQueryVirtualCpuType
-    flavour_original_name = unicode
+    flavour_original_name = six.text_type
 
 
 class ComputeQueryResourceType(wsme_types.Base):
     """
     Virtualised Resources - Compute Query Resource Type
     """
-    compute_id = unicode
+    compute_id = six.text_type
     compute_attributes = ComputeQueryAttributesResourceType
-    vc_image_id = unicode
+    vc_image_id = six.text_type
     virtual_disks = [ComputeQueryStorageResourceType]
-    host_id = unicode
-    status = unicode
-    meta_data = unicode
+    host_id = six.text_type
+    status = six.text_type
+    meta_data = six.text_type
 
 
 class ComputeQueryData(wsme_types.Base):
@@ -402,7 +403,7 @@ class ComputesAPI(pecan.rest.RestController):
                    % (compute_id, response.result))
         return httplib.INTERNAL_SERVER_ERROR
 
-    @wsme_pecan.wsexpose(ComputeQueryData, unicode, status_code=httplib.OK)
+    @wsme_pecan.wsexpose(ComputeQueryData, six.text_type, status_code=httplib.OK)
     def get_one(self, compute_id):
         if not validate.valid_uuid_str(compute_id):
             DLOG.error("Invalid uuid received, uuid=%s." % compute_id)
@@ -555,7 +556,7 @@ class ComputesAPI(pecan.rest.RestController):
                    % (compute_create_data.compute_id, response.result))
         return pecan.abort(httplib.INTERNAL_SERVER_ERROR)
 
-    @wsme_pecan.wsexpose(None, unicode, status_code=httplib.NO_CONTENT)
+    @wsme_pecan.wsexpose(None, six.text_type, status_code=httplib.NO_CONTENT)
     def delete(self, compute_id):
         DLOG.verbose("Compute-API delete called for compute %s." % compute_id)
 

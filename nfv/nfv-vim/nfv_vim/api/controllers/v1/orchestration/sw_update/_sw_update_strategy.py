@@ -3,9 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from six.moves import http_client as httplib
 import json
 import pecan
+import six
+from six.moves import http_client as httplib
 from pecan import rest
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
@@ -50,15 +51,15 @@ class SwUpdateStrategyStageStepData(wsme_types.Base):
     Software Update Strategy - Stage Step Data
     """
     step_id = wsme_types.wsattr(int, name='step-id')
-    step_name = wsme_types.wsattr(unicode, name='step-name')
+    step_name = wsme_types.wsattr(six.text_type, name='step-name')
     timeout = wsme_types.wsattr(int, name='timeout')
-    entity_type = wsme_types.wsattr(unicode, name='entity-type')
-    entity_uuids = wsme_types.wsattr([unicode], name='entity-uuids')
-    entity_names = wsme_types.wsattr([unicode], name='entity-names')
-    result = wsme_types.wsattr(unicode, name='result')
-    reason = wsme_types.wsattr(unicode, name='reason')
-    start_date_time = wsme_types.wsattr(unicode, name='start-date-time')
-    end_date_time = wsme_types.wsattr(unicode, name='end-date-time')
+    entity_type = wsme_types.wsattr(six.text_type, name='entity-type')
+    entity_uuids = wsme_types.wsattr([six.text_type], name='entity-uuids')
+    entity_names = wsme_types.wsattr([six.text_type], name='entity-names')
+    result = wsme_types.wsattr(six.text_type, name='result')
+    reason = wsme_types.wsattr(six.text_type, name='reason')
+    start_date_time = wsme_types.wsattr(six.text_type, name='start-date-time')
+    end_date_time = wsme_types.wsattr(six.text_type, name='end-date-time')
 
 
 class SwUpdateStrategyStageData(wsme_types.Base):
@@ -66,23 +67,23 @@ class SwUpdateStrategyStageData(wsme_types.Base):
     Software Update Strategy - Stage Data
     """
     stage_id = wsme_types.wsattr(int, name='stage-id')
-    stage_name = wsme_types.wsattr(unicode, name='stage-name')
+    stage_name = wsme_types.wsattr(six.text_type, name='stage-name')
     timeout = wsme_types.wsattr(int, name='timeout')
     total_steps = wsme_types.wsattr(int, name='total-steps')
     current_step = wsme_types.wsattr(int, name='current-step')
     steps = wsme_types.wsattr([SwUpdateStrategyStageStepData], name='steps')
     inprogress = wsme_types.wsattr(bool, name='inprogress')
-    result = wsme_types.wsattr(unicode, name='result')
-    reason = wsme_types.wsattr(unicode, name='reason')
-    start_date_time = wsme_types.wsattr(unicode, name='start-date-time')
-    end_date_time = wsme_types.wsattr(unicode, name='end-date-time')
+    result = wsme_types.wsattr(six.text_type, name='result')
+    reason = wsme_types.wsattr(six.text_type, name='reason')
+    start_date_time = wsme_types.wsattr(six.text_type, name='start-date-time')
+    end_date_time = wsme_types.wsattr(six.text_type, name='end-date-time')
 
 
 class SwUpdateStrategyPhaseData(wsme_types.Base):
     """
     Software Update Strategy - Phase Data
     """
-    phase_name = wsme_types.wsattr(unicode, name='phase-name')
+    phase_name = wsme_types.wsattr(six.text_type, name='phase-name')
     timeout = wsme_types.wsattr(int, name='timeout')
     total_stages = wsme_types.wsattr(int, name='total-stages')
     current_stage = wsme_types.wsattr(int, name='current-stage')
@@ -90,17 +91,17 @@ class SwUpdateStrategyPhaseData(wsme_types.Base):
     stages = wsme_types.wsattr([SwUpdateStrategyStageData], name='stages')
     inprogress = wsme_types.wsattr(bool, name='inprogress')
     completion_percentage = wsme_types.wsattr(int, name='completion-percentage')
-    result = wsme_types.wsattr(unicode, name='result')
-    reason = wsme_types.wsattr(unicode, name='reason')
-    start_date_time = wsme_types.wsattr(unicode, name='start-date-time')
-    end_date_time = wsme_types.wsattr(unicode, name='end-date-time')
+    result = wsme_types.wsattr(six.text_type, name='result')
+    reason = wsme_types.wsattr(six.text_type, name='reason')
+    start_date_time = wsme_types.wsattr(six.text_type, name='start-date-time')
+    end_date_time = wsme_types.wsattr(six.text_type, name='end-date-time')
 
 
 class SwUpdateStrategyData(wsme_types.Base):
     """
     Software Update Strategy - Data
     """
-    uuid = wsme_types.wsattr(unicode, name='uuid')
+    uuid = wsme_types.wsattr(six.text_type, name='uuid')
     name = wsme_types.wsattr(SwUpdateNames, name='name')
     controller_apply_type = wsme_types.wsattr(SwUpdateApplyTypes,
                                               name='controller-apply-type')
@@ -116,8 +117,8 @@ class SwUpdateStrategyData(wsme_types.Base):
                                                 name='default-instance-action')
     alarm_restrictions = wsme_types.wsattr(SwUpdateAlarmRestrictionTypes,
                                            name='alarm-restrictions')
-    state = wsme_types.wsattr(unicode, name='state')
-    current_phase = wsme_types.wsattr(unicode, name='current-phase')
+    state = wsme_types.wsattr(six.text_type, name='state')
+    current_phase = wsme_types.wsattr(six.text_type, name='current-phase')
     current_phase_completion_percentage \
         = wsme_types.wsattr(int, name='current-phase-completion-percentage')
     build_phase = wsme_types.wsattr(SwUpdateStrategyPhaseData, name='build-phase')
@@ -265,7 +266,7 @@ class SwUpdateStrategyActionAPI(rest.RestController):
     """
     Software Update Strategy Action Rest API
     """
-    @wsme_pecan.wsexpose(SwUpdateStrategyQueryData, unicode,
+    @wsme_pecan.wsexpose(SwUpdateStrategyQueryData, six.text_type,
                          body=SwUpdateStrategyActionData,
                          status_code=httplib.ACCEPTED)
     def post(self, request_data):
@@ -350,7 +351,7 @@ class SwUpdateStrategyAPI(rest.RestController):
     """
     actions = SwUpdateStrategyActionAPI()
 
-    @wsme_pecan.wsexpose(SwUpdateStrategyQueryData, unicode, status_code=httplib.OK)
+    @wsme_pecan.wsexpose(SwUpdateStrategyQueryData, six.text_type, status_code=httplib.OK)
     def get_one(self, strategy_uuid):
         if not validate.valid_uuid_str(strategy_uuid):
             DLOG.error("Invalid strategy uuid received, uuid=%s." % strategy_uuid)
@@ -418,7 +419,7 @@ class SwUpdateStrategyAPI(rest.RestController):
         DLOG.error("Unexpected result received, result=%s." % response.result)
         return pecan.abort(httplib.INTERNAL_SERVER_ERROR)
 
-    @wsme_pecan.wsexpose(None, unicode, body=SwUpdateStrategyDeleteData,
+    @wsme_pecan.wsexpose(None, six.text_type, body=SwUpdateStrategyDeleteData,
                          status_code=httplib.OK)
     def delete(self, request_data):
         rpc_request = rpc.APIRequestDeleteSwUpdateStrategy()
