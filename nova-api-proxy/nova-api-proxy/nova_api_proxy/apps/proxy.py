@@ -12,9 +12,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import httplib
 from paste.proxy import parse_headers
 from paste.proxy import TransparentProxy
+from six.moves import http_client as httplib
 import urllib
 
 from oslo_log import log as logging
