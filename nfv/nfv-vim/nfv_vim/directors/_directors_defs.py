@@ -206,23 +206,23 @@ class Operation(object):
         """
         Returns true if the operation is inprogress
         """
-        return (OPERATION_STATE.INPROGRESS in self._hosts.values() or
-                OPERATION_STATE.READY in self._hosts.values() or
-                OPERATION_STATE.INPROGRESS in self._instances.values() or
-                OPERATION_STATE.READY in self._instances.values())
+        return (OPERATION_STATE.INPROGRESS in list(self._hosts.values()) or
+                OPERATION_STATE.READY in list(self._hosts.values()) or
+                OPERATION_STATE.INPROGRESS in list(self._instances.values()) or
+                OPERATION_STATE.READY in list(self._instances.values()))
 
     def is_failed(self):
         """
         Returns true if the operation has failed
         """
         if not self._operation_failed:
-            return (OPERATION_STATE.FAILED in self._hosts.values() or
-                    OPERATION_STATE.FAILED in self._instances.values())
+            return (OPERATION_STATE.FAILED in list(self._hosts.values()) or
+                    OPERATION_STATE.FAILED in list(self._instances.values()))
         return True
 
     def is_timed_out(self):
         """
         Returns true if the operation has timed out
         """
-        return (OPERATION_STATE.TIMED_OUT in self._hosts.values() or
-                OPERATION_STATE.TIMED_OUT in self._instances.values())
+        return (OPERATION_STATE.TIMED_OUT in list(self._hosts.values()) or
+                OPERATION_STATE.TIMED_OUT in list(self._instances.values()))

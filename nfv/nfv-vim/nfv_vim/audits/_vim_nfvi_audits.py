@@ -88,7 +88,7 @@ def _audit_nfvi_system_info_callback(timer_id):
     if response['completed']:
         nfvi_system = response['result-data']
         system_table = tables.tables_get_system_table()
-        deletable_systems = system_table.keys()
+        deletable_systems = list(system_table)
 
         if nfvi_system is not None:
             system = system_table.get(nfvi_system.name, None)
@@ -121,7 +121,7 @@ def _audit_nfvi_hosts_callback(timer_id):
 
     if response['completed']:
         host_table = tables.tables_get_host_table()
-        deletable_host_groups = host_table.keys()
+        deletable_host_groups = list(host_table)
 
         for host_name in response['incomplete-hosts']:
             if host_name in deletable_host_groups:
@@ -148,7 +148,7 @@ def _audit_nfvi_hosts_callback(timer_id):
 
         # Manage host groups
         host_group_table = tables.tables_get_host_group_table()
-        deletable_host_groups = host_group_table.keys()
+        deletable_host_groups = list(host_group_table)
 
         for host_name in response['incomplete-hosts']:
             host_group = next((x for x in host_group_table
@@ -193,7 +193,7 @@ def _audit_nfvi_host_aggregates_callback(timer_id):
 
     if response['completed']:
         host_aggregate_table = tables.tables_get_host_aggregate_table()
-        deletable_host_aggregates = host_aggregate_table.keys()
+        deletable_host_aggregates = list(host_aggregate_table)
 
         for nfvi_host_aggregate in response['result-data']:
             host_aggregate = host_aggregate_table.get(
@@ -207,7 +207,7 @@ def _audit_nfvi_host_aggregates_callback(timer_id):
                     deletable_host_aggregates.remove(nfvi_host_aggregate.name)
 
         for host_aggregate_name in deletable_host_aggregates:
-            if host_aggregate_name in host_aggregate_table.keys():
+            if host_aggregate_name in list(host_aggregate_table):
                 del host_aggregate_table[host_aggregate_name]
 
     else:
@@ -232,7 +232,7 @@ def _audit_nfvi_hypervisors_callback(timer_id):
     trigger_recovery = False
     if response['completed']:
         hypervisor_table = tables.tables_get_hypervisor_table()
-        deletable_hypervisors = hypervisor_table.keys()
+        deletable_hypervisors = list(hypervisor_table)
 
         for nfvi_hypervisor in response['result-data']:
             hypervisor = hypervisor_table.get(nfvi_hypervisor.uuid, None)
@@ -286,7 +286,7 @@ def _audit_nfvi_tenants_callback(timer_id):
 
     if response['completed']:
         tenant_table = tables.tables_get_tenant_table()
-        deletable_tenants = tenant_table.keys()
+        deletable_tenants = list(tenant_table)
 
         for nfvi_tenant in response['result-data']:
             tenant = tenant_table.get(nfvi_tenant.uuid, None)
@@ -331,7 +331,7 @@ def _audit_nfvi_instance_types_callback(timer_id):
             instance_type_table = tables.tables_get_instance_type_table()
 
             if _deletable_instance_types is None:
-                _deletable_instance_types = instance_type_table.keys()
+                _deletable_instance_types = list(instance_type_table)
 
             for nfvi_instance_type in response['result-data']:
                 instance_type = instance_type_table.get(nfvi_instance_type.uuid,
@@ -367,20 +367,20 @@ def _audit_nfvi_instance_types_callback(timer_id):
                     if instance_type_uuid in _nfvi_instance_types_outstanding:
                         del _nfvi_instance_types_outstanding[instance_type_uuid]
 
-                _deletable_instance_types = instance_type_table.keys()
+                _deletable_instance_types = list(instance_type_table)
                 _nfvi_instance_types_paging.first_page()
         else:
             DLOG.error("Audit-Instance-Types callback, page-request-id mismatch, "
                        "responses=%s, page-request-id=%s."
                        % (response, _nfvi_instance_types_paging.page_request_id))
             instance_type_table = tables.tables_get_instance_type_table()
-            _deletable_instance_types = instance_type_table.keys()
+            _deletable_instance_types = list(instance_type_table)
             _nfvi_instance_types_paging.first_page()
     else:
         DLOG.error("Audit-Instance-Types callback, not completed, "
                    "responses=%s." % response)
         instance_type_table = tables.tables_get_instance_type_table()
-        _deletable_instance_types = instance_type_table.keys()
+        _deletable_instance_types = list(instance_type_table)
         _nfvi_instance_types_paging.first_page()
 
     _nfvi_instance_types_paging.set_page_request_id()
@@ -406,7 +406,7 @@ def _audit_nfvi_instances_callback(timer_id):
             instance_table = tables.tables_get_instance_table()
 
             if _deletable_instances is None:
-                _deletable_instances = instance_table.keys()
+                _deletable_instances = list(instance_table)
 
             for instance_uuid, instance_name in response['result-data']:
                 instance = instance_table.get(instance_uuid, None)
@@ -432,7 +432,7 @@ def _audit_nfvi_instances_callback(timer_id):
                             if instance_uuid in _nfvi_instance_outstanding:
                                 del _nfvi_instance_outstanding[instance_uuid]
 
-                _deletable_instances = instance_table.keys()
+                _deletable_instances = list(instance_table)
                 _nfvi_instances_paging.first_page()
             else:
                 DLOG.verbose("Paging is not done for instances.")
@@ -441,13 +441,13 @@ def _audit_nfvi_instances_callback(timer_id):
                        "responses=%s, page-request-id=%s."
                        % (response, _nfvi_instances_paging.page_request_id))
             instance_table = tables.tables_get_instance_table()
-            _deletable_instances = instance_table.keys()
+            _deletable_instances = list(instance_table)
             _nfvi_instances_paging.first_page()
     else:
         DLOG.error("Audit-Instances callback, not completed, responses=%s."
                    % response)
         instance_table = tables.tables_get_instance_table()
-        _deletable_instances = instance_table.keys()
+        _deletable_instances = list(instance_table)
         _nfvi_instances_paging.first_page()
 
     _nfvi_instances_paging.set_page_request_id()
@@ -474,7 +474,7 @@ def _audit_nfvi_instance_groups_callback(timer_id):
     if response['completed']:
         instance_group_table = tables.tables_get_instance_group_table()
 
-        _deletable_instance_groups = instance_group_table.keys()
+        _deletable_instance_groups = list(instance_group_table)
 
         for nfvi_instance_group in response['result-data']:
             instance_group = instance_group_table.get(nfvi_instance_group.uuid,
@@ -488,7 +488,7 @@ def _audit_nfvi_instance_groups_callback(timer_id):
                     _deletable_instance_groups.remove(nfvi_instance_group.uuid)
 
         for instance_group_uuid in _deletable_instance_groups:
-            if instance_group_uuid in instance_group_table.keys():
+            if instance_group_uuid in list(instance_group_table):
                 instance_group = instance_group_table[instance_group_uuid]
                 instance_group.clear_alarms()
                 del instance_group_table[instance_group_uuid]
@@ -517,7 +517,7 @@ def _audit_nfvi_images_callback(timer_id):
             image_table = tables.tables_get_image_table()
 
             if _deletable_images is None:
-                _deletable_images = image_table.keys()
+                _deletable_images = list(image_table)
 
             for nfvi_image in response['result-data']:
                 image = image_table.get(nfvi_image.uuid, None)
@@ -537,20 +537,20 @@ def _audit_nfvi_images_callback(timer_id):
                     if image.is_deleted():
                         del image_table[image_uuid]
 
-                _deletable_images = image_table.keys()
+                _deletable_images = list(image_table)
                 _nfvi_images_paging.first_page()
         else:
             DLOG.error("Audit-Images callback, page-request-id mismatch, "
                        "responses=%s, page-request-id=%s."
                        % (response, _nfvi_images_paging.page_request_id))
             image_table = tables.tables_get_image_table()
-            _deletable_images = image_table.keys()
+            _deletable_images = list(image_table)
             _nfvi_images_paging.first_page()
     else:
         DLOG.error("Audit-Images callback, not completed, responses=%s."
                    % response)
         image_table = tables.tables_get_image_table()
-        _deletable_images = image_table.keys()
+        _deletable_images = list(image_table)
         _nfvi_images_paging.first_page()
 
     _nfvi_images_paging.set_page_request_id()
@@ -578,7 +578,7 @@ def _audit_nfvi_volumes_callback(timer_id):
                 _added_volumes = list()
 
             if _deletable_volumes is None:
-                _deletable_volumes = volume_table.keys()
+                _deletable_volumes = list(volume_table)
 
             for volume_uuid, volume_name in response['result-data']:
                 volume = volume_table.get(volume_uuid, None)
@@ -609,7 +609,7 @@ def _audit_nfvi_volumes_callback(timer_id):
                                 del _nfvi_volumes_outstanding[volume_uuid]
 
                 _added_volumes[:] = []
-                _deletable_volumes = volume_table.keys()
+                _deletable_volumes = list(volume_table)
                 _nfvi_volumes_paging.first_page()
         else:
             DLOG.error("Audit-Volumes callback, page-request-id mismatch, "
@@ -620,7 +620,7 @@ def _audit_nfvi_volumes_callback(timer_id):
                 _added_volumes = list()
             else:
                 _added_volumes[:] = []
-            _deletable_volumes = volume_table.keys()
+            _deletable_volumes = list(volume_table)
             _nfvi_volumes_paging.first_page()
     else:
         DLOG.error("Audit-Volumes callback, not completed, responses=%s."
@@ -630,7 +630,7 @@ def _audit_nfvi_volumes_callback(timer_id):
             _added_volumes = list()
         else:
             _added_volumes[:] = []
-        _deletable_volumes = volume_table.keys()
+        _deletable_volumes = list(volume_table)
         _nfvi_volumes_paging.first_page()
 
     _nfvi_volumes_paging.set_page_request_id()
@@ -651,7 +651,7 @@ def _audit_nfvi_volume_snapshots_callback(timer_id):
     if response['completed']:
         volume_snapshot_table = tables.tables_get_volume_snapshot_table()
 
-        _deletable_volume_snapshots = volume_snapshot_table.keys()
+        _deletable_volume_snapshots = list(volume_snapshot_table)
 
         for nfvi_volume_snapshot in response['result-data']:
             volume_snapshot = volume_snapshot_table.get(nfvi_volume_snapshot.uuid,
@@ -665,7 +665,7 @@ def _audit_nfvi_volume_snapshots_callback(timer_id):
                     _deletable_volume_snapshots.remove(nfvi_volume_snapshot.uuid)
 
         for volume_snapshot_uuid in _deletable_volume_snapshots:
-            if volume_snapshot_uuid in volume_snapshot_table.keys():
+            if volume_snapshot_uuid in list(volume_snapshot_table):
                 del volume_snapshot_table[volume_snapshot_uuid]
 
     else:
@@ -691,7 +691,7 @@ def _audit_nfvi_subnets_callback(timer_id):
             subnet_table = tables.tables_get_subnet_table()
 
             if _deletable_subnets is None:
-                _deletable_subnets = subnet_table.keys()
+                _deletable_subnets = list(subnet_table)
 
             for nfvi_subnet in response['result-data']:
                 subnet = subnet_table.get(nfvi_subnet.uuid, None)
@@ -711,23 +711,23 @@ def _audit_nfvi_subnets_callback(timer_id):
 
             if _nfvi_subnets_paging.done:
                 for subnet_uuid in _deletable_subnets:
-                    if subnet_uuid in subnet_table.keys():
+                    if subnet_uuid in list(subnet_table):
                         del subnet_table[subnet_uuid]
 
-                _deletable_subnets = subnet_table.keys()
+                _deletable_subnets = list(subnet_table)
                 _nfvi_subnets_paging.first_page()
         else:
             DLOG.error("Audit-Subnets callback, page-request-id mismatch, "
                        "responses=%s, page-request-id=%s."
                        % (response, _nfvi_subnets_paging.page_request_id))
             subnet_table = tables.tables_get_subnet_table()
-            _deletable_subnets = subnet_table.keys()
+            _deletable_subnets = list(subnet_table)
             _nfvi_subnets_paging.first_page()
     else:
         DLOG.error("Audit-Subnets callback, not completed, responses=%s."
                    % response)
         subnet_table = tables.tables_get_subnet_table()
-        _deletable_subnets = subnet_table.keys()
+        _deletable_subnets = list(subnet_table)
         _nfvi_subnets_paging.first_page()
 
     _nfvi_subnets_paging.set_page_request_id()
@@ -751,7 +751,7 @@ def _audit_nfvi_networks_callback(timer_id):
             network_table = tables.tables_get_network_table()
 
             if _deletable_networks is None:
-                _deletable_networks = network_table.keys()
+                _deletable_networks = list(network_table)
 
             for nfvi_network in response['result-data']:
                 network = network_table.get(nfvi_network.uuid, None)
@@ -777,23 +777,23 @@ def _audit_nfvi_networks_callback(timer_id):
 
             if _nfvi_networks_paging.done:
                 for network_uuid in _deletable_networks:
-                    if network_uuid in network_table.keys():
+                    if network_uuid in list(network_table):
                         del network_table[network_uuid]
 
-                _deletable_networks = network_table.keys()
+                _deletable_networks = list(network_table)
                 _nfvi_networks_paging.first_page()
         else:
             DLOG.error("Audit-Networks callback, page-request-id mismatch, "
                        "responses=%s, page-request-id=%s."
                        % (response, _nfvi_networks_paging.page_request_id))
             network_table = tables.tables_get_network_table()
-            _deletable_networks = network_table.keys()
+            _deletable_networks = list(network_table)
             _nfvi_networks_paging.first_page()
     else:
         DLOG.error("Audit-Networks callback, not completed, responses=%s."
                    % response)
         network_table = tables.tables_get_network_table()
-        _deletable_networks = network_table.keys()
+        _deletable_networks = list(network_table)
         _nfvi_networks_paging.first_page()
 
     _nfvi_networks_paging.set_page_request_id()

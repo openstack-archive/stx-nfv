@@ -78,7 +78,7 @@ class Database(object):
     def migrate_data(self):
         metadata = MetaData()
         metadata.reflect(bind=self._engine)
-        migrate_tables(self._session, metadata.tables.keys())
+        migrate_tables(self._session, list(metadata.tables))
         self._session.commit()
 
     @property

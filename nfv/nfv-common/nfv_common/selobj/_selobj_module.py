@@ -33,7 +33,7 @@ def selobj_del_read_obj(selobj):
     """
     global _read_callbacks
 
-    if selobj in _read_callbacks.keys():
+    if selobj in list(_read_callbacks):
         _read_callbacks.pop(selobj)
 
 
@@ -54,7 +54,7 @@ def selobj_del_write_obj(selobj):
     """
     global _write_callbacks
 
-    if selobj in _write_callbacks.keys():
+    if selobj in list(_write_callbacks):
         _write_callbacks.pop(selobj)
 
 
@@ -76,7 +76,7 @@ def selobj_del_error_callback(selobj):
     """
     global _error_callbacks
 
-    if selobj in _error_callbacks.keys():
+    if selobj in list(_error_callbacks):
         _error_callbacks.pop(selobj)
 
 
@@ -90,8 +90,8 @@ def selobj_dispatch(timeout_in_ms):
 
     global _read_callbacks, _write_callbacks, _error_callbacks
 
-    read_objs = _read_callbacks.keys()
-    write_objs = _write_callbacks.keys()
+    read_objs = list(_read_callbacks)
+    write_objs = list(_write_callbacks)
 
     try:
         readable, writeable, in_error = select.select(read_objs, write_objs, [],
@@ -133,10 +133,10 @@ def selobj_dispatch(timeout_in_ms):
                 histogram.add_histogram_data("selobj error: " + callback.__name__,
                                              elapsed_ms / 100, "decisecond")
 
-            if selobj in _read_callbacks.keys():
+            if selobj in list(_read_callbacks):
                 _read_callbacks.pop(selobj)
 
-            if selobj in _write_callbacks.keys():
+            if selobj in list(_write_callbacks):
                 _write_callbacks.pop(selobj)
 
     except (OSError, socket.error, select.error) as e:

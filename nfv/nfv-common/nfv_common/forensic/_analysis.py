@@ -733,7 +733,7 @@ def analysis_stdout(records):
             instances_state_change[data['instance_name']] = record
 
     print("\nHost-States (last-seen):")
-    hosts_state = sorted(hosts_state_change.values(),
+    hosts_state = sorted(list(hosts_state_change.values()),
                          key=lambda k: k['timestamp'])
 
     for idx, host in enumerate(hosts_state):
@@ -747,7 +747,7 @@ def analysis_stdout(records):
             host_data['nfvi_avail_state']))
 
     print("\nInstance-States (last-seen):")
-    instances_state = sorted(instances_state_change.values(),
+    instances_state = sorted(list(instances_state_change.values()),
                              key=lambda k: k['timestamp'])
 
     for idx, instance in enumerate(instances_state):
