@@ -315,10 +315,10 @@ class Token(object):
                 if endpoint is None:
                     endpoint = service_info.endpoint_override
                 else:
-                    from urlparse import urlparse
+                    from six.moves import urllib
                     # this is necessary to keep tenant_id in place
                     endpoint = \
-                        service_info.endpoint_override + urlparse(endpoint).path
+                        service_info.endpoint_override + urllib.parse.urlparse(endpoint).path
 
             if strip_version:
                 endpoint = self._url_strip_version(endpoint)
