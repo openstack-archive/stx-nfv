@@ -121,7 +121,7 @@ class GuestServices(ObjectData):
         """
         Returns a list of services
         """
-        return self._services.keys()
+        return list(self._services)
 
     @property
     def state(self):

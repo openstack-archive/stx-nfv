@@ -64,7 +64,7 @@ class APIController(Middleware):
         body = get_jason_request_body(request)
         data = json.loads(body)
         for action in self._actions:
-            if action in data.keys():
+            if action in list(data):
                 environ = request.environ
                 LOG.info("Forward to NFV \"%s %s\", action: (%s), val:(%s)" % (
                     environ['REQUEST_METHOD'], construct_url(environ),
