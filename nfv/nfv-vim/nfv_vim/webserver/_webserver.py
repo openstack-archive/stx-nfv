@@ -4,14 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import datetime
-from six.moves import http_client as httplib
 import json
 import re
+from six.moves.BaseHTTPServer import BaseHTTPRequestHandler
+from six.moves.BaseHTTPServer import HTTPServer
+from six.moves import http_client as httplib
+from six.moves.socketserver  import ThreadingMixIn
 import socket
 import threading
-from SocketServer import ThreadingMixIn
-from BaseHTTPServer import BaseHTTPRequestHandler
-from BaseHTTPServer import HTTPServer
 
 from nfv_common import debug
 from nfv_plugins.nfvi_plugins import config
