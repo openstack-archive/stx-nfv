@@ -6,6 +6,7 @@
 import json
 import pecan
 from pecan import rest
+import six
 from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
@@ -51,8 +52,8 @@ class ImageCreateData(wsme_types.Base):
     """
     Image - Create Data
     """
-    name = wsme_types.wsattr(unicode, mandatory=True)
-    description = wsme_types.wsattr(unicode, mandatory=False, default="")
+    name = wsme_types.wsattr(six.text_type, mandatory=True)
+    description = wsme_types.wsattr(six.text_type, mandatory=False, default="")
     container_format = wsme_types.wsattr(ContainerFormatType, mandatory=True)
     disk_format = wsme_types.wsattr(DiskFormatType, mandatory=True)
     minimum_disk_size = wsme_types.wsattr(int, mandatory=False, default=0)
@@ -60,8 +61,8 @@ class ImageCreateData(wsme_types.Base):
     visibility = wsme_types.wsattr(VisibilityType, mandatory=False,
                                    default="public")
     protected = wsme_types.wsattr(bool, mandatory=False, default=False)
-    properties = wsme_types.wsattr(unicode, mandatory=False, default=None)
-    image_data_ref = wsme_types.wsattr(unicode, mandatory=True)
+    properties = wsme_types.wsattr(six.text_type, mandatory=False, default=None)
+    image_data_ref = wsme_types.wsattr(six.text_type, mandatory=True)
 
     def __str__(self):
         return ("name=%s, description=%s, container_format=%s, "
@@ -78,31 +79,31 @@ class ImageUpdateData(wsme_types.Base):
     """
     Image - Update Data
     """
-    description = wsme_types.wsattr(unicode, mandatory=False, default=None)
+    description = wsme_types.wsattr(six.text_type, mandatory=False, default=None)
     minimum_disk_size = wsme_types.wsattr(int, mandatory=False, default=None)
     minimum_memory_size = wsme_types.wsattr(int, mandatory=False, default=None)
     visibility = wsme_types.wsattr(VisibilityType, mandatory=False,
                                    default=None)
     protected = wsme_types.wsattr(bool, mandatory=False, default=None)
-    properties = wsme_types.wsattr(unicode, mandatory=False, default=None)
+    properties = wsme_types.wsattr(six.text_type, mandatory=False, default=None)
 
 
 class ImageQueryData(wsme_types.Base):
     """
     Image - Query Data
     """
-    uuid = unicode
-    name = unicode
-    description = unicode
+    uuid = six.text_type
+    name = six.text_type
+    description = six.text_type
     container_format = ContainerFormatType
     disk_format = DiskFormatType
     minimum_disk_size = int
     minimum_memory_size = int
     visibility = VisibilityType
-    protected = unicode
-    availability_status = [unicode]
-    action = unicode
-    properties = unicode
+    protected = six.text_type
+    availability_status = [six.text_type]
+    action = six.text_type
+    properties = six.text_type
 
     def __json__(self):
         json_data = dict()
@@ -168,7 +169,7 @@ class ImageAPI(rest.RestController):
                    % (image_uuid, response.result))
         return httplib.INTERNAL_SERVER_ERROR
 
-    @wsme_pecan.wsexpose(ImageQueryData, unicode, status_code=httplib.OK)
+    @wsme_pecan.wsexpose(ImageQueryData, six.text_type, status_code=httplib.OK)
     def get_one(self, image_uuid):
         DLOG.verbose("Image-API get called for image %s." % image_uuid)
 
@@ -289,7 +290,7 @@ class ImageAPI(rest.RestController):
                    % (image_create_data.name, response.result))
         return pecan.abort(httplib.INTERNAL_SERVER_ERROR)
 
-    @wsme_pecan.wsexpose(ImageQueryData, unicode, body=ImageUpdateData,
+    @wsme_pecan.wsexpose(ImageQueryData, six.text_type, body=ImageUpdateData,
                          status_code=httplib.OK)
     def put(self, image_uuid, image_update_data):
         DLOG.verbose("Image-API update called for image %s." % image_uuid)
@@ -374,7 +375,7 @@ class ImageAPI(rest.RestController):
                    % (image_uuid, response.result))
         return pecan.abort(httplib.INTERNAL_SERVER_ERROR)
 
-    @wsme_pecan.wsexpose(None, unicode, status_code=httplib.NO_CONTENT)
+    @wsme_pecan.wsexpose(None, six.text_type, status_code=httplib.NO_CONTENT)
     def delete(self, image_uuid):
         DLOG.verbose("Image-API delete called for image %s." % image_uuid)
 
