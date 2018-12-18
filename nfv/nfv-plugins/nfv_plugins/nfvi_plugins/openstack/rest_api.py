@@ -5,13 +5,13 @@
 #
 import json
 import re
+from six.moves import BaseHTTPServer
 from six.moves import http_client as httplib
+from six.moves import socketserver as SocketServer
 from six.moves import urllib
+
 import socket
 import struct
-
-import BaseHTTPServer
-import SocketServer
 
 from nfv_common import debug
 from nfv_common import selobj
