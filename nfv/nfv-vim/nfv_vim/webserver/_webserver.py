@@ -6,13 +6,11 @@
 import datetime
 import json
 import re
+from six.moves import BaseHTTPServer
 from six.moves import http_client as httplib
+from six.moves import socketserver
 import socket
 import threading
-
-from BaseHTTPServer import BaseHTTPRequestHandler
-from BaseHTTPServer import HTTPServer
-from SocketServer import ThreadingMixIn
 
 from nfv_common import debug
 from nfv_plugins.nfvi_plugins import config
@@ -38,10 +36,10 @@ def _bare_address_string(self):
     return "%s" % host
 
 
-BaseHTTPRequestHandler.address_string = _bare_address_string
+BaseHTTPServer.BaseHTTPRequestHandler.address_string = _bare_address_string
 
 
-class HTTPRequestHandler(BaseHTTPRequestHandler):
+class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """
     HTTP Request Handler
     """
@@ -569,7 +567,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     self.wfile.write(f.read())
 
 
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+class ThreadedHTTPServer(socketserver.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     """
     Threaded HTTP Server
     """
@@ -577,7 +575,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
     def shutdown(self):
         self.socket.close()
-        HTTPServer.shutdown(self)
+        BaseHTTPServer.HTTPServer.shutdown(self)
 
 
 class SimpleHttpServer(object):
