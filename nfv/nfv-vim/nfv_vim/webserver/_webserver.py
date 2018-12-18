@@ -6,13 +6,12 @@
 import datetime
 import json
 import re
+from six.moves.BaseHTTPServer import BaseHTTPRequestHandler
+from six.moves.BaseHTTPServer import HTTPServer
 from six.moves import http_client as httplib
+from six.moves.socketserver import ThreadingMixIn
 import socket
 import threading
-
-from BaseHTTPServer import BaseHTTPRequestHandler
-from BaseHTTPServer import HTTPServer
-from SocketServer import ThreadingMixIn
 
 from nfv_common import debug
 from nfv_plugins.nfvi_plugins import config
