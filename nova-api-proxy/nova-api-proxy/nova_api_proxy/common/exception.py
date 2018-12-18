@@ -20,6 +20,7 @@
 #    under the License.
 #
 #
+import six
 
 
 class ProxyException(Exception):
@@ -51,4 +52,4 @@ class ProxyException(Exception):
         if self.__class__.__name__.endswith('_Remote'):
             return self.args[0]
         else:
-            return unicode(self)
+            return six.text_type(self)
