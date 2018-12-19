@@ -145,3 +145,33 @@ class RPCListener(threading.Thread):
         Stop RPC Listener
         """
         self._exit.set()
+
+
+def test_connection(host, port, user_id, password, virt_host, exchange_name):
+    """
+    Test a connection to an exchange on a virtual host
+    """
+    connection = None
+    connected = False
+    success = False
+
+    try:
+        # Connect to the virtual host - will raise exception if it fails.
+        connection = Connection(host, user_id, password, virt_host, port)
+        connection.connect()
+        connected = connection.connected
+        if connected:
+            # Check whether exchange exists - will raise exception if it fails.
+            exchange = Exchange(exchange_name, channel=connection,
+                                type='topic', durable=False, passive=True)
+            exchange.declare()
+            success = True
+    except Exception as e:
+        DLOG.info("Unable to connect to virt_host %s, exchange %s, error: %s" %
+                  (virt_host, exchange_name, e))
+
+    finally:
+        if connected:
+            connection.close()
+
+    return success

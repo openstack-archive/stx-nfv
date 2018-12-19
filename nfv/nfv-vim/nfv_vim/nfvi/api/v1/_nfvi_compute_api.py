@@ -333,6 +333,13 @@ class NFVIComputeAPI(object):
         pass
 
     @abc.abstractmethod
+    def ready_to_initialize(self, config_file):
+        """
+        Check if the plugin is ready to initialize
+        """
+        pass
+
+    @abc.abstractmethod
     def initialize(self, config_file):
         """
         Initialize the plugin

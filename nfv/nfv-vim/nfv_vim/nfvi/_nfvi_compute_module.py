@@ -470,8 +470,13 @@ def nfvi_compute_initialize(config, pool):
     """
     global _compute_plugin
 
-    _compute_plugin = NFVIComputePlugin(config['namespace'], pool)
-    _compute_plugin.initialize(config['config_file'])
+    if _compute_plugin is None:
+        _compute_plugin = NFVIComputePlugin(config['namespace'], pool)
+    if _compute_plugin.ready_to_initialize(config['config_file']):
+        _compute_plugin.initialize(config['config_file'])
+        return True
+    else:
+        return False
 
 
 def nfvi_compute_finalize():

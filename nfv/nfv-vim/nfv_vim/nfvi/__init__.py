@@ -134,4 +134,5 @@ from nfv_vim.nfvi._nfvi_sw_mgmt_module import nfvi_sw_mgmt_query_hosts  # noqa: 
 from nfv_vim.nfvi._nfvi_sw_mgmt_module import nfvi_sw_mgmt_update_host  # noqa: F401
 from nfv_vim.nfvi._nfvi_sw_mgmt_module import nfvi_sw_mgmt_update_hosts  # noqa: F401
 from nfv_vim.nfvi._nfvi_module import nfvi_initialize  # noqa: F401
+from nfv_vim.nfvi._nfvi_module import nfvi_reinitialize  # noqa: F401
 from nfv_vim.nfvi._nfvi_module import nfvi_finalize  # noqa: F401

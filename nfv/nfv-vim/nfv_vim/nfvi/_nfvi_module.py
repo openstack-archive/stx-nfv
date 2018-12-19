@@ -27,6 +27,8 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_module')
 
 _task_worker_pools = dict()
 
+DISABLED_LIST = ['Yes', 'yes', 'Y', 'y', 'True', 'true', 'T', 't', '1']
+
 
 def nfvi_initialize(config):
     """
@@ -34,18 +36,18 @@ def nfvi_initialize(config):
     """
     global _task_worker_pools
 
-    disabled_list = ['Yes', 'yes', 'Y', 'y', 'True', 'true', 'T', 't', '1']
+    init_complete = True
 
     image_plugin_disabled = (config.get('image_plugin_disabled',
-                                        'False') in disabled_list)
+                                        'False') in DISABLED_LIST)
     block_storage_plugin_disabled = (config.get(
-        'block_storage_plugin_disabled', 'False') in disabled_list)
+        'block_storage_plugin_disabled', 'False') in DISABLED_LIST)
     compute_plugin_disabled = (config.get('compute_plugin_disabled',
-                                          'False') in disabled_list)
+                                          'False') in DISABLED_LIST)
     network_plugin_disabled = (config.get('network_plugin_disabled',
-                                          'False') in disabled_list)
+                                          'False') in DISABLED_LIST)
     guest_plugin_disabled = (config.get('guest_plugin_disabled',
-                                        'False') in disabled_list)
+                                        'False') in DISABLED_LIST)
 
     _task_worker_pools['identity'] = \
         tasks.TaskWorkerPool('Identity', num_workers=1)
@@ -66,7 +68,8 @@ def nfvi_initialize(config):
         # two requests to the nova-api at a time.
         _task_worker_pools['compute'] = \
             tasks.TaskWorkerPool('Compute', num_workers=2)
-        nfvi_compute_initialize(config, _task_worker_pools['compute'])
+        init_complete = nfvi_compute_initialize(config,
+                                                _task_worker_pools['compute'])
 
     if not network_plugin_disabled:
         _task_worker_pools['network'] = \
@@ -85,6 +88,24 @@ def nfvi_initialize(config):
     _task_worker_pools['sw_mgmt'] = \
         tasks.TaskWorkerPool('Sw-Mgmt', num_workers=1)
     nfvi_sw_mgmt_initialize(config, _task_worker_pools['sw_mgmt'])
+
+    return init_complete
+
+
+def nfvi_reinitialize(config):
+    """
+    Re-initialize the NFVI package
+    """
+    global _task_worker_pools
+
+    init_complete = True
+    compute_plugin_disabled = (config.get('compute_plugin_disabled',
+                                          'False') in DISABLED_LIST)
+    if not compute_plugin_disabled:
+        init_complete = nfvi_compute_initialize(config,
+                                                _task_worker_pools['compute'])
+
+    return init_complete
 
 
 def nfvi_finalize():
