@@ -8,8 +8,8 @@ import sys
 
 from nfv_common.helpers import Singleton
 
-from nfv_common.debug._debug_defs import DEBUG_LEVEL
 from nfv_common.debug._debug_config import DebugConfig
+from nfv_common.debug._debug_defs import DEBUG_LEVEL
 from nfv_common.debug._debug_thread import DebugLoggingThread
 
 

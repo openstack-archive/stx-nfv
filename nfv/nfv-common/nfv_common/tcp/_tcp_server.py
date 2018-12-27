@@ -5,6 +5,7 @@
 #
 from nfv_common import debug
 from nfv_common import selobj
+
 from nfv_common.helpers import coroutine
 
 from nfv_common.tcp._tcp_connection import TCPConnection

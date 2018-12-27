@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import time
 import datetime
+import time
 import traceback
 
 from nfv_common import debug

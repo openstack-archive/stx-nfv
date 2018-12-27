@@ -6,6 +6,7 @@
 import socket
 
 from nfv_common import selobj
+
 from nfv_common.helpers import coroutine
 
 _send_socket = None

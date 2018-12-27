@@ -11,8 +11,8 @@ from nfv_common import histogram
 from nfv_common import selectable
 from nfv_common import selobj
 from nfv_common import timers
-from nfv_common.helpers import coroutine
 
+from nfv_common.helpers import coroutine
 from nfv_common.tasks._task import Task
 from nfv_common.tasks._task import TASK_PRIORITY
 from nfv_common.tasks._task_future import TaskFuture

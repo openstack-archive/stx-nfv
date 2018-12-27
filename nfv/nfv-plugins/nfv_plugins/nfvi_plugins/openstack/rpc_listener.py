@@ -5,6 +5,7 @@
 #
 import threading
 import time
+
 from kombu.connection import Connection
 from kombu import Consumer
 from kombu import exceptions
@@ -14,6 +15,7 @@ from kombu import Queue
 from nfv_common import debug
 from nfv_common import selectable
 from nfv_common import selobj
+
 from nfv_common.helpers import coroutine
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.rpc')

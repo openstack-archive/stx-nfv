@@ -3,5 +3,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from nfv_vim.audits._audits_module import audits_initialize  # noqa: F401
 from nfv_vim.audits._audits_module import audits_finalize  # noqa: F401
+from nfv_vim.audits._audits_module import audits_initialize  # noqa: F401

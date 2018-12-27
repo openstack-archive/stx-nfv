@@ -3,5 +3,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from nfv_vim.events._events_module import events_initialize  # noqa: F401
 from nfv_vim.events._events_module import events_finalize  # noqa: F401
+from nfv_vim.events._events_module import events_initialize  # noqa: F401

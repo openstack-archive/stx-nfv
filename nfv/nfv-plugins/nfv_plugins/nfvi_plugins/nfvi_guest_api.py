@@ -11,10 +11,11 @@ from nfv_common import debug
 from nfv_vim import nfvi
 
 from nfv_plugins.nfvi_plugins import config
-from nfv_plugins.nfvi_plugins.openstack import rest_api
 from nfv_plugins.nfvi_plugins.openstack import exceptions
-from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import guest
+from nfv_plugins.nfvi_plugins.openstack import openstack
+from nfv_plugins.nfvi_plugins.openstack import rest_api
+
 from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.guest_api')

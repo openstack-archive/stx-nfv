@@ -2,23 +2,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from six.moves import http_client as httplib
 import pecan
+from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
 from nfv_common import debug
 
-from nfv_vim.api.controllers.v1.virtualised_resources._networks_model import NetworkResourceClass
-from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkResourceType
-from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkSubnetType
-from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkSubnetResourceType
-from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkType
 from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import network_allocate
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import network_delete
 from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import network_get
 from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import network_get_all
 from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import network_update
-from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import network_delete
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkResourceType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkSubnetResourceType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkSubnetType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_middleware import NetworkType
+from nfv_vim.api.controllers.v1.virtualised_resources._networks_model import NetworkResourceClass
 
 DLOG = debug.debug_get_logger('nfv_vim.api.virtualised_network')
 

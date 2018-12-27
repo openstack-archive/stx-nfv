@@ -9,10 +9,10 @@ from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
+from nfv_vim.api._link import Link
 from nfv_vim.api.controllers.v1 import openstack
 from nfv_vim.api.controllers.v1 import orchestration
 from nfv_vim.api.controllers.v1 import virtualised_resources
-from nfv_vim.api._link import Link
 
 
 class APIVersion(wsme_types.Base):

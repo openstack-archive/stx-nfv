@@ -3,8 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import socket
 import multiprocessing
+import socket
+
 from six.moves import queue as threading_queue
 
 

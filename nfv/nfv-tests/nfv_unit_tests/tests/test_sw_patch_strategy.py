@@ -14,8 +14,8 @@ from nfv_vim import nfvi
 from nfv_vim import objects
 
 from nfv_vim.objects import HOST_PERSONALITY
-from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
 from nfv_vim.objects import SW_UPDATE_ALARM_RESTRICTION
+from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
 from nfv_vim.objects import SW_UPDATE_INSTANCE_ACTION
 from nfv_vim.objects import SwPatch
 from nfv_vim.strategy._strategy import strategy_rebuild_from_dict

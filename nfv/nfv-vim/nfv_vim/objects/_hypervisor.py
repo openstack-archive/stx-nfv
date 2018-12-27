@@ -7,8 +7,8 @@ from nfv_vim.objects._object import ObjectData
 
 from nfv_common import debug
 
-from nfv_vim import nfvi
 from nfv_vim import event_log
+from nfv_vim import nfvi
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.hypervisor')
 

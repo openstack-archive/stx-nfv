@@ -12,8 +12,9 @@ from nfv_vim.nfvi.objects import v1 as nfvi_objs
 
 from nfv_plugins.nfvi_plugins import config
 from nfv_plugins.nfvi_plugins.openstack import exceptions
-from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import glance
+from nfv_plugins.nfvi_plugins.openstack import openstack
+
 from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.image_api')

@@ -3,9 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import pecan
-import inspect
 import functools
+import inspect
+import pecan
 import webob
 
 from nfv_common import debug

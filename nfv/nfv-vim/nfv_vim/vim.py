@@ -3,28 +3,28 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
-import sys
-import signal
 import argparse
+import os
+import signal
+import sys
 
-from nfv_common import debug
-from nfv_common import config
-from nfv_common import selobj
-from nfv_common import timers
 from nfv_common import alarm
+from nfv_common import config
+from nfv_common import debug
 from nfv_common import event_log
 from nfv_common import histogram
 from nfv_common import profiler
 from nfv_common import schedule
+from nfv_common import selobj
+from nfv_common import timers
 
-from nfv_vim import nfvi
-from nfv_vim import database
-from nfv_vim import tables
-from nfv_vim import directors
-from nfv_vim import events
 from nfv_vim import audits
+from nfv_vim import database
+from nfv_vim import directors
 from nfv_vim import dor
+from nfv_vim import events
+from nfv_vim import nfvi
+from nfv_vim import tables
 
 PROCESS_TICK_INTERVAL_IN_MS = 500
 PROCESS_TICK_MAX_DELAY_IN_MS = 3000

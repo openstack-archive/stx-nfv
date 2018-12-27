@@ -14,19 +14,19 @@ from nfv_vim import host_fsm
 from nfv_vim import nfvi
 from nfv_vim import objects
 
-from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
-from nfv_vim.objects import SW_UPDATE_ALARM_RESTRICTION
-from nfv_vim.objects import HOST_PERSONALITY
 from nfv_vim.objects import HOST_NAME
+from nfv_vim.objects import HOST_PERSONALITY
+from nfv_vim.objects import SW_UPDATE_ALARM_RESTRICTION
+from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
 from nfv_vim.objects import SwUpgrade
-from nfv_vim.tables._table import Table
-from nfv_vim.tables._host_table import HostTable
-from nfv_vim.tables._host_group_table import HostGroupTable
-from nfv_vim.tables._host_aggregate_table import HostAggregateTable
-from nfv_vim.tables._instance_table import InstanceTable
-from nfv_vim.tables._instance_group_table import InstanceGroupTable
-from nfv_vim.strategy._strategy import SwUpgradeStrategy
 from nfv_vim.strategy._strategy import strategy_rebuild_from_dict
+from nfv_vim.strategy._strategy import SwUpgradeStrategy
+from nfv_vim.tables._host_aggregate_table import HostAggregateTable
+from nfv_vim.tables._host_group_table import HostGroupTable
+from nfv_vim.tables._host_table import HostTable
+from nfv_vim.tables._instance_group_table import InstanceGroupTable
+from nfv_vim.tables._instance_table import InstanceTable
+from nfv_vim.tables._table import Table
 
 from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
 

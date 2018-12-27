@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import sys
 import argparse
+import sys
 
 from nfv_common import debug
 

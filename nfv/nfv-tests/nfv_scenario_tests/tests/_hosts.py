@@ -8,8 +8,8 @@ from nfv_vim.nfvi.objects.v1 import HOST_ADMIN_STATE
 from nfv_vim.nfvi.objects.v1 import HOST_OPER_STATE
 
 from nfv_plugins.nfvi_plugins import config
-from nfv_plugins.nfvi_plugins.openstack import sysinv
 from nfv_plugins.nfvi_plugins.openstack import openstack
+from nfv_plugins.nfvi_plugins.openstack import sysinv
 
 DLOG = debug.debug_get_logger('nfv_tests.instances')
 

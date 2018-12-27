@@ -9,11 +9,11 @@ from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
+from nfv_vim.api._link import Link
 from nfv_vim.api.controllers.v1.virtualised_resources._computes_api import ComputesAPI
 from nfv_vim.api.controllers.v1.virtualised_resources._image_api import ImageAPI
 from nfv_vim.api.controllers.v1.virtualised_resources._networks_api import NetworksAPI
 from nfv_vim.api.controllers.v1.virtualised_resources._volume_api import VolumeAPI
-from nfv_vim.api._link import Link
 
 
 class VirtualisedResourcesDescription(wsme_types.Base):

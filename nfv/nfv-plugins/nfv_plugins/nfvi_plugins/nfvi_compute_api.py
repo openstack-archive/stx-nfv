@@ -4,14 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import collections
-from six.moves import http_client as httplib
 import json
 import six
+from six.moves import http_client as httplib
 import socket
 import uuid
 
 from nfv_common import debug
 from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 from nfv_common.helpers import Object
 
@@ -19,11 +20,12 @@ from nfv_vim import nfvi
 from nfv_vim.nfvi.objects import v1 as nfvi_objs
 
 from nfv_plugins.nfvi_plugins import config
-from nfv_plugins.nfvi_plugins.openstack import rpc_listener
 from nfv_plugins.nfvi_plugins.openstack import exceptions
-from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import nova
+from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import rest_api
+from nfv_plugins.nfvi_plugins.openstack import rpc_listener
+
 from nfv_plugins.nfvi_plugins.openstack.objects import OPENSTACK_SERVICE
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.compute_api')

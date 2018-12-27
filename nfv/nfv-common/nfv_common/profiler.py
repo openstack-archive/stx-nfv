@@ -8,8 +8,8 @@ from nfv_common import debug
 DLOG = debug.debug_get_logger('nfv_common.profiler')
 
 try:
-    import objgraph
     import guppy
+    import objgraph
     memory_profiling = guppy.hpy()
 
 except ImportError:

@@ -7,6 +7,7 @@ import six
 
 from nfv_common import debug
 from nfv_common import thread
+
 from nfv_common.helpers import Singleton
 
 from nfv_common.event_log._event_log_handlers import EventLogHandlers

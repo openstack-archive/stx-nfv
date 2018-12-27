@@ -7,21 +7,21 @@ import errno
 import json
 import os
 
-from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from sqlalchemy import MetaData
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
-from nfv_common import timers
-from nfv_common import histogram
 from nfv_common.helpers import coroutine
+from nfv_common import histogram
+from nfv_common import timers
 
-from nfv_vim.database.model import Base
-from nfv_vim.database.model import lookup_class_by_table
 from nfv_vim.database._database_migrate import migrate_tables
 from nfv_vim.database._database_upgrades import upgrade_table_row_data
+from nfv_vim.database.model import Base
+from nfv_vim.database.model import lookup_class_by_table
 
 _db_version = 1
 _db_name = 'vim_db_v%s' % _db_version

@@ -6,10 +6,10 @@
 import six
 
 from nfv_common import debug
-from nfv_common import strategy
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
 from nfv_common.helpers import Singleton
+from nfv_common import strategy
 
 DLOG = debug.debug_get_logger('nfv_vim.strategy.stage')
 

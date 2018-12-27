@@ -7,21 +7,20 @@ import six
 import weakref
 
 from nfv_common import debug
-from nfv_common import strategy
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
-from nfv_common.helpers import Singleton
 from nfv_common.helpers import get_local_host_name
-
-from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
-from nfv_vim.objects import SW_UPDATE_INSTANCE_ACTION
-from nfv_vim.objects import HOST_PERSONALITY
+from nfv_common.helpers import Singleton
+from nfv_common import strategy
+from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
 from nfv_vim.objects import HOST_GROUP_POLICY
 from nfv_vim.objects import HOST_NAME
-from nfv_vim.objects import INSTANCE_GROUP_POLICY
+from nfv_vim.objects import HOST_PERSONALITY
 from nfv_vim.objects import HOST_SERVICES
+from nfv_vim.objects import INSTANCE_GROUP_POLICY
+from nfv_vim.objects import SW_UPDATE_APPLY_TYPE
+from nfv_vim.objects import SW_UPDATE_INSTANCE_ACTION
 
-from nfv_vim.nfvi.objects.v1 import UPGRADE_STATE
 
 DLOG = debug.debug_get_logger('nfv_vim.strategy')
 
@@ -546,8 +545,8 @@ class SwPatchStrategy(SwUpdateStrategy):
         """
         Add controller software patch strategy stages
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         if SW_UPDATE_APPLY_TYPE.IGNORE != self._controller_apply_type:
             host_table = tables.tables_get_host_table()
@@ -669,8 +668,8 @@ class SwPatchStrategy(SwUpdateStrategy):
         """
         Add swift software patch strategy stages
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         if SW_UPDATE_APPLY_TYPE.IGNORE != self._swift_apply_type:
             host_table = tables.tables_get_host_table()
@@ -717,8 +716,8 @@ class SwPatchStrategy(SwUpdateStrategy):
         """
         Add worker software patch strategy stages
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         if SW_UPDATE_APPLY_TYPE.IGNORE != self._worker_apply_type:
             # When using a single controller/worker host, only allow the
@@ -839,8 +838,8 @@ class SwPatchStrategy(SwUpdateStrategy):
         """
         Strategy Build Complete
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         result, result_reason = \
             super(SwPatchStrategy, self).build_complete(result, result_reason)
@@ -1167,8 +1166,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
         """
         Add upgrade start strategy stage
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         host_table = tables.tables_get_host_table()
         controller_1_host = None
@@ -1192,8 +1191,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
         """
         Add upgrade complete strategy stage
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         host_table = tables.tables_get_host_table()
         controller_1_host = None
@@ -1218,8 +1217,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
         """
         Add controller software upgrade strategy stages
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         host_table = tables.tables_get_host_table()
 
@@ -1335,8 +1334,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
         """
         Add worker software upgrade strategy stages
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         host_lists, reason = self._create_worker_host_lists(worker_hosts, reboot)
         if host_lists is None:
@@ -1404,8 +1403,8 @@ class SwUpgradeStrategy(SwUpdateStrategy):
         """
         Strategy Build Complete
         """
-        from nfv_vim import tables
         from nfv_vim import strategy
+        from nfv_vim import tables
 
         result, result_reason = \
             super(SwUpgradeStrategy, self).build_complete(result, result_reason)

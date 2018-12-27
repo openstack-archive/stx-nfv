@@ -79,78 +79,78 @@ class RPCMessageFactory(object):
     RPC Message Factory
     """
     from nfv_vim.rpc._rpc_message_image import APIRequestCreateImage
-    from nfv_vim.rpc._rpc_message_image import APIResponseCreateImage
-    from nfv_vim.rpc._rpc_message_image import APIRequestUpdateImage
-    from nfv_vim.rpc._rpc_message_image import APIResponseUpdateImage
     from nfv_vim.rpc._rpc_message_image import APIRequestDeleteImage
-    from nfv_vim.rpc._rpc_message_image import APIResponseDeleteImage
     from nfv_vim.rpc._rpc_message_image import APIRequestGetImage
+    from nfv_vim.rpc._rpc_message_image import APIRequestUpdateImage
+    from nfv_vim.rpc._rpc_message_image import APIResponseCreateImage
+    from nfv_vim.rpc._rpc_message_image import APIResponseDeleteImage
     from nfv_vim.rpc._rpc_message_image import APIResponseGetImage
+    from nfv_vim.rpc._rpc_message_image import APIResponseUpdateImage
 
     from nfv_vim.rpc._rpc_message_volume import APIRequestCreateVolume
-    from nfv_vim.rpc._rpc_message_volume import APIResponseCreateVolume
-    from nfv_vim.rpc._rpc_message_volume import APIRequestUpdateVolume
-    from nfv_vim.rpc._rpc_message_volume import APIResponseUpdateVolume
     from nfv_vim.rpc._rpc_message_volume import APIRequestDeleteVolume
-    from nfv_vim.rpc._rpc_message_volume import APIResponseDeleteVolume
     from nfv_vim.rpc._rpc_message_volume import APIRequestGetVolume
+    from nfv_vim.rpc._rpc_message_volume import APIRequestUpdateVolume
+    from nfv_vim.rpc._rpc_message_volume import APIResponseCreateVolume
+    from nfv_vim.rpc._rpc_message_volume import APIResponseDeleteVolume
     from nfv_vim.rpc._rpc_message_volume import APIResponseGetVolume
+    from nfv_vim.rpc._rpc_message_volume import APIResponseUpdateVolume
 
-    from nfv_vim.rpc._rpc_message_instance import APIRequestCreateInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseCreateInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestStartInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseStartInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestStopInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseStopInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestPauseInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponsePauseInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestUnpauseInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseUnpauseInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestSuspendInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseSuspendInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestResumeInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseResumeInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestRebootInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseRebootInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestLiveMigrateInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseLiveMigrateInstance
     from nfv_vim.rpc._rpc_message_instance import APIRequestColdMigrateInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseColdMigrateInstance
-    from nfv_vim.rpc._rpc_message_instance import APIRequestEvacuateInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseEvacuateInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestCreateInstance
     from nfv_vim.rpc._rpc_message_instance import APIRequestDeleteInstance
-    from nfv_vim.rpc._rpc_message_instance import APIResponseDeleteInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestEvacuateInstance
     from nfv_vim.rpc._rpc_message_instance import APIRequestGetInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestLiveMigrateInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestPauseInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestRebootInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestResumeInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestStartInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestStopInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestSuspendInstance
+    from nfv_vim.rpc._rpc_message_instance import APIRequestUnpauseInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseColdMigrateInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseCreateInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseDeleteInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseEvacuateInstance
     from nfv_vim.rpc._rpc_message_instance import APIResponseGetInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseLiveMigrateInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponsePauseInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseRebootInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseResumeInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseStartInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseStopInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseSuspendInstance
+    from nfv_vim.rpc._rpc_message_instance import APIResponseUnpauseInstance
 
     from nfv_vim.rpc._rpc_message_subnet import APIRequestCreateSubnet
-    from nfv_vim.rpc._rpc_message_subnet import APIResponseCreateSubnet
-    from nfv_vim.rpc._rpc_message_subnet import APIRequestUpdateSubnet
-    from nfv_vim.rpc._rpc_message_subnet import APIResponseUpdateSubnet
     from nfv_vim.rpc._rpc_message_subnet import APIRequestDeleteSubnet
-    from nfv_vim.rpc._rpc_message_subnet import APIResponseDeleteSubnet
     from nfv_vim.rpc._rpc_message_subnet import APIRequestGetSubnet
+    from nfv_vim.rpc._rpc_message_subnet import APIRequestUpdateSubnet
+    from nfv_vim.rpc._rpc_message_subnet import APIResponseCreateSubnet
+    from nfv_vim.rpc._rpc_message_subnet import APIResponseDeleteSubnet
     from nfv_vim.rpc._rpc_message_subnet import APIResponseGetSubnet
+    from nfv_vim.rpc._rpc_message_subnet import APIResponseUpdateSubnet
 
     from nfv_vim.rpc._rpc_message_network import APIRequestCreateNetwork
-    from nfv_vim.rpc._rpc_message_network import APIResponseCreateNetwork
-    from nfv_vim.rpc._rpc_message_network import APIRequestUpdateNetwork
-    from nfv_vim.rpc._rpc_message_network import APIResponseUpdateNetwork
     from nfv_vim.rpc._rpc_message_network import APIRequestDeleteNetwork
-    from nfv_vim.rpc._rpc_message_network import APIResponseDeleteNetwork
     from nfv_vim.rpc._rpc_message_network import APIRequestGetNetwork
+    from nfv_vim.rpc._rpc_message_network import APIRequestUpdateNetwork
+    from nfv_vim.rpc._rpc_message_network import APIResponseCreateNetwork
+    from nfv_vim.rpc._rpc_message_network import APIResponseDeleteNetwork
     from nfv_vim.rpc._rpc_message_network import APIResponseGetNetwork
+    from nfv_vim.rpc._rpc_message_network import APIResponseUpdateNetwork
 
+    from nfv_vim.rpc._rpc_message_sw_update import APIRequestAbortSwUpdateStrategy
+    from nfv_vim.rpc._rpc_message_sw_update import APIRequestApplySwUpdateStrategy
     from nfv_vim.rpc._rpc_message_sw_update import APIRequestCreateSwUpdateStrategy
     from nfv_vim.rpc._rpc_message_sw_update import APIRequestCreateSwUpgradeStrategy
-    from nfv_vim.rpc._rpc_message_sw_update import APIResponseCreateSwUpdateStrategy
-    from nfv_vim.rpc._rpc_message_sw_update import APIRequestApplySwUpdateStrategy
-    from nfv_vim.rpc._rpc_message_sw_update import APIResponseApplySwUpdateStrategy
-    from nfv_vim.rpc._rpc_message_sw_update import APIRequestAbortSwUpdateStrategy
-    from nfv_vim.rpc._rpc_message_sw_update import APIResponseAbortSwUpdateStrategy
     from nfv_vim.rpc._rpc_message_sw_update import APIRequestDeleteSwUpdateStrategy
-    from nfv_vim.rpc._rpc_message_sw_update import APIResponseDeleteSwUpdateStrategy
     from nfv_vim.rpc._rpc_message_sw_update import APIRequestGetSwUpdateStrategy
+    from nfv_vim.rpc._rpc_message_sw_update import APIResponseAbortSwUpdateStrategy
+    from nfv_vim.rpc._rpc_message_sw_update import APIResponseApplySwUpdateStrategy
+    from nfv_vim.rpc._rpc_message_sw_update import APIResponseCreateSwUpdateStrategy
+    from nfv_vim.rpc._rpc_message_sw_update import APIResponseDeleteSwUpdateStrategy
     from nfv_vim.rpc._rpc_message_sw_update import APIResponseGetSwUpdateStrategy
 
     _rpc_msg_class_map = {

@@ -3,17 +3,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import weakref
-
 from datetime import datetime
+import weakref
 
 from nfv_common import debug
 from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 
 from nfv_common.strategy._strategy_result import STRATEGY_STAGE_RESULT
-from nfv_common.strategy._strategy_result import STRATEGY_STEP_RESULT
 from nfv_common.strategy._strategy_result import strategy_stage_result_update
+from nfv_common.strategy._strategy_result import STRATEGY_STEP_RESULT
 
 DLOG = debug.debug_get_logger('nfv_common.strategy.stage')
 
@@ -199,8 +199,8 @@ class StrategyStage(object):
         """
         Stage Save
         """
-        import os
         import inspect
+        import os
 
         if self.phase is not None:
             self.phase.stage_save()

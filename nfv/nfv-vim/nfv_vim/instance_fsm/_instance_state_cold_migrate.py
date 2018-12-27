@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from nfv_common import debug
-from nfv_common import timers
 from nfv_common import state_machine
+from nfv_common import timers
 
 from nfv_vim.instance_fsm._instance_defs import INSTANCE_EVENT
 from nfv_vim.instance_fsm._instance_defs import INSTANCE_STATE

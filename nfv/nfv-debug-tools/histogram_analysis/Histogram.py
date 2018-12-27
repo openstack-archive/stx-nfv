@@ -38,10 +38,10 @@
 #
 ################################################################################
 
-import os
-import glob
-from subprocess import call
 from collections import defaultdict
+import glob
+import os
+from subprocess import call
 
 dir = os.path.dirname(__file__)
 csvDir = os.path.join(dir, 'csv/')

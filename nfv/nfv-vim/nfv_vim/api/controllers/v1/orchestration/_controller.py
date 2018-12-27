@@ -9,9 +9,9 @@ from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
+from nfv_vim.api._link import Link
 from nfv_vim.api.controllers.v1.orchestration.sw_update import SwPatchAPI
 from nfv_vim.api.controllers.v1.orchestration.sw_update import SwUpgradeAPI
-from nfv_vim.api._link import Link
 
 
 class OrchestrationDescription(wsme_types.Base):

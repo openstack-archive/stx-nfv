@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from nfv_common import debug
-from nfv_common import timers
 from nfv_common.helpers import coroutine
+from nfv_common import timers
 
 from nfv_common.state_machine._state_task_result import STATE_TASK_RESULT
 from nfv_common.state_machine._state_task_result import state_task_result_update

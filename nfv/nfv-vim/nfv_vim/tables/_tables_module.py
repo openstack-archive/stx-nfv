@@ -3,36 +3,36 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from nfv_vim.tables._image_table import image_table_initialize
-from nfv_vim.tables._image_table import image_table_finalize
-from nfv_vim.tables._volume_table import volume_table_initialize
-from nfv_vim.tables._volume_table import volume_table_finalize
-from nfv_vim.tables._volume_snapshot_table import volume_snapshot_table_initialize
-from nfv_vim.tables._volume_snapshot_table import volume_snapshot_table_finalize
-from nfv_vim.tables._tenant_table import tenant_table_initialize
-from nfv_vim.tables._tenant_table import tenant_table_finalize
-from nfv_vim.tables._system_table import system_table_initialize
-from nfv_vim.tables._system_table import system_table_finalize
-from nfv_vim.tables._host_table import host_table_initialize
-from nfv_vim.tables._host_table import host_table_finalize
-from nfv_vim.tables._host_group_table import host_group_table_initialize
-from nfv_vim.tables._host_group_table import host_group_table_finalize
-from nfv_vim.tables._hypervisor_table import hypervisor_table_initialize
-from nfv_vim.tables._hypervisor_table import hypervisor_table_finalize
-from nfv_vim.tables._instance_table import instance_table_initialize
-from nfv_vim.tables._instance_table import instance_table_finalize
-from nfv_vim.tables._instance_type_table import instance_type_table_initialize
-from nfv_vim.tables._instance_type_table import instance_type_table_finalize
-from nfv_vim.tables._instance_group_table import instance_group_table_initialize
-from nfv_vim.tables._instance_group_table import instance_group_table_finalize
-from nfv_vim.tables._service_host_table import service_host_table_initialize
-from nfv_vim.tables._service_host_table import service_host_table_finalize
-from nfv_vim.tables._host_aggregate_table import host_aggregate_table_initialize
 from nfv_vim.tables._host_aggregate_table import host_aggregate_table_finalize
-from nfv_vim.tables._subnet_table import subnet_table_initialize
-from nfv_vim.tables._subnet_table import subnet_table_finalize
-from nfv_vim.tables._network_table import network_table_initialize
+from nfv_vim.tables._host_aggregate_table import host_aggregate_table_initialize
+from nfv_vim.tables._host_group_table import host_group_table_finalize
+from nfv_vim.tables._host_group_table import host_group_table_initialize
+from nfv_vim.tables._host_table import host_table_finalize
+from nfv_vim.tables._host_table import host_table_initialize
+from nfv_vim.tables._hypervisor_table import hypervisor_table_finalize
+from nfv_vim.tables._hypervisor_table import hypervisor_table_initialize
+from nfv_vim.tables._image_table import image_table_finalize
+from nfv_vim.tables._image_table import image_table_initialize
+from nfv_vim.tables._instance_group_table import instance_group_table_finalize
+from nfv_vim.tables._instance_group_table import instance_group_table_initialize
+from nfv_vim.tables._instance_table import instance_table_finalize
+from nfv_vim.tables._instance_table import instance_table_initialize
+from nfv_vim.tables._instance_type_table import instance_type_table_finalize
+from nfv_vim.tables._instance_type_table import instance_type_table_initialize
 from nfv_vim.tables._network_table import network_table_finalize
+from nfv_vim.tables._network_table import network_table_initialize
+from nfv_vim.tables._service_host_table import service_host_table_finalize
+from nfv_vim.tables._service_host_table import service_host_table_initialize
+from nfv_vim.tables._subnet_table import subnet_table_finalize
+from nfv_vim.tables._subnet_table import subnet_table_initialize
+from nfv_vim.tables._system_table import system_table_finalize
+from nfv_vim.tables._system_table import system_table_initialize
+from nfv_vim.tables._tenant_table import tenant_table_finalize
+from nfv_vim.tables._tenant_table import tenant_table_initialize
+from nfv_vim.tables._volume_snapshot_table import volume_snapshot_table_finalize
+from nfv_vim.tables._volume_snapshot_table import volume_snapshot_table_initialize
+from nfv_vim.tables._volume_table import volume_table_finalize
+from nfv_vim.tables._volume_table import volume_table_initialize
 
 
 def tables_initialize():

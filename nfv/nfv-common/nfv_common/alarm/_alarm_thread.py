@@ -9,6 +9,7 @@ import six
 from nfv_common import debug
 from nfv_common import thread
 from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 from nfv_common.helpers import Singleton
 

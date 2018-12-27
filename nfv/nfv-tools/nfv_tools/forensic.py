@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import sys
-import codecs
 import argparse
+import codecs
 import datetime
+import sys
 
 from nfv_common import config
 from nfv_common import forensic
