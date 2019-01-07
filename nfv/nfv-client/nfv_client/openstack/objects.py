@@ -3,9 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import re
-import iso8601
 import datetime
+import iso8601
+import re
 
 
 class Token(object):

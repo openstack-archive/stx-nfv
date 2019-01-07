@@ -3,11 +3,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import sys
+import argparse
 import json
 import socket
+import sys
 import syslog
-import argparse
 
 from nfv_common import tcp
 

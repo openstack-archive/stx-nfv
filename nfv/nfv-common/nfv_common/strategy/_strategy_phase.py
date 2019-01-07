@@ -9,13 +9,14 @@ from datetime import datetime
 
 from nfv_common import debug
 from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 
 from nfv_common.strategy._strategy_defs import STRATEGY_PHASE
 from nfv_common.strategy._strategy_result import STRATEGY_PHASE_RESULT
+from nfv_common.strategy._strategy_result import strategy_phase_result_update
 from nfv_common.strategy._strategy_result import STRATEGY_STAGE_RESULT
 from nfv_common.strategy._strategy_result import STRATEGY_STEP_RESULT
-from nfv_common.strategy._strategy_result import strategy_phase_result_update
 
 DLOG = debug.debug_get_logger('nfv_common.strategy.phase')
 

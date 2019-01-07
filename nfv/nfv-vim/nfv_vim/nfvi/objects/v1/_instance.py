@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import six
 from datetime import datetime
+import six
 
 from nfv_vim.nfvi.objects.v1._instance_type import INSTANCE_TYPE_EXTENSION
 from nfv_vim.nfvi.objects.v1._object import ObjectData

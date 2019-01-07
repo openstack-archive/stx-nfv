@@ -6,6 +6,7 @@
 from nfv_vim import objects
 
 from nfv_vim.database import model
+
 from nfv_vim.database._database import database_get
 
 

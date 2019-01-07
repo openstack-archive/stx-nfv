@@ -12,8 +12,8 @@ import six
 import sys
 
 from nfv_common.debug._debug_defs import DEBUG_LEVEL
-from nfv_common.debug._debug_thread import DebugLoggingThread
 from nfv_common.debug._debug_module import Debug
+from nfv_common.debug._debug_thread import DebugLoggingThread
 
 _debug_loggers = {}
 

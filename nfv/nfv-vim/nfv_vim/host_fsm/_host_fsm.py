@@ -7,16 +7,16 @@ from nfv_common import debug
 from nfv_common import state_machine
 
 from nfv_vim.host_fsm._host_defs import HOST_STATE
-from nfv_vim.host_fsm._host_state_initial import InitialState
 from nfv_vim.host_fsm._host_state_configure import ConfigureState
-from nfv_vim.host_fsm._host_state_enabling import EnablingState
-from nfv_vim.host_fsm._host_state_enabled import EnabledState
-from nfv_vim.host_fsm._host_state_disabling import DisablingState
-from nfv_vim.host_fsm._host_state_disabling_failed import DisablingFailedState
-from nfv_vim.host_fsm._host_state_disabled import DisabledState
+from nfv_vim.host_fsm._host_state_deleted import DeletedState
 from nfv_vim.host_fsm._host_state_deleting import DeletingState
 from nfv_vim.host_fsm._host_state_deleting_failed import DeletingFailedState
-from nfv_vim.host_fsm._host_state_deleted import DeletedState
+from nfv_vim.host_fsm._host_state_disabled import DisabledState
+from nfv_vim.host_fsm._host_state_disabling import DisablingState
+from nfv_vim.host_fsm._host_state_disabling_failed import DisablingFailedState
+from nfv_vim.host_fsm._host_state_enabled import EnabledState
+from nfv_vim.host_fsm._host_state_enabling import EnablingState
+from nfv_vim.host_fsm._host_state_initial import InitialState
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host')
 

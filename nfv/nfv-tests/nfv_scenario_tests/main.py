@@ -75,11 +75,11 @@ def process_do_setup(loads_dir, setup_data):
     """
     Test - Process Do Setup
     """
-    from nfv_plugins.nfvi_plugins.openstack import openstack
-    from nfv_plugins.nfvi_plugins.openstack import nova
     from nfv_plugins.nfvi_plugins.openstack import cinder
     from nfv_plugins.nfvi_plugins.openstack import glance
     from nfv_plugins.nfvi_plugins.openstack import neutron
+    from nfv_plugins.nfvi_plugins.openstack import nova
+    from nfv_plugins.nfvi_plugins.openstack import openstack
 
     directory = openstack.get_directory(config,
                                         openstack.SERVICE_CATEGORY.OPENSTACK)
@@ -487,11 +487,11 @@ def process_do_teardown(setup_data):
     """
     Test - Process Do Teardown
     """
-    from nfv_plugins.nfvi_plugins.openstack import openstack
-    from nfv_plugins.nfvi_plugins.openstack import nova
     from nfv_plugins.nfvi_plugins.openstack import cinder
     from nfv_plugins.nfvi_plugins.openstack import glance
     from nfv_plugins.nfvi_plugins.openstack import neutron
+    from nfv_plugins.nfvi_plugins.openstack import nova
+    from nfv_plugins.nfvi_plugins.openstack import openstack
 
     directory = openstack.get_directory(config,
                                         openstack.SERVICE_CATEGORY.OPENSTACK)

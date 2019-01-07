@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from nfv_common import timers
 from nfv_common import debug
+from nfv_common import timers
 
 from nfv_vim import alarm
 from nfv_vim import tables

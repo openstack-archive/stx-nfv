@@ -39,16 +39,16 @@
 #
 ################################################################################
 
-import os
+from builtins import input
 import csv
-import sys
-import time
+from glob import iglob
+import os
 import plotly
 import plotly.graph_objs as go
 from plotly import tools
-from glob import iglob
 import subprocess
-from builtins import input
+import sys
+import time
 
 dir = os.path.dirname(__file__)
 fig = plotly.graph_objs.graph_objs.Figure

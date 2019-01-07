@@ -7,8 +7,8 @@ from nfv_common import debug
 from nfv_common.helpers import coroutine
 
 from nfv_vim import nfvi
-from nfv_vim import tables
 from nfv_vim import objects
+from nfv_vim import tables
 
 DLOG = debug.debug_get_logger('nfv_vim.vim_nfvi_events')
 

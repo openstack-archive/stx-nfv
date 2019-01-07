@@ -4,19 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import datetime
-from six.moves import http_client as httplib
 import json
 import re
+from six.moves import http_client as httplib
 import socket
 import threading
-from SocketServer import ThreadingMixIn
+
 from BaseHTTPServer import BaseHTTPRequestHandler
 from BaseHTTPServer import HTTPServer
+from SocketServer import ThreadingMixIn
 
 from nfv_common import debug
 from nfv_plugins.nfvi_plugins import config
-from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import fm
+from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_vim import database
 
 DLOG = debug.debug_get_logger('nfv_vim.webserver.webserver')

@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from six.moves import http_client as httplib
 import json
 import pecan
 from pecan import rest
+from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
@@ -15,16 +15,16 @@ from nfv_common import validate
 
 from nfv_vim import rpc
 
-from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_APPLY_TYPE
-from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_NAME
 from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_ACTION
-from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_INSTANCE_ACTION
 from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_ALARM_RESTRICTION_TYPES
-from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateApplyTypes
-from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateNames
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_APPLY_TYPE
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_INSTANCE_ACTION
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SW_UPDATE_NAME
 from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateActions
-from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateInstanceActionTypes
 from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateAlarmRestrictionTypes
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateApplyTypes
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateInstanceActionTypes
+from nfv_vim.api.controllers.v1.orchestration.sw_update._sw_update_defs import SwUpdateNames
 
 
 DLOG = debug.debug_get_logger('nfv_vim.api.sw_update.strategy')

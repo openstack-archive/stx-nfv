@@ -5,8 +5,8 @@
 #
 import stevedore
 
-from nfv_common import tasks
 from nfv_common import debug
+from nfv_common import tasks
 
 DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_plugin')
 

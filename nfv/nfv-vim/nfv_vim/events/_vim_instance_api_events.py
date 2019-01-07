@@ -5,10 +5,10 @@
 #
 from nfv_common import debug
 
+from nfv_vim import directors
+from nfv_vim import objects
 from nfv_vim import rpc
 from nfv_vim import tables
-from nfv_vim import objects
-from nfv_vim import directors
 
 DLOG = debug.debug_get_logger('nfv_vim.vim_instance_api_events')
 

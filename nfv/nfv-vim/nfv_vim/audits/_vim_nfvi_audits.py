@@ -5,9 +5,10 @@
 #
 import collections
 
-from nfv_common import timers
-from nfv_common import histogram
 from nfv_common import debug
+from nfv_common import histogram
+from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 
 from nfv_vim import directors

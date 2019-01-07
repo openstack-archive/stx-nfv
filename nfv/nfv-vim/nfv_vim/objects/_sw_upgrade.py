@@ -10,10 +10,10 @@ from nfv_vim import alarm
 from nfv_vim import event_log
 from nfv_vim import nfvi
 
-from nfv_vim.objects._sw_update import SwUpdate
 from nfv_vim.objects._sw_update import SW_UPDATE_ALARM_TYPES
 from nfv_vim.objects._sw_update import SW_UPDATE_EVENT_IDS
 from nfv_vim.objects._sw_update import SW_UPDATE_TYPE
+from nfv_vim.objects._sw_update import SwUpdate
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.sw_upgrade')
 

@@ -13,8 +13,9 @@ from nfv_vim.objects._object import ObjectData
 
 from nfv_common import config
 from nfv_common import debug
-from nfv_common import timers
 from nfv_common import state_machine
+from nfv_common import timers
+
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
 from nfv_common.helpers import Singleton
@@ -24,8 +25,8 @@ from nfv_vim import event_log
 from nfv_vim import instance_fsm
 from nfv_vim import nfvi
 
-from nfv_vim.objects._instance_type import STORAGE_TYPE
 from nfv_vim.objects._guest_services import GuestServices
+from nfv_vim.objects._instance_type import STORAGE_TYPE
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.instance')
 MAX_EVENT_REASON_LENGTH = 255
@@ -2496,8 +2497,8 @@ class Instance(ObjectData):
         """
         NFVI Instance State Change
         """
-        from nfv_vim import tables
         from nfv_vim import directors
+        from nfv_vim import tables
 
         instance_director = directors.get_instance_director()
 

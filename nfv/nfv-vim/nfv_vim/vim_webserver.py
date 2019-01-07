@@ -3,12 +3,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import sys
-import signal
 import argparse
+import signal
+import sys
 
-from nfv_common import debug
 from nfv_common import config
+from nfv_common import debug
 from nfv_common import selobj
 from nfv_common import timers
 

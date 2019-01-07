@@ -3,17 +3,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import uuid
 from six.moves import http_client as httplib
+import uuid
 
 from nfv_common import debug
 
 from nfv_vim import nfvi
 
 from nfv_plugins.nfvi_plugins import config
+
 from nfv_plugins.nfvi_plugins.openstack import exceptions
-from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import keystone
+from nfv_plugins.nfvi_plugins.openstack import openstack
 
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.identity_api')
 

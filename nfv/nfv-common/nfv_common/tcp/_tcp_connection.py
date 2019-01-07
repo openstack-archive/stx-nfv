@@ -3,14 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import hmac
-import hashlib
 import base64
-
-import struct
-import socket
-import select
 import errno
+import hashlib
+import hmac
+import select
+import socket
+import struct
 
 from nfv_common import debug
 from nfv_common import timers

@@ -3,18 +3,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-from nfv_vim.directors._image_director import image_director_initialize
-from nfv_vim.directors._image_director import image_director_finalize
-from nfv_vim.directors._volume_director import volume_director_initialize
-from nfv_vim.directors._volume_director import volume_director_finalize
-from nfv_vim.directors._instance_director import instance_director_initialize
-from nfv_vim.directors._instance_director import instance_director_finalize
-from nfv_vim.directors._network_director import network_director_initialize
-from nfv_vim.directors._network_director import network_director_finalize
-from nfv_vim.directors._sw_mgmt_director import sw_mgmt_director_initialize
-from nfv_vim.directors._sw_mgmt_director import sw_mgmt_director_finalize
-from nfv_vim.directors._host_director import host_director_initialize
 from nfv_vim.directors._host_director import host_director_finalize
+from nfv_vim.directors._host_director import host_director_initialize
+from nfv_vim.directors._image_director import image_director_finalize
+from nfv_vim.directors._image_director import image_director_initialize
+from nfv_vim.directors._instance_director import instance_director_finalize
+from nfv_vim.directors._instance_director import instance_director_initialize
+from nfv_vim.directors._network_director import network_director_finalize
+from nfv_vim.directors._network_director import network_director_initialize
+from nfv_vim.directors._sw_mgmt_director import sw_mgmt_director_finalize
+from nfv_vim.directors._sw_mgmt_director import sw_mgmt_director_initialize
+from nfv_vim.directors._volume_director import volume_director_finalize
+from nfv_vim.directors._volume_director import volume_director_initialize
 
 
 def directors_initialize():

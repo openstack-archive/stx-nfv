@@ -4,11 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import six
-from nfv_vim.nfvi.objects.v1._object import ObjectData
 
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
 from nfv_common.helpers import Singleton
+from nfv_vim.nfvi.objects.v1._object import ObjectData
 
 
 @six.add_metaclass(Singleton)

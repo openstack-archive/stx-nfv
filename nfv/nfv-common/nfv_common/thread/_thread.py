@@ -4,14 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import ctypes
+from multiprocessing import Process
 import signal
 import sys
-from multiprocessing import Process
 
 from nfv_common import debug
 from nfv_common import selectable
 from nfv_common import selobj
 from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 
 from nfv_common.thread._thread_progress_marker import ThreadProgressMarker

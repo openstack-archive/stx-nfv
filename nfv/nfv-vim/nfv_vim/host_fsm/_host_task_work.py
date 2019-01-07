@@ -4,12 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import weakref
-from nfv_common.helpers import coroutine
 
 from nfv_common import config
 from nfv_common import debug
 from nfv_common import state_machine
 from nfv_common import timers
+
+from nfv_common.helpers import coroutine
 
 from nfv_vim import nfvi
 

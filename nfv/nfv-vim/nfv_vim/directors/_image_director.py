@@ -6,9 +6,10 @@
 import six
 
 from nfv_common import debug
-from nfv_common.helpers import coroutine
+
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
+from nfv_common.helpers import coroutine
 from nfv_common.helpers import Singleton
 
 from nfv_vim import nfvi

@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from six.moves import http_client as httplib
 import kubernetes
 from kubernetes.client.rest import ApiException
+from six.moves import http_client as httplib
 
 from nfv_common import debug
 from nfv_common.helpers import Result

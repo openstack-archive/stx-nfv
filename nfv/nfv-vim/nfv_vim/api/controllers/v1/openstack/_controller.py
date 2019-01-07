@@ -9,8 +9,8 @@ from six.moves import http_client as httplib
 from wsme import types as wsme_types
 import wsmeext.pecan as wsme_pecan
 
-from nfv_vim.api.controllers.v1.openstack._heat_api import HeatAPI
 from nfv_vim.api._link import Link
+from nfv_vim.api.controllers.v1.openstack._heat_api import HeatAPI
 
 
 class OpenStackDescription(wsme_types.Base):

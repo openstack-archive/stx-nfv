@@ -8,9 +8,9 @@ from nfv_common import state_machine
 
 from nfv_vim.host_fsm._host_defs import HOST_EVENT
 from nfv_vim.host_fsm._host_defs import HOST_STATE
+from nfv_vim.host_fsm._host_tasks import AuditDisabledHostTask
 from nfv_vim.host_fsm._host_tasks import FailHostTask
 from nfv_vim.host_fsm._host_tasks import NotifyDisabledHostTask
-from nfv_vim.host_fsm._host_tasks import AuditDisabledHostTask
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host')
 

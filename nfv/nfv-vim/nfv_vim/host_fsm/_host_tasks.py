@@ -5,28 +5,28 @@
 #
 import weakref
 
-from nfv_common import state_machine
 from nfv_common import debug
+from nfv_common import state_machine
 
 from nfv_vim.host_fsm._host_defs import HOST_EVENT
-from nfv_vim.host_fsm._host_task_work import QueryHypervisorTaskWork
-from nfv_vim.host_fsm._host_task_work import NotifyHostEnabledTaskWork
-from nfv_vim.host_fsm._host_task_work import NotifyHostDisabledTaskWork
-from nfv_vim.host_fsm._host_task_work import NotifyHostFailedTaskWork
+from nfv_vim.host_fsm._host_task_work import AuditHostServicesCompleteTaskWork
+from nfv_vim.host_fsm._host_task_work import AuditHostServicesTaskWork
+from nfv_vim.host_fsm._host_task_work import AuditInstancesTaskWork
 from nfv_vim.host_fsm._host_task_work import CreateHostServicesTaskWork
 from nfv_vim.host_fsm._host_task_work import DeleteHostServicesTaskWork
-from nfv_vim.host_fsm._host_task_work import EnableHostServicesTaskWork
 from nfv_vim.host_fsm._host_task_work import DisableHostServicesTaskWork
-from nfv_vim.host_fsm._host_task_work import NotifyHostServicesEnabledTaskWork
-from nfv_vim.host_fsm._host_task_work import NotifyHostServicesDisabledTaskWork
-from nfv_vim.host_fsm._host_task_work import NotifyHostServicesDisableFailedTaskWork
+from nfv_vim.host_fsm._host_task_work import EnableHostServicesTaskWork
+from nfv_vim.host_fsm._host_task_work import NotifyHostDisabledTaskWork
+from nfv_vim.host_fsm._host_task_work import NotifyHostEnabledTaskWork
+from nfv_vim.host_fsm._host_task_work import NotifyHostFailedTaskWork
 from nfv_vim.host_fsm._host_task_work import NotifyHostServicesDeletedTaskWork
 from nfv_vim.host_fsm._host_task_work import NotifyHostServicesDeleteFailedTaskWork
-from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisablingTaskWork
+from nfv_vim.host_fsm._host_task_work import NotifyHostServicesDisabledTaskWork
+from nfv_vim.host_fsm._host_task_work import NotifyHostServicesDisableFailedTaskWork
+from nfv_vim.host_fsm._host_task_work import NotifyHostServicesEnabledTaskWork
 from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisabledTaskWork
-from nfv_vim.host_fsm._host_task_work import AuditHostServicesTaskWork
-from nfv_vim.host_fsm._host_task_work import AuditHostServicesCompleteTaskWork
-from nfv_vim.host_fsm._host_task_work import AuditInstancesTaskWork
+from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisablingTaskWork
+from nfv_vim.host_fsm._host_task_work import QueryHypervisorTaskWork
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host_task')
 

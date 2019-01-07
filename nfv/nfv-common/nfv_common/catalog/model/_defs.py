@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import six
+
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Singleton
 

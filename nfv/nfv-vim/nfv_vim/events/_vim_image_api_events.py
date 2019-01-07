@@ -4,11 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-from nfv_common import debug
 
+from nfv_common import debug
+from nfv_vim import directors
 from nfv_vim import rpc
 from nfv_vim import tables
-from nfv_vim import directors
 
 DLOG = debug.debug_get_logger('nfv_vim.vim_image_api_events')
 

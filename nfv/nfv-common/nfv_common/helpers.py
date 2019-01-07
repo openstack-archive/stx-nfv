@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import socket
-import select
 import errno
 import functools
+import select
+import socket
 
 
 def syscall_retry_on_interrupt(func, *args):

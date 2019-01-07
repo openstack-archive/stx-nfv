@@ -5,18 +5,16 @@
 #
 import six
 
-from nfv_common import strategy
-from nfv_common import timers
 from nfv_common import debug
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Constants
-from nfv_common.helpers import Singleton
 from nfv_common.helpers import coroutine
-
+from nfv_common.helpers import Singleton
+from nfv_common import strategy
+from nfv_common import timers
 from nfv_vim import objects
-from nfv_vim import tables
-
 from nfv_vim.strategy._strategy_defs import STRATEGY_EVENT
+from nfv_vim import tables
 
 DLOG = debug.debug_get_logger('nfv_vim.strategy.step')
 

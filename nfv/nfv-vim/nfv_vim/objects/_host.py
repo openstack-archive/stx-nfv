@@ -3,12 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import six
 import os
+import six
 
 from nfv_common import debug
 from nfv_common import state_machine
 from nfv_common import timers
+
 from nfv_common.helpers import Constant
 from nfv_common.helpers import Singleton
 
