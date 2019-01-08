@@ -1,5 +1,5 @@
 #
-#   Copyright(c) 2013-2016, Wind River Systems, Inc. 
+#   Copyright(c) 2013-2016, Wind River Systems, Inc.
 #
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions
@@ -66,6 +66,7 @@ program_BUILD_OBJS := $(addprefix $(BUILD_DIR)/, $(heartbeat_C_OBJS))
 program_BUILD_OBJS += $(addprefix $(BUILD_DIR)/, $(program_C_OBJS))
 
 CFLAGS = -g -O2 -Wall -Werror -Wformat -DSYSCONFDIR=$(sysconfdir)
+CFLAGS += -Wformat-security
 
 all: build
 
