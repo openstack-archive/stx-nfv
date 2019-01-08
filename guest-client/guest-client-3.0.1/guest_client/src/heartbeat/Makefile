@@ -1,5 +1,5 @@
 #
-#   Copyright(c) 2013-2016, Wind River Systems, Inc. 
+#   Copyright(c) 2013-2016, Wind River Systems, Inc.
 #
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions
@@ -54,7 +54,7 @@ heartbeat_C_INCLUDES += -I$(CURRENT_DIR)/../../../include
 heartbeat_C_SRCS := $(wildcard *.c)
 heartbeat_C_OBJS := ${heartbeat_C_SRCS:.c=.o}
 
-CFLAGS = -g -O2 -Wall -Werror -Wformat -DSYSCONFDIR=$(sysconfdir)
+CFLAGS = -g -O2 -Wall -Werror -Wformat -DSYSCONFDIR=$(sysconfdir) -Wformat-security
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(heartbeat_C_INCLUDES) -c $< -o $(BUILD_DIR)/$@ -ljson-c

@@ -1,7 +1,7 @@
 #
 #   BSD LICENSE
 #
-#   Copyright(c) 2013-2016, Wind River Systems, Inc. 
+#   Copyright(c) 2013-2016, Wind River Systems, Inc.
 #
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions
@@ -34,7 +34,7 @@
 
 EXECS = guest_scale_helper guest_scale_agent
 
-CFLAGS= -g -Wall
+CFLAGS= -g -Wall  -Wformat -Wformat-security
 ODIR=obj
 BINDIR=bin
 
@@ -64,7 +64,7 @@ printvars:
 
 .PHONY: printvars
 
-all: host_all 
+all: host_all
 host_all: $(BINEXECS) sdk/$(EXPORT_SDK).tgz
 
 # The dependency tracking for the SDK tarball is rather crude.  If any
