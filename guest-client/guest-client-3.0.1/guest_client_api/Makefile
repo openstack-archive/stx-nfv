@@ -1,5 +1,5 @@
 #
-#   Copyright(c) 2013-2016, Wind River Systems, Inc. 
+#   Copyright(c) 2013-2016, Wind River Systems, Inc.
 #
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions
@@ -72,7 +72,7 @@ sample_C_OBJS := ${sample_C_SRCS:.c=.o}
 sample_LDLIBS :=  -L$(BUILD_DIR) -l$(common_NAME) -l$(heartbeat_NAME) -lrt
 sample_BUILD_OBJS := $(addprefix $(BUILD_DIR)/, $(sample_C_OBJS))
 
-CFLAGS = -g -O2 -Wall -Werror -Wformat -fPIC -DSYSCONFDIR=$(sysconfdir)
+CFLAGS = -g -O2 -Wall -Werror -Wformat -fPIC -DSYSCONFDIR=$(sysconfdir) -Wformat-security
 
 all: build
 
