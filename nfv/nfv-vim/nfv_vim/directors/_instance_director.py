@@ -229,7 +229,9 @@ class InstanceDirector(object):
                         instances_failed.append(instance)
 
         # Remove reboot counts for instances that recovered
-        reboot_tracking_instance_uuids = self._reboot_count.keys()
+        # Make a copy of the keys for this to work in python3
+        # since _reboot_count is changing while iterating
+        reboot_tracking_instance_uuids = list(self._reboot_count.keys())
 
         for instance_uuid in reboot_tracking_instance_uuids:
             if instance_uuid not in instance_tracking_uuids:

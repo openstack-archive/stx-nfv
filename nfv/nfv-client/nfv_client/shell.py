@@ -28,6 +28,7 @@ def process_main(argv=sys.argv[1:]):  # pylint: disable=dangerous-default-value
         parser.add_argument('--os-interface', default=None)
 
         commands = parser.add_subparsers(title='Commands', metavar='')
+        commands.required = True
 
         # Software Patch Commands
         sw_patch_parser = commands.add_parser('patch-strategy',
@@ -36,6 +37,7 @@ def process_main(argv=sys.argv[1:]):  # pylint: disable=dangerous-default-value
 
         sw_patch_cmds = sw_patch_parser.add_subparsers(
             title='Software Patch Commands', metavar='')
+        sw_patch_cmds.required = True
 
         sw_patch_create_strategy_cmd \
             = sw_patch_cmds.add_parser('create', help='Create a strategy')
@@ -99,6 +101,7 @@ def process_main(argv=sys.argv[1:]):  # pylint: disable=dangerous-default-value
 
         sw_upgrade_cmds = sw_upgrade_parser.add_subparsers(
             title='Software Upgrade Commands', metavar='')
+        sw_upgrade_cmds.required = True
 
         sw_upgrade_create_strategy_cmd \
             = sw_upgrade_cmds.add_parser('create', help='Create a strategy')
