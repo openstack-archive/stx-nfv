@@ -9,6 +9,7 @@
         - openstack-tox-linters
         - nfv-tox-pep8
         - nfv-tox-py27
+        - nfv-tox-py35
         - nfv-tox-pylint
         - nova-api-proxy-tox-pep8
         - nova-api-proxy-tox-pylint
@@ -21,6 +22,7 @@
         - openstack-tox-linters
         - nfv-tox-pep8
         - nfv-tox-py27
+        - nfv-tox-py35
         - nfv-tox-pylint
         - nova-api-proxy-tox-pep8
         - nova-api-proxy-tox-pylint
@@ -38,6 +40,16 @@
       - openstack/stx-fault
     vars:
       tox_envlist: py27
+      tox_extra_args: -c nfv/tox.ini
+
+- job:
+    name: nfv-tox-py35
+    parent: tox
+    description: Run py35 for nfv
+    required-projects:
+      - openstack/stx-fault
+    vars:
+      tox_envlist: py35
       tox_extra_args: -c nfv/tox.ini
 
 - job:
