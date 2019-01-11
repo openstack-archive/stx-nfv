@@ -115,7 +115,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -198,7 +199,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -263,7 +265,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -327,7 +330,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -376,7 +380,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -451,7 +456,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -535,7 +541,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -601,7 +608,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -663,7 +671,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -712,7 +721,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -781,7 +791,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                     future.work(openstack.get_token, self._directory)
                     future.result = (yield)
 
-                    if not future.result.is_complete():
+                    if not future.result.is_complete() or \
+                            future.result.data is None:
                         DLOG.error("OpenStack get-token did not complete, "
                                    "host_uuid=%s, host_name=%s." % (host_uuid,
                                                                     host_name))
@@ -908,7 +919,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                     future.work(openstack.get_token, self._directory)
                     future.result = (yield)
 
-                    if not future.result.is_complete():
+                    if not future.result.is_complete() or \
+                            future.result.data is None:
                         DLOG.error("OpenStack get-token did not complete, "
                                    "host_uuid=%s, host_name=%s." % (host_uuid,
                                                                     host_name))
@@ -992,7 +1004,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                     future.work(openstack.get_token, self._directory)
                     future.result = (yield)
 
-                    if not future.result.is_complete():
+                    if not future.result.is_complete() or \
+                            future.result.data is None:
                         DLOG.error("OpenStack get-token did not complete, "
                                    "host_uuid=%s, host_name=%s." % (host_uuid,
                                                                     host_name))
@@ -1078,7 +1091,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                     future.work(openstack.get_token, self._directory)
                     future.result = (yield)
 
-                    if not future.result.is_complete():
+                    if not future.result.is_complete() or \
+                            future.result.data is None:
                         DLOG.error("OpenStack get-token did not complete, "
                                    "host_uuid=%s, host_name=%s." % (host_uuid,
                                                                     host_name))
@@ -1155,7 +1169,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                     future.work(openstack.get_token, self._directory)
                     future.result = (yield)
 
-                    if not future.result.is_complete():
+                    if not future.result.is_complete() or \
+                            future.result.data is None:
                         DLOG.error("OpenStack get-token did not complete, "
                                    "host_uuid=%s." % host_uuid)
                         return

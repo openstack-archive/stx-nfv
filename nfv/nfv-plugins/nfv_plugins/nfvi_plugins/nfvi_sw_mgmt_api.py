@@ -62,7 +62,8 @@ class NFVISwMgmtAPI(nfvi.api.v1.NFVISwMgmtAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -120,7 +121,8 @@ class NFVISwMgmtAPI(nfvi.api.v1.NFVISwMgmtAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -179,7 +181,8 @@ class NFVISwMgmtAPI(nfvi.api.v1.NFVISwMgmtAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -228,7 +231,8 @@ class NFVISwMgmtAPI(nfvi.api.v1.NFVISwMgmtAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data

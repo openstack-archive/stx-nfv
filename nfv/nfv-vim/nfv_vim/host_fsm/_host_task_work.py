@@ -685,6 +685,94 @@ class DeleteHostServicesTaskWork(state_machine.StateTaskWork):
         return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
 
 
+class WaitHostServicesCreatedTaskWork(state_machine.StateTaskWork):
+    """
+    Wait Host Services Created Task Work
+    """
+    def __init__(self, task, host, service):
+        super(WaitHostServicesCreatedTaskWork, self).__init__(
+            'wait-host-services-created_%s_%s' % (host.name, service), task,
+            timeout_in_secs=120)
+        self._host_reference = weakref.ref(host)
+        self._service = service
+        self._query_inprogress = False
+
+    @property
+    def _host(self):
+        """
+        Returns the host
+        """
+        host = self._host_reference()
+        return host
+
+    @coroutine
+    def _callback(self):
+        """
+        Callback for wait host services created
+        """
+        response = (yield)
+        self._query_inprogress = False
+
+        if self.task is not None:
+            DLOG.verbose("Wait-Host-Services-Created callback for service: "
+                         "%s %s, response=%s." %
+                         (self._service, self._host.name, response))
+
+            if response['completed']:
+                # A completed response means the service exists.
+                self.task.task_work_complete(
+                    state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
+                    empty_reason)
+            else:
+                DLOG.info("Wait-Host-Services-Created callback for %s, "
+                          "failed" % self._host.name)
+
+    def run(self):
+        """
+        Run wait host services created
+        """
+        from nfv_vim import objects
+
+        DLOG.verbose("Wait-Host-Services-Created for %s for service %s." %
+                     (self._host.name, self._service))
+
+        if self._service == objects.HOST_SERVICES.COMPUTE:
+            self._query_inprogress = True
+            nfvi.nfvi_query_compute_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        else:
+            reason = ("Trying to wait for unknown host service %s" %
+                      self._service)
+            DLOG.error(reason)
+            self._host.update_failure_reason(reason)
+            return state_machine.STATE_TASK_WORK_RESULT.FAILED, reason
+
+        return state_machine.STATE_TASK_WORK_RESULT.WAIT, empty_reason
+
+    def handle_event(self, event, event_data=None):
+        """
+        Handle events while waiting for host services to be created
+        """
+        from nfv_vim import objects
+
+        handled = False
+        if HOST_EVENT.PERIODIC_TIMER == event:
+            if not self._query_inprogress:
+                DLOG.verbose("Wait-Host-Services-Created for %s for service "
+                             "%s. Repeating query." %
+                             (self._host.name, self._service))
+                self._query_inprogress = True
+                if self._service == objects.HOST_SERVICES.COMPUTE:
+                    nfvi.nfvi_query_compute_host_services(
+                        self._host.uuid, self._host.name,
+                        self._host.personality,
+                        self._callback())
+            handled = True
+
+        return handled
+
+
 class EnableHostServicesTaskWork(state_machine.StateTaskWork):
     """
     Enable Host Services Task Work
@@ -713,9 +801,9 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
 
         response = (yield)
         if self.task is not None:
-            DLOG.verbose("Enable-Host-Services callback for service: %s %s %s, "
+            DLOG.verbose("Enable-Host-Services callback for service: %s %s, "
                          "response=%s." % (self._service, self._host.name,
-                                           self._service, response))
+                                           response))
             if response['completed']:
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
@@ -801,9 +889,9 @@ class DisableHostServicesTaskWork(state_machine.StateTaskWork):
 
         response = (yield)
         if self.task is not None:
-            DLOG.verbose("Disable-Host-Services callback for service: %s, %s %s, "
+            DLOG.verbose("Disable-Host-Services callback for service: %s, %s, "
                          "response=%s." % (self._service, self._host.name,
-                                           self._service, response))
+                                           response))
             if response['completed']:
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,

@@ -45,43 +45,49 @@ class EnablingState(state_machine.State):
         """
         Handle event while in the enabling state
         """
-        if HOST_EVENT.DELETE == event:
-            return HOST_STATE.DELETING
+        handled = False
 
-        elif HOST_EVENT.ENABLE == event:
-            if not host.task.inprogress():
-                host.task = EnableHostTask(host)
-                host.task.start()
+        if host.task.inprogress():
+            handled = host.task.handle_event(event, event_data)
 
-            elif host.task.is_failed() or host.task.timed_out():
-                host.task.start()
+        if not handled:
+            if HOST_EVENT.DELETE == event:
+                return HOST_STATE.DELETING
 
-        elif HOST_EVENT.LOCK == event or HOST_EVENT.DISABLE == event \
-                or HOST_EVENT.UNLOCK == event:
-            return HOST_STATE.DISABLING
+            elif HOST_EVENT.ENABLE == event:
+                if not host.task.inprogress():
+                    host.task = EnableHostTask(host)
+                    host.task.start()
 
-        elif HOST_EVENT.TASK_COMPLETED == event:
-            return HOST_STATE.ENABLED
+                elif host.task.is_failed() or host.task.timed_out():
+                    host.task.start()
 
-        elif HOST_EVENT.TASK_FAILED == event:
-            DLOG.info("Enable failed for %s." % host.name)
+            elif HOST_EVENT.LOCK == event or HOST_EVENT.DISABLE == event \
+                    or HOST_EVENT.UNLOCK == event:
+                return HOST_STATE.DISABLING
 
-        elif HOST_EVENT.TASK_TIMEOUT == event:
-            DLOG.info("Enable timed out for %s." % host.name)
+            elif HOST_EVENT.TASK_COMPLETED == event:
+                return HOST_STATE.ENABLED
 
-        elif HOST_EVENT.AUDIT == event:
-            DLOG.verbose("Audit event for %s." % host.name)
+            elif HOST_EVENT.TASK_FAILED == event:
+                DLOG.info("Enable failed for %s." % host.name)
 
-            if not host.task.inprogress():
-                DLOG.verbose("Attempt re-enable for %s." % host.name)
-                host.task = EnableHostTask(host)
-                host.task.start()
+            elif HOST_EVENT.TASK_TIMEOUT == event:
+                DLOG.info("Enable timed out for %s." % host.name)
 
-            elif host.task.is_failed() or host.task.timed_out():
-                DLOG.verbose("Attempt re-enable for %s." % host.name)
-                host.task.start()
+            elif HOST_EVENT.AUDIT == event:
+                DLOG.verbose("Audit event for %s." % host.name)
 
-        else:
-            DLOG.verbose("Ignoring %s event for %s." % (event, host.name))
+                if not host.task.inprogress():
+                    DLOG.verbose("Attempt re-enable for %s." % host.name)
+                    host.task = EnableHostTask(host)
+                    host.task.start()
+
+                elif host.task.is_failed() or host.task.timed_out():
+                    DLOG.verbose("Attempt re-enable for %s." % host.name)
+                    host.task.start()
+
+            else:
+                DLOG.verbose("Ignoring %s event for %s." % (event, host.name))
 
         return self.name

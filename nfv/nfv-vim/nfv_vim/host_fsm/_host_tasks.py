@@ -27,6 +27,7 @@ from nfv_vim.host_fsm._host_task_work import NotifyHostServicesEnabledTaskWork
 from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisabledTaskWork
 from nfv_vim.host_fsm._host_task_work import NotifyInstancesHostDisablingTaskWork
 from nfv_vim.host_fsm._host_task_work import QueryHypervisorTaskWork
+from nfv_vim.host_fsm._host_task_work import WaitHostServicesCreatedTaskWork
 
 DLOG = debug.debug_get_logger('nfv_vim.state_machine.host_task')
 
@@ -41,9 +42,11 @@ class AddHostTask(state_machine.StateTask):
 
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
-            task_work_list.append(CreateHostServicesTaskWork(
-                self, host, objects.HOST_SERVICES.COMPUTE))
+        if not host.kubernetes_configured:
+            # We only create the compute service on non-kubernetes systems.
+            if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+                task_work_list.append(CreateHostServicesTaskWork(
+                    self, host, objects.HOST_SERVICES.COMPUTE))
         if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
             task_work_list.append(CreateHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.NETWORK))
@@ -142,13 +145,17 @@ class EnableHostTask(state_machine.StateTask):
 
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
-            task_work_list.append(NotifyHostEnabledTaskWork(
-                self, host, objects.HOST_SERVICES.COMPUTE))
         if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
             task_work_list.append(EnableHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.CONTAINER))
         if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            if host.kubernetes_configured:
+                # In kubernetes systems we must wait for the compute service
+                # to be created before enabling it.
+                task_work_list.append(WaitHostServicesCreatedTaskWork(
+                    self, host, objects.HOST_SERVICES.COMPUTE))
+            task_work_list.append(NotifyHostEnabledTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
             task_work_list.append(EnableHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.COMPUTE))
         if host.host_service_configured(objects.HOST_SERVICES.NETWORK):

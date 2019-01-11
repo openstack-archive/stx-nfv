@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from nfv_common import debug
+from nfv_common import timers
+
 from nfv_common.helpers import coroutine
 
 from nfv_vim import nfvi
@@ -462,6 +464,21 @@ def _nfvi_guest_services_action_notify_callback(nfvi_instance_uuid,
     return True
 
 
+@timers.interval_timer('nfvi_periodic_timer_event', initial_delay_secs=10,
+                       interval_secs=10)
+def _nfvi_periodic_timer_event():
+    """
+    Periodic timer for hosts
+    """
+    while True:
+        timer_id = (yield)
+        DLOG.verbose("NFVI periodic timer called, timer_id=%s." % timer_id)
+
+        host_table = tables.tables_get_host_table()
+        for host in host_table.values():
+            host.periodic_timer()
+
+
 def vim_nfvi_events_initialize():
     """
     Initialize listening for nfvi events
@@ -515,6 +532,8 @@ def vim_nfvi_events_initialize():
 
         nfvi.nfvi_register_guest_services_action_notify_callback(
             _nfvi_guest_services_action_notify_callback)
+
+    timers.timers_register_interval_timers([_nfvi_periodic_timer_event])
 
 
 def vim_nfvi_events_finalize():

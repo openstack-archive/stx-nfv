@@ -64,7 +64,8 @@ class NFVIIdentityAPI(nfvi.api.v1.NFVIIdentityAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data

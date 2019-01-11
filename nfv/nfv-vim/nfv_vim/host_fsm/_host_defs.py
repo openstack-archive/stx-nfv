@@ -39,6 +39,7 @@ class EventNames(Constants):
     ENABLE = Constant('enable')
     DISABLE = Constant('disable')
     AUDIT = Constant('audit')
+    PERIODIC_TIMER = Constant('periodic-timer')
     TASK_COMPLETED = Constant('task-completed')
     TASK_FAILED = Constant('task-failed')
     TASK_TIMEOUT = Constant('task-timeout')

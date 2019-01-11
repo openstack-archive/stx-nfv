@@ -156,6 +156,16 @@ class Host(ObjectData):
         """
         return self._fsm.current_state.name
 
+    @property
+    def kubernetes_configured(self):
+        """
+        Returns whether kubernetes is configured. This will disappear once
+        we cut over to kubernetes.
+        """
+        if not os.path.isfile('/etc/kubernetes/admin.conf'):
+            return False
+        return True
+
     def host_service_configured(self, service):
         """
         Returns whether a host service is configured or not
@@ -211,8 +221,8 @@ class Host(ObjectData):
             at_least_one_failed = at_least_one_failed or \
                 (service_state == HOST_SERVICE_STATE.FAILED)
 
-            DLOG.verbose("service_state: %s, all_enabled: %s" %
-                         (service_state, all_enabled))
+            DLOG.verbose("service %s service_state: %s, all_enabled: %s" %
+                         (service, service_state, all_enabled))
 
         if all_enabled:
             return HOST_SERVICE_STATE.ENABLED
@@ -730,6 +740,12 @@ class Host(ObjectData):
         """
         alarm.host_clear_alarm(self._alarms)
         self._fsm.handle_event(host_fsm.HOST_EVENT.DELETE)
+
+    def periodic_timer(self):
+        """
+        Periodic Timer
+        """
+        self._fsm.handle_event(host_fsm.HOST_EVENT.PERIODIC_TIMER)
 
     def host_services_update_all(self, host_service_state, reason=None):
         """

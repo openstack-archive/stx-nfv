@@ -103,7 +103,8 @@ class NFVIImageAPI(nfvi.api.v1.NFVIImageAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -211,7 +212,8 @@ class NFVIImageAPI(nfvi.api.v1.NFVIImageAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -340,7 +342,8 @@ class NFVIImageAPI(nfvi.api.v1.NFVIImageAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -390,7 +393,8 @@ class NFVIImageAPI(nfvi.api.v1.NFVIImageAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data
@@ -503,7 +507,8 @@ class NFVIImageAPI(nfvi.api.v1.NFVIImageAPI):
                 future.work(openstack.get_token, self._directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._token = future.result.data

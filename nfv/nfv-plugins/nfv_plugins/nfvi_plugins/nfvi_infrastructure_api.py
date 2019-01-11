@@ -189,7 +189,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -254,7 +255,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -311,7 +313,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     return
 
                 self._platform_token = future.result.data
@@ -455,7 +458,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -567,7 +571,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -631,7 +636,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -687,7 +693,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -743,7 +750,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -934,7 +942,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1049,7 +1058,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1164,7 +1174,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1278,7 +1289,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1391,7 +1403,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1443,7 +1456,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1561,7 +1575,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s, host_name=%s." % (host_uuid,
                                                                 host_name))
@@ -1618,7 +1633,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1670,7 +1686,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1722,7 +1739,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1774,7 +1792,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1826,7 +1845,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete, "
                                "host_uuid=%s." % host_uuid)
                     return
@@ -1876,7 +1896,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -1935,7 +1956,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
@@ -1984,7 +2006,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 future.work(openstack.get_token, self._platform_directory)
                 future.result = (yield)
 
-                if not future.result.is_complete():
+                if not future.result.is_complete() or \
+                        future.result.data is None:
                     DLOG.error("OpenStack get-token did not complete.")
                     return
 
