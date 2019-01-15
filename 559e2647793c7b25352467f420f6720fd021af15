@@ -1,0 +1,10 @@
+Code-Review+2: Al Bailey <al.bailey@windriver.com>
+Code-Review+1: Bob Church <robert.church@windriver.com>
+Code-Review+2: Jack Ding <Jack.Ding@windriver.com>
+Workflow+1: Jack Ding <Jack.Ding@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Tue, 15 Jan 2019 20:14:04 +0000
+Reviewed-on: https://review.openstack.org/631057
+Project: openstack/stx-nfv
+Branch: refs/heads/f/stein
