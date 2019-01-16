@@ -164,11 +164,11 @@ def database_instance_type_add(instance_type_obj):
     """
     db = database_get()
     session = db.session()
-    query = session.query(model.InstanceType)
-    query = query.filter(model.InstanceType.uuid == instance_type_obj.uuid)
+    query = session.query(model.InstanceType_v5)
+    query = query.filter(model.InstanceType_v5.uuid == instance_type_obj.uuid)
     instance_type = query.first()
     if not instance_type:
-        instance_type = model.InstanceType()
+        instance_type = model.InstanceType_v5()
         instance_type.uuid = instance_type_obj.uuid
         instance_type.name = instance_type_obj.name
         if instance_type_obj.have_details():
@@ -186,7 +186,6 @@ def database_instance_type_add(instance_type_obj):
                 = instance_type_obj.live_migration_timeout
             instance_type.live_migration_max_downtime \
                 = instance_type_obj.live_migration_max_downtime
-            instance_type.storage_type = instance_type_obj.storage_type
         session.add(instance_type)
     else:
         if instance_type_obj.have_details():
@@ -204,7 +203,6 @@ def database_instance_type_add(instance_type_obj):
                 = instance_type_obj.live_migration_timeout
             instance_type.live_migration_max_downtime \
                 = instance_type_obj.live_migration_max_downtime
-            instance_type.storage_type = instance_type_obj.storage_type
     db.commit()
 
 
@@ -214,8 +212,8 @@ def database_instance_type_delete(instance_type_uuid):
     """
     db = database_get()
     session = db.session()
-    query = session.query(model.InstanceType)
-    query.filter(model.InstanceType.uuid == instance_type_uuid).delete()
+    query = session.query(model.InstanceType_v5)
+    query.filter(model.InstanceType_v5.uuid == instance_type_uuid).delete()
     session.commit()
 
 
@@ -225,7 +223,7 @@ def database_instance_type_get_list():
     """
     db = database_get()
     session = db.session()
-    query = session.query(model.InstanceType)
+    query = session.query(model.InstanceType_v5)
 
     instance_type_objs = list()
     for instance_type in query.all():
@@ -237,7 +235,7 @@ def database_instance_type_get_list():
             instance_type.vcpus, instance_type.mem_mb, instance_type.disk_gb,
             instance_type.ephemeral_gb, instance_type.swap_gb, guest_services,
             instance_type.auto_recovery, instance_type.live_migration_timeout,
-            instance_type.live_migration_max_downtime, instance_type.storage_type)
+            instance_type.live_migration_max_downtime)
         instance_type_objs.append(instance_type_obj)
     return instance_type_objs
 

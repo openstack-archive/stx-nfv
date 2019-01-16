@@ -26,7 +26,6 @@ from nfv_vim import instance_fsm
 from nfv_vim import nfvi
 
 from nfv_vim.objects._guest_services import GuestServices
-from nfv_vim.objects._instance_type import STORAGE_TYPE
 
 DLOG = debug.debug_get_logger('nfv_vim.objects.instance')
 MAX_EVENT_REASON_LENGTH = 255
@@ -1465,18 +1464,13 @@ class Instance(ObjectData):
             # Always allow cold migration when booted from a volume
             return True
 
-        storage_type = self._nfvi_instance.instance_type_storage_type
+        # TODO(bwensley): Always allow cold migration for instances using
+        # remote storage. There is currently no way to determine this, but we
+        # should eventually be able to check for a label on the compute host.
 
-        if STORAGE_TYPE.REMOTE_BACKED == storage_type:
-            # Always allow cold migration with remote storage
-            return True
+        config_option = 'max_cold_migrate_local_image_disk_gb'
 
-        config_option = None
-        if STORAGE_TYPE.LOCAL_IMAGE_BACKED == storage_type:
-            config_option = 'max_cold_migrate_local_image_disk_gb'
-
-        if (config_option is not None and
-                config.section_exists('instance-configuration')):
+        if config.section_exists('instance-configuration'):
             section = config.CONF['instance-configuration']
             max_disk_gb = int(section.get(config_option, 20))
         else:
@@ -1501,18 +1495,13 @@ class Instance(ObjectData):
             # Always allow evacuate when booted from a volume
             return True
 
-        storage_type = self._nfvi_instance.instance_type_storage_type
+        # TODO(bwensley): Always allow evacuate for instances using remote
+        # storage. There is currently no way to determine this, but we should
+        # eventually be able to check for a label on the compute host.
 
-        if STORAGE_TYPE.REMOTE_BACKED == storage_type:
-            # Always allow evacuate with remote storage
-            return True
+        config_option = 'max_evacuate_local_image_disk_gb'
 
-        config_option = None
-        if STORAGE_TYPE.LOCAL_IMAGE_BACKED == storage_type:
-            config_option = 'max_evacuate_local_image_disk_gb'
-
-        if (config_option is not None and
-                config.section_exists('instance-configuration')):
+        if config.section_exists('instance-configuration'):
             section = config.CONF['instance-configuration']
             max_disk_gb = int(section.get(config_option, 20))
         else:
@@ -1532,17 +1521,6 @@ class Instance(ObjectData):
         if self._live_migration_support is not None:
             if not self._live_migration_support:
                 return False
-
-            if self.image_uuid is None:
-                if (self._nfvi_instance.instance_type_swap_gb or
-                        self._nfvi_instance.instance_type_ephemeral_gb):
-                    return (STORAGE_TYPE.REMOTE_BACKED ==
-                            self._nfvi_instance.instance_type_storage_type)
-                return True
-            else:
-                return (self._nfvi_instance.instance_type_storage_type in [
-                    STORAGE_TYPE.LOCAL_IMAGE_BACKED,
-                    STORAGE_TYPE.REMOTE_BACKED])
 
         return True
 
