@@ -741,6 +741,13 @@ class WaitHostServicesCreatedTaskWork(state_machine.StateTaskWork):
             nfvi.nfvi_query_compute_host_services(
                 self._host.uuid, self._host.name, self._host.personality,
                 self._callback())
+        elif self._service == objects.HOST_SERVICES.NETWORK:
+            self._query_inprogress = True
+            check_fully_up = False
+            nfvi.nfvi_query_network_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                check_fully_up,
+                self._callback())
         else:
             reason = ("Trying to wait for unknown host service %s" %
                       self._service)
@@ -767,6 +774,13 @@ class WaitHostServicesCreatedTaskWork(state_machine.StateTaskWork):
                     nfvi.nfvi_query_compute_host_services(
                         self._host.uuid, self._host.name,
                         self._host.personality,
+                        self._callback())
+                elif self._service == objects.HOST_SERVICES.NETWORK:
+                    check_fully_up = False
+                    nfvi.nfvi_query_network_host_services(
+                        self._host.uuid, self._host.name,
+                        self._host.personality,
+                        check_fully_up,
                         self._callback())
             handled = True
 
@@ -1210,8 +1224,10 @@ class AuditHostServicesTaskWork(state_machine.StateTaskWork):
                 self._host.uuid, self._host.name, self._host.personality,
                 self._callback())
         elif self._service == objects.HOST_SERVICES.NETWORK:
+            check_fully_up = True
             nfvi.nfvi_query_network_host_services(
                 self._host.uuid, self._host.name, self._host.personality,
+                check_fully_up,
                 self._callback())
         else:
             reason = ("Trying to query unknown "
