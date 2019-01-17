@@ -182,8 +182,7 @@ class Host(ObjectData):
                               self._nfvi_host.openstack_compute)
             elif service == HOST_SERVICES.NETWORK:
                 configured = (not nfvi.nfvi_network_plugin_disabled() and
-                              (self._nfvi_host.openstack_compute or
-                               self._nfvi_host.openstack_control))
+                              self._nfvi_host.openstack_compute)
             elif service == HOST_SERVICES.GUEST:
                 configured = (not nfvi.nfvi_guest_plugin_disabled() and
                               self._nfvi_host.openstack_compute)
