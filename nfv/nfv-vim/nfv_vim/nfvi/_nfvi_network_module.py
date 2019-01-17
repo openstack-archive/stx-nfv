@@ -166,6 +166,7 @@ def nfvi_create_network_host_services(host_uuid, host_name, host_personality,
 
 
 def nfvi_query_network_host_services(host_uuid, host_name, host_personality,
+                                     check_fully_up,
                                      callback):
     """
     Query network services
@@ -173,6 +174,7 @@ def nfvi_query_network_host_services(host_uuid, host_name, host_personality,
     cmd_id = _network_plugin.invoke_plugin('query_host_services',
                                            host_uuid, host_name,
                                            host_personality,
+                                           check_fully_up,
                                            callback=callback)
     return cmd_id
 

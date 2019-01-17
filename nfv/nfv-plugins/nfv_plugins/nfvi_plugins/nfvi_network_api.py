@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import os
 from six.moves import http_client as httplib
 
 from nfv_common import debug
@@ -90,6 +91,15 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
         return (('worker' in personality or 'controller' in personality) and
                 (self._directory.get_service_info(
                     OPENSTACK_SERVICE.NEUTRON) is not None))
+
+    @staticmethod
+    def _host_supports_kubernetes():
+        # TODO(ksmith): This check will disappear once kubernetes is the
+        # default
+        # Note we do not check personality as the assumption is that
+        # in the case of kubernetes, we won't even get to this check
+        # unless the correct label is applied to the host.
+        return (os.path.isfile('/etc/kubernetes/admin.conf'))
 
     def get_networks(self, future, paging, callback):
         """
@@ -775,6 +785,7 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                              host_personality, callback):
         """
         Create Host Services, notify neutron to create services for a host.
+        Only used in non k8s config.
         """
         response = dict()
         response['completed'] = False
@@ -940,14 +951,23 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
 
                     self._neutron_extensions = future.result.data
 
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
+                if self._host_supports_kubernetes():
+                    extension_name = neutron.EXTENSION_NAMES.AGENT
+                else:
+                    extension_name = neutron.EXTENSION_NAMES.HOST
+
+                if neutron.lookup_extension(extension_name,
                                             self._neutron_extensions):
 
                     response['reason'] = 'failed to delete neutron services'
 
                     # Send the delete request to Neutron.
-                    future.work(neutron.delete_host_services,
-                                self._token, host_uuid)
+                    if not self._host_supports_kubernetes():
+                        future.work(neutron.delete_host_services,
+                                    self._token, host_uuid)
+                    else:
+                        future.work(neutron.delete_network_agents,
+                                    self._token, host_name)
                     try:
                         future.result = (yield)
 
@@ -1025,13 +1045,23 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
 
                     self._neutron_extensions = future.result.data
 
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
+                if self._host_supports_kubernetes():
+                    extension_name = neutron.EXTENSION_NAMES.AGENT
+                else:
+                    extension_name = neutron.EXTENSION_NAMES.HOST
+
+                if neutron.lookup_extension(extension_name,
                                             self._neutron_extensions):
                     response['reason'] = 'failed to enable neutron services'
 
                     # Send the Enable request to Neutron
-                    future.work(neutron.enable_host_services,
-                                self._token, host_uuid)
+                    if not self._host_supports_kubernetes():
+                        future.work(neutron.enable_host_services,
+                                    self._token, host_uuid)
+                    else:
+                        future.work(neutron.enable_network_agents,
+                                    self._token, host_name)
+
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1041,14 +1071,21 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                                    % (host_uuid, host_name))
                         return
 
-                    result_data = future.result.data['host']
-                    if not ('up' == result_data['availability'] and
-                            host_name == result_data['name'] and
-                            host_uuid == result_data['id']):
-                        DLOG.error("Neutron enable-host-services failed, "
-                                   "operation did not complete, host_uuid=%s, "
-                                   "host_name=%s." % (host_uuid, host_name))
-                        return
+                    if not self._host_supports_kubernetes():
+                        result_data = future.result.data['host']
+                        if not ('up' == result_data['availability'] and
+                                host_name == result_data['name'] and
+                                host_uuid == result_data['id']):
+                            DLOG.error("Neutron enable-host-services failed, "
+                                       "operation did not complete, host_uuid=%s, "
+                                       "host_name=%s." % (host_uuid, host_name))
+                            return
+                    else:
+                        if not future.result.data:
+                            DLOG.error("Neutron enable-host-services (agents) failed, "
+                                       "operation did not complete, host_uuid=%s, "
+                                       "host_name=%s." % (host_uuid, host_name))
+                            return
 
             response['completed'] = True
             response['reason'] = ''
@@ -1073,7 +1110,8 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
             callback.close()
 
     def query_host_services(self, future, host_uuid, host_name,
-                            host_personality, callback):
+                            host_personality, check_fully_up,
+                            callback):
         """
         Query Neutron Services for a host.
         """
@@ -1110,11 +1148,22 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
 
                     self._neutron_extensions = future.result.data
 
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
+                if self._host_supports_kubernetes():
+                    extension_name = neutron.EXTENSION_NAMES.AGENT
+                else:
+                    extension_name = neutron.EXTENSION_NAMES.HOST
+
+                if neutron.lookup_extension(extension_name,
                                             self._neutron_extensions):
                     # Send Query request to Neutron
-                    future.work(neutron.query_host_services,
-                                self._token, host_name)
+                    if not self._host_supports_kubernetes():
+                        future.work(neutron.query_host_services,
+                                    self._token, host_name)
+                    else:
+                        future.work(neutron.query_network_agents,
+                                    self._token, host_name,
+                                    check_fully_up)
+
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1189,14 +1238,24 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
 
                     self._neutron_extensions = future.result.data
 
-                if neutron.lookup_extension(neutron.EXTENSION_NAMES.HOST,
+                if self._host_supports_kubernetes():
+                    extension_name = neutron.EXTENSION_NAMES.AGENT
+                else:
+                    extension_name = neutron.EXTENSION_NAMES.HOST
+
+                if neutron.lookup_extension(extension_name,
                                             self._neutron_extensions):
                     response['reason'] = 'failed to disable neutron services'
 
                     # Send the Disable request to Neutron
-                    future.work(neutron.disable_host_services,
-                                self._token,
-                                host_uuid)
+                    if not self._host_supports_kubernetes():
+                        future.work(neutron.disable_host_services,
+                                    self._token,
+                                    host_uuid)
+                    else:
+                        future.work(neutron.disable_network_agents,
+                                    self._token, host_name)
+
                     future.result = (yield)
 
                     if not future.result.is_complete():
@@ -1205,14 +1264,21 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                                    "host_name=%s." % (host_uuid, host_name))
                         return
 
-                    result_data = future.result.data['host']
-                    if not ('down' == result_data['availability'] and
-                            host_name == result_data['name'] and
-                            host_uuid == result_data['id']):
-                        DLOG.error("Neutron disable-host-services failed, "
-                                   "operation did not complete, host_uuid=%s, "
-                                   "host_name=%s." % (host_uuid, host_name))
-                        return
+                    if not self._host_supports_kubernetes():
+                        result_data = future.result.data['host']
+                        if not ('down' == result_data['availability'] and
+                                host_name == result_data['name'] and
+                                host_uuid == result_data['id']):
+                            DLOG.error("Neutron disable-host-services failed, "
+                                       "operation did not complete, host_uuid=%s, "
+                                       "host_name=%s." % (host_uuid, host_name))
+                            return
+                    else:
+                        if not future.result.data:
+                            DLOG.error("Neutron disable-host-services (agents) failed, "
+                                       "operation did not complete, host_uuid=%s, "
+                                       "host_name=%s." % (host_uuid, host_name))
+                            return
 
             response['completed'] = True
             response['reason'] = ''
