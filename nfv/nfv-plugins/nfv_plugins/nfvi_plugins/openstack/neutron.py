@@ -24,6 +24,7 @@ class NeutronExtensionNames(Constants):
     Neutron Extension Name Constants
     """
     HOST = Constant('host')
+    AGENT = Constant('agent')
 
 
 @six.add_metaclass(Singleton)
@@ -46,10 +47,20 @@ class NetworkStatus(Constants):
     ERROR = Constant('ERROR')
 
 
+@six.add_metaclass(Singleton)
+class AgentType(Constants):
+    """
+    AGENT TYPE Constants
+    """
+    L3 = Constant('L3 agent')
+    DHCP = Constant('DHCP agent')
+
+
 # Constant Instantiation
 EXTENSION_NAMES = NeutronExtensionNames()
 NETWORK_ADMIN_STATE = NetworkAdministrativeState()
 NETWORK_STATUS = NetworkStatus()
+AGENT_TYPE = AgentType()
 
 
 def lookup_extension(extension_name, extensions):
@@ -385,6 +396,51 @@ def delete_host_services(token, host_uuid):
     return response
 
 
+def delete_network_agents(token, host_name):
+    """
+    Asks OpenStack Neutron to delete agents for a host
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents?host=" + host_name
+
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    result_data = response.result_data['agents']
+
+    num_agents = 0
+    num_agents_found = 0
+    supported_agents = list()
+    for agent in AGENT_TYPE.__iter__():
+        supported_agents.append(agent)
+        num_agents = num_agents + 1
+    try:
+        for agent in result_data:
+            if (agent['host'] == host_name and
+                    agent['agent_type'] in supported_agents):
+                api_cmd = url + "/v2.0/agents/%s" % agent['id']
+                response = rest_api_request(token, "DELETE", api_cmd,
+                                            api_cmd_headers)
+                num_agents_found = num_agents_found + 1
+
+    except Exception as e:
+        DLOG.exception("Caught exception trying to delete host %s agent: %s" %
+                       (host_name, e))
+        return None
+
+    if num_agents_found != num_agents:
+        DLOG.warn("Host %s, did not find expected agents to delete"
+                  % host_name)
+
+    # Just return last response
+    return response
+
+
 def delete_host_services_by_name(token, host_name, host_uuid,
                                  only_if_changed=False):
     """
@@ -437,6 +493,62 @@ def enable_host_services(token, host_uuid):
     return response
 
 
+def enable_network_agents(token, host_name):
+    """
+    Asks OpenStack Neutron to enable agents on a host
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents?host=" + host_name
+
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    result_data = response.result_data['agents']
+
+    payload = dict()
+    payload['admin_state_up'] = True
+    api_cmd_payload = dict()
+    api_cmd_payload['agent'] = payload
+
+    num_agents = 0
+    num_agents_found = 0
+    all_enabled = True
+    supported_agents = list()
+    for agent in AGENT_TYPE.__iter__():
+        supported_agents.append(agent)
+        num_agents = num_agents + 1
+    try:
+        for agent in result_data:
+            if (agent['host'] == host_name and
+                    agent['agent_type'] in supported_agents):
+                api_cmd = url + "/v2.0/agents/%s" % agent['id']
+                response = rest_api_request(token, "PUT", api_cmd,
+                                            api_cmd_headers,
+                                            json.dumps(api_cmd_payload))
+                all_enabled = all_enabled and \
+                    response.result_data['agent']['admin_state_up']
+                num_agents_found = num_agents_found + 1
+
+    except Exception as e:
+        DLOG.exception("Caught exception trying to enable host %s agents: %s" %
+                       (host_name, e))
+        return None
+
+    if num_agents_found != num_agents:
+        DLOG.error("Host %s, did not find expected agents to enable"
+                   % host_name)
+        return None
+
+    # Return last response with aggregated admin_state_up.
+    response.result_data['agent']['admin_state_up'] = all_enabled
+    return response
+
+
 def disable_host_services(token, host_uuid):
     """
     Asks OpenStack Neutron to disable a host
@@ -462,6 +574,62 @@ def disable_host_services(token, host_uuid):
     return response
 
 
+def disable_network_agents(token, host_name):
+    """
+    Asks OpenStack Neutron to disable agents on a host
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents?host=" + host_name
+
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    result_data = response.result_data['agents']
+
+    payload = dict()
+    payload['admin_state_up'] = False
+    api_cmd_payload = dict()
+    api_cmd_payload['agent'] = payload
+
+    num_agents = 0
+    num_agents_found = 0
+    all_disabled = True
+    supported_agents = list()
+    for agent in AGENT_TYPE.__iter__():
+        supported_agents.append(agent)
+        num_agents = num_agents + 1
+    try:
+        for agent in result_data:
+            if (agent['host'] == host_name and
+                    agent['agent_type'] in supported_agents):
+                api_cmd = url + "/v2.0/agents/%s" % agent['id']
+                response = rest_api_request(token, "PUT", api_cmd,
+                                            api_cmd_headers,
+                                            json.dumps(api_cmd_payload))
+                all_disabled = all_disabled and not \
+                    response.result_data['agent']['admin_state_up']
+                num_agents_found = num_agents_found + 1
+
+    except Exception as e:
+        DLOG.exception("Caught exception trying to disable host %s agents: %s" %
+                       (host_name, e))
+        return None
+
+    if num_agents_found != num_agents:
+        DLOG.error("Host %s, did not find expected agents to disable"
+                   % host_name)
+        return None
+
+    # Return last response with aggregated admin_state_up.
+    response.result_data['agent']['admin_state_up'] = not all_disabled
+    return response
+
+
 def query_host_services(token, host_name):
     """
     Asks OpenStack Neutron for the state of services on a host
@@ -475,6 +643,7 @@ def query_host_services(token, host_name):
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
+    api_cmd_headers['host'] = host_name
 
     response = rest_api_request(token, "GET", api_cmd)
     if 0 == len(response.result_data['hosts']):
@@ -505,3 +674,70 @@ def query_host_services(token, host_name):
         host_state = 'down'
 
     return host_state
+
+
+def query_network_agents(token, host_name, check_fully_up):
+    """
+    Asks OpenStack Neutron for the state of agents on a host
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents?host=" + host_name
+
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    if 0 == len(response.result_data['agents']):
+        return None
+
+    agents_present = response.result_data.get('agents', list())
+
+    agent_state = 'up'
+    supported_agents = list()
+    for agent in AGENT_TYPE.__iter__():
+        supported_agents.append(agent)
+    try:
+        for supported_agent in supported_agents:
+            found = False
+            for agent in agents_present:
+                agent_type = agent.get('agent_type', '')
+                host = agent.get('host', '')
+                if (agent_type == supported_agent) and (host == host_name):
+                    DLOG.verbose("found agent %s for host %s" %
+                                 (supported_agent, host_name))
+                    alive = agent.get('alive', False)
+                    admin_state_up = agent.get('admin_state_up', False)
+                    # found the agent of interest.
+                    found = True
+                    break
+            if found:
+                if check_fully_up:
+                    if not (alive and admin_state_up):
+                        DLOG.warn("host %s agent %s not fully up. alive: %s,"
+                                  " admin_state_up: %s" %
+                                  (host_name, supported_agent,
+                                   alive, admin_state_up))
+                        agent_state = 'down'
+                        break
+                else:
+                    if not alive:
+                        DLOG.warn("host %s agent %s not alive" %
+                                  (host_name, alive))
+                        agent_state = 'down'
+                        break
+            else:
+                DLOG.error("host %s agent %s not present" %
+                           (host_name, supported_agent))
+                agent_state = 'down'
+                break
+
+    except Exception as e:
+        DLOG.exception("Caught exception trying to query host %s "
+                       "agent states: %s" % (host_name, e))
+        agent_state = 'down'
+
+    return agent_state
