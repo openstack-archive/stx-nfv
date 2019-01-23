@@ -15,6 +15,7 @@ from nfv_vim.database.model._instance import Instance_v4  # noqa: F401
 from nfv_vim.database.model._instance import Instance_v5  # noqa: F401
 from nfv_vim.database.model._instance_group import InstanceGroup  # noqa: F401
 from nfv_vim.database.model._instance_type import InstanceType  # noqa: F401
+from nfv_vim.database.model._instance_type import InstanceType_v5  # noqa: F401
 from nfv_vim.database.model._network import Network  # noqa: F401
 from nfv_vim.database.model._service_host import ServiceHost  # noqa: F401
 from nfv_vim.database.model._subnet import Subnet  # noqa: F401

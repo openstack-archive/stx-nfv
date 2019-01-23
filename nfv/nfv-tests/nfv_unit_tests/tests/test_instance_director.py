@@ -101,8 +101,7 @@ class TestInstanceDirector(testcase.NFVTestCase):
                                      guest_services=None,
                                      auto_recovery=True,
                                      live_migration_timeout=800,
-                                     live_migration_max_downtime=500,
-                                     storage_type='local_image')
+                                     live_migration_max_downtime=500)
         self._instance_type_table[instance_type_uuid] = instance_type
 
         self._director = InstanceDirector(

@@ -356,8 +356,7 @@ def _audit_nfvi_instance_types_callback(timer_id):
                         nfvi_instance_type.guest_services,
                         nfvi_instance_type.auto_recovery,
                         nfvi_instance_type.live_migration_timeout,
-                        nfvi_instance_type.live_migration_max_downtime,
-                        nfvi_instance_type.storage_type)
+                        nfvi_instance_type.live_migration_max_downtime)
 
             if _nfvi_instance_types_paging.done:
                 for instance_type_uuid in _deletable_instance_types:
@@ -1075,8 +1074,7 @@ def _audit_nfvi_instance_type_callback(instance_type_uuid):
                 instance_type.swap_gb, instance_type.guest_services,
                 instance_type.auto_recovery,
                 instance_type.live_migration_timeout,
-                instance_type.live_migration_max_downtime,
-                instance_type.storage_type)
+                instance_type.live_migration_max_downtime)
 
         instance_type_table = tables.tables_get_instance_type_table()
         instance_type_table[instance_type.uuid] = instance_type_obj

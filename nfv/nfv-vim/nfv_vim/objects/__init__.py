@@ -25,7 +25,6 @@ from nfv_vim.objects._instance_group import InstanceGroup  # noqa: F401
 from nfv_vim.objects._instance_type import INSTANCE_TYPE_EXTENSION  # noqa: F401
 from nfv_vim.objects._instance_type import InstanceType  # noqa: F401
 from nfv_vim.objects._instance_type import InstanceTypeAttributes  # noqa: F401
-from nfv_vim.objects._instance_type import STORAGE_TYPE  # noqa: F401
 from nfv_vim.objects._network import Network  # noqa: F401
 from nfv_vim.objects._network import NetworkProviderData  # noqa: F401
 from nfv_vim.objects._service_host import ServiceHost  # noqa: F401

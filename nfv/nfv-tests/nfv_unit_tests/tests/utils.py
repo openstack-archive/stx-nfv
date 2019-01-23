@@ -22,9 +22,6 @@ def instance_type_to_flavor_dict(instance_type):
     extra_specs[
         nfvi.objects.v1.INSTANCE_TYPE_EXTENSION.LIVE_MIGRATION_MAX_DOWNTIME] = \
         instance_type.live_migration_max_downtime
-    extra_specs[
-        nfvi.objects.v1.INSTANCE_TYPE_EXTENSION.STORAGE_TYPE] = \
-        instance_type.storage_type
     flavor['extra_specs'] = extra_specs
 
     return flavor

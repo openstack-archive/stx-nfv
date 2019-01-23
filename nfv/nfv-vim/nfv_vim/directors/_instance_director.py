@@ -1555,8 +1555,7 @@ class InstanceDirector(object):
         instance_type_attributes = \
             nfvi.objects.v1.InstanceTypeAttributes(
                 vcpus, mem_mb, disk_gb, ephemeral_gb, swap_gb, None, auto_recovery,
-                live_migration_timeout, live_migration_max_downtime,
-                nfvi.objects.v1.STORAGE_TYPE.LOCAL_IMAGE_BACKED)
+                live_migration_timeout, live_migration_max_downtime)
         nfvi.nfvi_create_instance_type(instance_type_uuid, instance_type_name,
                                        instance_type_attributes,
                                        instance_type_create_callback)

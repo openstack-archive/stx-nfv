@@ -336,12 +336,8 @@ def flavor_data_extra_get(flavor_data_extra):
         nfvi_objs.INSTANCE_TYPE_EXTENSION.LIVE_MIGRATION_MAX_DOWNTIME,
         None)
 
-    storage_type = flavor_data_extra.get(
-        nfvi_objs.INSTANCE_TYPE_EXTENSION.STORAGE_TYPE,
-        None)
-
     return (guest_heartbeat, auto_recovery, live_migration_timeout,
-            live_migration_max_downtime, storage_type)
+            live_migration_max_downtime)
 
 
 class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
@@ -1322,7 +1318,6 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
             auto_recovery = None
             live_migration_timeout = None
             live_migration_max_downtime = None
-            storage_type = None
 
             if extra_specs:
                 future.work(nova.set_flavor_extra_specs, self._token,
@@ -1335,7 +1330,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
                 flavor_data_extra = future.result.data['extra_specs']
 
                 (guest_heartbeat, auto_recovery, live_migration_timeout,
-                 live_migration_max_downtime, storage_type) = \
+                 live_migration_max_downtime) = \
                     flavor_data_extra_get(flavor_data_extra)
 
                 if guest_heartbeat is not None:
@@ -1346,8 +1341,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
                 ephemeral_gb, swap_gb, guest_services=guest_services,
                 auto_recovery=auto_recovery,
                 live_migration_timeout=live_migration_timeout,
-                live_migration_max_downtime=live_migration_max_downtime,
-                storage_type=storage_type)
+                live_migration_max_downtime=live_migration_max_downtime)
 
             response['result-data'] = instance_type_obj
             response['completed'] = True
@@ -1469,14 +1463,13 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
             auto_recovery = None
             live_migration_timeout = None
             live_migration_max_downtime = None
-            storage_type = None
 
             if future.result.is_complete():
                 flavor_data_extra = future.result.data.get('extra_specs')
                 if flavor_data_extra is not None:
 
                     (guest_heartbeat, auto_recovery, live_migration_timeout,
-                     live_migration_max_downtime, storage_type) = \
+                     live_migration_max_downtime) = \
                         flavor_data_extra_get(flavor_data_extra)
 
                     if guest_heartbeat is not None:
@@ -1497,8 +1490,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
                 ephemeral_gb, swap_gb, guest_services=guest_services,
                 auto_recovery=auto_recovery,
                 live_migration_timeout=live_migration_timeout,
-                live_migration_max_downtime=live_migration_max_downtime,
-                storage_type=storage_type)
+                live_migration_max_downtime=live_migration_max_downtime)
 
             response['result-data'] = instance_type_obj
             response['completed'] = True

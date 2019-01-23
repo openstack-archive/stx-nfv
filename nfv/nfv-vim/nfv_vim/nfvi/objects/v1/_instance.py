@@ -523,16 +523,3 @@ class Instance(ObjectData):
                 INSTANCE_TYPE_EXTENSION.LIVE_MIGRATION_MAX_DOWNTIME, None)
 
         return live_migration_max_downtime
-
-    @property
-    def instance_type_storage_type(self):
-        """
-        Returns the storage type from the flavor extra specs
-        """
-        storage_type = None
-        flavor_data_extra = self.get('instance_type').get('extra_specs', None)
-        if flavor_data_extra is not None:
-            storage_type = flavor_data_extra.get(
-                INSTANCE_TYPE_EXTENSION.STORAGE_TYPE, None)
-
-        return storage_type
