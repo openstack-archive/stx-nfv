@@ -64,7 +64,9 @@ AGENT_TYPE = AgentType()
 
 
 def get_network_agents(token, host_name):
-
+    """
+    Retrieve all network agents for a host.
+    """
     url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
     if url is None:
         raise ValueError("OpenStack Neutron URL is invalid")
@@ -498,7 +500,11 @@ def enable_host_services(token, host_uuid):
 
 def enable_network_agents(token, host_name):
     """
-    Asks OpenStack Neutron to enable agents on a host
+    Asks OpenStack Neutron to enable agents on a host.
+    Set admin_state_up to True for all agents found for a host, but
+    ensure that the set of supported agents that are managed
+    are all alive and admin_state_up is successfully set to True
+    before declaring success.
     """
     try:
         url, api_cmd, api_cmd_headers, result_data = get_network_agents(
@@ -513,20 +519,23 @@ def enable_network_agents(token, host_name):
         all_enabled = True
         supported_agents = [AGENT_TYPE.L3, AGENT_TYPE.DHCP]
         for agent in result_data:
-            if (agent['host'] == host_name and
-                    agent['agent_type'] in supported_agents):
+            if agent['host'] == host_name:
                 alive = agent.get('alive', False)
-                if not alive:
-                    DLOG.verbose("Host %s agent %s not yet alive",
-                        (host_name, agent))
+                supported = agent['agent_type'] in supported_agents
+                if (not alive) and supported:
+                    DLOG.error("Host %s %s not alive" %
+                        (host_name, agent['agent_type']))
                     return False
-                api_cmd = url + "/v2.0/agents/%s" % agent['id']
-                response = rest_api_request(token, "PUT", api_cmd,
-                                            api_cmd_headers,
-                                            json.dumps(api_cmd_payload))
-                all_enabled = all_enabled and \
-                    response.result_data['agent']['admin_state_up']
-                num_agents_found = num_agents_found + 1
+                admin_up = agent['admin_state_up']
+                if not admin_up:
+                    api_cmd = url + "/v2.0/agents/%s" % agent['id']
+                    response = rest_api_request(token, "PUT", api_cmd,
+                                                api_cmd_headers,
+                                                json.dumps(api_cmd_payload))
+                    admin_up = response.result_data['agent']['admin_state_up']
+                if supported:
+                    all_enabled = all_enabled and admin_up
+                    num_agents_found = num_agents_found + 1
 
     except Exception as e:
         DLOG.exception("Caught exception trying to enable host %s agents: %s" %
@@ -568,7 +577,9 @@ def disable_host_services(token, host_uuid):
 
 def disable_network_agents(token, host_name):
     """
-    Asks OpenStack Neutron to disable agents on a host
+    Asks OpenStack Neutron to disable the set of supported agents
+    that are managed on a host by setting the admin_state_up parameter
+    to False.  Other agents are left alone.
     """
     try:
         url, api_cmd, api_cmd_headers, result_data = get_network_agents(
@@ -653,7 +664,10 @@ def query_host_services(token, host_name):
 
 def query_network_agents(token, host_name, check_fully_up):
     """
-    Asks OpenStack Neutron for the state of agents on a host
+    Asks OpenStack Neutron for the state of the supported agents
+    that are managed on a host.
+    Input parameter check_fully_up set to True will check for
+    both alive and admin_state_up, otherwise only alive is checked.
     """
     try:
         url, api_cmd, api_cmd_headers, result_data = get_network_agents(
