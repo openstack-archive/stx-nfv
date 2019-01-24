@@ -513,20 +513,20 @@ def enable_network_agents(token, host_name):
         all_enabled = True
         supported_agents = [AGENT_TYPE.L3, AGENT_TYPE.DHCP]
         for agent in result_data:
-            if (agent['host'] == host_name and
-                    agent['agent_type'] in supported_agents):
+            if agent['host'] == host_name:
                 alive = agent.get('alive', False)
                 if not alive:
                     DLOG.verbose("Host %s agent %s not yet alive",
                         (host_name, agent))
-                    return False
+                    continue
                 api_cmd = url + "/v2.0/agents/%s" % agent['id']
                 response = rest_api_request(token, "PUT", api_cmd,
                                             api_cmd_headers,
                                             json.dumps(api_cmd_payload))
-                all_enabled = all_enabled and \
-                    response.result_data['agent']['admin_state_up']
-                num_agents_found = num_agents_found + 1
+                if agent['agent_type'] in supported_agents:
+                    all_enabled = all_enabled and \
+                        response.result_data['agent']['admin_state_up']
+                    num_agents_found = num_agents_found + 1
 
     except Exception as e:
         DLOG.exception("Caught exception trying to enable host %s agents: %s" %
