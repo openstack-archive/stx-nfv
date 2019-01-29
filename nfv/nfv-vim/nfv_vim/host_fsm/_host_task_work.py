@@ -710,6 +710,8 @@ class WaitHostServicesCreatedTaskWork(state_machine.StateTaskWork):
         """
         Callback for wait host services created
         """
+        from nfv_vim import objects
+
         response = (yield)
         self._query_inprogress = False
 
@@ -719,6 +721,12 @@ class WaitHostServicesCreatedTaskWork(state_machine.StateTaskWork):
                          (self._service, self._host.name, response))
 
             if response['completed']:
+                if (self._service == objects.HOST_SERVICES.NETWORK and
+                        response['result-data'] != 'enabled'):
+                    DLOG.verbose("Wait-Host-Services-Created callback for %s, "
+                                 "service %s failed" % (self._service,
+                                                        self._host.name))
+                    return
                 # A completed response means the service exists.
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
@@ -740,6 +748,13 @@ class WaitHostServicesCreatedTaskWork(state_machine.StateTaskWork):
             self._query_inprogress = True
             nfvi.nfvi_query_compute_host_services(
                 self._host.uuid, self._host.name, self._host.personality,
+                self._callback())
+        elif self._service == objects.HOST_SERVICES.NETWORK:
+            self._query_inprogress = True
+            check_fully_up = False
+            nfvi.nfvi_query_network_host_services(
+                self._host.uuid, self._host.name, self._host.personality,
+                check_fully_up,
                 self._callback())
         else:
             reason = ("Trying to wait for unknown host service %s" %
@@ -767,6 +782,13 @@ class WaitHostServicesCreatedTaskWork(state_machine.StateTaskWork):
                     nfvi.nfvi_query_compute_host_services(
                         self._host.uuid, self._host.name,
                         self._host.personality,
+                        self._callback())
+                elif self._service == objects.HOST_SERVICES.NETWORK:
+                    check_fully_up = False
+                    nfvi.nfvi_query_network_host_services(
+                        self._host.uuid, self._host.name,
+                        self._host.personality,
+                        check_fully_up,
                         self._callback())
             handled = True
 
@@ -1210,8 +1232,10 @@ class AuditHostServicesTaskWork(state_machine.StateTaskWork):
                 self._host.uuid, self._host.name, self._host.personality,
                 self._callback())
         elif self._service == objects.HOST_SERVICES.NETWORK:
+            check_fully_up = True
             nfvi.nfvi_query_network_host_services(
                 self._host.uuid, self._host.name, self._host.personality,
+                check_fully_up,
                 self._callback())
         else:
             reason = ("Trying to query unknown "
