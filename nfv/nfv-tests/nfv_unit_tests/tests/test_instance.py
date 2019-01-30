@@ -217,6 +217,7 @@ class TestInstance(testcase.NFVTestCase):
             target_load=target_load,
             openstack_compute=False,
             openstack_control=False,
+            remote_storage=False,
             uptime='1000'
         )
 

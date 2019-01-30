@@ -318,6 +318,13 @@ class Host(ObjectData):
         return self._nfvi_host.openstack_control
 
     @property
+    def remote_storage(self):
+        """
+        Returns remote_storage for this host
+        """
+        return self._nfvi_host.remote_storage
+
+    @property
     def recover_instances(self):
         """
         Returns true if the instances on this host are allowed to be recovered
