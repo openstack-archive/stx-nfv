@@ -23,6 +23,7 @@ def _migrate_hosts_v5_to_v6(session, hosts_v5, hosts_v6):
             nfvi_host_data = json.loads(host_v5.nfvi_host_data)
             nfvi_host_data['openstack_compute'] = False
             nfvi_host_data['openstack_control'] = False
+            nfvi_host_data['remote_storage'] = False
             host_v6.nfvi_host_data = json.dumps(nfvi_host_data)
             session.add(host_v6)
 
