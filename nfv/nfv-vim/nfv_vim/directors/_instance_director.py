@@ -398,7 +398,9 @@ class InstanceDirector(object):
                             host_operation.update_failure_reason(reason)
                             return
                     else:
-                        if not instance.can_cold_migrate(system_initiated=True):
+                        if not instance.can_cold_migrate(
+                                system_initiated=True,
+                                remote_storage=host.remote_storage):
                             reason = ("%s %s failed because instance %s "
                                       "can't be cold-migrated by the system.  "
                                       "Manually move the instance off of host %s."
@@ -453,7 +455,9 @@ class InstanceDirector(object):
                                           "live-migrate instance")
                             continue
                     else:
-                        if not instance.can_cold_migrate(system_initiated=True):
+                        if not instance.can_cold_migrate(
+                                system_initiated=True,
+                                remote_storage=host.remote_storage):
                             DLOG.info("Instance %s set as failed on host %s "
                                       "because the system can't cold-migrate "
                                       "instance." % (instance.name, host.name))
@@ -599,7 +603,9 @@ class InstanceDirector(object):
                                                 OPERATION_STATE.FAILED)
                     host_operation.update_failure_reason(reason)
                     return
-                elif not instance.can_evacuate(system_initiated=True):
+                elif not instance.can_evacuate(
+                            system_initiated=True,
+                            remote_storage=host.remote_storage):
                     reason = ("Lock of host %s failed because instance %s "
                               "can't be evacuated by the system.  Manually "
                               "move the instance off of host %s."
@@ -616,7 +622,9 @@ class InstanceDirector(object):
             if do_evacuates:
                 if evacuates_inprogress < self._max_concurrent_evacuates_per_host:
                     if instance.auto_recovery and instance.recoverable and \
-                            instance.can_evacuate(system_initiated=True):
+                            instance.can_evacuate(
+                                system_initiated=True,
+                                remote_storage=host.remote_storage):
                         host_operation.add_instance(instance.uuid,
                                                     OPERATION_STATE.INPROGRESS)
 
@@ -1298,7 +1306,9 @@ class InstanceDirector(object):
                         host_operation.update_failure_reason(reason)
                         return False
                 elif objects.INSTANCE_ACTION_TYPE.COLD_MIGRATE == operation:
-                    if not instance.can_cold_migrate(system_initiated=True):
+                    if not instance.can_cold_migrate(
+                            system_initiated=True,
+                            remote_storage=host.remote_storage):
                         reason = ("Lock of host %s rejected because instance %s "
                                   "can't be cold-migrated by the system.  "
                                   "Manually move the instance off of host %s."
@@ -1309,7 +1319,9 @@ class InstanceDirector(object):
                         host_operation.update_failure_reason(reason)
                         return False
                 elif objects.INSTANCE_ACTION_TYPE.EVACUATE == operation:
-                    if not instance.can_evacuate(system_initiated=True):
+                    if not instance.can_evacuate(
+                            system_initiated=True,
+                            remote_storage=host.remote_storage):
                         reason = ("Lock of host %s rejected because instance %s "
                                   "can't be evacuated by the system.  Manually "
                                   "move the instance off of host %s."
@@ -1659,27 +1671,33 @@ class InstanceDirector(object):
                             method = objects.INSTANCE_ACTION_TYPE.REBOOT
                     else:
                         method = objects.INSTANCE_ACTION_TYPE.REBOOT
-
-            elif instance.can_evacuate(system_initiated=True):
-                if dor.dor_is_complete():
-                    method = objects.INSTANCE_ACTION_TYPE.EVACUATE
-                    if instance.is_rebooting():
-                        force_fail = True
-                        instance.cancel_action(objects.INSTANCE_ACTION_TYPE.REBOOT)
+            else:
+                host_table = tables.tables_get_host_table()
+                host = host_table.get(instance.host_name, None)
+                if host is not None:
+                    remote_storage = host.remote_storage
                 else:
-                    host_table = tables.tables_get_host_table()
-                    host = host_table.get(instance.host_name, None)
-                    if host is None:
+                    remote_storage = False
+                if instance.can_evacuate(
+                        system_initiated=True,
+                        remote_storage=remote_storage):
+                    if dor.dor_is_complete():
                         method = objects.INSTANCE_ACTION_TYPE.EVACUATE
                         if instance.is_rebooting():
                             force_fail = True
-                            instance.cancel_action(
-                                objects.INSTANCE_ACTION_TYPE.REBOOT)
-            else:
-                DLOG.info("Instance %s can't be evacuated by the system."
-                          % instance.name)
-                if not instance.is_failed() or force_fail:
-                    instance.fail(fail_reason)
+                            instance.cancel_action(objects.INSTANCE_ACTION_TYPE.REBOOT)
+                    else:
+                        if host is None:
+                            method = objects.INSTANCE_ACTION_TYPE.EVACUATE
+                            if instance.is_rebooting():
+                                force_fail = True
+                                instance.cancel_action(
+                                    objects.INSTANCE_ACTION_TYPE.REBOOT)
+                else:
+                    DLOG.info("Instance %s can't be evacuated by the system."
+                              % instance.name)
+                    if not instance.is_failed() or force_fail:
+                        instance.fail(fail_reason)
 
         if method is not None:
             DLOG.info("Attempt recovery of instance %s by %s, "

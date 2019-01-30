@@ -1452,7 +1452,8 @@ class Instance(ObjectData):
         """
         return True
 
-    def can_cold_migrate(self, system_initiated=False):
+    def can_cold_migrate(self, system_initiated=False,
+                         remote_storage=False):
         """
         Returns true if the instance can be cold-migrated
         """
@@ -1464,9 +1465,10 @@ class Instance(ObjectData):
             # Always allow cold migration when booted from a volume
             return True
 
-        # TODO(bwensley): Always allow cold migration for instances using
-        # remote storage. There is currently no way to determine this, but we
-        # should eventually be able to check for a label on the compute host.
+        if remote_storage:
+            # Always allow cold migration for instances using
+            # remote storage.
+            return True
 
         config_option = 'max_cold_migrate_local_image_disk_gb'
 
@@ -1483,7 +1485,8 @@ class Instance(ObjectData):
             return False
         return True
 
-    def can_evacuate(self, system_initiated=False):
+    def can_evacuate(self, system_initiated=False,
+                     remote_storage=False):
         """
         Returns true if the instance can be evacuated
         """
@@ -1495,9 +1498,10 @@ class Instance(ObjectData):
             # Always allow evacuate when booted from a volume
             return True
 
-        # TODO(bwensley): Always allow evacuate for instances using remote
-        # storage. There is currently no way to determine this, but we should
-        # eventually be able to check for a label on the compute host.
+        if remote_storage:
+            # Always allow evacuation for instances using
+            # remote storage
+            return True
 
         config_option = 'max_evacuate_local_image_disk_gb'
 
