@@ -172,8 +172,9 @@ class EnableHostTask(state_machine.StateTask):
                 self, host, objects.HOST_SERVICES.GUEST))
         task_work_list.append(NotifyHostServicesEnabledTaskWork(
             self, host, force_pass=True))
-        task_work_list.append(QueryHypervisorTaskWork(
-            self, host, force_pass=True))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(QueryHypervisorTaskWork(
+                self, host, force_pass=True))
         super(EnableHostTask, self).__init__(
             'enable-host_%s' % host.name, task_work_list)
 
@@ -236,8 +237,9 @@ class DisableHostTask(state_machine.StateTask):
         if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
             task_work_list.append(DisableHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.CONTAINER))
-        task_work_list.append(QueryHypervisorTaskWork(
-            self, host, force_pass=True))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(QueryHypervisorTaskWork(
+                self, host, force_pass=True))
         task_work_list.append(NotifyInstancesHostDisablingTaskWork(self, host))
         if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
             task_work_list.append(NotifyHostDisabledTaskWork(
@@ -248,8 +250,9 @@ class DisableHostTask(state_machine.StateTask):
         task_work_list.append(NotifyInstancesHostDisabledTaskWork(self, host))
         task_work_list.append(notify_host_services_task(
             self, host, force_pass=True))
-        task_work_list.append(QueryHypervisorTaskWork(
-            self, host, force_pass=True))
+        if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
+            task_work_list.append(QueryHypervisorTaskWork(
+                self, host, force_pass=True))
         super(DisableHostTask, self).__init__(
             'disable-host_%s' % host.name, task_work_list)
 
