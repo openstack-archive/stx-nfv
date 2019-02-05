@@ -669,49 +669,45 @@ def query_network_agents(token, host_name, check_fully_up):
     Input parameter check_fully_up set to True will check for
     both alive and admin_state_up, otherwise only alive is checked.
     """
-    try:
-        url, api_cmd, api_cmd_headers, result_data = get_network_agents(
-            token, host_name)
+    url, api_cmd, api_cmd_headers, result_data = get_network_agents(
+        token, host_name)
 
-        agent_state = 'up'
-        supported_agents = [AGENT_TYPE.L3, AGENT_TYPE.DHCP]
-        for supported_agent in supported_agents:
-            found = False
-            for agent in result_data:
-                agent_type = agent.get('agent_type', '')
-                host = agent.get('host', '')
-                if (agent_type == supported_agent) and (host == host_name):
-                    DLOG.verbose("found agent %s for host %s" %
-                                 (supported_agent, host_name))
-                    alive = agent.get('alive', False)
-                    admin_state_up = agent.get('admin_state_up', False)
-                    # found the agent of interest.
-                    found = True
-                    break
-            if found:
-                if check_fully_up:
-                    if not (alive and admin_state_up):
-                        DLOG.verbose("host %s agent %s not fully up. alive: %s,"
-                                     " admin_state_up: %s" %
-                                     (host_name, supported_agent,
-                                      alive, admin_state_up))
-                        agent_state = 'down'
-                        break
-                else:
-                    if not alive:
-                        DLOG.verbose("host %s agent %s not alive" %
-                                     (host_name, supported_agent))
-                        agent_state = 'down'
-                        break
-            else:
-                DLOG.error("host %s agent %s not present" %
-                           (host_name, supported_agent))
-                agent_state = 'down'
+    agent_state = 'up'
+    alive = False
+    admin_state_up = False
+    supported_agents = [AGENT_TYPE.L3, AGENT_TYPE.DHCP]
+    for supported_agent in supported_agents:
+        found = False
+        for agent in result_data:
+            agent_type = agent.get('agent_type', '')
+            host = agent.get('host', '')
+            if (agent_type == supported_agent) and (host == host_name):
+                DLOG.verbose("found agent %s for host %s" %
+                             (supported_agent, host_name))
+                alive = agent.get('alive', False)
+                admin_state_up = agent.get('admin_state_up', False)
+                # found the agent of interest.
+                found = True
                 break
-
-    except Exception as e:
-        DLOG.exception("Caught exception trying to query host %s "
-                       "agent states: %s" % (host_name, e))
-        agent_state = 'down'
+        if found:
+            if check_fully_up:
+                if not (alive and admin_state_up):
+                    DLOG.verbose("host %s agent %s not fully up. alive: %s,"
+                                 " admin_state_up: %s" %
+                                 (host_name, supported_agent,
+                                  alive, admin_state_up))
+                    agent_state = 'down'
+                    break
+            else:
+                if not alive:
+                    DLOG.verbose("host %s agent %s not alive" %
+                                 (host_name, supported_agent))
+                    agent_state = 'down'
+                    break
+        else:
+            DLOG.error("host %s agent %s not present" %
+                       (host_name, supported_agent))
+            agent_state = 'down'
+            break
 
     return agent_state

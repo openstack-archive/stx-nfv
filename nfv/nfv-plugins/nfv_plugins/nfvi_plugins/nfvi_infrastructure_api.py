@@ -884,34 +884,21 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
             if self._host_supports_kubernetes(host_personality):
-                if True:
-                    # For now, we do not want to apply the NoExecute taint.
-                    # When the VIM detects that a service is failed on a host,
-                    # it goes through a disable/enable cycle. This would cause
-                    # the NoExecute taint to be applied/removed which causes
-                    # most pods to be stopped/started. If the pods don't come
-                    # back quickly enough the VIM will attempt another
-                    # disable/enable, which can go on forever. For now,
-                    # we will just avoid tainting hosts.
-                    # TODO(bwensley): Rework when support for pure k8s hosts is
-                    # added.
-                    pass
-                else:
-                    response['reason'] = 'failed to disable kubernetes services'
+                response['reason'] = 'failed to disable kubernetes services'
 
-                    # To disable kubernetes we add the NoExecute taint to the
-                    # node. This removes pods that can be scheduled elsewhere
-                    # and prevents new pods from scheduling on the node.
-                    future.work(kubernetes_client.taint_node,
-                                host_name, "NoExecute", "services", "disabled")
+                # To disable kubernetes we add the NoExecute taint to the
+                # node. This removes pods that can be scheduled elsewhere
+                # and prevents new pods from scheduling on the node.
+                future.work(kubernetes_client.taint_node,
+                            host_name, "NoExecute", "services", "disabled")
 
-                    future.result = (yield)
+                future.result = (yield)
 
-                    if not future.result.is_complete():
-                        DLOG.error("Kubernetes taint_node failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
+                if not future.result.is_complete():
+                    DLOG.error("Kubernetes taint_node failed, operation "
+                               "did not complete, host_uuid=%s, host_name=%s."
+                               % (host_uuid, host_name))
+                    return
 
             response['completed'] = True
             response['reason'] = ''
