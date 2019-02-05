@@ -88,6 +88,7 @@ class KubernetesLabelKeys(Constants):
     """
     OS_COMPUTE_NODE = Constant('openstack-compute-node')
     OS_CONTROL_PLANE = Constant('openstack-control-plane')
+    REMOTE_STORAGE = Constant('remote-storage')
 
 
 # Host Constant Instantiation
@@ -108,6 +109,7 @@ class Host(ObjectData):
                  avail_status, action, uptime, software_load, target_load,
                  openstack_compute=False,
                  openstack_control=False,
+                 remote_storage=False,
                  nfvi_data=None):
         super(Host, self).__init__('1.0.0')
         self.update(dict(uuid=uuid, name=name, personality=personality,
@@ -119,6 +121,7 @@ class Host(ObjectData):
                          software_load=software_load,
                          target_load=target_load,
                          openstack_compute=openstack_compute,
-                         openstack_control=openstack_control))
+                         openstack_control=openstack_control,
+                         remote_storage=remote_storage))
 
         self.nfvi_data = nfvi_data

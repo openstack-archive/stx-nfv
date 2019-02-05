@@ -1456,6 +1456,8 @@ class Instance(ObjectData):
         """
         Returns true if the instance can be cold-migrated
         """
+        from nfv_vim import tables
+
         if not system_initiated:
             # Always allow user initiated cold migration
             return True
@@ -1464,9 +1466,14 @@ class Instance(ObjectData):
             # Always allow cold migration when booted from a volume
             return True
 
-        # TODO(bwensley): Always allow cold migration for instances using
-        # remote storage. There is currently no way to determine this, but we
-        # should eventually be able to check for a label on the compute host.
+        host_table = tables.tables_get_host_table()
+        host = host_table.get(self.host_name, None)
+
+        if host is not None:
+            if host.remote_storage:
+                # Always allow cold migration for instances using
+                # remote storage
+                return True
 
         config_option = 'max_cold_migrate_local_image_disk_gb'
 
@@ -1487,6 +1494,8 @@ class Instance(ObjectData):
         """
         Returns true if the instance can be evacuated
         """
+        from nfv_vim import tables
+
         if not system_initiated:
             # Always allow user initiated evacuate
             return True
@@ -1495,9 +1504,14 @@ class Instance(ObjectData):
             # Always allow evacuate when booted from a volume
             return True
 
-        # TODO(bwensley): Always allow evacuate for instances using remote
-        # storage. There is currently no way to determine this, but we should
-        # eventually be able to check for a label on the compute host.
+        host_table = tables.tables_get_host_table()
+        host = host_table.get(self.host_name, None)
+
+        if host is not None:
+            if host.remote_storage:
+                # Always allow evacuation for instances using
+                # remote storage
+                return True
 
         config_option = 'max_evacuate_local_image_disk_gb'
 
