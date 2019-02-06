@@ -134,9 +134,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
         openstack_compute = False
         openstack_control = False
+        remote_storage = False
 
         OS_COMPUTE = nfvi.objects.v1.HOST_LABEL_KEYS.OS_COMPUTE_NODE
         OS_CONTROL = nfvi.objects.v1.HOST_LABEL_KEYS.OS_CONTROL_PLANE
+        REMOTE_STORAGE = nfvi.objects.v1.HOST_LABEL_KEYS.REMOTE_STORAGE
         LABEL_ENABLED = nfvi.objects.v1.HOST_LABEL_VALUES.ENABLED
 
         for host_label in host_label_list:
@@ -147,8 +149,11 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             elif host_label['label_key'] == OS_CONTROL:
                 if host_label['label_value'] == LABEL_ENABLED:
                     openstack_control = True
+            elif host_label['label_key'] == REMOTE_STORAGE:
+                if host_label['label_value'] == LABEL_ENABLED:
+                    remote_storage = True
 
-        return (openstack_compute, openstack_control)
+        return (openstack_compute, openstack_control, remote_storage)
 
     def __init__(self):
         super(NFVIInfrastructureAPI, self).__init__()
@@ -378,7 +383,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
                 host_label_list = future.result.data['labels']
 
-                openstack_compute, openstack_control = self._get_host_labels(host_label_list)
+                openstack_compute, openstack_control, remote_storage = \
+                    self._get_host_labels(host_label_list)
 
                 admin_state, oper_state, avail_status, nfvi_data \
                     = host_state(host_uuid, host_name, host_personality,
@@ -400,6 +406,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                                 target_load,
                                                 openstack_compute,
                                                 openstack_control,
+                                                remote_storage,
                                                 nfvi_data)
 
                 host_objs.append(host_obj)
@@ -520,7 +527,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_label_list = future.result.data['labels']
 
-            openstack_compute, openstack_control = self._get_host_labels(host_label_list)
+            openstack_compute, openstack_control, remote_storage = \
+                self._get_host_labels(host_label_list)
 
             host_obj = nfvi.objects.v1.Host(host_uuid, host_name,
                                             host_sub_functions,
@@ -532,6 +540,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                             target_load,
                                             openstack_compute,
                                             openstack_control,
+                                            remote_storage,
                                             nfvi_data)
 
             response['result-data'] = host_obj
@@ -884,34 +893,21 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
             future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
 
             if self._host_supports_kubernetes(host_personality):
-                if True:
-                    # For now, we do not want to apply the NoExecute taint.
-                    # When the VIM detects that a service is failed on a host,
-                    # it goes through a disable/enable cycle. This would cause
-                    # the NoExecute taint to be applied/removed which causes
-                    # most pods to be stopped/started. If the pods don't come
-                    # back quickly enough the VIM will attempt another
-                    # disable/enable, which can go on forever. For now,
-                    # we will just avoid tainting hosts.
-                    # TODO(bwensley): Rework when support for pure k8s hosts is
-                    # added.
-                    pass
-                else:
-                    response['reason'] = 'failed to disable kubernetes services'
+                response['reason'] = 'failed to disable kubernetes services'
 
-                    # To disable kubernetes we add the NoExecute taint to the
-                    # node. This removes pods that can be scheduled elsewhere
-                    # and prevents new pods from scheduling on the node.
-                    future.work(kubernetes_client.taint_node,
-                                host_name, "NoExecute", "services", "disabled")
+                # To disable kubernetes we add the NoExecute taint to the
+                # node. This removes pods that can be scheduled elsewhere
+                # and prevents new pods from scheduling on the node.
+                future.work(kubernetes_client.taint_node,
+                            host_name, "NoExecute", "services", "disabled")
 
-                    future.result = (yield)
+                future.result = (yield)
 
-                    if not future.result.is_complete():
-                        DLOG.error("Kubernetes taint_node failed, operation "
-                                   "did not complete, host_uuid=%s, host_name=%s."
-                                   % (host_uuid, host_name))
-                        return
+                if not future.result.is_complete():
+                    DLOG.error("Kubernetes taint_node failed, operation "
+                               "did not complete, host_uuid=%s, host_name=%s."
+                               % (host_uuid, host_name))
+                    return
 
             response['completed'] = True
             response['reason'] = ''
@@ -1006,7 +1002,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_label_list = future.result.data['labels']
 
-            openstack_compute, openstack_control = self._get_host_labels(host_label_list)
+            openstack_compute, openstack_control, remote_storage = \
+                self._get_host_labels(host_label_list)
 
             host_obj = nfvi.objects.v1.Host(host_uuid, host_name,
                                             host_sub_functions,
@@ -1018,6 +1015,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                             target_load,
                                             openstack_compute,
                                             openstack_control,
+                                            remote_storage,
                                             nfvi_data)
 
             response['result-data'] = host_obj
@@ -1122,7 +1120,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_label_list = future.result.data['labels']
 
-            openstack_compute, openstack_control = self._get_host_labels(host_label_list)
+            openstack_compute, openstack_control, remote_storage = \
+                self._get_host_labels(host_label_list)
 
             host_obj = nfvi.objects.v1.Host(host_uuid, host_name,
                                             host_sub_functions,
@@ -1134,6 +1133,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                             target_load,
                                             openstack_compute,
                                             openstack_control,
+                                            remote_storage,
                                             nfvi_data)
 
             response['result-data'] = host_obj
@@ -1237,7 +1237,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_label_list = future.result.data['labels']
 
-            openstack_compute, openstack_control = self._get_host_labels(host_label_list)
+            openstack_compute, openstack_control, remote_storage = \
+                self._get_host_labels(host_label_list)
 
             host_obj = nfvi.objects.v1.Host(host_uuid, host_name,
                                             host_sub_functions,
@@ -1249,6 +1250,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                             target_load,
                                             openstack_compute,
                                             openstack_control,
+                                            remote_storage,
                                             nfvi_data)
 
             response['result-data'] = host_obj
@@ -1351,7 +1353,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_label_list = future.result.data['labels']
 
-            openstack_compute, openstack_control = self._get_host_labels(host_label_list)
+            openstack_compute, openstack_control, remote_storage = \
+                self._get_host_labels(host_label_list)
 
             host_obj = nfvi.objects.v1.Host(host_uuid, host_name,
                                             host_sub_functions,
@@ -1363,6 +1366,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                             target_load,
                                             openstack_compute,
                                             openstack_control,
+                                            remote_storage,
                                             nfvi_data)
 
             response['result-data'] = host_obj
@@ -1518,7 +1522,8 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
             host_label_list = future.result.data['labels']
 
-            openstack_compute, openstack_control = self._get_host_labels(host_label_list)
+            openstack_compute, openstack_control, remote_storage = \
+                self._get_host_labels(host_label_list)
 
             host_obj = nfvi.objects.v1.Host(host_uuid, host_name,
                                             host_sub_functions,
@@ -1530,6 +1535,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                                             target_load,
                                             openstack_compute,
                                             openstack_control,
+                                            remote_storage,
                                             nfvi_data)
 
             response['result-data'] = host_obj

@@ -234,9 +234,6 @@ class DisableHostTask(state_machine.StateTask):
         if host.host_service_configured(objects.HOST_SERVICES.GUEST):
             task_work_list.append(DisableHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.GUEST))
-        if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
-            task_work_list.append(DisableHostServicesTaskWork(
-                self, host, objects.HOST_SERVICES.CONTAINER))
         if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
             task_work_list.append(QueryHypervisorTaskWork(
                 self, host, force_pass=True))
@@ -248,6 +245,17 @@ class DisableHostTask(state_machine.StateTask):
             task_work_list.append(NotifyHostDisabledTaskWork(
                 self, host, objects.HOST_SERVICES.NETWORK))
         task_work_list.append(NotifyInstancesHostDisabledTaskWork(self, host))
+        if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
+            # Only disable the container services if the host is being locked
+            # and we are not running in a single controller configuration. In
+            # a single controller configuration we keep the container services
+            # running.
+            if self._host.is_locking():
+                from nfv_vim import directors
+                sw_mgmt_director = directors.get_sw_mgmt_director()
+                if not sw_mgmt_director.single_controller:
+                    task_work_list.append(DisableHostServicesTaskWork(
+                        self, host, objects.HOST_SERVICES.CONTAINER))
         task_work_list.append(notify_host_services_task(
             self, host, force_pass=True))
         if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
@@ -443,8 +451,21 @@ class NotifyDisabledHostTask(state_machine.StateTask):
     Notify Disabled Host Task
     """
     def __init__(self, host):
+        from nfv_vim import objects
+
         self._host_reference = weakref.ref(host)
         task_work_list = list()
+        if host.host_service_configured(objects.HOST_SERVICES.CONTAINER):
+            # Only disable the container services if the host is being locked
+            # and we are not running in a single controller configuration. In
+            # a single controller configuration we keep the container services
+            # running.
+            if self._host.is_locking():
+                from nfv_vim import directors
+                sw_mgmt_director = directors.get_sw_mgmt_director()
+                if not sw_mgmt_director.single_controller:
+                    task_work_list.append(DisableHostServicesTaskWork(
+                        self, host, objects.HOST_SERVICES.CONTAINER))
         task_work_list.append(NotifyHostServicesDisabledTaskWork(
             self, host, force_pass=True))
         super(NotifyDisabledHostTask, self).__init__(

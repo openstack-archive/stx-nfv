@@ -38,6 +38,13 @@ class SwMgmtDirector(object):
         """
         return self._sw_update
 
+    @property
+    def single_controller(self):
+        """
+        Returns whether this is a single controller configuration
+        """
+        return self._single_controller
+
     def create_sw_patch_strategy(self, controller_apply_type, storage_apply_type,
                                  swift_apply_type, worker_apply_type,
                                  max_parallel_worker_hosts,
