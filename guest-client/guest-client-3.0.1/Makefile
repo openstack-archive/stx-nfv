@@ -1,5 +1,5 @@
 #
-#   Copyright(c) 2013-2016, Wind River Systems, Inc. 
+#   Copyright(c) 2013-2016, Wind River Systems, Inc.
 #
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions
@@ -29,13 +29,16 @@
 #
 SHELL = /bin/sh
 
+VERSION := 3.0.1
+
 ## Configuration Directory Variables
 prefix := /usr/local
 exec_prefix := $(prefix)
-sysconfdir := $(prefix)/etc
+sysconfdir := /etc
 includedir := $(prefix)/include
 libdir := $(exec_prefix)/lib
 bindir := $(exec_prefix)/bin
+unitdir := /usr/lib/systemd/system
 
 MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR := $(patsubst %/,%,$(dir $(MAKEFILE_PATH)))
@@ -43,6 +46,7 @@ PARENT_DIR := $(patsubst %/,%,$(dir $(CURRENT_DIR)))
 BUILD_DIR := $(CURRENT_DIR)/build
 PACKAGE_DIR := $(BUILD_DIR)/package
 PACKAGE_ROOT_DIR := $(PACKAGE_DIR)/rootdir
+SDK_DEPLOY_DIR := /opt/deplot/cgcs_sdk
 
 ARCHIVE_NAME := wrs-guest-client-3.0.1
 ARCHIVE_PKG_NAME := wrs-guest-client-3.0.1_pkg
@@ -110,9 +114,22 @@ package:
 	@(cd $(BUILD_DIR); tar -pczf $(ARCHIVE_PKG_NAME).tgz \
 	$(ARCHIVE_PKG_NAME)/* --directory $(PACKAGE_DIR))
 
-install: package
-	@(echo "Installing ...")
-	@(cd $(PACKAGE_DIR); ./guest-client.pkg install $(INIT_TYPE) $(DESTDIR))
+install:
+	install -m 750 -d $(prefix)
+	install -m 750 -d $(includedir)
+	install -m 750 -d $(includedir)/guest-client
+	install -m 640 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $(includedir)/guest-client/guest_heartbeat_msg_defs.h
+	install -m 755 -d $(SDK_DEPLOY_DIR)
+	install -m 640 build/wrs-guest-heartbeat-$(VERSION).tgz $(SDK_DEPLOY_DIR)
+	install -m 644 -p -D guest_client/scripts/guest-client.service $(unitdir)/guest-client.service
+	install -m 744 -p -D guest_client/scripts/guest-client.systemd $(sysconfdir)/guest-client/guest-client.systemd
+	install -m 750 -d $(sysconfdir)/guest-client/heartbeat
+	install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf $(sysconfdir)/guest-client/heartbeat/guest_heartbeat.conf
+	install -m 755 -p -D guest_client/scripts/sample_event_handling_script $(sysconfdir)/guest-client/heartbeat/sample_event_handling_script
+	install -m 755 -p -D guest_client/scripts/sample_health_check_script $(sysconfdir)/guest-client/heartbeat/sample_health_check_script
+	install -m 640 -p -D build/guest-client $(prefix)/local/bin/guest-client
+	install -m 640 -p -D build/libguest_common_api.so.$(VERSION) $(prefix)/local/lib/libguest_common_api.so.$(VERSION)
+	install -m 640 -p -D build/libguest_heartbeat_api.so.$(VERSION) $(prefix)/local/lib/libguest_heartbeat_api.so.$(VERSION)
 
 uninstall: package
 	@(echo "Uninstalling ...")
