@@ -64,33 +64,13 @@ MINOR=`echo $VER | awk -F . '{print $2}'`
 PATCH=%{patchlevel}
 make all VER=${VER} MAJOR=${MAJOR} MINOR=${MINOR} PATCH=${PATCH}
 
-%global _buildsubdir %{_builddir}/%{name}-%{version}
-
 %install
-install -d 750 -d %{buildroot}/usr/sbin
-install -d 750 -d %{buildroot}%{_sysconfdir}/init.d
-
-install -m 750 -d %{buildroot}/usr
-install -m 750 -d %{buildroot}/usr/src
-install -m 750 -d %{buildroot}/usr/src/debug
-install -m 750 -d %{buildroot}/usr/src/debug/%{name}-%{version}
-install -d 750 -d %{buildroot}/usr/sbin/.debug
-
-install -m 750 %{_buildsubdir}/scripts/app_scale_helper	 %{buildroot}/usr/sbin/app_scale_helper
-install -m 750 %{_buildsubdir}/scripts/offline_cpus	 %{buildroot}/usr/sbin/offline_cpus
-install -m 750 %{_buildsubdir}/bin/guest_scale_helper 	 %{buildroot}/usr/sbin/guest_scale_helper
-install -m 750 %{_buildsubdir}/bin/guest_scale_agent 	 %{buildroot}/usr/sbin/guest_scale_agent
-install -m 750 %{_buildsubdir}/scripts/init_offline_cpus %{buildroot}/etc/init.d/offline_cpus
-install -m 750 %{_buildsubdir}/bin/guest_scale_agent 	 %{buildroot}/usr/sbin/.debug/guest_scale_agent
-
-install -d %{buildroot}%{_unitdir}
-install -m 750 %{_buildsubdir}/scripts/offline-cpus.service %{buildroot}%{_unitdir}/offline-cpus.service
-install -m 750 %{_buildsubdir}/scripts/guest-scale-agent.service %{buildroot}%{_unitdir}/guest-scale-agent.service
-
-# Deploy to the SDK deployment directory
-install -d %{buildroot}%{cgcs_sdk_deploy_dir}
-install -m 644 sdk/wrs-guest-scale-%{version}.%{patchlevel}.tgz  %{buildroot}%{cgcs_sdk_deploy_dir}/wrs-guest-scale-%{version}.%{patchlevel}.tgz
-
+make install \
+     DESTDIR=%{buildroot} \
+     SYSCONFDIR=%{buildroot}%{_sysconfdir} \
+     VERSION=%{version} PATCH=%{tis_patch_ver}\
+     UNITDIR=%{buildroot}%{_unitdir} \
+     SDK_DEPLOY_DIR=%{buildroot}%{cgcs_sdk_deploy_dir}
 
 %post
 %systemd_post offline-cpus.service
