@@ -3459,11 +3459,14 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         self._directory = openstack.get_directory(
             config, openstack.SERVICE_CATEGORY.OPENSTACK)
 
+        # The name of the listener queue must be prefixed with "notfications."
+        # to ensure the nova vhost policy matches it and configures it as an
+        # HA queue.
         self._rpc_listener = rpc_listener.RPCListener(
             config.CONF['amqp']['host'], config.CONF['amqp']['port'],
             config.CONF['amqp']['user_id'], config.CONF['amqp']['password'],
             config.CONF['amqp']['virt_host'], "nova", "notifications.info",
-            'nfvi_nova_listener_queue')
+            'notifications.nfvi_nova_listener_queue')
 
         self._rpc_listener.add_message_handler(
             nova.RPC_MESSAGE_TYPE.NOVA_SERVER_DELETE,
