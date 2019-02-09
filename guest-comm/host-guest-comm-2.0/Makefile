@@ -35,6 +35,16 @@
 # Import the Makefile that we give to the customer so we eat our own dogfood
 include Makefile.sdk
 
+DESTDIR ?= /
+SYSCONFDIR ?= /etc
+UNITDIR ?= /usr/lib/systemd/system
+LIBDIR ?= /usr/lib64
+SDK_DEPLOY_DIR ?= /opt/deploy/cgcs_sdk
+MAJOR ?= 2
+MINOR ?= 0
+VERSION ?= $(MAJOR).$(MINOR)
+PATCH ?= 0
+
 # This needs to be extended from what the customer will build.
 EXECS += host_agent
 BINEXECS=$(addprefix $(BINDIR)/, $(EXECS))
@@ -54,7 +64,7 @@ LIBDEPS:=$(patsubst %,$(LIBDIR)/lib%.so,$(LIBS))
 EXPORT_SDK := wrs-server-group-$(MAJOR).$(MINOR).$(PATCH)
 
 # Add the host build as a dependency to the SDK build
-all: host_all 
+all: host_all
 host_all: $(BINEXECS)  $(LIBDEPS) sdk/$(EXPORT_SDK).tgz
 
 OBJS = $(HOST_AGENT_OBJ)
@@ -100,6 +110,64 @@ $(LIBHOSTGUESTMSG_DEP): $(LIBHOSTGUESTMSG_OBJ)
 
 $(BINDIR)/host_agent: $(HOST_AGENT_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS) -lrt -ljson-c
+
+install:
+	install -m 750 -d $(DESTDIR)/usr/sbin
+	install -m 755 -d $(DESTDIR)/usr/lib64
+	install -m 755 -d $(DESTDIR)/usr/include
+	install -m 755 -d $(DESTDIR)/usr/include/cgcs
+	install -m 750 -d $(SYSCONFDIR)/init.d
+	install -m 750 -d $(SYSCONFDIR)/pmon.d
+	install -m 750 -d $(UNITDIR)
+
+	install -m 750 -d $(DESTDIR)/usr
+	install -m 750 -d $(DESTDIR)/usr/src
+	install -m 750 -d $(DESTDIR)/usr/src/debug
+	install -m 750 -d $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)
+
+	install -m 644 host_guest_msg_type.h $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/host_guest_msg_type.h
+	install -m 644 server_group_app.c	$(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/server_group_app.c
+	install -m 644 server_group.c $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/server_group.c
+	install -m 644 guest_agent.c $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/guest_agent.c
+	install -m 644 lib_host_guest_msg.c $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/lib_host_guest_msg.c
+	install -m 644 host_guest_msg.c $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/host_guest_msg.c
+	install -m 644 lib_guest_host_msg.c	$(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/lib_guest_host_msg.c
+	install -m 644 host_instance_mgmt.h	$(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/host_instance_mgmt.h
+	install -m 644 host_instance_mgmt.c	$(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/host_instance_mgmt.c
+	install -m 644 guest_host_msg.h	$(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/guest_host_msg.h
+	install -m 644 host_guest_msg.h	$(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/host_guest_msg.h
+	install -m 644 host_agent.c $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/host_agent.c
+	install -m 644 server_group.h $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/server_group.h
+
+	install -m 750 scripts/host_agent $(SYSCONFDIR)/init.d/host_agent
+	install -m 640 scripts/host_agent.service $(UNITDIR)/host_agent.service
+	install -m 644 scripts/guest-agent.service $(UNITDIR)/guest-agent.service
+	install -m 640 scripts/host_agent.conf $(SYSCONFDIR)/pmon.d/host_agent.conf
+	install -m 750 bin/host_agent $(DESTDIR)/usr/sbin/host_agent
+	install -m 750 bin/guest_agent $(DESTDIR)/usr/sbin/guest_agent
+	install -m 750 bin/server_group_app $(DESTDIR)/usr/sbin/server_group_app
+	install -m 644 guest_host_msg.h	$(DESTDIR)/usr/include/cgcs/guest_host_msg.h
+	install -m 644 host_guest_msg.h	$(DESTDIR)/usr/include/cgcs/host_guest_msg.h
+
+# Deploy to the SDK deployment directory
+
+	install -d $(SDK_DEPLOY_DIR)
+	install -m 644 sdk/wrs-server-group-$(VERSION).$(PATCH).tgz  $(SDK_DEPLOY_DIR)/wrs-server-group-$(VERSION).$(PATCH).tgz
+
+	install -m 755 -p -D lib/libguesthostmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libguesthostmsg.so.$(MAJOR).$(MINOR).$(PATCH)
+	ln -s libguesthostmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libguesthostmsg.so.$(MAJOR).$(MINOR)
+	ln -s libguesthostmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libguesthostmsg.so.$(MAJOR)
+	ln -s libguesthostmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libguesthostmsg.so
+
+	install -m 755 -p -D lib/libhostguestmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libhostguestmsg.so.$(MAJOR).$(MINOR).$(PATCH)
+	ln -s libhostguestmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libhostguestmsg.so.$(MAJOR).$(MINOR)
+	ln -s libhostguestmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libhostguestmsg.so.$(MAJOR)
+	ln -s libhostguestmsg.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libhostguestmsg.so
+
+	install -m 755 -p -D lib/libservergroup.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libservergroup.so.$(MAJOR).$(MINOR).$(PATCH)
+	ln -s libservergroup.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libservergroup.so.$(MAJOR).$(MINOR)
+	ln -s libservergroup.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libservergroup.so.$(MAJOR)
+	ln -s libservergroup.so.$(MAJOR).$(MINOR).$(PATCH) $(LIBDIR)/libservergroup.so
 
 # Add the host clean as a dependency to the SDK stuff
 clean: host_clean
