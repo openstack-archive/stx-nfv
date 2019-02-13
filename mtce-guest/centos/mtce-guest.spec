@@ -107,13 +107,7 @@ Requires: libpthread.so.0()(64bit)
 Maintenance Guest Server assists in VM guest
 heartbeat control and failure reporting at the worker level.
 
-%define local_dir /usr/local
-%define local_bindir %{local_dir}/bin
-%define local_sbindir %{local_dir}/sbin
-%define local_etc_pmond      %{_sysconfdir}/pmon.d
-%define local_etc_servicesd  %{_sysconfdir}/services.d
-%define local_etc_logrotated %{_sysconfdir}/logrotate.d
-%define ocf_resourced /usr/lib/ocf/resource.d
+%define local_bindir /usr/local/bin
 
 %prep
 %setup
@@ -125,60 +119,14 @@ MAJOR=$(echo $VER | awk -F . '{print $1}')
 MINOR=$(echo $VER | awk -F . '{print $2}')
 make MAJOR=$MAJOR MINOR=$MINOR %{?_smp_mflags} build
 
-%global _buildsubdir %{_builddir}/%{name}-%{version}
-
 # install mtce-guestAgent and mtce-guestServer package
 %install
-VER=%{version}
-MAJOR=$(echo $VER | awk -F . '{print $1}')
-MINOR=$(echo $VER | awk -F . '{print $2}')
-
-install -m 755 -d %{buildroot}%{_sysconfdir}
-install -m 755 -d %{buildroot}/usr
-install -m 755 -d %{buildroot}/%{_bindir}
-install -m 755 -d %{buildroot}/usr/local
-install -m 755 -d %{buildroot}%{local_bindir}
-install -m 755 -d %{buildroot}/usr/local/sbin
-install -m 755 -d %{buildroot}/%{_sbindir}
-install -m 755 -d %{buildroot}/lib
-install -m 755 -d %{buildroot}%{_sysconfdir}/mtc
-install -m 755 -d %{buildroot}%{_sysconfdir}/mtc/tmp
-
-# resource agent stuff
-install -m 755 -d %{buildroot}/usr/lib
-install -m 755 -d %{buildroot}/usr/lib/ocf
-install -m 755 -d %{buildroot}/usr/lib/ocf/resource.d
-install -m 755 -d %{buildroot}/usr/lib/ocf/resource.d/platform
-install -m 755 -p -D %{_buildsubdir}/scripts/guestAgent.ocf %{buildroot}/usr/lib/ocf/resource.d/platform/guestAgent
-
-# config files
-install -m 644 -p -D %{_buildsubdir}/scripts/guest.ini %{buildroot}%{_sysconfdir}/mtc/guestAgent.ini
-install -m 644 -p -D %{_buildsubdir}/scripts/guest.ini %{buildroot}%{_sysconfdir}/mtc/guestServer.ini
-
-# binaries
-install -m 755 -p -D %{_buildsubdir}/guestServer %{buildroot}/%{local_bindir}/guestServer
-install -m 755 -p -D %{_buildsubdir}/guestAgent %{buildroot}/%{local_bindir}/guestAgent
-
-# init script files
-install -m 755 -p -D %{_buildsubdir}/scripts/guestServer %{buildroot}%{_sysconfdir}/init.d/guestServer
-install -m 755 -p -D %{_buildsubdir}/scripts/guestAgent %{buildroot}%{_sysconfdir}/init.d/guestAgent
-
-# systemd service files
-install -m 644 -p -D %{_buildsubdir}/scripts/guestServer.service %{buildroot}%{_unitdir}/guestServer.service
-install -m 644 -p -D %{_buildsubdir}/scripts/guestAgent.service %{buildroot}%{_unitdir}/guestAgent.service
-
-# process monitor config files
-install -m 755 -d %{buildroot}%{local_etc_pmond}
-install -m 644 -p -D %{_buildsubdir}/scripts/guestServer.pmon %{buildroot}%{local_etc_pmond}/guestServer.conf
-
-# log rotation
-install -m 755 -d %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 644 -p -D %{_buildsubdir}/scripts/guestAgent.logrotate %{buildroot}%{local_etc_logrotated}/guestAgent.logrotate
-install -m 644 -p -D %{_buildsubdir}/scripts/guestServer.logrotate %{buildroot}%{local_etc_logrotated}/guestServer.logrotate
-
-# volatile directores
-install -m 755 -d %{buildroot}/var
-install -m 755 -d %{buildroot}/var/run
+make install \
+     DESTDIR=%{buildroot} \
+     PREFIX=%{buildroot}/usr/local \
+     SYSCONFDIR=%{buildroot}%{_sysconfdir} \
+     LOCALBINDIR=%{buildroot}%{local_bindir} \
+     UNITDIR=%{buildroot}%{_unitdir}
 
 # enable all services in systemd
 %post -n mtce-guestServer
@@ -196,8 +144,8 @@ install -m 755 -d %{buildroot}/var/run
 %{_sysconfdir}/mtc/guestAgent.ini
 
 %{_unitdir}/guestAgent.service
-%{local_etc_logrotated}/guestAgent.logrotate
-%{ocf_resourced}/platform/guestAgent
+%{_sysconfdir}/logrotate.d/guestAgent.logrotate
+/usr/lib/ocf/resource.d/platform/guestAgent
 
 %{_sysconfdir}/init.d/guestAgent
 %{local_bindir}/guestAgent
@@ -213,10 +161,9 @@ install -m 755 -d %{buildroot}/var/run
 # config files - non-modifiable
 %{_sysconfdir}/mtc/guestServer.ini
 
-%{local_etc_pmond}/guestServer.conf
-%{local_etc_logrotated}/guestServer.logrotate
+%{_sysconfdir}/pmon.d/guestServer.conf
+%{_sysconfdir}/logrotate.d/guestServer.logrotate
 %{_unitdir}/guestServer.service
 
 %{_sysconfdir}/init.d/guestServer
 %{local_bindir}/guestServer
-
