@@ -119,6 +119,18 @@ def delete_node(node_name):
 
     # Delete the node
     body = kubernetes.client.V1DeleteOptions()
-    response = kube_client.delete_node(node_name, body)
+
+    try:
+        response = kube_client.delete_node(node_name, body)
+    except ApiException as e:
+        if e.status == httplib.NOT_FOUND:
+            # In some cases we may attempt to delete a node that exists in
+            # the VIM, but not yet in kubernetes (e.g. when the node is first
+            # being configured). Ignore the failure.
+            DLOG.info("Not deleting node %s because it doesn't exist" %
+                      node_name)
+            return
+        else:
+            raise
 
     return Result(response)
