@@ -34,6 +34,13 @@
 
 EXECS = guest_scale_helper guest_scale_agent
 
+DESTDIR ?= /
+SYSCONFDIR ?= $(DESTDIR)/etc
+UNITDIR ?= $(DESTDIR)/usr/lib/systemd/system
+SDK_DEPLOY_DIR ?= /opt/deploy/cgcs_sdk
+VERSION ?= 2.0
+PATCH ?= 0
+
 CFLAGS= -g -Wall  -Wformat -Wformat-security
 ODIR=obj
 BINDIR=bin
@@ -103,6 +110,31 @@ $(BINDIR)/guest_scale_agent: $(GUEST_SCALE_AGENT_OBJ)
 
 $(BINDIR)/guest_scale_helper: $(GUEST_SCALE_HELPER_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS) -lhostguestmsg  -ljson-c
+
+install:
+	install -d 750 -d $(DESTDIR)/usr/sbin
+	install -d 750 -d $(SYSCONFDIR)/init.d
+
+	install -m 750 -d $(DESTDIR)/usr
+	install -m 750 -d $(DESTDIR)/usr/src
+	install -m 750 -d $(DESTDIR)/usr/src/debug
+	install -m 750 -d $(DESTDIR)/usr/src/debug/guest-scale-agent-$(VERSION)
+	install -d 750 -d $(DESTDIR)/usr/sbin/.debug
+
+	install -m 750 scripts/app_scale_helper	$(DESTDIR)/usr/sbin/app_scale_helper
+	install -m 750 scripts/offline_cpus	$(DESTDIR)/usr/sbin/offline_cpus
+	install -m 750 bin/guest_scale_helper $(DESTDIR)/usr/sbin/guest_scale_helper
+	install -m 750 bin/guest_scale_agent $(DESTDIR)/usr/sbin/guest_scale_agent
+	install -m 750 scripts/init_offline_cpus $(SYSCONFDIR)/init.d/offline_cpus
+	install -m 750 bin/guest_scale_agent $(DESTDIR)/usr/sbin/.debug/guest_scale_agent
+
+	install -d $(UNITDIR)
+	install -m 750 scripts/offline-cpus.service $(UNITDIR)/offline-cpus.service
+	install -m 750 scripts/guest-scale-agent.service $(UNITDIR)/guest-scale-agent.service
+
+	install -d $(SDK_DEPLOY_DIR)
+	install -m 644 sdk/wrs-guest-scale-$(VERSION).$(PATCH).tgz $(SDK_DEPLOY_DIR)/wrs-guest-scale-$(VERSION).$(PATCH).tgz
+
 
 # Add the host clean as a dependency to the SDK stuff
 clean: host_clean

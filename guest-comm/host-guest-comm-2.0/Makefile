@@ -140,7 +140,7 @@ install:
 	install -m 644 server_group.h $(DESTDIR)/usr/src/debug/host-guest-comm-$(VERSION)/server_group.h
 
 	install -m 750 scripts/host_agent $(SYSCONFDIR)/init.d/host_agent
-	install -m 640 scripts/host_agent.service $(UNITDIR)/host_agent.service
+	install -m 644 scripts/host_agent.service $(UNITDIR)/host_agent.service
 	install -m 644 scripts/guest-agent.service $(UNITDIR)/guest-agent.service
 	install -m 640 scripts/host_agent.conf $(SYSCONFDIR)/pmon.d/host_agent.conf
 	install -m 750 bin/host_agent $(DESTDIR)/usr/sbin/host_agent
