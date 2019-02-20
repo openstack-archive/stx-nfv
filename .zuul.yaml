@@ -94,6 +94,7 @@
     timeout: 7800
     required-projects:
       - openstack/stx-fault
+      - openstack/stx-metal
       - openstack/stx-update
     vars:
       tox_envlist: functional
@@ -132,6 +133,7 @@
         guest-client: true
       devstack_plugins:
         stx-fault: git://git.starlingx.io/stx-fault
+        stx-metal: git://git.starlingx.io/stx-metal
         stx-nfv: git://git.starlingx.io/stx-nfv
         stx-update: git://git.starlingx.io/stx-update
       devstack_localrc:
