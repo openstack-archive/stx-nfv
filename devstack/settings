@@ -19,10 +19,28 @@ enable_service $STX_NFV_NAME
 define_plugin stx-nfv
 # This works for Zuul jobs using OpenStack's DevStack roles
 plugin_requires stx-nfv stx-update
+plugin_requires stx-nfv stx-fault
+plugin_requires stx-nfv stx-metal
 
 if is_service_enabled stx-nfv; then
     # Enable prerequisites here
     :
+fi
+
+# NOTE(dtroyer): This needs to be refiend a bit yet, for example fo we want
+#			     to abort or just disable guest-agent and guest-server if the
+#				 prereqs are not configured?
+if is_service_enabled guest-agent || is_service_enabled guest-server; then
+	# These guest- services require additional prerequisites
+    # guest-client: to install guest_heartbeat_api_msg_defs.h
+    # stx-metal: to install mtce_common header files and libraries
+    # fm-common: to install fmcommon library
+    local req_services="guest-client stx-metal fm-common"
+    for srv in $req_services;do
+        if ! is_service_enabled "$srv"; then
+            die $LINENO "$srv should be enabled for guestAgent/guestServer"
+        fi
+    done
 fi
 
 # Initial source of lib script
