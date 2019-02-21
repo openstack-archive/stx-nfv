@@ -1,6 +1,12 @@
 #!/bin/bash
 # Devstack settings
 
+# This plugin enables StarlingX stx-update services and follows the
+# DevStack plugin contract:
+# https://docs.openstack.org/devstack/latest/plugins.html#plugin-sh-contract
+
+# Services
+
 # Defaults
 # --------
 
@@ -8,6 +14,11 @@ STX_NFV_NAME=stx-nfv
 
 ######### Plugin Specific ##########
 enable_service $STX_NFV_NAME
+
+# This must not use any variables to work properly in OpenStack's DevStack playbook
+define_plugin stx-nfv
+# This works for Zuul jobs using OpenStack's DevStack roles
+plugin_requires stx-nfv stx-update
 
 if is_service_enabled stx-nfv; then
     # Enable prerequisites here
