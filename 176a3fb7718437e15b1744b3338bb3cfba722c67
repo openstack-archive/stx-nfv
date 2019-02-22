@@ -1,0 +1,11 @@
+Code-Review+1: Yi Wang <yi.c.wang@intel.com>
+Code-Review+2: Al Bailey <al.bailey@windriver.com>
+Code-Review+1: Dean Troyer <dtroyer@gmail.com>
+Code-Review+2: Bart Wensley <barton.wensley@windriver.com>
+Workflow+1: Bart Wensley <barton.wensley@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Fri, 22 Feb 2019 16:57:43 +0000
+Reviewed-on: https://review.openstack.org/637717
+Project: openstack/stx-nfv
+Branch: refs/heads/master
