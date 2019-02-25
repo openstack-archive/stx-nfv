@@ -3449,7 +3449,7 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
         return rpc_listener.test_connection(
             config.CONF['amqp']['host'], config.CONF['amqp']['port'],
             config.CONF['amqp']['user_id'], config.CONF['amqp']['password'],
-            config.CONF['amqp']['virt_host'], "nova")
+            config.CONF['amqp']['virt_host'], "nova", "notifications.info")
 
     def initialize(self, config_file):
         """
