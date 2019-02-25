@@ -5,7 +5,6 @@
 #
 import collections
 import json
-import six
 from six.moves import http_client as httplib
 import socket
 import uuid
@@ -21,6 +20,7 @@ from nfv_vim.nfvi.objects import v1 as nfvi_objs
 
 from nfv_plugins.nfvi_plugins import config
 from nfv_plugins.nfvi_plugins.openstack import exceptions
+from nfv_plugins.nfvi_plugins.openstack import neutron
 from nfv_plugins.nfvi_plugins.openstack import nova
 from nfv_plugins.nfvi_plugins.openstack import openstack
 from nfv_plugins.nfvi_plugins.openstack import rest_api
@@ -288,18 +288,17 @@ def instance_get_action_type(vm_action, vm_data=None):
     return action_type, parameters
 
 
-def instance_supports_live_migration(instance_data):
+def instance_supports_live_migration(instance_data, ports_data):
     """
     Determine if the instance supports live-migration
     """
 
     # Live migration is not supported if there is a pci-passthrough or
     # pci-sriov NIC.
-    nics = instance_data.get('wrs-if:nics', [])
-    for nic in nics:
-        nic_name, nic_data = six.next(six.iteritems(nic))
-        vif_model = nic_data.get('vif_model', '')
-        if vif_model in ['pci-passthrough', 'pci-sriov']:
+    for port in ports_data:
+        vnic_type = port.get('binding:vnic_type', '')
+        if (vnic_type in [neutron.VNIC_TYPE.DIRECT_PHYSICAL,
+                          neutron.VNIC_TYPE.DIRECT]):
             return False
 
     # Live migration is not supported if there is an attached pci passthrough
@@ -1718,6 +1717,16 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
 
             instance_data = future.result.data['server']
 
+            future.work(neutron.get_ports_for_instance, self._token,
+                        instance_data['id'])
+            future.result = (yield)
+
+            if (not future.result.is_complete() or
+                future.result.data is None):
+                return
+
+            ports_data = future.result.data.get('ports', [])
+
             nfvi_data = dict()
             nfvi_data['vm_state'] = instance_data['OS-EXT-STS:vm_state']
             nfvi_data['task_state'] = instance_data['OS-EXT-STS:task_state']
@@ -1745,7 +1754,8 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
 
             tenant_uuid = uuid.UUID(instance_data['tenant_id'])
 
-            live_migration_support = instance_supports_live_migration(instance_data)
+            live_migration_support = instance_supports_live_migration(
+                instance_data, ports_data)
 
             volumes = instance_data.get('os-extended-volumes:volumes_attached',
                                         list())
@@ -3117,6 +3127,16 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
 
             instance_data = future.result.data['server']
 
+            future.work(neutron.get_ports_for_instance, self._token,
+                        instance_uuid)
+            future.result = (yield)
+
+            if (not future.result.is_complete() or
+                future.result.data is None):
+                return
+
+            ports_data = future.result.data.get('ports', [])
+
             power_state_str = \
                 nova.vm_power_state_str(instance_data['OS-EXT-STS:power_state'])
 
@@ -3155,7 +3175,8 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
             else:
                 image_uuid = None
 
-            live_migration_support = instance_supports_live_migration(instance_data)
+            live_migration_support = instance_supports_live_migration(
+                instance_data, ports_data)
 
             volumes = instance_data.get('os-extended-volumes:volumes_attached',
                                         list())
