@@ -30,6 +30,16 @@ MTCE_GUEST_DIR=$STXNFV_DIR/mtce-guest
 MTCE_GUEST_CONF=$STXNFV_SYSCONFDIR/mtc
 MTCE_GUEST_OCF_DIR=$STXNFV_OCF_ROOT/resource.d/platform
 
+# guest-agent
+GUEST_AGENT_DIR=$STXNFV_DIR/guest-agent
+GUEST_SCALE_AGENT_VER="2.0"
+GUEST_SCALE_AGENT_DIR=$GUEST_AGENT_DIR/guest-scale-agent-$GUEST_SCALE_AGENT_VER
+
+# guest-comm
+GUEST_COMM_DIR=$STXNFV_DIR/guest-comm
+HOST_AGENT_COMM_VER="2.0"
+HOST_AGENT_COMM_DIR=$GUEST_COMM_DIR/host-guest-comm-$HOST_AGENT_COMM_VER
+
 # guest-client
 GUEST_CLIENT_VERSION="3.0.1"
 
@@ -67,6 +77,18 @@ function cleanup_guest_server {
     sudo rm -rf $STXNFV_SYSCONFDIR/init.d/guestServer
     sudo rm -rf $STXNFV_SYSCONFDIR/pmon.d/guestServer.conf
     sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestServer.logrotate
+}
+
+function cleanup_host_agent {
+    sudo rm -rf $STXNFV_SYSCONFDIR/init.d/host_agent
+    sudo rm -rf $STXNFV_SYSCONFDIR/pmon.d/host_agent.conf
+    sudo rm -rf $STX_INST_DIR/sbin/host_agent
+    sudo rm -rf $STX_INST_DIR/include/cgcs/guest_host_msg.h
+    sudo rm -rf $STX_INST_DIR/include/cgcs/host_guest_msg.h
+
+    sudo rm -rf $STX_INST_DIR/lib64/libguesthostmsg.so
+    sudo rm -rf $STX_INST_DIR/lib64/libhostguestmsg.so
+    sudo rm -rf $STX_INST_DIR/lib64/libservergroup.so
 }
 
 function cleanup_nfv {
@@ -111,6 +133,9 @@ function cleanup_nfv {
     if is_service_enabled guest-server; then
         cleanup_guest_server
     fi
+    if is_service_enabled host-agent; then
+        cleanup_host_agent
+    fi
 }
 
 function cleanup_nfv_client {
@@ -145,6 +170,11 @@ function configure_guest_agent {
 function configure_guest_server {
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "Type" "forking"
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "PIDFile" "/var/run/guestServer.pid"
+}
+
+function configure_host_agent {
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@host-agent.service "Service" "Type" "forking"
+    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@host-agent.service "Service" "PIDFile" "/var/run/host_agent.pid"
 }
 
 function configure_mtce_guest_common {
@@ -196,6 +226,9 @@ function configure_nfv {
     fi
     if is_service_enabled guest-server; then
         configure_guest_server
+    fi
+    if is_service_enabled host-agent; then
+        configure_host_agent
     fi
 }
 
@@ -306,6 +339,26 @@ function install_guest_client {
     popd
 }
 
+function install_host_agent {
+    pushd $HOST_AGENT_COMM_DIR
+
+    make host_clean # to remove sdk folder
+    make all
+
+    sudo install -m 755 -p -D scripts/host_agent $STXNFV_SYSCONFDIR/init.d/host_agent
+    sudo install -m 640 -p -D scripts/host_agent.conf $STXNFV_SYSCONFDIR/pmon.d/host_agent.conf
+    sudo install -m 755 -p -D bin/host_agent $STX_INST_DIR/sbin/host_agent
+    sudo install -m 755 -d $STX_INST_DIR/include/cgcs
+    sudo install -m 644 -p -D guest_host_msg.h $STX_INST_DIR/include/cgcs/guest_host_msg.h
+    sudo install -m 644 -p -D host_guest_msg.h $STX_INST_DIR/include/cgcs/host_guest_msg.h
+
+    sudo install -m 755 -p -D lib/libguesthostmsg.so $STX_INST_DIR/lib64/libguesthostmsg.so
+    sudo install -m 755 -p -D lib/libhostguestmsg.so $STX_INST_DIR/lib64/libhostguestmsg.so
+    sudo install -m 755 -p -D lib/libservergroup.so $STX_INST_DIR/lib64/libservergroup.so
+
+    popd
+}
+
 function install_guest_server {
     pushd $MTCE_GUEST_DIR/src
 
@@ -351,6 +404,9 @@ function install_nfv {
     fi
     if is_service_enabled guest-server; then
         install_guest_server
+    fi
+    if is_service_enabled host-agent; then
+        install_host_agent
     fi
 }
 
@@ -429,6 +485,10 @@ function start_guest_agent {
     run_process guest-agent "$STXNFV_SYSCONFDIR/init.d/guestAgent start" root root
 }
 
+function start_host_agent {
+    run_process host-agent "$STXNFV_SYSCONFDIR/init.d/host_agent start" root root
+}
+
 function start_guest_server {
     run_process guest-server "$STXNFV_SYSCONFDIR/init.d/guestServer start" root root
 }
@@ -453,6 +513,9 @@ function start_nfv {
     fi
     if is_service_enabled guest-server; then
         start_guest_server
+    fi
+    if is_service_enabled host-agent; then
+        start_host_agent
     fi
 }
 
@@ -482,6 +545,10 @@ function stop_guest_server {
     stop_process guest-server
 }
 
+function stop_host_agent {
+    stop_process host-agent
+}
+
 function stop_nfv {
     if is_service_enabled nfv-vim; then
         stop_nfv_vim
@@ -502,6 +569,10 @@ function stop_nfv {
     fi
     if is_service_enabled guest-server; then
         stop_guest_server
+    fi
+
+    if is_service_enabled host-agent; then
+        stop_process host-agent
     fi
 }
 
