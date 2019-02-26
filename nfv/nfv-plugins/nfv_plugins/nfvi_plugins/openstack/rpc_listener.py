@@ -149,7 +149,8 @@ class RPCListener(threading.Thread):
         self._exit.set()
 
 
-def test_connection(host, port, user_id, password, virt_host, exchange_name):
+def test_connection(host, port, user_id, password, virt_host, exchange_name,
+                    queue_name):
     """
     Test a connection to an exchange on a virtual host
     """
@@ -167,6 +168,15 @@ def test_connection(host, port, user_id, password, virt_host, exchange_name):
             exchange = Exchange(exchange_name, channel=connection,
                                 type='topic', durable=False, passive=True)
             exchange.declare()
+
+            # Check whether the queue exists - will raise exception if it
+            # fails.
+            rpc_receive_queue = Queue(queue_name,
+                                      durable=True,
+                                      exchange=exchange,
+                                      channel=connection)
+            rpc_receive_queue.queue_declare(passive=True)
+
             success = True
     except Exception as e:
         DLOG.info("Unable to connect to virt_host %s, exchange %s, error: %s" %
