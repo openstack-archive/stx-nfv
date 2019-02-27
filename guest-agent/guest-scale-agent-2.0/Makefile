@@ -95,7 +95,7 @@ sdk/$(EXPORT_SDK).tgz: printvars
 	@cp misc.h sdk/$(EXPORT_SDK)
 	@cd sdk && tar czf $(EXPORT_SDK).tgz $(EXPORT_SDK)
 	@echo -n "sdk/$(EXPORT_SDK).tgz: Makefile.sdk docs/README.txt docs/TiS-Guest-Resource-Scaling.pdf " > sdk/sdk.d
-	@echo -n "scripts/init_offline_cpus scripts/offline_cpus scripts/offline-cpus.service" >> sdk/sdk.d
+	@echo -n "scripts/init_offline_cpus scripts/offline_cpus scripts/offline-cpus.service " >> sdk/sdk.d
 	@echo -n "scripts/app_scale_helper " >> sdk/sdk.d
 	@echo -n "$(GUEST_SCALE_AGENT_SRCS) " >> sdk/sdk.d
 	@echo "misc.h " >> sdk/sdk.d
@@ -106,10 +106,10 @@ $(ODIR)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(CFLAGS2) -MMD -o $@ $<
 
 $(BINDIR)/guest_scale_agent: $(GUEST_SCALE_AGENT_OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS) -lguesthostmsg  -ljson-c
+	$(CC) -o $@ $^ $(LDFLAGS) $(EXTRALDFLAGS) -lguesthostmsg  -ljson-c
 
 $(BINDIR)/guest_scale_helper: $(GUEST_SCALE_HELPER_OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS) -lhostguestmsg  -ljson-c
+	$(CC) -o $@ $^ $(LDFLAGS) $(EXTRALDFLAGS) -lhostguestmsg  -ljson-c
 
 install:
 	install -d 750 -d $(DESTDIR)/usr/sbin
