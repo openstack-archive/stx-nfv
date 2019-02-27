@@ -79,6 +79,10 @@ function cleanup_guest_server {
     sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestServer.logrotate
 }
 
+function cleanup_guest_scale_helper {
+    sudo rm -rf $STX_INST_DIR/sbin/guest_scale_helper
+}
+
 function cleanup_host_agent {
     sudo rm -rf $STXNFV_SYSCONFDIR/init.d/host_agent
     sudo rm -rf $STXNFV_SYSCONFDIR/pmon.d/host_agent.conf
@@ -135,6 +139,10 @@ function cleanup_nfv {
     fi
     if is_service_enabled host-agent; then
         cleanup_host_agent
+    fi
+
+    if is_service_enabled guest-scale-helper; then
+        cleanup_guest_scale_helper
     fi
 }
 
@@ -341,8 +349,6 @@ function install_guest_client {
 
 function install_host_agent {
     pushd $HOST_AGENT_COMM_DIR
-
-    make host_clean # to remove sdk folder
     make all
 
     sudo install -m 755 -p -D scripts/host_agent $STXNFV_SYSCONFDIR/init.d/host_agent
@@ -365,9 +371,18 @@ function install_guest_server {
     sudo install -m 644 -p -D scripts/guest.ini $MTCE_GUEST_CONF/guestServer.ini
     sudo install -m 755 -p -D guestServer $STX_INST_DIR/bin/guestServer
     sudo install -m 755 -p -D scripts/guestServer $STXNFV_SYSCONFDIR/init.d/guestServer
-    sudo install -m 755 -d $(STXNFV_SYSCONFDIR)/pmon.d
+    sudo install -m 755 -d $STXNFV_SYSCONFDIR/pmon.d
     sudo install -m 644 -p -D scripts/guestServer.pmon $STXNFV_SYSCONFDIR/pmon.d/guestServer.conf
     sudo install -m 644 -p -D scripts/guestServer.logrotate $STXNFV_SYSCONFDIR/logrotate.d/guestServer.logrotate
+
+    popd
+}
+
+function install_guest_scale_helper {
+    pushd $GUEST_SCALE_AGENT_DIR
+    make all
+
+    sudo install -m 750 bin/guest_scale_helper $STX_INST_DIR/sbin/guest_scale_helper
 
     popd
 }
@@ -407,6 +422,10 @@ function install_nfv {
     fi
     if is_service_enabled host-agent; then
         install_host_agent
+    fi
+
+    if is_service_enabled guest-scale-helper; then
+        install_guest_scale_helper
     fi
 }
 

@@ -95,7 +95,7 @@ sdk/$(EXPORT_SDK).tgz: printvars
 	@cp misc.h sdk/$(EXPORT_SDK)
 	@cd sdk && tar czf $(EXPORT_SDK).tgz $(EXPORT_SDK)
 	@echo -n "sdk/$(EXPORT_SDK).tgz: Makefile.sdk docs/README.txt docs/TiS-Guest-Resource-Scaling.pdf " > sdk/sdk.d
-	@echo -n "scripts/init_offline_cpus scripts/offline_cpus scripts/offline-cpus.service" >> sdk/sdk.d
+	@echo -n "scripts/init_offline_cpus scripts/offline_cpus scripts/offline-cpus.service " >> sdk/sdk.d
 	@echo -n "scripts/app_scale_helper " >> sdk/sdk.d
 	@echo -n "$(GUEST_SCALE_AGENT_SRCS) " >> sdk/sdk.d
 	@echo "misc.h " >> sdk/sdk.d

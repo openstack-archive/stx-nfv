@@ -97,7 +97,7 @@ sdk/$(EXPORT_SDK).tgz:
 
 	@cd sdk && tar czf $(EXPORT_SDK).tgz $(EXPORT_SDK)
 	@echo -n "sdk/$(EXPORT_SDK).tgz: Makefile.sdk docs/README.txt docs/TiS-Guest-Server-Group-Messaging.pdf " > sdk/sdk.d
-	@echo -n "scripts/guest-agent.service" >> sdk/sdk.d
+	@echo -n "scripts/guest-agent.service " >> sdk/sdk.d
 	@echo -n "$(GUEST_CLIENT_APP_SRCS) $(LIBSERVERGROUP_SRCS) $(GUEST_AGENT_SRCS) $(LIBGUESTHOSTMSG_SRCS)" >> sdk/sdk.d
 	@echo " host_guest_msg.h server_group.h misc.h" >> sdk/sdk.d
 	@echo '*' > sdk/.gitignore
