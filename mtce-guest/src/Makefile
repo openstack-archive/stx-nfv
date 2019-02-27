@@ -27,7 +27,7 @@ SERVER_OBJS = \
 OBJS = $(SRCS:.cpp=.o)
 
 CCPFLAGS = -g -O2 -Wall -Wextra -Werror
-LDLIBS = -lstdc++ -ldaemon -lcommon -lfmcommon -ljson-c -levent -lrt -lcrypto -luuid 
+LDLIBS = $(EXTRALDFLAGS) -lstdc++ -ldaemon -lcommon -lfmcommon -ljson-c -levent -lrt -lcrypto -luuid 
 INCLUDES = -I. -I/usr/include/mtce-common -I/usr/include/mtce-daemon
 
 build: $(OBJS)
