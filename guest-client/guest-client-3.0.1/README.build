@@ -173,9 +173,9 @@ INSTALL
         This will install the default configuration file, include files,
         compiled libraries and executable into the following directories:
 
-            guest_heartbeat.conf            --> /usr/local/etc/guest-client/heartbeat
-            guest_api_types.h               --> /usr/local/include
-            guest_heartbeat_api.h           --> /usr/local/include
+            guest_heartbeat.conf            --> /etc/guest-client/heartbeat
+            guest_api_types.h               --> /usr/include/
+            guest_heartbeat_api.h           --> /usr/include
             libguest_common_api.so.3.0.0    --> /usr/local/lib
             libguest_heartbeat_api.so.3.0.0 --> /usr/local/lib
             guest-client                    --> /usr/local/bin
@@ -213,6 +213,11 @@ INSTALL
 
             bindir      - directory for installing executable programs, set to
                           $(exec_prefix)/bin
+
+            unitdir     - directory for installing systemd unit files, set by
+                          default to /usr/lib/systemd/system
+
+            SDK_DEPLOY_DIR - directory to store the cgcs sdk file.
 
             Note: all directory variables must specify an absolute path.
 
