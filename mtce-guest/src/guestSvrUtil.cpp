@@ -76,7 +76,6 @@ int guestUtil_close_channel ( instInfo * instInfo_ptr )
 void guestUtil_load_channels ( void ) 
 {
     DIR *dirp;
-    struct dirent entry;
     struct dirent *result;
 
     dirp = opendir(QEMU_CHANNEL_DIR);
@@ -87,11 +86,8 @@ void guestUtil_load_channels ( void )
     else
     {
         dlog ("Searching %s directory\n", QEMU_CHANNEL_DIR);
-        while(0 == readdir_r(dirp, &entry, &result))
+        while ((result = readdir(dirp)) != NULL)
         {
-            if (!result)
-                break;
-
             if ( virtio_check_filename (result->d_name) )
             {
                 string channel = result->d_name ;
@@ -125,7 +121,6 @@ void guestUtil_load_channels ( void )
 void guestUtil_channel_search ( void ) 
 {
     DIR *dirp;
-    struct dirent entry;
     struct dirent *result;
 
     dirp = opendir(QEMU_CHANNEL_DIR);
@@ -136,11 +131,8 @@ void guestUtil_channel_search ( void )
     else
     {
         dlog ("Searching %s directory\n", QEMU_CHANNEL_DIR);
-        while(0 == readdir_r(dirp, &entry, &result))
+        while ((result = readdir(dirp)) != NULL)
         {
-            if (!result)
-                break;
-
             if ( virtio_check_filename (result->d_name) )
             {
                 if ( get_instInv_ptr()->get_inst ( virtio_instance_name (result->d_name).data()) == NULL )
