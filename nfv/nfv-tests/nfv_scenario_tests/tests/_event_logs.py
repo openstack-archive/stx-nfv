@@ -85,13 +85,10 @@ def are_unpause_logs_created(logs, instance, guest_hb=False):
 def are_suspend_logs_created(logs, instance, guest_hb=False):
     """
     Check if suspend logs have been created
-    NOTE: Nova was modified to pause instances when a suspend request is
-    sent, so for now, check that the instance is paused. Eventually the
-    suspend API should be disabled.
     """
     expected_logs = [{'event_log_id': fm_constants.FM_LOG_ID_VM_SUSPEND,
                       'severity': fm_constants.FM_ALARM_SEVERITY_CRITICAL},
-                     {'event_log_id': fm_constants.FM_LOG_ID_VM_PAUSED,
+                     {'event_log_id': fm_constants.FM_LOG_ID_VM_SUSPENDED,
                       'severity': fm_constants.FM_ALARM_SEVERITY_CRITICAL}]
 
     return _instance_logs_created(logs, expected_logs, instance)

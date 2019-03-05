@@ -435,12 +435,9 @@ class TestInstanceResume(TestInstance):
     def _do_setup(self):
         """
         Setup test
-        NOTE: Nova was modified to pause instances when a suspend request is
-        sent, so for now, check that the instance is paused. Eventually the
-        suspend API should be disabled.
         """
         self._refresh_instance_data()
-        return _instances.instance_is_paused(self._instance_data)
+        return _instances.instance_is_suspended(self._instance_data)
 
     def _do_test(self):
         """

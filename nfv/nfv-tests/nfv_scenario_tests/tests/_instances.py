@@ -330,15 +330,12 @@ def instance_has_suspended(instance, log_files, alarms, event_logs, alarm_histor
                            guest_hb=False):
     """
     Returns true if the instance has suspended
-    NOTE: Nova was modified to pause instances when a suspend request is
-    sent, so for now, check that the instance is paused. Eventually the
-    suspend API should be disabled.
     """
-    success, reason = instance_is_paused(instance)
+    success, reason = instance_is_suspended(instance)
     if not success:
         return False, reason
 
-    if not _alarms.is_instance_pause_alarm(alarms, instance, guest_hb):
+    if not _alarms.is_instance_suspend_alarm(alarms, instance, guest_hb):
         return False, "instance pause alarm is not raised"
 
     if not _event_logs.are_suspend_logs_created(event_logs, instance, guest_hb):
