@@ -91,6 +91,7 @@ from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_disable_container_host
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_enable_container_host_services  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_get_alarm_history  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_get_alarms  # noqa: F401
+from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_get_datanetworks  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_get_host  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_get_hosts  # noqa: F401
 from nfv_vim.nfvi._nfvi_infrastructure_module import nfvi_get_logs  # noqa: F401
@@ -124,6 +125,7 @@ from nfv_vim.nfvi._nfvi_module import nfvi_finalize  # noqa: F401
 from nfv_vim.nfvi._nfvi_module import nfvi_initialize  # noqa: F401
 from nfv_vim.nfvi._nfvi_module import nfvi_reinitialize  # noqa: F401
 
+from nfv_vim.nfvi._nfvi_network_module import nfvi_add_router_to_agent  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_create_network  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_create_network_host_services  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_create_subnet  # noqa: F401
@@ -131,13 +133,18 @@ from nfv_vim.nfvi._nfvi_network_module import nfvi_delete_network  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_delete_network_host_services  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_delete_subnet  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_enable_network_host_services  # noqa: F401
+from nfv_vim.nfvi._nfvi_network_module import nfvi_get_agent_routers  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_get_network  # noqa: F401
+from nfv_vim.nfvi._nfvi_network_module import nfvi_get_network_agents  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_get_networks  # noqa: F401
+from nfv_vim.nfvi._nfvi_network_module import nfvi_get_physical_network  # noqa: F401
+from nfv_vim.nfvi._nfvi_network_module import nfvi_get_router_ports  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_get_subnet  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_get_subnets  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_network_plugin_disabled  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_notify_network_host_disabled  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_query_network_host_services  # noqa: F401
+from nfv_vim.nfvi._nfvi_network_module import nfvi_remove_router_from_agent  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_update_network  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_update_subnet  # noqa: F401
 
