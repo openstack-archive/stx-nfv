@@ -41,6 +41,13 @@ class NFVIInfrastructureAPI(object):
         pass
 
     @abc.abstractmethod
+    def get_datanetworks(self, future, host_uuid, callback):
+        """
+        Get data networks on a host from the plugin
+        """
+        pass
+
+    @abc.abstractmethod
     def get_system_info(self, future, callback):
         """
         Get information about the system from the plugin
