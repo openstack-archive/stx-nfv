@@ -178,6 +178,58 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
                 (self._openstack_directory.get_service_info(
                     OPENSTACK_SERVICE.NOVA) is not None))
 
+    def get_datanetworks(self, future, host_uuid, callback):
+        """
+        Get host data networks from the plugin
+        """
+        response = dict()
+        response['completed'] = False
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._platform_token is None or \
+                    self._platform_token.is_expired():
+                future.work(openstack.get_token, self._platform_directory)
+                future.result = (yield)
+
+                if not future.result.is_complete() or \
+                        future.result.data is None:
+                    DLOG.error("OpenStack get-token did not complete.")
+                    return
+
+                self._platform_token = future.result.data
+
+            future.work(sysinv.get_datanetworks, self._platform_token,
+                        host_uuid)
+            future.result = (yield)
+
+            if not future.result.is_complete():
+                DLOG.error("SysInv get-datanetworks did not complete.")
+                return
+
+            response['result-data'] = future.result.data
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._platform_token is not None:
+                    self._platform_token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to get host %s data "
+                               "networks, error=%s." % (host_uuid, e))
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to get host %s data networks, "
+                           "error=%s." % (host_uuid, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
     def get_system_info(self, future, callback):
         """
         Get information about the system from the plugin

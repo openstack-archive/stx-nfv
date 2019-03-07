@@ -131,6 +131,48 @@ class NFVINetworkAPI(object):
         pass
 
     @abc.abstractmethod
+    def get_network_agents(self, future, host_name, callback):
+        """
+        Get network agent information using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_agent_routers(self, future, agent_id, callback):
+        """
+        Get network routers on a hosting agent using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_router_ports(self, future, router_id, callback):
+        """
+        Get router ports using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def add_router_to_agent(self, future, agent_id, router_id, callback):
+        """
+        Add a router to an agent using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def remove_router_from_agent(self, future, agent_id, router_id, callback):
+        """
+        Remove router from an agent using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_physical_network(self, future, network_id, callback):
+        """
+        Get physical network of a network using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
     def delete_host_services(self, future, host_uuid, host_name,
                              host_personality, callback):
         """

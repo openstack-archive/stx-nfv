@@ -65,13 +65,149 @@ AGENT_TYPE = AgentType()
 
 def get_network_agents(token, host_name):
     """
-    Retrieve all network agents for a host.
+    Get L3 and DHCP agent information.
+    We want all the agents. If host_name is not None, then
+    place info for that host in the first position of the returned list.
+    Will be None if the agent is not found
+    """
+    url, api_cmd, api_cmd_headers, result_data = _get_network_agents(
+        token, None)
+
+    # DLOG.info("result_data = %s" % result_data)
+    agent_info = dict()
+    supported_agents = [AGENT_TYPE.L3, AGENT_TYPE.DHCP]
+    agent_info_dict = dict()
+    for agent in supported_agents:
+        agent_info[agent] = list()
+        if host_name is not None:
+            agent_info[agent].append({None, None})
+
+    for agent in result_data:
+        if agent['agent_type'] in supported_agents:
+            agent_info_dict = dict()
+            agent_info_dict['host'] = agent['host']
+            agent_info_dict['id'] = agent['id']
+            if agent['host'] == host_name:
+                agent_info[agent['agent_type']][0] = agent_info_dict
+            elif agent['alive'] and agent['admin_state_up']:
+                agent_info[agent['agent_type']].append(agent_info_dict)
+
+    return agent_info
+
+
+def get_agent_routers(token, agent_id):
+    """
+    Get all routers hosted by a particular agent
     """
     url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
     if url is None:
         raise ValueError("OpenStack Neutron URL is invalid")
 
-    api_cmd = url + "/v2.0/agents?host=" + host_name
+    api_cmd = url + "/v2.0/agents/" + agent_id + "/l3-routers?fields=id"
+
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    result_data = response.result_data['routers']
+
+    return result_data
+
+
+def add_router_to_agent(token, agent_id, router_id):
+    """
+    Schedule a router on an L3 agent
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents/" + agent_id + "/l3-routers"
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    api_cmd_payload = dict()
+    api_cmd_payload['router_id'] = router_id
+
+    response = rest_api_request(token, "POST", api_cmd, api_cmd_headers,
+                                json.dumps(api_cmd_payload))
+
+    return response
+
+
+def remove_router_from_agent(token, agent_id, router_id):
+    """
+    Unschedule a router from an L3 agent
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents/" + agent_id + "/l3-routers/" + router_id
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
+
+    return response
+
+
+def get_router_ports(token, router_id):
+    """
+    Get port information for particular router
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/ports?device_id=" + router_id
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+
+    return response
+
+
+def get_physical_network(token, network_id):
+    """
+    Get the physical network of a network
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/networks/" + network_id + "?fields=provider%3Aphysical_network"
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    result_data = response.result_data['network']
+
+    return result_data
+
+
+def _get_network_agents(token, host_name):
+    """
+    Get network agents of a host
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    fields_qualifier = "?fields=id&fields=host&fields=agent_type&fields=alive&fields=admin_state_up"
+    api_cmd = url + "/v2.0/agents"
+    if host_name is not None:
+        api_cmd = api_cmd + "?host=" + host_name + fields_qualifier
+    else:
+        # if host_name is None, we are to retrieve information
+        # on all agents on all hosts.
+        api_cmd = api_cmd + fields_qualifier
 
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
@@ -421,7 +557,7 @@ def delete_network_agents(token, host_name):
     Asks OpenStack Neutron to delete agents for a host
     """
     try:
-        url, api_cmd, api_cmd_headers, result_data = get_network_agents(
+        url, api_cmd, api_cmd_headers, result_data = _get_network_agents(
             token, host_name)
 
         num_agents_found = 0
@@ -507,7 +643,7 @@ def enable_network_agents(token, host_name):
     before declaring success.
     """
     try:
-        url, api_cmd, api_cmd_headers, result_data = get_network_agents(
+        url, api_cmd, api_cmd_headers, result_data = _get_network_agents(
             token, host_name)
 
         payload = dict()
@@ -582,7 +718,7 @@ def disable_network_agents(token, host_name):
     to False.  Other agents are left alone.
     """
     try:
-        url, api_cmd, api_cmd_headers, result_data = get_network_agents(
+        url, api_cmd, api_cmd_headers, result_data = _get_network_agents(
             token, host_name)
 
         payload = dict()
@@ -669,9 +805,8 @@ def query_network_agents(token, host_name, check_fully_up):
     Input parameter check_fully_up set to True will check for
     both alive and admin_state_up, otherwise only alive is checked.
     """
-    url, api_cmd, api_cmd_headers, result_data = get_network_agents(
+    url, api_cmd, api_cmd_headers, result_data = _get_network_agents(
         token, host_name)
-
     agent_state = 'up'
     alive = False
     admin_state_up = False

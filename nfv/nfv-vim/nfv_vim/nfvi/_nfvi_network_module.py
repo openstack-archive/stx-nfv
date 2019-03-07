@@ -141,6 +141,60 @@ def nfvi_enable_network_host_services(host_uuid, host_name, host_personality,
     return cmd_id
 
 
+def nfvi_get_network_agents(host_name, callback):
+    """
+    Get network agents of a host
+    """
+    cmd_id = _network_plugin.invoke_plugin('get_network_agents',
+                                           host_name, callback=callback)
+    return cmd_id
+
+
+def nfvi_get_agent_routers(agent_id, callback):
+    """
+    Get routers hosted on a l3 agent
+    """
+    cmd_id = _network_plugin.invoke_plugin('get_agent_routers',
+                                           agent_id, callback=callback)
+    return cmd_id
+
+
+def nfvi_get_router_ports(router_id, callback):
+    """
+    Get router port information
+    """
+    cmd_id = _network_plugin.invoke_plugin('get_router_ports',
+                                           router_id, callback=callback)
+    return cmd_id
+
+
+def nfvi_add_router_to_agent(agent_id, router_id, callback):
+    """
+    Add a router to an L3 agent
+    """
+    cmd_id = _network_plugin.invoke_plugin('add_router_to_agent',
+                                           agent_id, router_id, callback=callback)
+    return cmd_id
+
+
+def nfvi_remove_router_from_agent(agent_id, router_id, callback):
+    """
+    Remove a router from an L3 Agent
+    """
+    cmd_id = _network_plugin.invoke_plugin('remove_router_from_agent',
+                                           agent_id, router_id, callback=callback)
+    return cmd_id
+
+
+def nfvi_get_physical_network(network_id, callback):
+    """
+    Get physical network of a network
+    """
+    cmd_id = _network_plugin.invoke_plugin('get_physical_network',
+                                           network_id, callback=callback)
+    return cmd_id
+
+
 def nfvi_delete_network_host_services(host_uuid, host_name, host_personality,
                                       callback):
     """

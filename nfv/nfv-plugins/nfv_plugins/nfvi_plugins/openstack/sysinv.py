@@ -12,6 +12,25 @@ from nfv_plugins.nfvi_plugins.openstack.rest_api import rest_api_request
 DLOG = debug.debug_get_logger('nfv_plugins.nfvi_plugins.openstack.sysinv')
 
 
+def get_datanetworks(token, host_uuid):
+    """
+    Get all data networks on a host.
+    """
+    url = token.get_service_url(PLATFORM_SERVICE.SYSINV)
+    if url is None:
+        raise ValueError("OpenStack SysInv URL is invalid")
+
+    api_cmd = url + "/ihosts/" + host_uuid + "/interface_datanetworks"
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    result_data = response.result_data['interface_datanetworks']
+
+    return result_data
+
+
 def get_system_info(token):
     """
     Asks System Inventory for information about the system, such as
