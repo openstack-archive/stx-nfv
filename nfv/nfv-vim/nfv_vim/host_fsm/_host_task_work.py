@@ -12,6 +12,7 @@ from nfv_common import timers
 
 from nfv_common.helpers import coroutine
 
+from nfv_vim import network_rebalance
 from nfv_vim import nfvi
 
 from nfv_vim.host_fsm._host_defs import HOST_EVENT
@@ -178,6 +179,8 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
         """
         Callback for notify host disabled
         """
+        from nfv_vim import objects
+
         response = (yield)
         if self.task is not None:
             DLOG.verbose("Notify-Host-Disabled callback for %s, response=%s."
@@ -186,6 +189,11 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                     empty_reason)
+                if (self._host.kubernetes_configured and
+                        (self._service == objects.HOST_SERVICES.NETWORK)):
+                    DLOG.info("Queueing rebalance for host %s disable" % self._host.name)
+                    network_rebalance.add_rebalance_work(self._host.name, True)
+
             else:
                 if self.force_pass:
                     DLOG.info("Notify-Host-Disabled callback for %s, "
@@ -193,6 +201,11 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
                     self.task.task_work_complete(
                         state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                         empty_reason)
+                    if (self._host.kubernetes_configured and
+                            (self._service == objects.HOST_SERVICES.NETWORK)):
+                        DLOG.info("Queueing rebalance for host %s disable" % self._host.name)
+                        network_rebalance.add_rebalance_work(self._host.name, True)
+
                 else:
                     self.task.task_work_complete(
                         state_machine.STATE_TASK_WORK_RESULT.FAILED,
@@ -830,6 +843,11 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                     empty_reason)
+
+                if (self._host.kubernetes_configured and
+                        (self._service == objects.HOST_SERVICES.NETWORK)):
+                    DLOG.info("Queueing rebalance for host %s enable" % self._host.name)
+                    network_rebalance.add_rebalance_work(self._host.name, False)
             else:
                 if self.force_pass:
                     DLOG.info("Enable-Host-Services callback for %s, "
@@ -837,6 +855,11 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
                     self.task.task_work_complete(
                         state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                         empty_reason)
+                    if (self._host.kubernetes_configured and
+                            (self._service == objects.HOST_SERVICES.NETWORK)):
+                        DLOG.info("Queueing rebalance for host %s enable" % self._host.name)
+                        network_rebalance.add_rebalance_work(self._host.name, False)
+
                 else:
                     self._host.host_services_update(
                         self._service,
