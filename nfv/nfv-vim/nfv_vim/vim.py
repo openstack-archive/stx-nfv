@@ -23,6 +23,7 @@ from nfv_vim import database
 from nfv_vim import directors
 from nfv_vim import dor
 from nfv_vim import events
+from nfv_vim import neutron_rebalance
 from nfv_vim import nfvi
 from nfv_vim import tables
 
@@ -85,6 +86,7 @@ def process_initialize():
     events.events_initialize()
     audits.audits_initialize()
     dor.dor_initialize()
+    neutron_rebalance.nr_initialize()
     return init_complete
 
 
@@ -107,6 +109,7 @@ def process_finalize():
     Virtual Infrastructure Manager - Finalize
     """
     dor.dor_finalize()
+    neutron_rebalance.nr_finalize()
     audits.audits_finalize()
     events.events_finalize()
     directors.directors_finalize()

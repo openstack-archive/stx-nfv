@@ -8,6 +8,7 @@ from six.moves import http_client as httplib
 
 from nfv_common import debug
 
+from nfv_vim import neutron_rebalance
 from nfv_vim import nfvi
 
 from nfv_plugins.nfvi_plugins import config
@@ -1087,6 +1088,9 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                                        "host_name=%s." % (host_uuid, host_name))
                             return
 
+                        DLOG.info("Queueing rebalance for host enable %s" % host_name)
+                        neutron_rebalance.add_rebalance_work()
+
             response['completed'] = True
             response['reason'] = ''
 
@@ -1104,6 +1108,455 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
             DLOG.exception("Caught exception while trying to enable %s "
                            "neutron services, error=%s."
                            % (host_name, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def get_network_agents(self, future, host_name, callback):
+        """
+        Get Network Agent Information.
+        """
+        response = dict()
+        response['completed'] = False
+        response['result-data'] = ''
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._token is None or \
+                    self._token.is_expired():
+                future.work(openstack.get_token, self._directory)
+                future.result = (yield)
+
+                if not future.result.is_complete() or \
+                        future.result.data is None:
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "host_name=%s." % host_name)
+                    return
+
+                self._token = future.result.data
+
+            if self._neutron_extensions is None:
+                future.work(neutron.get_extensions, self._token)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-extensions did not complete.")
+                    return
+
+                self._neutron_extensions = future.result.data
+
+            if neutron.lookup_extension(neutron.EXTENSION_NAMES.AGENT,
+                                        self._neutron_extensions):
+                # Send Query request to Neutron
+                future.work(neutron.get_network_agents,
+                            self._token, host_name)
+
+                future.result = (yield)
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-network-agents failed, "
+                               "operation did not complete, host_name=%s"
+                               % host_name)
+                    return
+                else:
+                    response['result-data'] = future.result.data
+            else:
+                DLOG.warn("Neutron Agent Extension not available")
+                return
+
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to get "
+                               "neutron network agents, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to get %s "
+                           "neutron network agents, error=%s."
+                           % (host_name, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def get_agent_routers(self, future, agent_id, callback):
+        """
+        Get Routers hosted by Network Agent.
+        """
+        response = dict()
+        response['completed'] = False
+        response['result-data'] = ''
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._token is None or \
+                    self._token.is_expired():
+                future.work(openstack.get_token, self._directory)
+                future.result = (yield)
+
+                if not future.result.is_complete() or \
+                        future.result.data is None:
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "agent_id=%s." % agent_id)
+                    return
+
+                self._token = future.result.data
+
+            if self._neutron_extensions is None:
+                future.work(neutron.get_extensions, self._token)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-extensions did not complete.")
+                    return
+
+                self._neutron_extensions = future.result.data
+
+            if neutron.lookup_extension(neutron.EXTENSION_NAMES.AGENT,
+                                        self._neutron_extensions):
+                # Send Query request to Neutron
+                future.work(neutron.get_agent_routers,
+                            self._token, agent_id)
+
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-agent-routers failed, "
+                               "operation did not complete, agent_id=%s"
+                               % agent_id)
+                    return
+                else:
+                    response['result-data'] = future.result.data
+            else:
+                DLOG.warn("Neutron Agent Extension not available")
+                return
+
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to get "
+                               "agent routers, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to get %s "
+                           "neutron agent routers, error=%s."
+                           % (agent_id, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def get_router_ports(self, future, router_id, callback):
+        """
+        Get Ports on a Router
+        """
+        response = dict()
+        response['completed'] = False
+        response['result-data'] = ''
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._token is None or \
+                    self._token.is_expired():
+                future.work(openstack.get_token, self._directory)
+                future.result = (yield)
+
+                if not future.result.is_complete() or \
+                        future.result.data is None:
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "router_id=%s." % router_id)
+                    return
+
+                self._token = future.result.data
+
+            if self._neutron_extensions is None:
+                future.work(neutron.get_extensions, self._token)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-extensions did not complete.")
+                    return
+
+                self._neutron_extensions = future.result.data
+
+            if neutron.lookup_extension(neutron.EXTENSION_NAMES.AGENT,
+                                        self._neutron_extensions):
+                # Send Query request to Neutron
+                future.work(neutron.get_router_ports,
+                            self._token, router_id)
+
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-router-ports failed, "
+                               "operation did not complete, router_id=%s"
+                               % router_id)
+                    return
+                else:
+                    response['result-data'] = future.result.data
+            else:
+                DLOG.warn("Neutron Agent Extension not available")
+                return
+
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to get "
+                               "router ports, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to get %s "
+                           "router ports, error=%s."
+                           % (router_id, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def add_router_to_agent(self, future, agent_id, router_id, callback):
+        """
+        Add a router to an L3 Agent.
+        """
+        response = dict()
+        response['completed'] = False
+        response['result-data'] = ''
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._token is None or \
+                    self._token.is_expired():
+                future.work(openstack.get_token, self._directory)
+                future.result = (yield)
+
+                if not future.result.is_complete() or \
+                        future.result.data is None:
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "router_id=%s." % router_id)
+                    return
+
+                self._token = future.result.data
+
+            if self._neutron_extensions is None:
+                future.work(neutron.get_extensions, self._token)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-extensions did not complete.")
+                    return
+
+                self._neutron_extensions = future.result.data
+
+            if neutron.lookup_extension(neutron.EXTENSION_NAMES.AGENT,
+                                        self._neutron_extensions):
+                # Send Query request to Neutron
+                future.work(neutron.add_router_to_agent,
+                            self._token, agent_id, router_id)
+
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron add-router-to-agent failed, "
+                               "operation did not complete, agent_id=%s "
+                               "router_id=%s" % (agent_id, router_id))
+                    return
+                else:
+                    response['result-data'] = future.result.data
+            else:
+                DLOG.warn("Neutron Agent Extension not available")
+                return
+
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to add "
+                               "router to agent, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to add "
+                           "router_id=%s to agent_id=%s, error=%s."
+                           % (router_id, agent_id, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def remove_router_from_agent(self, future, agent_id, router_id, callback):
+        """
+        Remove a router from an L3 Agent.
+        """
+        response = dict()
+        response['completed'] = False
+        response['result-data'] = ''
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._token is None or \
+                    self._token.is_expired():
+                future.work(openstack.get_token, self._directory)
+                future.result = (yield)
+
+                if not future.result.is_complete() or \
+                        future.result.data is None:
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "router_id=%s." % router_id)
+                    return
+
+                self._token = future.result.data
+
+            if self._neutron_extensions is None:
+                future.work(neutron.get_extensions, self._token)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-extensions did not complete.")
+                    return
+
+                self._neutron_extensions = future.result.data
+
+            if neutron.lookup_extension(neutron.EXTENSION_NAMES.AGENT,
+                                        self._neutron_extensions):
+                # Send Query request to Neutron
+                future.work(neutron.remove_router_from_agent,
+                            self._token, agent_id, router_id)
+
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron remove-router-from-agent failed, "
+                               "operation did not complete, agent_id=%s "
+                               "router_id=%s" % (agent_id, router_id))
+                    return
+                else:
+                    response['result-data'] = future.result.data
+            else:
+                DLOG.warn("Neutron Agent Extension not available")
+                return
+
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to remove "
+                               "router from agent, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to remove "
+                           "router_id=%s from agent_id=%s, error=%s."
+                           % (router_id, agent_id, e))
+
+        finally:
+            callback.send(response)
+            callback.close()
+
+    def get_physical_network(self, future, network_id, callback):
+        """
+        Get Physical Network of a network.
+        """
+        response = dict()
+        response['completed'] = False
+        response['result-data'] = ''
+        response['reason'] = ''
+
+        try:
+            future.set_timeouts(config.CONF.get('nfvi-timeouts', None))
+
+            if self._token is None or \
+                    self._token.is_expired():
+                future.work(openstack.get_token, self._directory)
+                future.result = (yield)
+
+                if not future.result.is_complete() or \
+                        future.result.data is None:
+                    DLOG.error("OpenStack get-token did not complete, "
+                               "network_id=%s." % network_id)
+                    return
+
+                self._token = future.result.data
+
+            if self._neutron_extensions is None:
+                future.work(neutron.get_extensions, self._token)
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-extensions did not complete.")
+                    return
+
+                self._neutron_extensions = future.result.data
+
+            if neutron.lookup_extension(neutron.EXTENSION_NAMES.AGENT,
+                                        self._neutron_extensions):
+                # Send Query request to Neutron
+                future.work(neutron.get_physical_network,
+                            self._token, network_id)
+
+                future.result = (yield)
+
+                if not future.result.is_complete():
+                    DLOG.error("Neutron get-physical-network failed, "
+                               "operation did not complete, network_id=%s"
+                               % network_id)
+                    return
+                else:
+                    response['result-data'] = future.result.data
+            else:
+                DLOG.warn("Neutron Agent Extension not available")
+                return
+
+            response['completed'] = True
+
+        except exceptions.OpenStackRestAPIException as e:
+            if httplib.UNAUTHORIZED == e.http_status_code:
+                response['error-code'] = nfvi.NFVI_ERROR_CODE.TOKEN_EXPIRED
+                if self._token is not None:
+                    self._token.set_expired()
+
+            else:
+                DLOG.exception("Caught exception while trying to get "
+                               "physical network, error=%s." % e)
+
+        except Exception as e:
+            DLOG.exception("Caught exception while trying to get %s "
+                           "physical network, error=%s."
+                           % (network_id, e))
 
         finally:
             callback.send(response)
@@ -1273,12 +1726,16 @@ class NFVINetworkAPI(nfvi.api.v1.NFVINetworkAPI):
                                        "operation did not complete, host_uuid=%s, "
                                        "host_name=%s." % (host_uuid, host_name))
                             return
+
                     else:
                         if not future.result.data:
                             DLOG.error("Neutron disable-host-services (agents) failed, "
                                        "operation did not complete, host_uuid=%s, "
                                        "host_name=%s." % (host_uuid, host_name))
                             return
+
+                        DLOG.info("Queueing rebalance for host disable %s" % host_name)
+                        neutron_rebalance.add_rebalance_work(host_name)
 
             response['completed'] = True
             response['reason'] = ''
