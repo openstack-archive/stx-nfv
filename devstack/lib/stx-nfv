@@ -46,8 +46,13 @@ GUEST_CLIENT_VERSION="3.0.1"
 STX_SDK_DEPLOY_DIR=${STX_SDK_DEPLOY_DIR:-/opt/deploy/cgcs_sdk}
 
 # STX_INST_DIR should be a non-root-writable place to install build artifacts
-STX_INST_DIR=${STX_INST_DIR:-$DEST/usr}
+STX_INST_DIR=${STX_INST_DIR:-/usr/local}
 STX_BIN_DIR=$STX_INST_DIR/bin
+
+# Set up so we don't use sudo for installs when not necessary
+STX_SUDO="sudo"
+[[ -w $STX_INST_DIR ]] && STX_SUDO="env"
+
 PYTHON_SITE_DIR=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 
 # Functions
@@ -56,43 +61,43 @@ PYTHON_SITE_DIR=$(python -c "from distutils.sysconfig import get_python_lib; pri
 function cleanup_guest_agent {
     sudo rm -rf $MTCE_GUEST_OCF_DIR/guestAgent
     sudo rm -rf $MTCE_GUEST_CONF/guestAgent.ini
-    rm -rf $STX_INST_DIR/bin/guestAgent
+    $STX_SUDO rm -rf $STX_INST_DIR/bin/guestAgent
     sudo rm -rf $STXNFV_SYSCONFDIR/init.d/guestAgent
     sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestAgent.logrotate
 }
 
 function cleanup_guest_client {
-    sudo rm -rf $STX_INST_DIR/include/guest-client
+    $STX_SUDO rm -rf $STX_INST_DIR/include/guest-client
     sudo rm -rf $STX_SDK_DEPLOY_DIR
     sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
     sudo rm -rf $STXNFV_SYSCONFDIR/guest-client
-    sudo rm -rf $STX_INST_DIR/bin/guest-client
-    sudo rm -rf $STX_INST_DIR/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    sudo rm -rf $STX_INST_DIR/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+    $STX_SUDO rm -rf $STX_INST_DIR/bin/guest-client
+    $STX_SUDO rm -rf $STX_INST_DIR/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+    $STX_SUDO rm -rf $STX_INST_DIR/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
 }
 
 function cleanup_guest_server {
     sudo rm -rf $MTCE_GUEST_CONF/guestServer.ini
-    rm -rf $STX_INST_DIR/bin/guestServer
+    $STX_SUDO rm -rf $STX_INST_DIR/bin/guestServer
     sudo rm -rf $STXNFV_SYSCONFDIR/init.d/guestServer
     sudo rm -rf $STXNFV_SYSCONFDIR/pmon.d/guestServer.conf
     sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestServer.logrotate
 }
 
 function cleanup_guest_scale_helper {
-    rm -rf $STX_INST_DIR/sbin/guest_scale_helper
+    $STX_SUDO rm -rf $STX_INST_DIR/sbin/guest_scale_helper
 }
 
 function cleanup_host_agent {
     sudo rm -rf $STXNFV_SYSCONFDIR/init.d/host_agent
     sudo rm -rf $STXNFV_SYSCONFDIR/pmon.d/host_agent.conf
-    rm -rf $STX_INST_DIR/sbin/host_agent
-    rm -rf $STX_INST_DIR/include/cgcs/guest_host_msg.h
-    rm -rf $STX_INST_DIR/include/cgcs/host_guest_msg.h
+    $STX_SUDO rm -rf $STX_INST_DIR/sbin/host_agent
+    $STX_SUDO rm -rf $STX_INST_DIR/include/cgcs/guest_host_msg.h
+    $STX_SUDO rm -rf $STX_INST_DIR/include/cgcs/host_guest_msg.h
 
-    rm -rf $STX_INST_DIR/lib64/libguesthostmsg.so
-    rm -rf $STX_INST_DIR/lib64/libhostguestmsg.so
-    rm -rf $STX_INST_DIR/lib64/libservergroup.so
+    $STX_SUDO rm -rf $STX_INST_DIR/lib64/libguesthostmsg.so
+    $STX_SUDO rm -rf $STX_INST_DIR/lib64/libhostguestmsg.so
+    $STX_SUDO rm -rf $STX_INST_DIR/lib64/libservergroup.so
 }
 
 function cleanup_nfv {
@@ -313,7 +318,7 @@ function install_guest_agent {
     sudo install -m 755 -d $MTCE_GUEST_OCF_DIR
     sudo install -m 755 -p -D scripts/guestAgent.ocf $MTCE_GUEST_OCF_DIR/guestAgent
     sudo install -m 644 -p -D scripts/guest.ini $MTCE_GUEST_CONF/guestAgent.ini
-    install -m 755 -p -D guestAgent $STX_INST_DIR/local/bin/guestAgent
+    $STX_SUDO install -m 755 -p -D guestAgent $STX_INST_DIR/local/bin/guestAgent
     sudo install -m 755 -p -D scripts/guestAgent $STXNFV_SYSCONFDIR/init.d/guestAgent
     sudo install -m 644 -p -D scripts/guestAgent.logrotate $STXNFV_SYSCONFDIR/logrotate.d/guestAgent.logrotate
 
@@ -330,8 +335,8 @@ function install_guest_client {
     find build
 
     # Sudo Install for guest-client package
-    sudo install -m 755 -d $STX_INST_DIR/include/guest-client
-    sudo install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $STX_INST_DIR/include/guest-client/guest_heartbeat_msg_defs.h
+    $STX_SUDO install -m 755 -d $STX_INST_DIR/include/guest-client
+    $STX_SUDO install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $STX_INST_DIR/include/guest-client/guest_heartbeat_msg_defs.h
     sudo install -d $STX_SDK_DEPLOY_DIR
     sudo install -m 640 build/wrs-guest-heartbeat-$GUEST_CLIENT_VERSION.tgz $STX_SDK_DEPLOY_DIR
 
@@ -343,9 +348,9 @@ function install_guest_client {
     sudo install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf $STXNFV_SYSCONFDIR/guest-client/heartbeat/guest_heartbeat.conf
     sudo install -m 755 -p -D guest_client/scripts/sample_event_handling_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_event_handling_script
     sudo install -m 755 -p -D guest_client/scripts/sample_health_check_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_health_check_script
-    sudo install -m 640 -p -D build/guest-client $STX_INST_DIR/bin/guest-client
-    sudo install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION $STX_INST_DIR/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    sudo install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION $STX_INST_DIR/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
+    $STX_SUDO install -m 640 -p -D build/guest-client $STX_INST_DIR/bin/guest-client
+    $STX_SUDO install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION $STX_INST_DIR/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
+    $STX_SUDO install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION $STX_INST_DIR/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
 
     popd
 }
@@ -356,14 +361,14 @@ function install_host_agent {
 
     sudo install -m 755 -p -D scripts/host_agent $STXNFV_SYSCONFDIR/init.d/host_agent
     sudo install -m 640 -p -D scripts/host_agent.conf $STXNFV_SYSCONFDIR/pmon.d/host_agent.conf
-    install -m 755 -p -D bin/host_agent $STX_INST_DIR/sbin/host_agent
-    install -m 755 -d $STX_INST_DIR/include/cgcs
-    install -m 644 -p -D guest_host_msg.h $STX_INST_DIR/include/cgcs/guest_host_msg.h
-    install -m 644 -p -D host_guest_msg.h $STX_INST_DIR/include/cgcs/host_guest_msg.h
+    $STX_SUDO install -m 755 -p -D bin/host_agent $STX_INST_DIR/sbin/host_agent
+    $STX_SUDO install -m 755 -d $STX_INST_DIR/include/cgcs
+    $STX_SUDO install -m 644 -p -D guest_host_msg.h $STX_INST_DIR/include/cgcs/guest_host_msg.h
+    $STX_SUDO install -m 644 -p -D host_guest_msg.h $STX_INST_DIR/include/cgcs/host_guest_msg.h
 
-    install -m 755 -p -D lib/libguesthostmsg.so $STX_INST_DIR/lib64/libguesthostmsg.so
-    install -m 755 -p -D lib/libhostguestmsg.so $STX_INST_DIR/lib64/libhostguestmsg.so
-    install -m 755 -p -D lib/libservergroup.so $STX_INST_DIR/lib64/libservergroup.so
+    $STX_SUDO install -m 755 -p -D lib/libguesthostmsg.so $STX_INST_DIR/lib64/libguesthostmsg.so
+    $STX_SUDO install -m 755 -p -D lib/libhostguestmsg.so $STX_INST_DIR/lib64/libhostguestmsg.so
+    $STX_SUDO install -m 755 -p -D lib/libservergroup.so $STX_INST_DIR/lib64/libservergroup.so
 
     popd
 }
@@ -372,7 +377,7 @@ function install_guest_server {
     pushd $MTCE_GUEST_DIR/src
 
     sudo install -m 644 -p -D scripts/guest.ini $MTCE_GUEST_CONF/guestServer.ini
-    install -m 755 -p -D guestServer $STX_INST_DIR/local/bin/guestServer
+    $STX_SUDO install -m 755 -p -D guestServer $STX_INST_DIR/local/bin/guestServer
     sudo install -m 755 -p -D scripts/guestServer $STXNFV_SYSCONFDIR/init.d/guestServer
     sudo install -m 755 -d $STXNFV_SYSCONFDIR/pmon.d
     sudo install -m 644 -p -D scripts/guestServer.pmon $STXNFV_SYSCONFDIR/pmon.d/guestServer.conf
@@ -385,7 +390,7 @@ function install_guest_scale_helper {
     pushd $GUEST_SCALE_AGENT_DIR
     make EXTRALDFLAGS="-L$STX_INST_DIR"/lib64 all
 
-    install -m 750 bin/guest_scale_helper $STX_INST_DIR/sbin/guest_scale_helper
+    $STX_SUDO install -m 750 bin/guest_scale_helper $STX_INST_DIR/sbin/guest_scale_helper
 
     popd
 }
