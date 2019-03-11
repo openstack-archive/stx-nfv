@@ -56,11 +56,25 @@ class AgentType(Constants):
     DHCP = Constant('DHCP agent')
 
 
+@six.add_metaclass(Singleton)
+class VnicType(Constants):
+    """
+    VNIC TYPE constants
+    """
+    NORMAL = Constant('normal')
+    DIRECT = Constant('direct')
+    MACVTAP = Constant('macvtap')
+    BAREMETAL = Constant('baremetal')
+    DIRECT_PHYSICAL = Constant('direct-physical')
+    VIRTIO_FORWARDER = Constant('virtio-forwarder')
+
+
 # Constant Instantiation
 EXTENSION_NAMES = NeutronExtensionNames()
 NETWORK_ADMIN_STATE = NetworkAdministrativeState()
 NETWORK_STATUS = NetworkStatus()
 AGENT_TYPE = AgentType()
+VNIC_TYPE = VnicType()
 
 
 def get_network_agents(token, host_name):
@@ -364,6 +378,23 @@ def get_subnet(token, subnet_id):
         raise ValueError("OpenStack Neutron URL is invalid")
 
     api_cmd = url + "/v2.0/subnets/%s" % subnet_id
+
+    api_cmd_headers = dict()
+    api_cmd_headers['wrs-header'] = 'true'
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    return response
+
+
+def get_ports_for_instance(token, instance_uuid):
+    """
+    Ask OpenStack Neutron for a list of ports attached to an instance
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/ports?device_id=%s" % (instance_uuid)
 
     api_cmd_headers = dict()
     api_cmd_headers['wrs-header'] = 'true'
