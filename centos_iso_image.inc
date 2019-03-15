@@ -2,9 +2,6 @@
 # If these have dependencies, they will be pulled in automatically
 #
 
-# nova-api-proxy
-nova-api-proxy
-
 # guest-scale-agent
 guest-scale-helper
 
