@@ -1,5 +1,10 @@
 #!/bin/bash
 #
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright (C) 2019 Intel Corporation
+#
+
 # lib/stx-nfv
 
 _XTRACE_STX_NFV=$(set +o | grep xtrace)
