@@ -1,8 +1,9 @@
 #
-# Copyright
-#
 # SPDX-License-Identifier: Apache-2.0
 #
+# Copyright (C) 2019 Intel Corporation
+#
+
 import kubernetes
 from kubernetes.client.rest import ApiException
 import mock
