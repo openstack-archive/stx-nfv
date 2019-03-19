@@ -250,7 +250,7 @@ class DisableHostTask(state_machine.StateTask):
             # and we are not running in a single controller configuration. In
             # a single controller configuration we keep the container services
             # running.
-            if self._host.is_locking():
+            if self._host.is_locking() or self._host.is_locked():
                 from nfv_vim import directors
                 sw_mgmt_director = directors.get_sw_mgmt_director()
                 if not sw_mgmt_director.single_controller:
