@@ -138,7 +138,16 @@ def _audit_nfvi_hosts_callback(timer_id):
                 if not host.is_deleted():
                     deletable_host_groups.remove(host.name)
 
-            host.nfvi_host_update(nfvi_host)
+            if 30 <= host.elapsed_time_in_state:
+                # Only process the audited host information if the host has
+                # been in the current state for at least 30 seconds. This is
+                # necessary because the host state information comes from
+                # maintenance and the maintenance states may lag the states in
+                # the VIM because the VIM and maintenance process some actions
+                # at the same time (e.g. when a host is locked).
+                host.nfvi_host_update(nfvi_host)
+            else:
+                DLOG.info("Ignoring audit reply for host %s" % nfvi_host.name)
 
         for host_name in deletable_host_groups:
             host = host_table[host_name]
