@@ -1,0 +1,8 @@
+BUILDER=loci
+LABEL=stx-nova-api-proxy
+# Set PROJECT=infra and PROJECT_REPO=nil because we are not cloning a repo
+PROJECT=infra
+PROJECT_REPO=nil
+PIP_PACKAGES="api_proxy eventlet oslo.config oslo.log \
+              paste PasteDeploy routes webob keystonemiddleware pylint"
+
