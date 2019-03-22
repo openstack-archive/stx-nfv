@@ -12,6 +12,16 @@ DLOG = debug.debug_get_logger('nfv_vim.nfvi.nfvi_infrastructure_module')
 _infrastructure_plugin = None
 
 
+def nfvi_get_datanetworks(host_uuid, callback):
+    """
+    Get host data network information
+    """
+    cmd_id = _infrastructure_plugin.invoke_plugin('get_datanetworks',
+                                                  host_uuid,
+                                                  callback=callback)
+    return cmd_id
+
+
 def nfvi_get_system_info(callback):
     """
     Get information about the system
