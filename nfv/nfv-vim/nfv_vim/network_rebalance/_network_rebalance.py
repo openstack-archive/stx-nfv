@@ -328,7 +328,7 @@ class L3AgentRebalance(object):
         max_routers = self.num_routers_on_agents[agent_with_most_routers]
 
         if ((max_routers - min_routers) <= _L3Rebalance.router_diff_threshold):
-            DLOG.debug("max:%s - min:%s <= DIFF, balanced" % (max_routers, min_routers))
+            DLOG.info("max:%s - min:%s <= DIFF, balanced" % (max_routers, min_routers))
             return True
 
         return False
@@ -438,9 +438,16 @@ def _add_router_to_agent_callback():
     """
     Add router to agent callback
     """
-    global _L3Rebalance
-
     response = (yield)
+
+    _add_router_to_agent_callback_body(response)
+
+
+def _add_router_to_agent_callback_body(response):
+    """
+    Add router to agent callback body
+    """
+    global _L3Rebalance
 
     _L3Rebalance.state_machine_in_progress = False
     DLOG.debug("_add_router_to_agent_callback, response = %s" % response)
@@ -454,9 +461,16 @@ def _remove_router_from_agent_callback(to_agent_id, router_id):
     """
     Remove router from agent callback
     """
-    global _L3Rebalance
-
     response = (yield)
+
+    _remove_router_from_agent_callback_body(to_agent_id, router_id, response)
+
+
+def _remove_router_from_agent_callback_body(to_agent_id, router_id, response):
+    """
+    Remove router from agent callback body
+    """
+    global _L3Rebalance
 
     DLOG.debug("_remove_router_from_agent_callback , response = %s" % response)
     if response['completed']:
@@ -475,9 +489,16 @@ def _get_datanetworks_callback(host_id):
     """
     Get data networks callback
     """
-    global _L3Rebalance
-
     response = (yield)
+
+    _get_datanetworks_callback_body(host_id, response)
+
+
+def _get_datanetworks_callback_body(host_id, response):
+    """
+    Get data networks callback body
+    """
+    global _L3Rebalance
 
     _L3Rebalance.state_machine_in_progress = False
     DLOG.debug("_get_datanetworks, response = %s" % response)
@@ -512,9 +533,16 @@ def _get_physical_network_callback(network_id):
     """
     Get Physical Network callback
     """
-    global _L3Rebalance
-
     response = (yield)
+
+    _get_physical_network_callback_body(network_id, response)
+
+
+def _get_physical_network_callback_body(network_id, response):
+    """
+    Get Physical Network callback body
+    """
+    global _L3Rebalance
 
     _L3Rebalance.state_machine_in_progress = False
     DLOG.debug("_get_physical_network_callback, response = %s" % response)
@@ -550,14 +578,29 @@ def _get_router_ports_callback(router):
     Get Router Ports callback.  Save the network_id for each port attached
     to the router.
     """
-    global _L3Rebalance
-
     response = (yield)
+
+    _get_router_ports_callback_body(router, response)
+
+
+def _get_router_ports_callback_body(router, response):
+    """
+    Get Router Ports callback body
+    """
+    global _L3Rebalance
 
     _L3Rebalance.state_machine_in_progress = False
     DLOG.debug("_get_router_ports_callback, response = %s" % response)
     if response['completed']:
         result_data = response.get('result-data', None)
+        if result_data.get('ports', None) is None:
+            # It is possible that while running the state machine that
+            # information has become stale due to the user modifying routers.
+            # Abort if this is the case.
+            DLOG.error("No port information for router: %s" % router)
+            _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
+            return
+
         for port in result_data['ports']:
             network_id = port['network_id']
             _L3Rebalance.add_network_to_router(router, network_id)
@@ -601,9 +644,16 @@ def _get_agent_routers_callback(agent_id):
     """
     Get Agent Routers callback
     """
-    global _L3Rebalance
-
     response = (yield)
+
+    _get_agent_routers_callback_body(agent_id, response)
+
+
+def _get_agent_routers_callback_body(agent_id, response):
+    """
+    Get Agent Routers callback body
+    """
+    global _L3Rebalance
 
     _L3Rebalance.state_machine_in_progress = False
     DLOG.debug("_get_agent_routers_callback, response = %s" % response)
@@ -669,9 +719,16 @@ def _get_network_agents_callback():
     """
     Get Network Agents callback
     """
-    global _L3Rebalance
-
     response = (yield)
+
+    _get_network_agents_callback_body(response)
+
+
+def _get_network_agents_callback_body(response):
+    """
+    Get Network Agents callback body
+    """
+    global _L3Rebalance
 
     _L3Rebalance.state_machine_in_progress = False
     DLOG.debug("_get_network_agents_callback, response = %s" % response)
@@ -682,7 +739,7 @@ def _get_network_agents_callback():
 
         if num_agents < 2:
             # no sense doing anything if less than 2 agents
-            DLOG.debug("Less than 2 l3agents, no rebalancing required")
+            DLOG.info("Less than 2 l3agents, no rebalancing required")
             _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
         else:
             _L3Rebalance.set_state(L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT)
@@ -877,6 +934,84 @@ def _reschedule_new_agent():
     _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
 
 
+def _run_state_machine():
+    global _L3Rebalance
+
+    if not _L3Rebalance.state_machine_in_progress:
+
+        _L3Rebalance.state_machine_in_progress = True
+
+        my_state = _L3Rebalance.get_state()
+        DLOG.debug("Network Rebalance State %s" % my_state)
+        if my_state == L3_REBALANCE_STATE.GET_NETWORK_AGENTS:
+
+            _L3Rebalance.reinit()
+            _get_network_agents()
+
+        elif my_state == L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT:
+
+            _get_routers_on_agents()
+
+        elif my_state == L3_REBALANCE_STATE.GET_ROUTER_PORT_NETWORKS:
+
+            _get_router_port_networks()
+
+        elif my_state == L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS:
+
+            _get_physical_networks()
+
+        elif my_state == L3_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS:
+
+            _get_host_data_networks()
+
+        elif my_state == L3_REBALANCE_STATE.RESCHEDULE_DOWN_AGENT:
+
+            _reschedule_down_agent()
+
+        elif my_state == L3_REBALANCE_STATE.RESCHEDULE_NEW_AGENT:
+
+            _reschedule_new_agent()
+
+        elif my_state == L3_REBALANCE_STATE.DONE:
+
+            _L3Rebalance.state_machine_in_progress = False
+
+            # Check for work...
+            if ((len(_L3Rebalance.host_up_queue) > 0) or
+                    (len(_L3Rebalance.host_down_queue) > 0)):
+                _L3Rebalance.set_state(L3_REBALANCE_STATE.HOLD_OFF)
+
+        elif my_state == L3_REBALANCE_STATE.HOLD_OFF:
+
+            _L3Rebalance.state_machine_in_progress = False
+            if _L3Rebalance.hold_off_is_done():
+                if len(_L3Rebalance.host_down_queue) > 0:
+                    # A reschedule for every down host is required.
+                    # Do the down hosts rescheduling before handling
+                    # the up hosts, as if both are pending, we don't
+                    # want to move routers to agents that are about to
+                    # go down.
+                    down_host = _L3Rebalance.host_down_queue.pop(0)
+                    _L3Rebalance.set_working_host(down_host)
+                    DLOG.info("Triggering L3 Agent reschedule for "
+                              "disabled l3 agent host: %s" %
+                              down_host)
+                elif len(_L3Rebalance.host_up_queue) > 0:
+                    # Even if multiple hosts come up, we only need to
+                    # reschedule once
+                    _L3Rebalance.set_working_host(None)
+                    DLOG.info("Triggering L3 Agent reschedule for "
+                              "enabled l3 agent host(s): %s" %
+                              _L3Rebalance.host_up_queue)
+                    del _L3Rebalance.host_up_queue[:]
+
+                _L3Rebalance.set_state(L3_REBALANCE_STATE.GET_NETWORK_AGENTS)
+
+        else:
+            DLOG.error("Unknown state: %s, resetting" % my_state)
+            _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
+
+
 @coroutine
 def _nr_timer():
     """
@@ -886,80 +1021,7 @@ def _nr_timer():
 
     while True:
         (yield)
-
-        if not _L3Rebalance.state_machine_in_progress:
-
-            _L3Rebalance.state_machine_in_progress = True
-
-            my_state = _L3Rebalance.get_state()
-            DLOG.debug("Network Rebalance State %s" % my_state)
-            if my_state == L3_REBALANCE_STATE.GET_NETWORK_AGENTS:
-
-                _L3Rebalance.reinit()
-                _get_network_agents()
-
-            elif my_state == L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT:
-
-                _get_routers_on_agents()
-
-            elif my_state == L3_REBALANCE_STATE.GET_ROUTER_PORT_NETWORKS:
-
-                _get_router_port_networks()
-
-            elif my_state == L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS:
-
-                _get_physical_networks()
-
-            elif my_state == L3_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS:
-
-                _get_host_data_networks()
-
-            elif my_state == L3_REBALANCE_STATE.RESCHEDULE_DOWN_AGENT:
-
-                _reschedule_down_agent()
-
-            elif my_state == L3_REBALANCE_STATE.RESCHEDULE_NEW_AGENT:
-
-                _reschedule_new_agent()
-
-            elif my_state == L3_REBALANCE_STATE.DONE:
-
-                _L3Rebalance.state_machine_in_progress = False
-
-                # Check for work...
-                if ((len(_L3Rebalance.host_up_queue) > 0) or
-                        (len(_L3Rebalance.host_down_queue) > 0)):
-                    _L3Rebalance.set_state(L3_REBALANCE_STATE.HOLD_OFF)
-
-            elif my_state == L3_REBALANCE_STATE.HOLD_OFF:
-
-                _L3Rebalance.state_machine_in_progress = False
-                if _L3Rebalance.hold_off_is_done():
-                    if len(_L3Rebalance.host_down_queue) > 0:
-                        # A reschedule for every down host is required.
-                        # Do the down hosts rescheduling before handling
-                        # the up hosts, as if both are pending, we don't
-                        # want to move routers to agents that are about to
-                        # go down.
-                        down_host = _L3Rebalance.host_down_queue.pop(0)
-                        _L3Rebalance.set_working_host(down_host)
-                        DLOG.info("Triggering L3 Agent reschedule for "
-                                  "disabled l3 agent host: %s" %
-                                  down_host)
-                    elif len(_L3Rebalance.host_up_queue) > 0:
-                        # Even if multiple hosts come up, we only need to
-                        # reschedule once
-                        _L3Rebalance.set_working_host(None)
-                        DLOG.info("Triggering L3 Agent reschedule for "
-                                  "enabled l3 agent host(s): %s" %
-                                  _L3Rebalance.host_up_queue)
-                        del _L3Rebalance.host_up_queue[:]
-
-                    _L3Rebalance.set_state(L3_REBALANCE_STATE.GET_NETWORK_AGENTS)
-
-            else:
-                DLOG.error("Unknown state: %s, resetting" % my_state)
-                _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
+        _run_state_machine()
 
 
 def nr_initialize():
@@ -975,6 +1037,14 @@ def nr_initialize():
         _nr_timer_interval = int(section.get('timer_interval', 10))
         _L3Rebalance.router_diff_threshold = int(section.get('router_diff_threshold', 3))
         _L3Rebalance.hold_off = int(section.get('hold_off', 3))
+        if _L3Rebalance.router_diff_threshold < 1:
+            DLOG.warn("Invalid setting for router_diff_threshold: %s, forcing to 1" %
+                      _L3Rebalance.router_diff_threshold)
+            _L3Rebalance.router_diff_threshold = 1
+        if _nr_timer_interval < 1:
+            DLOG.warn("Invalid setting for timer_interval: %s, forcing to 1" %
+                      _nr_timer_interval)
+            _nr_timer_interval = 1
     else:
         _nr_timer_interval = 10
         _L3Rebalance.router_diff_threshold = 3
