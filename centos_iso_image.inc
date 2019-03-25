@@ -5,9 +5,6 @@
 # nova-api-proxy
 nova-api-proxy
 
-# guest-scale-agent
-guest-scale-helper
-
 # host-guest-comm
 host-guest-comm
 

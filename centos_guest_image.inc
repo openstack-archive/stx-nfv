@@ -9,8 +9,5 @@
 # guest-client
 guest-client
 
-# guest-scale-agent
-guest-scale-agent
-
 # host-guest-comm
 guest-host-comm
