@@ -6,6 +6,7 @@
       jobs:
         - build-openstack-api-ref
         - build-openstack-releasenotes
+        - flock-devstack-nfv
         - openstack-tox-linters
         - nfv-tox-pep8
         - nfv-tox-py27
@@ -13,12 +14,11 @@
         - nfv-tox-pylint
         - nova-api-proxy-tox-pep8
         - nova-api-proxy-tox-pylint
-        - stx-devstack-nfv:
-            voting: false
     gate:
       jobs:
         - build-openstack-api-ref
         - build-openstack-releasenotes
+        - flock-devstack-nfv
         - openstack-tox-linters
         - nfv-tox-pep8
         - nfv-tox-py27
@@ -91,56 +91,28 @@
       tox_extra_args: -c nova-api-proxy/tox.ini
 
 - job:
-    name: stx-devstack-nfv
-    parent: stx-devstack-base
-    timeout: 7800
+    name: flock-devstack-nfv
+    parent: flock-devstack-base-min
     required-projects:
       - openstack/stx-fault
+      - openstack/stx-integ
       - openstack/stx-metal
       - openstack/stx-update
     vars:
       tox_envlist: functional
       devstack_services:
-        # Cinder services
-        c-api: false
-        c-bak: false
-        c-sch: false
-        c-vol: false
-        cinder: false
-        # Glance services
-        g-api: false
-        g-reg: false
-        # Nova services
-        n-api: false
-        n-api-meta: false
-        n-cauth: false
-        n-cond: false
-        n-cpu: false
-        n-novnc: false
-        n-obj: false
-        n-sch: false
-        placement-api: false
-        # Neutron services
-        q-agt: true
-        q-dhcp: false
-        q-l3: false
-        q-meta: false
-        q-metering: false
-        q-svc: false
-        horizon: false
         # StarlingX services
         fm-common: true
         fm-api: true
         fm-rest-api: true
         fm-mgr: true
+        guest-client: true
         nfv-common: true
         nfv-vim: true
         nfv-client: true
-        guest-client: true
       devstack_plugins:
-        stx-fault: git://git.starlingx.io/stx-fault
-        stx-metal: git://git.starlingx.io/stx-metal
-        stx-nfv: git://git.starlingx.io/stx-nfv
-        stx-update: git://git.starlingx.io/stx-update
-      devstack_localrc:
-        LIBS_FROM_GIT: keystone
+        stx-fault: https:://git.starlingx.io/stx-fault
+        stx-integ: https://git.starlingx.io/stx-integ
+        stx-metal: https:://git.starlingx.io/stx-metal
+        stx-nfv: https:://git.starlingx.io/stx-nfv
+        stx-update: https:://git.starlingx.io/stx-update
