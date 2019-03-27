@@ -163,13 +163,13 @@ function cleanup_nova_api_proxy {
 }
 
 function configure_guest_agent {
-    sudo sed -i "s%DAEMON=\"/usr/local/bin/\${DAEMON_NAME}\"%DAEMON=\"$STX_INST_DIR/local/bin/\${DAEMON_NAME}\"%" $STXNFV_SYSCONFDIR/init.d/guestAgent
+    sudo sed -i "s%DAEMON=\"/usr/local/bin/\${DAEMON_NAME}\"%DAEMON=\"$STX_INST_DIR/bin/\${DAEMON_NAME}\"%" $STXNFV_SYSCONFDIR/init.d/guestAgent
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-agent.service "Service" "Type" "forking"
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-agent.service "Service" "PIDFile" "/var/run/guestAgent.pid"
 }
 
 function configure_guest_server {
-    sudo sed -i "s%DAEMON=\"/usr/local/bin/\${DAEMON_NAME}\"%DAEMON=\"$STX_INST_DIR/local/bin/\${DAEMON_NAME}\"%" $STXNFV_SYSCONFDIR/init.d/guestServer
+    sudo sed -i "s%DAEMON=\"/usr/local/bin/\${DAEMON_NAME}\"%DAEMON=\"$STX_INST_DIR/bin/\${DAEMON_NAME}\"%" $STXNFV_SYSCONFDIR/init.d/guestServer
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "Type" "forking"
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "PIDFile" "/var/run/guestServer.pid"
 }
@@ -305,7 +305,7 @@ function install_guest_agent {
     sudo install -m 755 -d $MTCE_GUEST_OCF_DIR
     sudo install -m 755 -p -D scripts/guestAgent.ocf $MTCE_GUEST_OCF_DIR/guestAgent
     sudo install -m 644 -p -D scripts/guest.ini $MTCE_GUEST_CONF/guestAgent.ini
-    $STX_SUDO install -m 755 -p -D guestAgent $STX_INST_DIR/local/bin/guestAgent
+    $STX_SUDO install -m 755 -p -D guestAgent $STX_INST_DIR/bin/guestAgent
     sudo install -m 755 -p -D scripts/guestAgent $STXNFV_SYSCONFDIR/init.d/guestAgent
     sudo install -m 644 -p -D scripts/guestAgent.logrotate $STXNFV_SYSCONFDIR/logrotate.d/guestAgent.logrotate
 
@@ -364,7 +364,7 @@ function install_guest_server {
     pushd $MTCE_GUEST_DIR/src
 
     sudo install -m 644 -p -D scripts/guest.ini $MTCE_GUEST_CONF/guestServer.ini
-    $STX_SUDO install -m 755 -p -D guestServer $STX_INST_DIR/local/bin/guestServer
+    $STX_SUDO install -m 755 -p -D guestServer $STX_INST_DIR/bin/guestServer
     sudo install -m 755 -p -D scripts/guestServer $STXNFV_SYSCONFDIR/init.d/guestServer
     sudo install -m 755 -d $STXNFV_SYSCONFDIR/pmon.d
     sudo install -m 644 -p -D scripts/guestServer.pmon $STXNFV_SYSCONFDIR/pmon.d/guestServer.conf
