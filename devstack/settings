@@ -49,11 +49,5 @@ if is_service_enabled guest-agent || is_service_enabled guest-server; then
     done
 fi
 
-if is_service_enabled guest-scale-helper; then
-    # guest-scale-helper needs header files and libraries built from the folder
-    # guest-comm
-    enable_service host-agent
-fi
-
 # Initial source of lib script
 source $DEST/stx-nfv/devstack/lib/stx-nfv
