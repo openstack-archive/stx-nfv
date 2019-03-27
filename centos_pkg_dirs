@@ -1,6 +1,5 @@
 nova-api-proxy
 guest-client
-guest-agent
 guest-comm
 nfv
 mtce-guest
