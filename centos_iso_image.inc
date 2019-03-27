@@ -5,9 +5,6 @@
 # nova-api-proxy
 nova-api-proxy
 
-# host-guest-comm
-host-guest-comm
-
 # nfv
 nfv
 nfv-common

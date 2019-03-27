@@ -9,5 +9,3 @@
 # guest-client
 guest-client
 
-# host-guest-comm
-guest-host-comm
