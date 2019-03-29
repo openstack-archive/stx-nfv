@@ -422,7 +422,7 @@ class L3AgentRebalance(object):
 _L3Rebalance = L3AgentRebalance()
 
 
-def add_rebalance_work(host_name, host_is_going_down):
+def add_rebalance_work_l3(host_name, host_is_going_down):
     """
     API for external use to launch a rebalance operation.
     host_is_going_down is boolean indicating if the host is

@@ -150,6 +150,15 @@ def nfvi_get_network_agents(callback):
     return cmd_id
 
 
+def nfvi_get_dhcp_agent_networks(agent_id, callback):
+    """
+    Get networks hosted on a dhcp agent
+    """
+    cmd_id = _network_plugin.invoke_plugin('get_dhcp_agent_networks',
+                                           agent_id, callback=callback)
+    return cmd_id
+
+
 def nfvi_get_agent_routers(agent_id, callback):
     """
     Get routers hosted on a l3 agent
@@ -165,6 +174,24 @@ def nfvi_get_router_ports(router_id, callback):
     """
     cmd_id = _network_plugin.invoke_plugin('get_router_ports',
                                            router_id, callback=callback)
+    return cmd_id
+
+
+def nfvi_add_network_to_dhcp_agent(agent_id, network_id, callback):
+    """
+    Add a network to a DHCP agent
+    """
+    cmd_id = _network_plugin.invoke_plugin('add_network_to_dhcp_agent',
+                                           agent_id, network_id, callback=callback)
+    return cmd_id
+
+
+def nfvi_remove_network_from_dhcp_agent(agent_id, network_id, callback):
+    """
+    Remove a network from a DHCP Agent
+    """
+    cmd_id = _network_plugin.invoke_plugin('remove_network_from_dhcp_agent',
+                                           agent_id, network_id, callback=callback)
     return cmd_id
 
 

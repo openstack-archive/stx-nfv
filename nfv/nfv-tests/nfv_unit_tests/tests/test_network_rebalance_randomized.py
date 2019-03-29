@@ -15,7 +15,7 @@ from nfv_vim.network_rebalance._network_rebalance import _get_router_ports_callb
 from nfv_vim.network_rebalance._network_rebalance import _L3Rebalance
 from nfv_vim.network_rebalance._network_rebalance import _remove_router_from_agent_callback_body  # noqa: H501
 from nfv_vim.network_rebalance._network_rebalance import _run_state_machine
-from nfv_vim.network_rebalance._network_rebalance import add_rebalance_work
+from nfv_vim.network_rebalance._network_rebalance import add_rebalance_work_l3
 from nfv_vim.network_rebalance._network_rebalance import L3_REBALANCE_STATE
 
 from . import testcase  # noqa: H304
@@ -252,7 +252,7 @@ class TestNeutronRebalance2(testcase.NFVTestCase):
         initial_router_config = list()
         for x in range(1, 200):
             _L3Rebalance.router_diff_threshold = random.randint(1, 4)
-            add_rebalance_work('compute-0', True)
+            add_rebalance_work_l3('compute-0', True)
             loopcount = 0
             if DEBUG_PRINTING:
                 print("HOST DOWN TEST NUMBER %s" % str(x))
@@ -309,7 +309,7 @@ class TestNeutronRebalance2(testcase.NFVTestCase):
         initial_router_config = list()
         for x in range(1, 200):
             _L3Rebalance.router_diff_threshold = random.randint(1, 4)
-            add_rebalance_work('compute-0', False)
+            add_rebalance_work_l3('compute-0', False)
             loopcount = 0
             if DEBUG_PRINTING:
                 print("HOST UP TEST NUMBER %s" % str(x))

@@ -87,6 +87,7 @@ def process_initialize():
     audits.audits_initialize()
     dor.dor_initialize()
     network_rebalance.nr_initialize()
+    network_rebalance.dr_initialize()
     return init_complete
 
 
@@ -110,6 +111,7 @@ def process_finalize():
     """
     dor.dor_finalize()
     network_rebalance.nr_finalize()
+    network_rebalance.dr_finalize()
     audits.audits_finalize()
     events.events_finalize()
     directors.directors_finalize()
