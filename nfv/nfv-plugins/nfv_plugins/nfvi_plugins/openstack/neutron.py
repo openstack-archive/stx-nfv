@@ -87,6 +87,64 @@ def get_network_agents(token):
     return result_data
 
 
+def get_dhcp_agent_networks(token, agent_id):
+    """
+    Get all networks hosted by a particular dhcp agent
+    Paging not supported by API.
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents/" + agent_id + "/dhcp-networks?fields=id&fields=provider%3Aphysical_network"
+
+    api_cmd_headers = dict()
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
+    result_data = response.result_data['networks']
+
+    return result_data
+
+
+def add_network_to_dhcp_agent(token, agent_id, network_id):
+    """
+    Schedule a network on a DHCP agent
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents/" + agent_id + "/dhcp-networks"
+    api_cmd_headers = dict()
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    api_cmd_payload = dict()
+    api_cmd_payload['network_id'] = network_id
+
+    response = rest_api_request(token, "POST", api_cmd, api_cmd_headers,
+                                json.dumps(api_cmd_payload))
+
+    return response
+
+
+def remove_network_from_dhcp_agent(token, agent_id, network_id):
+    """
+    Unschedule a network from a DHCP agent
+    """
+    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
+    if url is None:
+        raise ValueError("OpenStack Neutron URL is invalid")
+
+    api_cmd = url + "/v2.0/agents/" + agent_id + "/dhcp-networks/" + network_id
+    api_cmd_headers = dict()
+    api_cmd_headers['Content-Type'] = "application/json"
+
+    response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
+
+    return response
+
+
 def get_agent_routers(token, agent_id):
     """
     Get all routers hosted by a particular agent
