@@ -25,3 +25,33 @@ def instance_type_to_flavor_dict(instance_type):
     flavor['extra_specs'] = extra_specs
 
     return flavor
+
+
+class dlog(object):
+    def __init__(self, debug_printing=False):
+        self.nothing = 0
+        self.debug_printing = debug_printing
+
+    def verbose(self, string):
+        if self.debug_printing:
+            print("Verbose: " + string)
+        else:
+            pass
+
+    def info(self, string):
+        if self.debug_printing:
+            print("Info: " + string)
+        else:
+            pass
+
+    def warn(self, string):
+        print("Warn: " + string)
+
+    def error(self, string):
+        print("Error: " + string)
+
+    def debug(self, string):
+        if self.debug_printing:
+            print("Debug: " + string)
+        else:
+            pass

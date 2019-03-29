@@ -15,10 +15,11 @@ from nfv_vim.network_rebalance._network_rebalance import _get_router_ports_callb
 from nfv_vim.network_rebalance._network_rebalance import _L3Rebalance
 from nfv_vim.network_rebalance._network_rebalance import _remove_router_from_agent_callback_body  # noqa: H501
 from nfv_vim.network_rebalance._network_rebalance import _run_state_machine
-from nfv_vim.network_rebalance._network_rebalance import add_rebalance_work
+from nfv_vim.network_rebalance._network_rebalance import add_rebalance_work_l3
 from nfv_vim.network_rebalance._network_rebalance import L3_REBALANCE_STATE
 
 from . import testcase  # noqa: H304
+from . import utils  # noqa:H304
 
 DEBUG_PRINTING = False
 
@@ -118,35 +119,7 @@ def build_get_datanetworks_response(host_id):
     return get_datanetworks_response
 
 
-class dlog(object):
-    def __init__(self):
-        self.nothing = 0
-
-    def verbose(self, string):
-        if DEBUG_PRINTING:
-            print("Verbose: " + string)
-        else:
-            pass
-
-    def info(self, string):
-        if DEBUG_PRINTING:
-            print("Info: " + string)
-        else:
-            pass
-
-    def warn(self, string):
-        print("Warn: " + string)
-
-    def error(self, string):
-        print("Error: " + string)
-
-    def debug(self, string):
-        if DEBUG_PRINTING:
-            print("Debug: " + string)
-        else:
-            pass
-
-dlog_local = dlog()
+dlog_local = utils.dlog(DEBUG_PRINTING)
 
 
 def fake_nfvi_get_network_agents(a):
@@ -252,7 +225,7 @@ class TestNeutronRebalance2(testcase.NFVTestCase):
         initial_router_config = list()
         for x in range(1, 200):
             _L3Rebalance.router_diff_threshold = random.randint(1, 4)
-            add_rebalance_work('compute-0', True)
+            add_rebalance_work_l3('compute-0', True)
             loopcount = 0
             if DEBUG_PRINTING:
                 print("HOST DOWN TEST NUMBER %s" % str(x))
@@ -309,7 +282,7 @@ class TestNeutronRebalance2(testcase.NFVTestCase):
         initial_router_config = list()
         for x in range(1, 200):
             _L3Rebalance.router_diff_threshold = random.randint(1, 4)
-            add_rebalance_work('compute-0', False)
+            add_rebalance_work_l3('compute-0', False)
             loopcount = 0
             if DEBUG_PRINTING:
                 print("HOST UP TEST NUMBER %s" % str(x))
