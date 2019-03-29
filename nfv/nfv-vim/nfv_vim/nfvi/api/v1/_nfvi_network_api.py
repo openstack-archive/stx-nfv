@@ -138,6 +138,13 @@ class NFVINetworkAPI(object):
         pass
 
     @abc.abstractmethod
+    def get_dhcp_agent_networks(self, future, agent_id, callback):
+        """
+        Get networks hosted by a dhcp agent using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
     def get_agent_routers(self, future, agent_id, callback):
         """
         Get network routers on a hosting agent using the plugin
@@ -148,6 +155,20 @@ class NFVINetworkAPI(object):
     def get_router_ports(self, future, router_id, callback):
         """
         Get router ports using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def add_network_to_dhcp_agent(self, future, agent_id, network_id, callback):
+        """
+        Add a network to a dhcp agent using the plugin
+        """
+        pass
+
+    @abc.abstractmethod
+    def remove_network_from_dhcp_agent(self, future, agent_id, network_id, callback):
+        """
+        Remove a network from a dhcp agent using the plugin
         """
         pass
 

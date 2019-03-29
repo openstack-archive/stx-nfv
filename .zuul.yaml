@@ -93,6 +93,7 @@
 - job:
     name: flock-devstack-nfv
     parent: flock-devstack-base-min
+    voting: false
     required-projects:
       - openstack/barbican
       - openstack/python-barbicanclient

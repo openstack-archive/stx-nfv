@@ -192,7 +192,8 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
                 if (self._host.kubernetes_configured and
                         (self._service == objects.HOST_SERVICES.NETWORK)):
                     DLOG.info("Queueing rebalance for host %s disable" % self._host.name)
-                    network_rebalance.add_rebalance_work(self._host.name, True)
+                    network_rebalance.add_rebalance_work_l3(self._host.name, True)
+                    network_rebalance.add_rebalance_work_dhcp(self._host.name, True)
 
             else:
                 if self.force_pass:
@@ -204,7 +205,8 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
                     if (self._host.kubernetes_configured and
                             (self._service == objects.HOST_SERVICES.NETWORK)):
                         DLOG.info("Queueing rebalance for host %s disable" % self._host.name)
-                        network_rebalance.add_rebalance_work(self._host.name, True)
+                        network_rebalance.add_rebalance_work_l3(self._host.name, True)
+                        network_rebalance.add_rebalance_work_dhcp(self._host.name, True)
 
                 else:
                     self.task.task_work_complete(
@@ -847,7 +849,8 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
                 if (self._host.kubernetes_configured and
                         (self._service == objects.HOST_SERVICES.NETWORK)):
                     DLOG.info("Queueing rebalance for host %s enable" % self._host.name)
-                    network_rebalance.add_rebalance_work(self._host.name, False)
+                    network_rebalance.add_rebalance_work_l3(self._host.name, False)
+                    network_rebalance.add_rebalance_work_dhcp(self._host.name, False)
             else:
                 if self.force_pass:
                     DLOG.info("Enable-Host-Services callback for %s, "
@@ -858,7 +861,8 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
                     if (self._host.kubernetes_configured and
                             (self._service == objects.HOST_SERVICES.NETWORK)):
                         DLOG.info("Queueing rebalance for host %s enable" % self._host.name)
-                        network_rebalance.add_rebalance_work(self._host.name, False)
+                        network_rebalance.add_rebalance_work_l3(self._host.name, False)
+                        network_rebalance.add_rebalance_work_dhcp(self._host.name, False)
 
                 else:
                     self._host.host_services_update(
