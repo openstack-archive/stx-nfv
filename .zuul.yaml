@@ -96,6 +96,7 @@
     required-projects:
       - openstack/barbican
       - openstack/python-barbicanclient
+      - openstack/stx-config
       - openstack/stx-fault
       - openstack/stx-integ
       - openstack/stx-metal
@@ -103,7 +104,9 @@
     vars:
       tox_envlist: functional
       devstack_services:
+        postgresql: true
         # StarlingX services
+        cgtsclient: true
         fm-common: true
         fm-api: true
         fm-rest-api: true
@@ -119,3 +122,4 @@
         stx-metal: https:://git.starlingx.io/stx-metal
         stx-nfv: https:://git.starlingx.io/stx-nfv
         stx-update: https:://git.starlingx.io/stx-update
+        stx-config: git://git.starlingx.io/stx-config
