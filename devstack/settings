@@ -33,7 +33,7 @@ if is_service_enabled stx-nfv; then
     :
 fi
 
-# NOTE(dtroyer): This needs to be refiend a bit yet, for example fo we want
+# NOTE(dtroyer): This needs to be refined a bit yet, for example fo we want
 #                to abort or just disable guest-agent and guest-server if the
 #                prereqs are not configured?
 if is_service_enabled guest-agent || is_service_enabled guest-server; then
