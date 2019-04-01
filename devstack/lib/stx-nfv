@@ -79,18 +79,6 @@ function cleanup_guest_server {
     sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestServer.logrotate
 }
 
-function cleanup_host_agent {
-    sudo rm -rf $STXNFV_SYSCONFDIR/init.d/host_agent
-    sudo rm -rf $STXNFV_SYSCONFDIR/pmon.d/host_agent.conf
-    $STX_SUDO rm -rf $STX_INST_DIR/sbin/host_agent
-    $STX_SUDO rm -rf $STX_INST_DIR/include/cgcs/guest_host_msg.h
-    $STX_SUDO rm -rf $STX_INST_DIR/include/cgcs/host_guest_msg.h
-
-    $STX_SUDO rm -rf $STX_INST_DIR/lib64/libguesthostmsg.so
-    $STX_SUDO rm -rf $STX_INST_DIR/lib64/libhostguestmsg.so
-    $STX_SUDO rm -rf $STX_INST_DIR/lib64/libservergroup.so
-}
-
 function cleanup_nfv {
     if is_service_enabled nfv-vim || is_service_enabled nfv-vim-api || is_service_enabled nfv-vim-webserver; then
         sudo rm -rf $NFV_CONF_DIR
@@ -133,9 +121,6 @@ function cleanup_nfv {
     if is_service_enabled guest-server; then
         cleanup_guest_server
     fi
-    if is_service_enabled host-agent; then
-        cleanup_host_agent
-    fi
 }
 
 function cleanup_nfv_client {
@@ -166,18 +151,15 @@ function configure_guest_agent {
     sudo sed -i "s%DAEMON=\"/usr/local/bin/\${DAEMON_NAME}\"%DAEMON=\"$STX_INST_DIR/local/bin/\${DAEMON_NAME}\"%" $STXNFV_SYSCONFDIR/init.d/guestAgent
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-agent.service "Service" "Type" "forking"
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-agent.service "Service" "PIDFile" "/var/run/guestAgent.pid"
+    if [ $DISTRO == "bionic" ]; then
+        iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-agent.service "Service" "Environment" "UBUNTU_BIONIC=yes"
+    fi
 }
 
 function configure_guest_server {
     sudo sed -i "s%DAEMON=\"/usr/local/bin/\${DAEMON_NAME}\"%DAEMON=\"$STX_INST_DIR/local/bin/\${DAEMON_NAME}\"%" $STXNFV_SYSCONFDIR/init.d/guestServer
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "Type" "forking"
     iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@guest-server.service "Service" "PIDFile" "/var/run/guestServer.pid"
-}
-
-function configure_host_agent {
-    sudo sed -i "s%DAEMON=/usr/sbin/host_agent%DAEMON=$STX_INST_DIR/sbin/host_agent%" $STXNFV_SYSCONFDIR/init.d/host_agent
-    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@host-agent.service "Service" "Type" "forking"
-    iniset -sudo $STXNFV_SYSCONFDIR/systemd/system/devstack@host-agent.service "Service" "PIDFile" "/var/run/host_agent.pid"
 }
 
 function configure_mtce_guest_common {
@@ -229,9 +211,6 @@ function configure_nfv {
     fi
     if is_service_enabled guest-server; then
         configure_guest_server
-    fi
-    if is_service_enabled host-agent; then
-        configure_host_agent
     fi
 }
 
@@ -342,24 +321,6 @@ function install_guest_client {
     popd
 }
 
-function install_host_agent {
-    pushd $HOST_AGENT_COMM_DIR
-    make all
-
-    sudo install -m 755 -p -D scripts/host_agent $STXNFV_SYSCONFDIR/init.d/host_agent
-    sudo install -m 640 -p -D scripts/host_agent.conf $STXNFV_SYSCONFDIR/pmon.d/host_agent.conf
-    $STX_SUDO install -m 755 -p -D bin/host_agent $STX_INST_DIR/sbin/host_agent
-    $STX_SUDO install -m 755 -d $STX_INST_DIR/include/cgcs
-    $STX_SUDO install -m 644 -p -D guest_host_msg.h $STX_INST_DIR/include/cgcs/guest_host_msg.h
-    $STX_SUDO install -m 644 -p -D host_guest_msg.h $STX_INST_DIR/include/cgcs/host_guest_msg.h
-
-    $STX_SUDO install -m 755 -p -D lib/libguesthostmsg.so $STX_INST_DIR/lib64/libguesthostmsg.so
-    $STX_SUDO install -m 755 -p -D lib/libhostguestmsg.so $STX_INST_DIR/lib64/libhostguestmsg.so
-    $STX_SUDO install -m 755 -p -D lib/libservergroup.so $STX_INST_DIR/lib64/libservergroup.so
-
-    popd
-}
-
 function install_guest_server {
     pushd $MTCE_GUEST_DIR/src
 
@@ -405,9 +366,6 @@ function install_nfv {
     fi
     if is_service_enabled guest-server; then
         install_guest_server
-    fi
-    if is_service_enabled host-agent; then
-        install_host_agent
     fi
 }
 
@@ -486,10 +444,6 @@ function start_guest_agent {
     run_process guest-agent "$STXNFV_SYSCONFDIR/init.d/guestAgent start" root root
 }
 
-function start_host_agent {
-    run_process host-agent "$STXNFV_SYSCONFDIR/init.d/host_agent start" root root
-}
-
 function start_guest_server {
     run_process guest-server "$STXNFV_SYSCONFDIR/init.d/guestServer start" root root
 }
@@ -514,9 +468,6 @@ function start_nfv {
     fi
     if is_service_enabled guest-server; then
         start_guest_server
-    fi
-    if is_service_enabled host-agent; then
-        start_host_agent
     fi
 }
 
@@ -546,10 +497,6 @@ function stop_guest_server {
     stop_process guest-server
 }
 
-function stop_host_agent {
-    stop_process host-agent
-}
-
 function stop_nfv {
     if is_service_enabled nfv-vim; then
         stop_nfv_vim
@@ -570,10 +517,6 @@ function stop_nfv {
     fi
     if is_service_enabled guest-server; then
         stop_guest_server
-    fi
-
-    if is_service_enabled host-agent; then
-        stop_host_agent
     fi
 }
 
