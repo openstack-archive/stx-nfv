@@ -3495,12 +3495,12 @@ class NFVIComputeAPI(nfvi.api.v1.NFVIComputeAPI):
             self.instance_delete_handler)
 
         self._rpc_listener.add_message_handler(
-            nova.RPC_MESSAGE_TYPE.NOVA_SERVER_STATE_CHANGE,
+            nova.RPC_MESSAGE_TYPE.NOVA_SERVER_ACTION_CHANGE,
             nova.rpc_message_server_action_change_filter,
             self.instance_action_change_handler)
 
         self._rpc_listener.add_message_handler(
-            nova.RPC_MESSAGE_TYPE.NOVA_SERVER_ACTION_CHANGE,
+            nova.RPC_MESSAGE_TYPE.NOVA_SERVER_STATE_CHANGE,
             nova.rpc_message_server_state_change_filter,
             self.instance_state_change_handler)
 
