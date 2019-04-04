@@ -38,7 +38,8 @@ class L3RebalanceState(Constants):
     GET_NETWORK_AGENTS = Constant('GET_NETWORK_AGENTS')
     GET_ROUTERS_HOSTED_ON_AGENT = Constant('GET_ROUTERS_HOSTED_ON_AGENT')
     GET_ROUTER_PORT_NETWORKS = Constant('GET_ROUTER_PORT_NETWORKS')
-    GET_PHYSICAL_NETWORK_FROM_NETWORKS = Constant('GET_PHYSICAL_NETWORK_FROM_NETWORKS')
+    GET_PHYSICAL_NETWORK_FROM_NETWORKS = \
+        Constant('GET_PHYSICAL_NETWORK_FROM_NETWORKS')
     GET_HOST_PHYSICAL_NETWORKS = Constant('GET_HOST_PHYSICAL_NETWORKS')
     RESCHEDULE_DOWN_AGENT = Constant('RESCHEDULE_DOWN_AGENT')
     RESCHEDULE_NEW_AGENT = Constant('RESCHEDULE_NEW_AGENT')
@@ -143,8 +144,8 @@ class L3AgentRebalance(object):
             # move on to next one.
             self.router_idx = 0
             self.l3agent_idx += 1
-            if (((self.working_host is not None) and (self.l3agent_idx == 1)) or
-                    (self.l3agent_idx == self.num_l3agents)):
+            if (((self.working_host is not None) and (self.l3agent_idx == 1))
+                    or (self.l3agent_idx == self.num_l3agents)):
                 # We have router port info for all routers on all agents
                 # that we care about. Get the Physical Network info for these.
                 return True
@@ -153,7 +154,8 @@ class L3AgentRebalance(object):
         return False
 
     def get_current_working_router(self):
-        agent_routers = self.router_ids_per_agent[self.l3agents[self.l3agent_idx]['id']]
+        agent_routers = \
+            self.router_ids_per_agent[self.l3agents[self.l3agent_idx]['id']]
         self.num_routers = len(agent_routers)
         if self.num_routers > 0:
             working_router = agent_routers[self.router_idx]
@@ -163,11 +165,13 @@ class L3AgentRebalance(object):
             return None
 
     def get_current_working_network(self):
-        agent_routers = self.router_ids_per_agent[self.l3agents[self.l3agent_idx]['id']]
+        agent_routers = \
+            self.router_ids_per_agent[self.l3agents[self.l3agent_idx]['id']]
         self.num_routers = len(agent_routers)
         if self.num_routers > 0:
             working_router = agent_routers[self.router_idx]
-            working_network = self.networks_per_router[working_router][self.net_idx]
+            working_network = \
+                self.networks_per_router[working_router][self.net_idx]
             return working_network
         else:
             return None
@@ -184,10 +188,12 @@ class L3AgentRebalance(object):
         physical_network.
         Returns True if there are no more networks to gather, False otherwise
         """
-        agent_routers = self.router_ids_per_agent[self.l3agents[self.l3agent_idx]['id']]
+        agent_routers = \
+            self.router_ids_per_agent[self.l3agents[self.l3agent_idx]['id']]
         working_router = agent_routers[self.router_idx]
         # overwrite the netid with that of the physical network.
-        self.networks_per_router[working_router][self.net_idx] = physical_network
+        self.networks_per_router[working_router][self.net_idx] = \
+            physical_network
         self.net_idx += 1
 
         if self.net_idx == len(self.networks_per_router[working_router]):
@@ -196,11 +202,14 @@ class L3AgentRebalance(object):
             if self.router_idx >= len(agent_routers):
                 self.router_idx = 0
                 self.l3agent_idx += 1
-                if (self.l3agent_idx >= self.num_l3agents) or self.get_working_host():
+                if (self.l3agent_idx >= self.num_l3agents) or \
+                        self.get_working_host():
                     return True
 
-                # Iterate until we find an agent with routers, or until we've run out of agents
-                while (len(self.router_ids_per_agent[self.l3agents[self.l3agent_idx]['id']]) == 0):
+                # Iterate until we find an agent with routers, or until
+                # we've run out of agents
+                while (len(self.router_ids_per_agent[
+                        self.l3agents[self.l3agent_idx]['id']]) == 0):
                     self.l3agent_idx += 1
                     if (self.l3agent_idx >= self.num_l3agents):
                         return True
@@ -225,7 +234,8 @@ class L3AgentRebalance(object):
         agent_id = self.get_down_agent_id()
         if len(self.router_ids_per_agent[agent_id]) > 0:
             router_to_move = self.router_ids_per_agent[agent_id][0]
-            router_to_move_physical_networks = self.networks_per_router[router_to_move]
+            router_to_move_physical_networks = \
+                self.networks_per_router[router_to_move]
             return router_to_move, router_to_move_physical_networks
         else:
             return None, None
@@ -233,14 +243,16 @@ class L3AgentRebalance(object):
     def find_router_with_physical_networks(self,
                                            agent_idx,
                                            physical_networks):
-        agent_routers = self.router_ids_per_agent[self.l3agents[agent_idx]['id']]
+        agent_routers = \
+            self.router_ids_per_agent[self.l3agents[agent_idx]['id']]
 
         all_networks_found = False
         router_id = None
         for router_id in agent_routers:
 
             router_networks = self.networks_per_router[router_id]
-            DLOG.debug("router_networks = %s, physical_networks = %s" % (router_networks, physical_networks))
+            DLOG.debug("router_networks = %s, physical_networks = %s" %
+                       (router_networks, physical_networks))
             all_networks_found = True
             for network in router_networks:
                 if network not in physical_networks:
@@ -299,10 +311,12 @@ class L3AgentRebalance(object):
         _L3Rebalance.num_routers_on_agents[agent_index] -= 1
 
         self.router_ids_per_agent[source_agent_id].remove(router_to_move)
-        if self.router_ids_per_agent_cant_schedule.get(source_agent_id, None) is None:
+        if self.router_ids_per_agent_cant_schedule.get(source_agent_id, None) \
+                is None:
             self.router_ids_per_agent_cant_schedule[source_agent_id] = list()
 
-        self.router_ids_per_agent_cant_schedule[source_agent_id].append(router_to_move)
+        self.router_ids_per_agent_cant_schedule[source_agent_id].append(
+            router_to_move)
 
     def get_working_host(self):
         # working_host will be None if we are doing a rebalance
@@ -319,17 +333,20 @@ class L3AgentRebalance(object):
         possible_agent_targets = range(0, len(self.num_routers_on_agents))
 
         # find the agent with the least amount of routers.
-        agent_with_least_routers = min(possible_agent_targets,
-                                       key=self.num_routers_on_agents.__getitem__)
+        agent_with_least_routers = \
+            min(possible_agent_targets,
+                key=self.num_routers_on_agents.__getitem__)
         min_routers = self.num_routers_on_agents[agent_with_least_routers]
 
-        agent_with_most_routers = max(possible_agent_targets,
-                                      key=self.num_routers_on_agents.__getitem__)
+        agent_with_most_routers = \
+            max(possible_agent_targets,
+                key=self.num_routers_on_agents.__getitem__)
         max_routers = self.num_routers_on_agents[agent_with_most_routers]
 
         if ((max_routers - min_routers) <= _L3Rebalance.router_diff_threshold):
             DLOG.info("L3 Agent routers balanced, max:%s min:%s threshold:%s" %
-                      (max_routers, min_routers, _L3Rebalance.router_diff_threshold))
+                      (max_routers, min_routers,
+                       _L3Rebalance.router_diff_threshold))
             return True
 
         return False
@@ -373,12 +390,16 @@ class L3AgentRebalance(object):
             self.agent_list.append(agent_list_entry)
 
     def get_min_agent_list_data(self):
-        agent_with_least_routers_entry = min(self.agent_list, key=lambda t: t[1])
-        return agent_with_least_routers_entry[0], agent_with_least_routers_entry[1]
+        agent_with_least_routers_entry = \
+            min(self.agent_list, key=lambda t: t[1])
+        return agent_with_least_routers_entry[0], \
+            agent_with_least_routers_entry[1]
 
     def get_max_agent_list_data(self):
-        agent_with_most_routers_entry = max(self.agent_list, key=lambda t: t[1])
-        return agent_with_most_routers_entry[0], agent_with_most_routers_entry[1]
+        agent_with_most_routers_entry = \
+            max(self.agent_list, key=lambda t: t[1])
+        return agent_with_most_routers_entry[0], \
+            agent_with_most_routers_entry[1]
 
     def get_agent_list_scheduling_info(self):
         possible_agent_targets = list()
@@ -410,19 +431,26 @@ class L3AgentRebalance(object):
 
     def debug_dump(self):
         DLOG.debug("_L3Rebalance.l3agents = %s" % _L3Rebalance.l3agents)
-        DLOG.debug("_L3Rebalance.router_ids_per_agent= %s" % _L3Rebalance.router_ids_per_agent)
-        DLOG.debug("_L3Rebalance.networks_per_router= %s" % _L3Rebalance.networks_per_router)
-        DLOG.debug("_L3Rebalance.state_machine_in_progress= %s" % _L3Rebalance.state_machine_in_progress)
-        DLOG.debug("_L3Rebalance.l3agent_idx= %s" % _L3Rebalance.l3agent_idx)
-        DLOG.debug("_L3Rebalance.num_l3agents= %s" % _L3Rebalance.num_l3agents)
-        DLOG.debug("_L3Rebalance.router_idx= %s" % _L3Rebalance.router_idx)
-        DLOG.debug("_L3Rebalance.num_routers_on_agents= %s" % _L3Rebalance.num_routers_on_agents)
+        DLOG.debug("_L3Rebalance.router_ids_per_agent= %s" %
+                   _L3Rebalance.router_ids_per_agent)
+        DLOG.debug("_L3Rebalance.networks_per_router= %s" %
+                   _L3Rebalance.networks_per_router)
+        DLOG.debug("_L3Rebalance.state_machine_in_progress= %s" %
+                   _L3Rebalance.state_machine_in_progress)
+        DLOG.debug("_L3Rebalance.l3agent_idx= %s" %
+                   _L3Rebalance.l3agent_idx)
+        DLOG.debug("_L3Rebalance.num_l3agents= %s" %
+                   _L3Rebalance.num_l3agents)
+        DLOG.debug("_L3Rebalance.router_idx= %s" %
+                   _L3Rebalance.router_idx)
+        DLOG.debug("_L3Rebalance.num_routers_on_agents= %s" %
+                   _L3Rebalance.num_routers_on_agents)
 
 
 _L3Rebalance = L3AgentRebalance()
 
 
-def add_rebalance_work(host_name, host_is_going_down):
+def add_rebalance_work_l3(host_name, host_is_going_down):
     """
     API for external use to launch a rebalance operation.
     host_is_going_down is boolean indicating if the host is
@@ -453,7 +481,8 @@ def _add_router_to_agent_callback_body(response):
     _L3Rebalance.state_machine_in_progress = False
     DLOG.debug("_add_router_to_agent_callback, response = %s" % response)
     if not response['completed']:
-        # Nothing we can really do except log this and resume our state machine..
+        # Nothing we can really do except log this and resume our
+        # state machine.
         DLOG.warn("Unable to add router to l3 agent, response = %s" % response)
 
 
@@ -477,12 +506,14 @@ def _remove_router_from_agent_callback_body(to_agent_id, router_id, response):
     if response['completed']:
         # After successfully detaching router from agent, attach
         # to target agent.
-        nfvi.nfvi_add_router_to_agent(to_agent_id, router_id, _add_router_to_agent_callback())
+        nfvi.nfvi_add_router_to_agent(to_agent_id, router_id,
+                                      _add_router_to_agent_callback())
     else:
         # Couldn't detach the router, no sense trying to attach.
         # Just resume state machine.
         _L3Rebalance.state_machine_in_progress = False
-        DLOG.warn("Unable to remove router from l3 agent, response = %s" % response)
+        DLOG.warn("Unable to remove router from l3 agent, response = %s" %
+                  response)
 
 
 @coroutine
@@ -511,9 +542,11 @@ def _get_datanetworks_callback_body(host_id, response):
         if _L3Rebalance.datanetworks_done():
             # Make the choice of which state to enter here
             if _L3Rebalance.get_working_host() is not None:
-                _L3Rebalance.set_state(L3_REBALANCE_STATE.RESCHEDULE_DOWN_AGENT)
+                _L3Rebalance.set_state(
+                    L3_REBALANCE_STATE.RESCHEDULE_DOWN_AGENT)
             else:
-                _L3Rebalance.set_state(L3_REBALANCE_STATE.RESCHEDULE_NEW_AGENT)
+                _L3Rebalance.set_state(
+                    L3_REBALANCE_STATE.RESCHEDULE_NEW_AGENT)
     else:
         DLOG.error("Unable to retrieve data networks for host: %s" % host_id)
         # TODO(KSMITH)  Is this error recoverable? For now, abort.
@@ -549,10 +582,13 @@ def _get_physical_network_callback_body(network_id, response):
     DLOG.debug("_get_physical_network_callback, response = %s" % response)
     if response['completed']:
         result_data = response.get('result-data', None)
-        if _L3Rebalance.update_network(result_data['provider:physical_network']):
-            _L3Rebalance.set_state(L3_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS)
+        if _L3Rebalance.update_network(
+                result_data['provider:physical_network']):
+            _L3Rebalance.set_state(
+                L3_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS)
     else:
-        DLOG.error("Unable to get physical network for network: %s" % network_id)
+        DLOG.error("Unable to get physical network for network: %s" %
+                   network_id)
         # TODO(KSMITH)  Is this error recoverable? For now, abort.
         _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
 
@@ -565,7 +601,9 @@ def _get_physical_networks():
     network_id = _L3Rebalance.get_current_working_network()
     DLOG.debug("Current working network: %s" % network_id)
     if network_id is not None:
-        nfvi.nfvi_get_physical_network(network_id, _get_physical_network_callback(network_id))
+        nfvi.nfvi_get_physical_network(network_id,
+                                       _get_physical_network_callback(
+                                           network_id))
     else:
         # We get here if there are no routers on this agent,
         # Stay in same state, but advance to next agent
@@ -608,9 +646,11 @@ def _get_router_ports_callback_body(router, response):
 
         if _L3Rebalance.router_ports_done():
             # we're done getting routers for this agent.
-            _L3Rebalance.set_state(L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS)
+            _L3Rebalance.set_state(
+                L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS)
 
-        DLOG.debug("_L3Rebalance.networks_per_router = %s" % _L3Rebalance.networks_per_router)
+        DLOG.debug("_L3Rebalance.networks_per_router = %s" %
+                   _L3Rebalance.networks_per_router)
     else:
         DLOG.error("Unable to get ports for router: %s" % router)
         # TODO(KSMITH)  Is this error recoverable? For now, abort.
@@ -633,7 +673,8 @@ def _get_router_port_networks():
     elif _L3Rebalance.router_ports_done():
         # we're done getting routers port networks,
         # advance to next state
-        _L3Rebalance.set_state(L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS)
+        _L3Rebalance.set_state(
+            L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS)
     else:
         # We get here if there are no routers on this agent,
         # Stay in same state, but advance to next agent
@@ -664,7 +705,8 @@ def _get_agent_routers_callback_body(agent_id, response):
         for router in result_data:
             _L3Rebalance.add_router_to_agent(agent_id, router['id'])
 
-        DLOG.debug("_L3Rebalance.l3agent_idx = %s, _L3Rebalance.num_l3agents = %s" %
+        DLOG.debug("_L3Rebalance.l3agent_idx = %s, "
+                   "_L3Rebalance.num_l3agents = %s" %
                    (_L3Rebalance.l3agent_idx, _L3Rebalance.num_l3agents))
 
         if _L3Rebalance.agent_routers_done():
@@ -712,7 +754,8 @@ def _get_routers_on_agents():
         DLOG.error("Cannot find rebalance host: %s" % host_name)
         _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
 
-    nfvi.nfvi_get_agent_routers(agent_id, _get_agent_routers_callback(agent_id))
+    nfvi.nfvi_get_agent_routers(agent_id,
+                                _get_agent_routers_callback(agent_id))
 
 
 @coroutine
@@ -743,7 +786,8 @@ def _get_network_agents_callback_body(response):
             DLOG.info("Less than 2 l3agents, no rebalancing required")
             _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
         else:
-            _L3Rebalance.set_state(L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT)
+            _L3Rebalance.set_state(
+                L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT)
 
     else:
         DLOG.error("Failed to get network agents, aborting l3 agent rebalance")
@@ -795,10 +839,14 @@ def _reschedule_down_agent():
 
             min_routers = min(num_routers_on_agents)
 
-            agent_with_least_routers_index = num_routers_on_agents.index(min_routers)
-            agent_with_least_routers = possible_agent_targets[agent_with_least_routers_index]
+            agent_with_least_routers_index = \
+                num_routers_on_agents.index(min_routers)
+            agent_with_least_routers = \
+                possible_agent_targets[agent_with_least_routers_index]
 
-            host_physical_networks = _L3Rebalance.get_host_physical_networks(agent_with_least_routers)
+            host_physical_networks = \
+                _L3Rebalance.get_host_physical_networks(
+                    agent_with_least_routers)
 
             # Does the host of this agent have the needed physical networks?
             target_good = True
@@ -821,19 +869,23 @@ def _reschedule_down_agent():
             found_router_to_move = False
         else:
             found_router_to_move = True
-            _L3Rebalance.move_agent_router(router_to_move, 0, agent_with_least_routers)
+            _L3Rebalance.move_agent_router(router_to_move, 0,
+                                           agent_with_least_routers)
 
             _L3Rebalance.agent_list_increment(agent_with_least_routers)
             _L3Rebalance.agent_list_decrement(0)
 
             source_agent_id = _L3Rebalance.get_agent_id_from_index(0)
-            target_agent_id = _L3Rebalance.get_agent_id_from_index(agent_with_least_routers)
-            DLOG.debug("Rescheduling router:%s to agent: %s" % (router_to_move, target_agent_id))
-            nfvi.nfvi_remove_router_from_agent(source_agent_id,
-                                               router_to_move,
-                                               _remove_router_from_agent_callback(
-                                                    target_agent_id,
-                                                    router_to_move))
+            target_agent_id = \
+                _L3Rebalance.get_agent_id_from_index(agent_with_least_routers)
+            DLOG.debug("Rescheduling router:%s to agent: %s" %
+                       (router_to_move, target_agent_id))
+            nfvi.nfvi_remove_router_from_agent(
+                source_agent_id,
+                router_to_move,
+                _remove_router_from_agent_callback(
+                    target_agent_id,
+                    router_to_move))
 
     if not found_router_to_move:
         _L3Rebalance.set_state(L3_REBALANCE_STATE.DONE)
@@ -846,8 +898,10 @@ def _reschedule_new_agent():
     """
     global _L3Rebalance
 
-    agent_with_least_routers, min_routers = _L3Rebalance.get_min_agent_list_data()
-    agent_with_most_routers, max_routers = _L3Rebalance.get_max_agent_list_data()
+    agent_with_least_routers, min_routers = \
+        _L3Rebalance.get_min_agent_list_data()
+    agent_with_most_routers, max_routers = \
+        _L3Rebalance.get_max_agent_list_data()
 
     if (max_routers - min_routers) <= _L3Rebalance.router_diff_threshold:
         DLOG.debug("Threshold exit")
@@ -860,7 +914,8 @@ def _reschedule_new_agent():
         _L3Rebalance.get_agent_list_scheduling_info()
 
     # Remove our current max router agent from consideration.
-    agent_with_most_routers_index = possible_agent_targets.index(agent_with_most_routers)
+    agent_with_most_routers_index = \
+        possible_agent_targets.index(agent_with_most_routers)
     possible_agent_targets.pop(agent_with_most_routers_index)
     num_routers_on_agents.pop(agent_with_most_routers_index)
 
@@ -868,8 +923,10 @@ def _reschedule_new_agent():
 
         min_routers = min(num_routers_on_agents)
 
-        agent_with_least_routers_index = num_routers_on_agents.index(min_routers)
-        agent_with_least_routers = possible_agent_targets[agent_with_least_routers_index]
+        agent_with_least_routers_index = \
+            num_routers_on_agents.index(min_routers)
+        agent_with_least_routers = \
+            possible_agent_targets[agent_with_least_routers_index]
 
         host_physical_networks = _L3Rebalance.get_host_physical_networks(
             agent_with_least_routers)
@@ -881,10 +938,12 @@ def _reschedule_new_agent():
             host_physical_networks)
 
         if router_to_move is None:
-            # Couldn't find a match, eliminate the current least router agent
-            # as a candidate.
-            DLOG.debug("Could not find a router to move to agent %s" % agent_with_least_routers)
-            agent_with_least_routers_index = possible_agent_targets.index(agent_with_least_routers)
+            # Couldn't find a match, eliminate the current least router
+            # agent as a candidate.
+            DLOG.debug("Could not find a router to move to agent %s" %
+                       agent_with_least_routers)
+            agent_with_least_routers_index = \
+                possible_agent_targets.index(agent_with_least_routers)
             possible_agent_targets.pop(agent_with_least_routers_index)
             num_routers_on_agents.pop(agent_with_least_routers_index)
 
@@ -893,21 +952,25 @@ def _reschedule_new_agent():
                 # the current max router agent.  Remove it from consideration.
                 DLOG.debug("No more agents to try for max router agent")
 
-                _L3Rebalance.agent_list_remove((agent_with_most_routers, max_routers))
-                # keep same state so we will come back, clear the below flag as no callback
-                # will do it for us.
+                _L3Rebalance.agent_list_remove((agent_with_most_routers,
+                                                max_routers))
+                # keep same state so we will come back, clear the below flag
+                # as no callback will do it for us.
                 _L3Rebalance.state_machine_in_progress = False
                 return
 
         else:
-            # before we move this router, it is possible that due to incompatible networks,
-            # we now are looking at an agent that doesn't meet our threshold requirements
-            # if that is the case, do not move the router.  We are done trying to move
+            # before we move this router, it is possible that due to
+            # incompatible networks, we now are looking at an agent that
+            # doesn't meet our threshold requirements if that is the case,
+            # do not move the router.  We are done trying to move
             # routers off this agent
-            if (max_routers - min_routers) <= _L3Rebalance.router_diff_threshold:
+            if (max_routers - min_routers) <= \
+                    _L3Rebalance.router_diff_threshold:
                 DLOG.debug("No more agents to try for max router agent "
                            "and threshold not met, cannot balance.")
-                _L3Rebalance.agent_list_remove((agent_with_most_routers, max_routers))
+                _L3Rebalance.agent_list_remove((agent_with_most_routers,
+                                                max_routers))
                 # clear the below flag as no callback will do it for us.
                 _L3Rebalance.state_machine_in_progress = False
                 return
@@ -919,16 +982,19 @@ def _reschedule_new_agent():
             _L3Rebalance.agent_list_increment(agent_with_least_routers)
             _L3Rebalance.agent_list_decrement(agent_with_most_routers)
 
-            source_agent_id = _L3Rebalance.get_agent_id_from_index(agent_with_most_routers)
-            target_agent_id = _L3Rebalance.get_agent_id_from_index(agent_with_least_routers)
+            source_agent_id = \
+                _L3Rebalance.get_agent_id_from_index(agent_with_most_routers)
+            target_agent_id = \
+                _L3Rebalance.get_agent_id_from_index(agent_with_least_routers)
 
             DLOG.debug("Rescheduling router:%s from agent: %s to agent: %s" %
                        (router_to_move, source_agent_id, target_agent_id))
-            nfvi.nfvi_remove_router_from_agent(source_agent_id,
-                                               router_to_move,
-                                               _remove_router_from_agent_callback(
-                                                   target_agent_id,
-                                                   router_to_move))
+            nfvi.nfvi_remove_router_from_agent(
+                source_agent_id,
+                router_to_move,
+                _remove_router_from_agent_callback(
+                    target_agent_id,
+                    router_to_move))
 
             return
 
@@ -1018,11 +1084,12 @@ def _nr_timer():
     """
     Network Rebalance timer
     """
-    global _L3Rebalance
+    from nfv_vim import dor
 
     while True:
         (yield)
-        _run_state_machine()
+        if dor.dor_is_complete():
+            _run_state_machine()
 
 
 def nr_initialize():
@@ -1036,10 +1103,12 @@ def nr_initialize():
     if config.section_exists('l3agent-rebalance'):
         section = config.CONF['l3agent-rebalance']
         _nr_timer_interval = int(section.get('timer_interval', 10))
-        _L3Rebalance.router_diff_threshold = int(section.get('router_diff_threshold', 3))
+        _L3Rebalance.router_diff_threshold = \
+            int(section.get('router_diff_threshold', 3))
         _L3Rebalance.hold_off = int(section.get('hold_off', 3))
         if _L3Rebalance.router_diff_threshold < 1:
-            DLOG.warn("Invalid setting for router_diff_threshold: %s, forcing to 1" %
+            DLOG.warn("Invalid setting for router_diff_threshold: %s, "
+                      "forcing to 1" %
                       _L3Rebalance.router_diff_threshold)
             _L3Rebalance.router_diff_threshold = 1
         if _nr_timer_interval < 1:
