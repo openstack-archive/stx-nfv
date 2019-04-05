@@ -7,7 +7,7 @@
 
 export TMOUT=0
 
-. /etc/nova/openrc
+. /etc/platform/openrc
 
 TEST_SCRIPT_TAG=${TEST_SCRIPT_TAG:-"TEST_SCRIPT"}
 
