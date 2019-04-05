@@ -136,7 +136,7 @@ class TestInstance(_test_base.Test):
         if wipe:
             open(filename, 'w').close()
 
-        os.system("source /etc/nova/openrc; echo -e '\tALARM-LIST' >> %s; "
+        os.system("source /etc/platform/openrc; echo -e '\tALARM-LIST' >> %s; "
                   "fm alarm-list --nowrap | sed 's/^/\t /' >> %s; "
                   "echo -e '\n' >> %s" % (filename, filename, filename))
 
@@ -147,7 +147,7 @@ class TestInstance(_test_base.Test):
         if wipe:
             open(filename, 'w').close()
 
-        os.system("source /etc/nova/openrc; echo -e '\tLOG-LIST' >> %s; "
+        os.system("source /etc/platform/openrc; echo -e '\tLOG-LIST' >> %s; "
                   "fm event-list --logs --nowrap --nopaging --limit 100 --query "
                   "'start=%s;end=%s' | sed 's/^/\t /' >> %s; echo -e '\n' >> %s"
                   % (filename, self._start_datetime, self._end_datetime,
@@ -160,7 +160,7 @@ class TestInstance(_test_base.Test):
         if wipe:
             open(filename, 'w').close()
 
-        os.system("source /etc/nova/openrc; echo -e '\tALARM-HISTORY' >> %s; "
+        os.system("source /etc/platform/openrc; echo -e '\tALARM-HISTORY' >> %s; "
                   "fm event-list --alarms --nowrap --nopaging --limit 100 "
                   "--query 'start=%s;end=%s' | sed 's/^/\t /' >> %s; "
                   "echo -e '\n' >> %s"
