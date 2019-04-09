@@ -189,8 +189,7 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
                 self.task.task_work_complete(
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                     empty_reason)
-                if (self._host.kubernetes_configured and
-                        (self._service == objects.HOST_SERVICES.NETWORK)):
+                if self._service == objects.HOST_SERVICES.NETWORK:
                     DLOG.info("Queueing rebalance for host %s disable" % self._host.name)
                     network_rebalance.add_rebalance_work_l3(self._host.name, True)
                     network_rebalance.add_rebalance_work_dhcp(self._host.name, True)
@@ -202,8 +201,7 @@ class NotifyHostDisabledTaskWork(state_machine.StateTaskWork):
                     self.task.task_work_complete(
                         state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                         empty_reason)
-                    if (self._host.kubernetes_configured and
-                            (self._service == objects.HOST_SERVICES.NETWORK)):
+                    if self._service == objects.HOST_SERVICES.NETWORK:
                         DLOG.info("Queueing rebalance for host %s disable" % self._host.name)
                         network_rebalance.add_rebalance_work_l3(self._host.name, True)
                         network_rebalance.add_rebalance_work_dhcp(self._host.name, True)
@@ -581,16 +579,8 @@ class CreateHostServicesTaskWork(state_machine.StateTaskWork):
         DLOG.verbose("Create-Host-Services for %s %s."
                      % (self._host.name, self._service))
 
-        if self._service == objects.HOST_SERVICES.COMPUTE:
-            nfvi.nfvi_create_compute_host_services(
-                self._host.uuid, self._host.name, self._host.personality,
-                self._callback())
-        elif self._service == objects.HOST_SERVICES.GUEST:
+        if self._service == objects.HOST_SERVICES.GUEST:
             nfvi.nfvi_create_guest_host_services(
-                self._host.uuid, self._host.name, self._host.personality,
-                self._callback())
-        elif self._service == objects.HOST_SERVICES.NETWORK:
-            nfvi.nfvi_create_network_host_services(
                 self._host.uuid, self._host.name, self._host.personality,
                 self._callback())
         else:
@@ -846,8 +836,7 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
                     state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                     empty_reason)
 
-                if (self._host.kubernetes_configured and
-                        (self._service == objects.HOST_SERVICES.NETWORK)):
+                if self._service == objects.HOST_SERVICES.NETWORK:
                     DLOG.info("Queueing rebalance for host %s enable" % self._host.name)
                     network_rebalance.add_rebalance_work_l3(self._host.name, False)
                     network_rebalance.add_rebalance_work_dhcp(self._host.name, False)
@@ -858,8 +847,7 @@ class EnableHostServicesTaskWork(state_machine.StateTaskWork):
                     self.task.task_work_complete(
                         state_machine.STATE_TASK_WORK_RESULT.SUCCESS,
                         empty_reason)
-                    if (self._host.kubernetes_configured and
-                            (self._service == objects.HOST_SERVICES.NETWORK)):
+                    if self._service == objects.HOST_SERVICES.NETWORK:
                         DLOG.info("Queueing rebalance for host %s enable" % self._host.name)
                         network_rebalance.add_rebalance_work_l3(self._host.name, False)
                         network_rebalance.add_rebalance_work_dhcp(self._host.name, False)

@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import json
-import os
 from six.moves import http_client as httplib
 
 from nfv_common import debug
@@ -122,12 +121,7 @@ class NFVIInfrastructureAPI(nfvi.api.v1.NFVIInfrastructureAPI):
 
     @staticmethod
     def _host_supports_kubernetes(personality):
-        # TODO(bwensley): This check will disappear once kubernetes is the
-        # default
-        if os.path.isfile('/etc/kubernetes/admin.conf'):
-            return ('worker' in personality or 'controller' in personality)
-        else:
-            return False
+        return ('worker' in personality or 'controller' in personality)
 
     @staticmethod
     def _get_host_labels(host_label_list):

@@ -61,7 +61,6 @@ def get_volumes(token, page_limit=None, next_page=None, all_tenants=True):
         api_cmd = next_page
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
     return response
@@ -79,7 +78,6 @@ def create_volume(token, volume_name, volume_description, size_gb,
     api_cmd = url + "/volumes"
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     volume = dict()
@@ -112,7 +110,6 @@ def update_volume(token, volume_id, volume_description):
     api_cmd = url + "/volumes/%s" % volume_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     volume = dict()
@@ -137,7 +134,6 @@ def delete_volume(token, volume_id):
     api_cmd = url + "/volumes/%s" % volume_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
     return response
@@ -154,7 +150,6 @@ def get_volume(token, volume_id):
     api_cmd = url + "/volumes/%s" % volume_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
     return response
@@ -174,7 +169,6 @@ def get_volume_snapshots(token, all_tenants=True):
         api_cmd += "?all_tenants=1"
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
     return response

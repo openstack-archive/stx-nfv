@@ -42,15 +42,6 @@ class AddHostTask(state_machine.StateTask):
 
         self._host_reference = weakref.ref(host)
         task_work_list = list()
-        if not host.kubernetes_configured:
-            # We only create the compute and network services
-            # on non-kubernetes systems.
-            if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
-                task_work_list.append(CreateHostServicesTaskWork(
-                    self, host, objects.HOST_SERVICES.COMPUTE))
-            if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
-                task_work_list.append(CreateHostServicesTaskWork(
-                    self, host, objects.HOST_SERVICES.NETWORK))
         if host.host_service_configured(objects.HOST_SERVICES.GUEST):
             task_work_list.append(CreateHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.GUEST))
@@ -150,21 +141,19 @@ class EnableHostTask(state_machine.StateTask):
             task_work_list.append(EnableHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.CONTAINER))
         if host.host_service_configured(objects.HOST_SERVICES.COMPUTE):
-            if host.kubernetes_configured:
-                # In kubernetes systems we must wait for the compute service
-                # to be created before enabling it.
-                task_work_list.append(WaitHostServicesCreatedTaskWork(
-                    self, host, objects.HOST_SERVICES.COMPUTE))
+            # We must wait for the compute service
+            # to be created before enabling it.
+            task_work_list.append(WaitHostServicesCreatedTaskWork(
+                self, host, objects.HOST_SERVICES.COMPUTE))
             task_work_list.append(NotifyHostEnabledTaskWork(
                 self, host, objects.HOST_SERVICES.COMPUTE))
             task_work_list.append(EnableHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.COMPUTE))
         if host.host_service_configured(objects.HOST_SERVICES.NETWORK):
-            if host.kubernetes_configured:
-                # In kubernetes systems we must wait for the network service
-                # to be created before enabling it.
-                task_work_list.append(WaitHostServicesCreatedTaskWork(
-                    self, host, objects.HOST_SERVICES.NETWORK))
+            # We must wait for the network service
+            # to be created before enabling it.
+            task_work_list.append(WaitHostServicesCreatedTaskWork(
+                self, host, objects.HOST_SERVICES.NETWORK))
             task_work_list.append(EnableHostServicesTaskWork(
                 self, host, objects.HOST_SERVICES.NETWORK))
         if host.host_service_configured(objects.HOST_SERVICES.GUEST):

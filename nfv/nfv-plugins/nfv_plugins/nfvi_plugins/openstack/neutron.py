@@ -294,7 +294,6 @@ def get_extensions(token):
     api_cmd = url + "/v2.0/extensions.json"
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     response = rest_api_request(token, "GET", api_cmd)
@@ -318,7 +317,6 @@ def get_networks(token, page_limit=None, next_page=None):
         api_cmd = next_page
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
     return response
@@ -336,7 +334,6 @@ def create_network(token, network_name, network_type, segmentation_id,
     api_cmd = url + "/v2.0/networks"
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     network = dict()
@@ -370,7 +367,6 @@ def update_network(token, network_id, admin_state=None, shared=None):
     api_cmd = url + "/v2.0/networks/%s" % network_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     network = dict()
@@ -403,7 +399,6 @@ def delete_network(token, network_id):
     api_cmd = url + "/v2.0/networks/%s" % network_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
     return response
@@ -420,7 +415,6 @@ def get_network(token, network_id):
     api_cmd = url + "/v2.0/networks/%s" % network_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
     return response
@@ -443,7 +437,6 @@ def get_subnets(token, page_limit=None, next_page=None):
         api_cmd = next_page
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
     return response
@@ -461,7 +454,6 @@ def create_subnet(token, network_id, subnet_name, ip_version, cidr,
     api_cmd = url + "/v2.0/subnets"
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     subnet = dict()
@@ -496,7 +488,6 @@ def update_subnet(token, subnet_id, gateway_ip=None, delete_gateway=False,
     api_cmd = url + "/v2.0/subnets/%s" % subnet_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     subnet = dict()
@@ -529,7 +520,6 @@ def delete_subnet(token, subnet_id):
     api_cmd = url + "/v2.0/subnets/%s" % subnet_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
     return response
@@ -546,7 +536,6 @@ def get_subnet(token, subnet_id):
     api_cmd = url + "/v2.0/subnets/%s" % subnet_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
     return response
@@ -563,36 +552,8 @@ def get_ports_for_instance(token, instance_uuid):
     api_cmd = url + "/v2.0/ports?device_id=%s" % (instance_uuid)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
-    return response
-
-
-def create_host_services(token, hostname, host_uuid):
-    """
-    Asks OpenStack Neutron to create a host
-    """
-    url = token.get_service_url(OPENSTACK_SERVICE.NEUTRON)
-    if url is None:
-        raise ValueError("OpenStack Neutron URL is invalid")
-
-    api_cmd = url + "/v2.0/hosts.json"
-
-    api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
-    api_cmd_headers['Content-Type'] = "application/json"
-
-    payload = dict()
-    payload['availability'] = 'down'
-    payload['id'] = host_uuid
-    payload['name'] = hostname
-
-    api_cmd_payload = dict()
-    api_cmd_payload['host'] = payload
-
-    response = rest_api_request(token, "POST", api_cmd, api_cmd_headers,
-                                json.dumps(api_cmd_payload))
     return response
 
 
@@ -607,7 +568,6 @@ def delete_host_services(token, host_uuid):
     api_cmd = url + "/v2.0/hosts/%s" % host_uuid
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
     return response
@@ -655,7 +615,6 @@ def delete_host_services_by_name(token, host_name, host_uuid,
     api_cmd = url + "/v2.0/hosts.json?fields=id&fields=name"
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     response = rest_api_request(token, "GET", api_cmd)
@@ -681,7 +640,6 @@ def enable_host_services(token, host_uuid):
     api_cmd = url + "/v2.0/hosts/%s" % host_uuid
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     payload = dict()
@@ -758,7 +716,6 @@ def disable_host_services(token, host_uuid):
     api_cmd = url + "/v2.0/hosts/%s" % host_uuid
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     payload = dict()
@@ -825,7 +782,6 @@ def query_host_services(token, host_name):
     api_cmd = url + "/v2.0/hosts.json?fields=id&name=%s" % host_name
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     response = rest_api_request(token, "GET", api_cmd)

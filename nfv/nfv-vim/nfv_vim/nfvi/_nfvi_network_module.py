@@ -234,18 +234,6 @@ def nfvi_delete_network_host_services(host_uuid, host_name, host_personality,
     return cmd_id
 
 
-def nfvi_create_network_host_services(host_uuid, host_name, host_personality,
-                                      callback):
-    """
-    Create network services
-    """
-    cmd_id = _network_plugin.invoke_plugin('create_host_services',
-                                           host_uuid, host_name,
-                                           host_personality,
-                                           callback=callback)
-    return cmd_id
-
-
 def nfvi_query_network_host_services(host_uuid, host_name, host_personality,
                                      check_fully_up,
                                      callback):

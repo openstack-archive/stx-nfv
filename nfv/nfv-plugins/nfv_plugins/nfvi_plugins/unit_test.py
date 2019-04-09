@@ -136,10 +136,6 @@ def neutron_unit_tests(token, test_config):
     """
     print("[NEUTRON UNIT TESTS]")
 
-    response = neutron.create_host_services(token, test_config['host_name'],
-                                            test_config['host_uuid'])
-    print("Host-Services create response: %s" % response)
-
     response = neutron.disable_host_services(token, test_config['host_uuid'])
     print("Host-Services disable response: %s" % response)
 
@@ -151,10 +147,6 @@ def neutron_unit_tests(token, test_config):
 
     response = neutron.delete_host_services(token, test_config['host_uuid'])
     print("Host-Services delete response: %s" % response)
-
-    response = neutron.create_host_services(token, test_config['host_name'],
-                                            test_config['host_uuid'])
-    print("Host-Services create response: %s" % response)
 
     response = neutron.enable_host_services(token, test_config['host_uuid'])
     print("Host-Services enable response: %s" % response)
@@ -208,9 +200,6 @@ def nova_unit_tests(token, test_config):
     """
     print("[NOVA UNIT TESTS]")
 
-    response = nova.create_host_services(token, test_config['host_name'])
-    print("Host-Services create response: %s" % response)
-
     response = nova.disable_host_services(token, test_config['host_name'])
     print("Host-Services disable response: %s" % response)
 
@@ -225,9 +214,6 @@ def nova_unit_tests(token, test_config):
     # restarted even if you re-create and enable the host-services.
     # response = nova.delete_host_services(token, test_config['host_name'])
     # print "Host-Services delete response: %s" % response
-
-    response = nova.create_host_services(token, test_config['host_name'])
-    print("Host-Services create response: %s" % response)
 
     response = nova.enable_host_services(token, test_config['host_name'])
     print("Host-Services enable response: %s" % response)

@@ -213,7 +213,6 @@ def get_host_aggregates(token):
     api_cmd = url + "/v2.1/%s/os-aggregates" % token.get_tenant_id()
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -232,7 +231,6 @@ def get_hypervisor(token, hypervisor_uuid):
                                                     hypervisor_uuid)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -250,7 +248,6 @@ def get_hypervisors(token):
     api_cmd = url + "/v2.1/%s/os-hypervisors" % token.get_tenant_id()
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -274,7 +271,6 @@ def get_flavors(token, page_limit=None, next_page=None):
         api_cmd = next_page
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -293,7 +289,6 @@ def create_flavor(token, flavor_id, flavor_name, vcpus, ram_mb, disk_gb,
     api_cmd = url + "/v2.1/%s/flavors" % token.get_tenant_id()
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -326,7 +321,6 @@ def delete_flavor(token, flavor_id):
     api_cmd = url + "/v2.1/%s/flavors/%s" % (token.get_tenant_id(), flavor_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "DELETE", api_cmd, api_cmd_headers)
@@ -344,7 +338,6 @@ def get_flavor(token, flavor_id):
     api_cmd = url + "/v2.1/%s/flavors/%s" % (token.get_tenant_id(), flavor_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -362,7 +355,6 @@ def set_flavor_extra_specs(token, flavor_id, extra_specs):
     api_cmd = url + "/v2.1/%s/flavors/%s/os-extra_specs" % (token.get_tenant_id(),
                                                             flavor_id)
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -386,7 +378,6 @@ def get_flavor_extra_specs(token, flavor_id):
                                                             flavor_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -409,7 +400,6 @@ def get_server_groups(token, all_projects=True):
         api_cmd += "?all_projects=True"
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
     response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -443,7 +433,6 @@ def get_servers(token, page_limit=None, next_page=None, all_tenants=True,
         api_cmd = next_page
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     if context is None:
         response = rest_api_request(token, "GET", api_cmd, api_cmd_headers)
@@ -473,7 +462,6 @@ def create_server(token, server_name, flavor_id, image_id, block_devices=None,
     api_cmd = url + "/v2.1/%s/servers" % tenant_id
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     server = dict()
@@ -527,7 +515,6 @@ def delete_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     if context is None:
         api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
@@ -557,7 +544,6 @@ def get_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
 
     if context is None:
         api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
@@ -588,7 +574,6 @@ def live_migrate_server(token, server_id, to_host_name=None,
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     server = dict()
@@ -633,7 +618,6 @@ def cold_migrate_server(token, server_id, to_host_name=None, migrate=None,
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -675,7 +659,6 @@ def resize_server(token, server_id, flavor_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     resize = dict()
@@ -714,7 +697,6 @@ def resize_server_confirm(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -750,7 +732,6 @@ def resize_server_revert(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -801,7 +782,6 @@ def evacuate_server(token, server_id, admin_password=None, to_host_name=None,
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     server = dict()
@@ -845,7 +825,6 @@ def reboot_server(token, server_id, reboot_type, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     reboot = dict()
@@ -885,7 +864,6 @@ def rebuild_server(token, server_id, server_name, image_id,
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     rebuild = dict()
@@ -928,7 +906,6 @@ def pause_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -964,7 +941,6 @@ def unpause_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -1000,7 +976,6 @@ def suspend_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -1036,7 +1011,6 @@ def resume_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -1072,7 +1046,6 @@ def start_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -1108,7 +1081,6 @@ def stop_server(token, server_id, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     api_cmd_payload = dict()
@@ -1144,7 +1116,6 @@ def reset_server_state(token, server_id, state, context=None):
     api_cmd = url + "/v2.1/%s/servers/%s/action" % (tenant_id, server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     server_state = dict()
@@ -1184,7 +1155,6 @@ def attach_volume(token, server_id, volume_id, device_name, context=None):
                                                                    server_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
 
     volume_attach = dict()
@@ -1383,31 +1353,6 @@ def rpc_message_server_delete_filter(message):
     return None
 
 
-def create_host_services(token, host_name):
-    """
-    Asks OpenStack Nova to create services on a host
-    """
-    url = token.get_service_url(OPENSTACK_SERVICE.NOVA, strip_version=True)
-    if url is None:
-        raise ValueError("OpenStack Nova URL is invalid")
-
-    api_cmd = url + "/v2.1/%s/os-services/create" % token.get_tenant_id()
-
-    api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
-    api_cmd_headers['Content-Type'] = "application/json"
-    # The create is a StarlingX extension, which is not supported in Pike
-    api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION_NEWTON
-
-    api_cmd_payload = dict()
-    api_cmd_payload['binary'] = 'nova-compute'
-    api_cmd_payload['host'] = host_name
-
-    response = rest_api_request(token, "PUT", api_cmd, api_cmd_headers,
-                                json.dumps(api_cmd_payload))
-    return response
-
-
 def get_host_service_id(token, host_name, service_name):
     """
     Asks OpenStack Nova for the service id of a service on a host
@@ -1420,7 +1365,6 @@ def get_host_service_id(token, host_name, service_name):
                     (token.get_tenant_id(), host_name, service_name)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -1456,7 +1400,6 @@ def delete_host_services(token, host_name):
                                                  compute_service_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -1479,7 +1422,6 @@ def enable_host_services(token, host_name):
                                                  compute_service_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -1506,7 +1448,6 @@ def disable_host_services(token, host_name):
                                                  compute_service_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -1531,7 +1472,6 @@ def query_host_services(token, host_name):
                                                       host_name)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -1569,7 +1509,6 @@ def notify_host_enabled(token, host_name):
                                                  compute_service_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -1596,7 +1535,6 @@ def notify_host_disabled(token, host_name):
                                                  compute_service_id)
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
@@ -1619,7 +1557,6 @@ def query_host_aggregates(token):
     api_cmd = "/v2.1/%s/os-aggregates" % token.get_tenant_id()
 
     api_cmd_headers = dict()
-    api_cmd_headers['wrs-header'] = 'true'
     api_cmd_headers['Content-Type'] = "application/json"
     api_cmd_headers['X-OpenStack-Nova-API-Version'] = NOVA_API_VERSION
 
