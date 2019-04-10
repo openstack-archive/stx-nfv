@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-import os
 import six
 
 from nfv_common import debug
@@ -156,42 +155,24 @@ class Host(ObjectData):
         """
         return self._fsm.current_state.name
 
-    @property
-    def kubernetes_configured(self):
-        """
-        Returns whether kubernetes is configured. This will disappear once
-        we cut over to kubernetes.
-        """
-        if not os.path.isfile('/etc/kubernetes/admin.conf'):
-            return False
-        return True
-
     def host_service_configured(self, service):
         """
         Returns whether a host service is configured or not
         """
-        kubernetes_config = True
-        if not os.path.isfile('/etc/kubernetes/admin.conf'):
-            kubernetes_config = False
-
         configured = True
 
-        if kubernetes_config:
-            if service == HOST_SERVICES.COMPUTE:
-                configured = (not nfvi.nfvi_compute_plugin_disabled() and
-                              self._nfvi_host.openstack_compute)
-            elif service == HOST_SERVICES.NETWORK:
-                configured = (not nfvi.nfvi_network_plugin_disabled() and
-                              self._nfvi_host.openstack_compute)
-            elif service == HOST_SERVICES.GUEST:
-                configured = (not nfvi.nfvi_guest_plugin_disabled() and
-                              self._nfvi_host.openstack_compute)
-            elif service != HOST_SERVICES.CONTAINER:
-                DLOG.error("unknown service %s" % service)
-                configured = False
-        else:
-            if service == HOST_SERVICES.CONTAINER:
-                configured = False
+        if service == HOST_SERVICES.COMPUTE:
+            configured = (not nfvi.nfvi_compute_plugin_disabled() and
+                          self._nfvi_host.openstack_compute)
+        elif service == HOST_SERVICES.NETWORK:
+            configured = (not nfvi.nfvi_network_plugin_disabled() and
+                          self._nfvi_host.openstack_compute)
+        elif service == HOST_SERVICES.GUEST:
+            configured = (not nfvi.nfvi_guest_plugin_disabled() and
+                          self._nfvi_host.openstack_compute)
+        elif service != HOST_SERVICES.CONTAINER:
+            DLOG.error("unknown service %s" % service)
+            configured = False
 
         DLOG.verbose("Host configure check for service %s, result %s" %
                      (service, configured))

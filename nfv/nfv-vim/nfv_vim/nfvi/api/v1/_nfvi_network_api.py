@@ -202,14 +202,6 @@ class NFVINetworkAPI(object):
         pass
 
     @abc.abstractmethod
-    def create_host_services(self, future, host_uuid, host_name,
-                             host_personality, callback):
-        """
-        Create network services on a host using the plugin
-        """
-        pass
-
-    @abc.abstractmethod
     def query_host_services(self, future, host_uuid, host_name,
                             host_personality, check_fully_up,
                             callback):

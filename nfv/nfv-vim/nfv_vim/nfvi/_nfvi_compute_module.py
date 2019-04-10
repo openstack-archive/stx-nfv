@@ -440,18 +440,6 @@ def nfvi_delete_compute_host_services(host_uuid, host_name, host_personality,
     return cmd_id
 
 
-def nfvi_create_compute_host_services(host_uuid, host_name, host_personality,
-                                      callback):
-    """
-    Create compute services
-    """
-    cmd_id = _compute_plugin.invoke_plugin('create_host_services',
-                                           host_uuid, host_name,
-                                           host_personality,
-                                           callback=callback)
-    return cmd_id
-
-
 def nfvi_query_compute_host_services(host_uuid, host_name, host_personality,
                                      callback):
     """

@@ -124,9 +124,14 @@ def fake_event_issue(a, b, c, d):
     return None
 
 
+def fake_nfvi_compute_plugin_disabled():
+    return False
+
+
 @mock.patch('nfv_vim.event_log._instance._event_issue', fake_event_issue)
 @mock.patch('nfv_vim.objects._sw_update.SwUpdate.save', fake_save)
 @mock.patch('nfv_vim.objects._sw_update.timers.timers_create_timer', fake_timer)
+@mock.patch('nfv_vim.nfvi.nfvi_compute_plugin_disabled', fake_nfvi_compute_plugin_disabled)
 class TestSwUpgradeStrategy(testcase.NFVTestCase):
 
     def setUp(self):
@@ -250,6 +255,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
         """
         Create a host
         """
+        openstack_compute = False
         personality = ''
         if host_name.startswith('controller'):
             personality = HOST_PERSONALITY.CONTROLLER
@@ -257,6 +263,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
                 personality = personality + ',' + HOST_PERSONALITY.WORKER
         elif host_name.startswith('compute'):
             personality = HOST_PERSONALITY.WORKER
+            openstack_compute = True
         elif host_name.startswith('storage'):
             personality = HOST_PERSONALITY.STORAGE
         else:
@@ -272,7 +279,7 @@ class TestSwUpgradeStrategy(testcase.NFVTestCase):
             action=nfvi.objects.v1.HOST_ACTION.NONE,
             software_load=software_load,
             target_load=target_load,
-            openstack_compute=False,
+            openstack_compute=openstack_compute,
             openstack_control=False,
             remote_storage=False,
             uptime='1000'

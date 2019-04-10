@@ -18,7 +18,6 @@ from nfv_vim.nfvi._nfvi_compute_module import nfvi_cold_migrate_confirm_instance
 from nfv_vim.nfvi._nfvi_compute_module import nfvi_cold_migrate_instance  # noqa: F401
 from nfv_vim.nfvi._nfvi_compute_module import nfvi_cold_migrate_revert_instance  # noqa: F401
 from nfv_vim.nfvi._nfvi_compute_module import nfvi_compute_plugin_disabled  # noqa: F401
-from nfv_vim.nfvi._nfvi_compute_module import nfvi_create_compute_host_services  # noqa: F401
 from nfv_vim.nfvi._nfvi_compute_module import nfvi_create_instance  # noqa: F401
 from nfv_vim.nfvi._nfvi_compute_module import nfvi_create_instance_type  # noqa: F401
 from nfv_vim.nfvi._nfvi_compute_module import nfvi_delete_compute_host_services  # noqa: F401
@@ -128,7 +127,6 @@ from nfv_vim.nfvi._nfvi_module import nfvi_reinitialize  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_add_network_to_dhcp_agent  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_add_router_to_agent  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_create_network  # noqa: F401
-from nfv_vim.nfvi._nfvi_network_module import nfvi_create_network_host_services  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_create_subnet  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_delete_network  # noqa: F401
 from nfv_vim.nfvi._nfvi_network_module import nfvi_delete_network_host_services  # noqa: F401
