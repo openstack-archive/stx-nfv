@@ -124,7 +124,7 @@ class DHCPAgentRebalance(object):
         _DHCPRebalance.num_networks_on_agents.append(
             len(_DHCPRebalance.network_ids_per_agent[agent_id]))
         self.dhcpagent_idx += 1
-        return self.dhcpagent_idx == self.num_dhcp_agents
+        return self.dhcpagent_idx >= self.num_dhcp_agents
 
     def get_host_id_of_current_dhcp_agent(self):
         return self.dhcp_agents[self.dhcpagent_idx]['host_uuid']
@@ -137,7 +137,7 @@ class DHCPAgentRebalance(object):
 
     def datanetworks_done(self):
         self.dhcpagent_idx += 1
-        if self.dhcpagent_idx == self.num_dhcp_agents:
+        if self.dhcpagent_idx >= self.num_dhcp_agents:
             return True
         else:
             return False
@@ -187,9 +187,10 @@ class DHCPAgentRebalance(object):
                 # (if applicable) first in the list.
                 if agent['host'] == self.get_working_host():
                     self.dhcp_agents.insert(0, agent_info_dict)
+                    self.add_agent(agent['id'])
                 elif agent['alive'] and agent['admin_state_up']:
                     self.dhcp_agents.append(agent_info_dict)
-                self.add_agent(agent['id'])
+                    self.add_agent(agent['id'])
 
         DLOG.debug("self.dhcp_agents = %s" % self.dhcp_agents)
         return len(self.dhcp_agents)
