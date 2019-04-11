@@ -129,7 +129,7 @@ class L3AgentRebalance(object):
         _L3Rebalance.num_routers_on_agents.append(
             len(_L3Rebalance.router_ids_per_agent[agent_id]))
         self.l3agent_idx += 1
-        return self.l3agent_idx == self.num_l3agents
+        return self.l3agent_idx >= self.num_l3agents
 
     def add_network_to_router(self, router_to_resched, network_id):
         self.networks_per_router[router_to_resched].append(network_id)
@@ -145,7 +145,7 @@ class L3AgentRebalance(object):
             self.router_idx = 0
             self.l3agent_idx += 1
             if (((self.working_host is not None) and (self.l3agent_idx == 1))
-                    or (self.l3agent_idx == self.num_l3agents)):
+                    or (self.l3agent_idx >= self.num_l3agents)):
                 # We have router port info for all routers on all agents
                 # that we care about. Get the Physical Network info for these.
                 return True
@@ -223,7 +223,7 @@ class L3AgentRebalance(object):
 
     def datanetworks_done(self):
         self.l3agent_idx += 1
-        if self.l3agent_idx == self.num_l3agents:
+        if self.l3agent_idx >= self.num_l3agents:
             return True
         else:
             return False
@@ -278,9 +278,10 @@ class L3AgentRebalance(object):
                 # (if applicable) first in the list.
                 if agent['host'] == self.get_working_host():
                     self.l3agents.insert(0, agent_info_dict)
+                    self.add_agent(agent['id'])
                 elif agent['alive'] and agent['admin_state_up']:
                     self.l3agents.append(agent_info_dict)
-                self.add_agent(agent['id'])
+                    self.add_agent(agent['id'])
 
         return len(self.l3agents)
 

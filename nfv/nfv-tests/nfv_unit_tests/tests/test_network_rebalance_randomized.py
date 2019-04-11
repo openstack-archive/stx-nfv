@@ -49,10 +49,15 @@ def build_get_agents_response():
     NUM_AGENTS = random.randint(0, MAX_AGENTS - 1)
     for x in range(0, NUM_AGENTS):
         host_name = "compute-" + str(x)
+        admin_state_up = True
+        # randomly set admin_state_up on some agents to False
+        admin_state_down = random.randint(0, 5)
+        if admin_state_down == 0:
+            admin_state_up = False
         get_agents_response_entry = \
             {"host": host_name, "agent_type": "L3 agent",
              "id": host_name + "_id", "alive": True,
-             "admin_state_up": True}
+             "admin_state_up": admin_state_up}
         get_agents_response['result-data'].append(get_agents_response_entry)
         add_to_fake_host_table(host_name)
 
