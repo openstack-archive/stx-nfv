@@ -187,9 +187,10 @@ class DHCPAgentRebalance(object):
                 # (if applicable) first in the list.
                 if agent['host'] == self.get_working_host():
                     self.dhcp_agents.insert(0, agent_info_dict)
+                    self.add_agent(agent['id'])
                 elif agent['alive'] and agent['admin_state_up']:
                     self.dhcp_agents.append(agent_info_dict)
-                self.add_agent(agent['id'])
+                    self.add_agent(agent['id'])
 
         DLOG.debug("self.dhcp_agents = %s" % self.dhcp_agents)
         return len(self.dhcp_agents)

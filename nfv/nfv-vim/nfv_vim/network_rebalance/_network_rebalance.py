@@ -278,9 +278,10 @@ class L3AgentRebalance(object):
                 # (if applicable) first in the list.
                 if agent['host'] == self.get_working_host():
                     self.l3agents.insert(0, agent_info_dict)
+                    self.add_agent(agent['id'])
                 elif agent['alive'] and agent['admin_state_up']:
                     self.l3agents.append(agent_info_dict)
-                self.add_agent(agent['id'])
+                    self.add_agent(agent['id'])
 
         return len(self.l3agents)
 
