@@ -277,6 +277,98 @@ class TestNeutronRebalance2(testcase.NFVTestCase):
 
                 assert loopcount < MAX_LOOPCOUNT
 
+    def test_rebalance_down_host_abort_randomized_w_api_calls(self):
+        initial_router_count = 0
+        initial_router_config = list()
+
+        abort_state_list = [L3_REBALANCE_STATE.GET_NETWORK_AGENTS,
+                            L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT,
+                            L3_REBALANCE_STATE.GET_ROUTER_PORT_NETWORKS,
+                            L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS,
+                            L3_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS,
+                            L3_REBALANCE_STATE.RESCHEDULE_DOWN_AGENT,
+                            L3_REBALANCE_STATE.HOLD_OFF,
+                            L3_REBALANCE_STATE.DONE]
+
+        for x in range(1, 10):
+            _L3Rebalance.router_diff_threshold = random.randint(1, 4)
+            add_rebalance_work_l3('compute-0', True)
+
+            aborted = False
+            doing_abort = False
+            abort_state = random.randint(0, len(abort_state_list) - 1)
+
+            loopcount = 0
+            if DEBUG_PRINTING:
+                print("HOST DOWN TEST NUMBER %s" % str(x))
+
+            while True:
+                loopcount += 1
+
+                old_state = _L3Rebalance.get_state()
+
+                if old_state == (abort_state_list[abort_state]) and (not aborted):
+                    aborted = True
+                    doing_abort = True
+                    add_rebalance_work_l3('compute-1', True)
+                    if DEBUG_PRINTING:
+                        print("host-up adding compute-1 down in state: %s." %
+                              old_state)
+
+                _run_state_machine()
+                new_state = _L3Rebalance.get_state()
+
+                if doing_abort:
+                    doing_abort = False
+                    if (old_state != L3_REBALANCE_STATE.DONE) and \
+                            (old_state != L3_REBALANCE_STATE.HOLD_OFF):
+                        if _L3Rebalance.num_l3agents < 2:
+                            assert(new_state == L3_REBALANCE_STATE.DONE)
+                        else:
+                            assert(new_state ==
+                                   L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT)
+
+                if ((old_state ==
+                        L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT) and
+                    (new_state ==
+                        L3_REBALANCE_STATE.GET_ROUTER_PORT_NETWORKS)):
+                    for idx in range(len(_L3Rebalance.num_routers_on_agents)):
+                        initial_router_config.append(
+                            _L3Rebalance.num_routers_on_agents[idx])
+                    initial_router_count = \
+                        sum(_L3Rebalance.num_routers_on_agents)
+
+                if (_L3Rebalance.get_state() == L3_REBALANCE_STATE.DONE) and \
+                        (len(_L3Rebalance.host_down_queue) == 0):
+                    final_router_count = \
+                        sum(_L3Rebalance.num_routers_on_agents)
+                    if DEBUG_PRINTING:
+                        print("router_diff_threshold: %s" %
+                              _L3Rebalance.router_diff_threshold)
+                        print("initial_router_count: %s, "
+                              "final_router_count: %s" %
+                              (initial_router_count, final_router_count))
+                        print("initial num_routers_on_agents: %s, "
+                              "final num_routers_on_agents: %s" %
+                              (initial_router_config,
+                               _L3Rebalance.num_routers_on_agents))
+                    del initial_router_config[:]
+                    if len(_L3Rebalance.num_routers_on_agents) > 2:
+                        num_routers_length = \
+                            len(_L3Rebalance.num_routers_on_agents)
+                        assert ((num_routers_length == 0) or
+                                _L3Rebalance.num_routers_on_agents[0] == 0)
+                        assert (initial_router_count == final_router_count)
+                    else:
+                        if DEBUG_PRINTING:
+                            print("less than 2 agents, nothing to do")
+                    break
+
+                if loopcount > MAX_LOOPCOUNT:
+                    print("Loopcount exit!!! loopcount:%s" % loopcount)
+
+                assert loopcount < MAX_LOOPCOUNT
+
     def test_rebalance_up_host_randomized_w_api_calls(self):
         initial_router_count = 0
         initial_router_config = list()
@@ -307,6 +399,97 @@ class TestNeutronRebalance2(testcase.NFVTestCase):
 
                 if ((_L3Rebalance.get_state() == L3_REBALANCE_STATE.DONE) and
                         (len(_L3Rebalance.host_up_queue) == 0)):
+                    final_router_count = sum(
+                        _L3Rebalance.num_routers_on_agents)
+                    if DEBUG_PRINTING:
+                        print("router_diff_threshold: %s" %
+                              _L3Rebalance.router_diff_threshold)
+                        print("initial_router_count: %s, "
+                              "final_router_count: %s" %
+                              (initial_router_count, final_router_count))
+                        print("initial num_routers_on_agents: %s, "
+                              "final num_routers_on_agents: %s" %
+                              (initial_router_config,
+                               _L3Rebalance.num_routers_on_agents))
+                    del initial_router_config[:]
+                    if len(_L3Rebalance.num_routers_on_agents) > 2:
+                        assert (initial_router_count == final_router_count)
+                        assert (max(_L3Rebalance.num_routers_on_agents) -
+                                min(_L3Rebalance.num_routers_on_agents) <=
+                                _L3Rebalance.router_diff_threshold)
+                    else:
+                        if DEBUG_PRINTING:
+                            print("less than 2 agents, nothing to do")
+                    break
+
+                if loopcount > MAX_LOOPCOUNT:
+                    print("Loopcount exit!!! loopcount:%s" % loopcount)
+
+                assert loopcount < MAX_LOOPCOUNT
+
+    def test_rebalance_up_host_abort_randomized_w_api_calls(self):
+        initial_router_count = 0
+        initial_router_config = list()
+
+        abort_state_list = [L3_REBALANCE_STATE.GET_NETWORK_AGENTS,
+                            L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT,
+                            L3_REBALANCE_STATE.GET_ROUTER_PORT_NETWORKS,
+                            L3_REBALANCE_STATE.GET_PHYSICAL_NETWORK_FROM_NETWORKS,
+                            L3_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS,
+                            L3_REBALANCE_STATE.RESCHEDULE_NEW_AGENT,
+                            L3_REBALANCE_STATE.HOLD_OFF,
+                            L3_REBALANCE_STATE.DONE]
+
+        for x in range(1, 10):
+            _L3Rebalance.router_diff_threshold = random.randint(1, 4)
+            add_rebalance_work_l3('compute-0', False)
+
+            aborted = False
+            doing_abort = False
+            abort_state = random.randint(0, len(abort_state_list) - 1)
+
+            loopcount = 0
+            if DEBUG_PRINTING:
+                print("HOST UP TEST NUMBER %s" % str(x))
+
+            while True:
+                loopcount += 1
+
+                old_state = _L3Rebalance.get_state()
+
+                if old_state == (abort_state_list[abort_state]) and (not aborted):
+                    aborted = True
+                    doing_abort = True
+                    add_rebalance_work_l3('compute-1', True)
+                    if DEBUG_PRINTING:
+                        print("host-up adding compute-1 down in state: %s." %
+                              old_state)
+
+                _run_state_machine()
+                new_state = _L3Rebalance.get_state()
+
+                if doing_abort:
+                    doing_abort = False
+                    if (old_state != L3_REBALANCE_STATE.DONE) and \
+                            (old_state != L3_REBALANCE_STATE.HOLD_OFF):
+                        assert(new_state ==
+                               L3_REBALANCE_STATE.HOLD_OFF)
+
+                if ((old_state ==
+                        L3_REBALANCE_STATE.GET_ROUTERS_HOSTED_ON_AGENT) and
+                        ((new_state ==
+                            L3_REBALANCE_STATE.GET_ROUTER_PORT_NETWORKS) or
+                         (new_state == L3_REBALANCE_STATE.DONE))):
+                    # new_state DONE is for already balanced case
+                    for idx in range(len(_L3Rebalance.num_routers_on_agents)):
+                        initial_router_config.append(
+                            _L3Rebalance.num_routers_on_agents[idx])
+                    initial_router_count = sum(
+                        _L3Rebalance.num_routers_on_agents)
+
+                if ((_L3Rebalance.get_state() == L3_REBALANCE_STATE.DONE) and
+                        (len(_L3Rebalance.host_up_queue) == 0) and
+                        (len(_L3Rebalance.host_down_queue) == 0)):
                     final_router_count = sum(
                         _L3Rebalance.num_routers_on_agents)
                     if DEBUG_PRINTING:
