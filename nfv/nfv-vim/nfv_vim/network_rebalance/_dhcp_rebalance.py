@@ -93,6 +93,32 @@ class DHCPAgentRebalance(object):
         # queues that maintain host names of hosts coming up and going down.
         self.host_up_queue = list()
         self.host_down_queue = list()
+        # whether to abort and restart.
+        self.abort = False
+
+    def set_abort(self):
+        self.abort = True
+
+    def check_abort(self):
+        # if abort flag is set, it means that there has been a change
+        # in status of one of the agents, we need to restart the
+        # algorithm
+        if self.abort:
+            if self.get_working_host() is not None:
+                # We were processing a host down.
+                # Go to GET_DHCP_AGENTS and restart the host down
+                # processing for the current host
+                self.set_state(DHCP_REBALANCE_STATE.GET_DHCP_AGENTS)
+            else:
+                # We were processing a host up.
+                # Go to HOLD_OFF so we can service the host down
+                # that just came in first.
+                self.set_state(DHCP_REBALANCE_STATE.HOLD_OFF)
+                # enqueue another host up rebalance to trigger host up
+                # rebalancing after processing the host down.
+                self.host_up_queue.append('abort-restart')
+            self.abort = False
+            DLOG.info("Aborting current reschedule and restarting")
 
     def reinit(self):
         self.num_dhcp_agents = 0
@@ -284,7 +310,30 @@ class DHCPAgentRebalance(object):
 
     def add_rebalance_work(self, host_name, host_is_going_down):
         if host_is_going_down:
-            self.host_down_queue.append(host_name)
+            # Only add this host to the queue if it is not
+            # already in it, and we are not in the process of
+            # performing a host down reschedule for that host.
+            if host_name not in self.host_down_queue:
+                if (self.state != DHCP_REBALANCE_STATE.DONE) and \
+                        (self.state != DHCP_REBALANCE_STATE.HOLD_OFF):
+                    # state machine is in progress.
+                    if (self.get_working_host() != host_name):
+                        # We are in the progress of rescheduling,
+                        # but not due to processing a down host
+                        # reschedule for the host that is to be queued.
+                        # We need to abort immediately and restart,
+                        # lest we reschedule networks onto a down host.
+                        self.set_abort()
+                        self.host_down_queue.append(host_name)
+                    else:
+                        DLOG.debug("Not adding host down entry as host "
+                                   "down processing for this host already "
+                                   "in progress")
+                else:
+                    # state machine is not in progress.
+                    self.host_down_queue.append(host_name)
+            else:
+                DLOG.debug("Not adding duplicate host down queue entry")
         else:
             self.host_up_queue.append(host_name)
 
@@ -817,6 +866,8 @@ def _run_state_machine():
     if not _DHCPRebalance.state_machine_in_progress:
 
         _DHCPRebalance.state_machine_in_progress = True
+
+        _DHCPRebalance.check_abort()
 
         my_state = _DHCPRebalance.get_state()
         DLOG.debug("Network Rebalance State %s" % my_state)

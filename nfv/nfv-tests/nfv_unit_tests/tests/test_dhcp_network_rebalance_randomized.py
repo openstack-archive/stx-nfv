@@ -60,7 +60,8 @@ def build_get_agents_response():
     return get_agents_response
 
 
-def build_get_dhcp_agent_networks_response(agent_id, use_strange_networks=False):
+def build_get_dhcp_agent_networks_response(agent_id,
+                                           use_strange_networks=False):
     get_dhcp_agent_networks_response = dict()
     get_dhcp_agent_networks_response['completed'] = True
     get_dhcp_agent_networks_response['reason'] = ''
@@ -238,7 +239,188 @@ class TestNeutronDHCPRebalance(testcase.NFVTestCase):
                             print("less than 2 agents, nothing to do")
                     break
 
-                if loopcount > MAX_LOOPCOUNT:
+                if loopcount >= MAX_LOOPCOUNT:
+                    print("Loopcount exit!!! loopcount:%s" % loopcount)
+
+                assert loopcount < MAX_LOOPCOUNT
+
+    @mock.patch('nfv_vim.nfvi.nfvi_get_dhcp_agent_networks',
+                fake_nfvi_get_dhcp_agent_networks)
+    def test_rebalance_down_host_abort_w_api_calls(self):
+        initial_network_count = 0
+        initial_network_config = list()
+
+        abort_state_list = [DHCP_REBALANCE_STATE.GET_DHCP_AGENTS,
+                            DHCP_REBALANCE_STATE.GET_NETWORKS_HOSTED_ON_AGENT,
+                            DHCP_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS,
+                            DHCP_REBALANCE_STATE.RESCHEDULE_DOWN_AGENT,
+                            DHCP_REBALANCE_STATE.HOLD_OFF,
+                            DHCP_REBALANCE_STATE.DONE]
+
+        for x in range(1, 200):
+            _DHCPRebalance.network_diff_threshold = random.randint(1, 4)
+            add_rebalance_work_dhcp('compute-0', True)
+            loopcount = 0
+            if DEBUG_PRINTING:
+                print("HOST DOWN TEST NUMBER %s" % str(x))
+
+            aborted = False
+            doing_abort = False
+            abort_state = random.randint(0, len(abort_state_list) - 1)
+            while True:
+                loopcount += 1
+
+                old_state = _DHCPRebalance.get_state()
+
+                if old_state == (abort_state_list[abort_state]) and (not aborted):
+                    aborted = True
+                    doing_abort = True
+                    add_rebalance_work_dhcp('compute-1', True)
+                    if DEBUG_PRINTING:
+                        print("host-down adding compute-1 down in state: %s." %
+                              old_state)
+
+                _run_state_machine()
+                new_state = _DHCPRebalance.get_state()
+
+                if doing_abort:
+                    doing_abort = False
+                    if (old_state != DHCP_REBALANCE_STATE.DONE) and \
+                            (old_state != DHCP_REBALANCE_STATE.HOLD_OFF):
+                        if _DHCPRebalance.num_dhcp_agents < 2:
+                            assert(new_state == DHCP_REBALANCE_STATE.DONE)
+                        else:
+                            assert(new_state ==
+                                   DHCP_REBALANCE_STATE.GET_NETWORKS_HOSTED_ON_AGENT)
+
+                if ((old_state ==
+                        DHCP_REBALANCE_STATE.GET_NETWORKS_HOSTED_ON_AGENT) and
+                    (new_state ==
+                        DHCP_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS)):
+                    for idx in range(len(_DHCPRebalance.num_networks_on_agents)):
+                        initial_network_config.append(
+                            _DHCPRebalance.num_networks_on_agents[idx])
+                    initial_network_count = \
+                        sum(_DHCPRebalance.num_networks_on_agents)
+
+                if (_DHCPRebalance.get_state() == DHCP_REBALANCE_STATE.DONE) and \
+                        (len(_DHCPRebalance.host_down_queue) == 0):
+                    final_network_count = \
+                        sum(_DHCPRebalance.num_networks_on_agents)
+                    if DEBUG_PRINTING:
+                        print("network_diff_threshold: %s" %
+                              _DHCPRebalance.network_diff_threshold)
+                        print("initial_network_count: %s, "
+                              "final_network_count: %s" %
+                              (initial_network_count, final_network_count))
+                        print("initial num_networks_on_agents: %s, "
+                              "final num_networks_on_agents: %s" %
+                              (initial_network_config,
+                               _DHCPRebalance.num_networks_on_agents))
+                    del initial_network_config[:]
+                    if len(_DHCPRebalance.num_networks_on_agents) > 2:
+                        num_networks_length = \
+                            len(_DHCPRebalance.num_networks_on_agents)
+                        assert ((num_networks_length == 0) or
+                                _DHCPRebalance.num_networks_on_agents[0] == 0)
+                        assert (initial_network_count == final_network_count)
+                    else:
+                        if DEBUG_PRINTING:
+                            print("less than 2 agents, nothing to do")
+                    break
+
+                if loopcount >= MAX_LOOPCOUNT:
+                    print("Loopcount exit!!! loopcount:%s" % loopcount)
+
+                assert loopcount < MAX_LOOPCOUNT
+
+    @mock.patch('nfv_vim.nfvi.nfvi_get_dhcp_agent_networks',
+                fake_nfvi_get_dhcp_agent_networks)
+    def test_rebalance_up_host_abort_randomized_w_api_calls(self):
+        initial_network_count = 0
+        initial_network_config = list()
+
+        abort_state_list = [DHCP_REBALANCE_STATE.GET_DHCP_AGENTS,
+                            DHCP_REBALANCE_STATE.GET_NETWORKS_HOSTED_ON_AGENT,
+                            DHCP_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS,
+                            DHCP_REBALANCE_STATE.RESCHEDULE_NEW_AGENT,
+                            DHCP_REBALANCE_STATE.HOLD_OFF,
+                            DHCP_REBALANCE_STATE.DONE]
+
+        for x in range(1, 200):
+            _DHCPRebalance.network_diff_threshold = random.randint(1, 4)
+            add_rebalance_work_dhcp('compute-0', False)
+
+            aborted = False
+            doing_abort = False
+            abort_state = random.randint(0, len(abort_state_list) - 1)
+
+            loopcount = 0
+            if DEBUG_PRINTING:
+                print("HOST UP TEST NUMBER %s" % str(x))
+
+            while True:
+                loopcount += 1
+
+                old_state = _DHCPRebalance.get_state()
+
+                if old_state == (abort_state_list[abort_state]) and (not aborted):
+                    aborted = True
+                    doing_abort = True
+                    add_rebalance_work_dhcp('compute-1', True)
+                    if DEBUG_PRINTING:
+                        print("host-up adding compute-1 down in state: %s." %
+                              old_state)
+
+                _run_state_machine()
+                new_state = _DHCPRebalance.get_state()
+
+                if doing_abort:
+                    doing_abort = False
+                    if (old_state != DHCP_REBALANCE_STATE.DONE) and \
+                            (old_state != DHCP_REBALANCE_STATE.HOLD_OFF):
+                        assert(new_state ==
+                               DHCP_REBALANCE_STATE.HOLD_OFF)
+
+                if ((old_state ==
+                        DHCP_REBALANCE_STATE.GET_NETWORKS_HOSTED_ON_AGENT) and
+                        ((new_state ==
+                            DHCP_REBALANCE_STATE.GET_HOST_PHYSICAL_NETWORKS) or
+                         (new_state == DHCP_REBALANCE_STATE.DONE))):
+                    # new_state DONE is for already balanced case
+                    for idx in range(len(_DHCPRebalance.num_networks_on_agents)):
+                        initial_network_config.append(
+                            _DHCPRebalance.num_networks_on_agents[idx])
+                    initial_network_count = sum(
+                        _DHCPRebalance.num_networks_on_agents)
+
+                if ((_DHCPRebalance.get_state() == DHCP_REBALANCE_STATE.DONE) and
+                        (len(_DHCPRebalance.host_up_queue) == 0) and
+                        (len(_DHCPRebalance.host_down_queue) == 0)):
+                    final_network_count = sum(
+                        _DHCPRebalance.num_networks_on_agents)
+                    if DEBUG_PRINTING:
+                        print("network_diff_threshold: %s" %
+                              _DHCPRebalance.network_diff_threshold)
+                        print("initial_network_count: %s, "
+                              "final_network_count: %s" %
+                              (initial_network_count, final_network_count))
+                        print("initial num_networks_on_agents: %s, "
+                              "final num_networks_on_agents: %s" %
+                              (initial_network_config,
+                               _DHCPRebalance.num_networks_on_agents))
+                    del initial_network_config[:]
+                    if len(_DHCPRebalance.num_networks_on_agents) > 2:
+                        assert (initial_network_count == final_network_count)
+                        assert (max(_DHCPRebalance.num_networks_on_agents) -
+                                min(_DHCPRebalance.num_networks_on_agents) <=
+                                _DHCPRebalance.network_diff_threshold)
+                    else:
+                        if DEBUG_PRINTING:
+                            print("less than 2 agents, nothing to do")
+                    break
+
+                if loopcount >= MAX_LOOPCOUNT:
                     print("Loopcount exit!!! loopcount:%s" % loopcount)
 
                 assert loopcount < MAX_LOOPCOUNT
@@ -298,7 +480,7 @@ class TestNeutronDHCPRebalance(testcase.NFVTestCase):
                             print("less than 2 agents, nothing to do")
                     break
 
-                if loopcount > MAX_LOOPCOUNT:
+                if loopcount >= MAX_LOOPCOUNT:
                     print("Loopcount exit!!! loopcount:%s" % loopcount)
 
                 assert loopcount < MAX_LOOPCOUNT
@@ -355,7 +537,7 @@ class TestNeutronDHCPRebalance(testcase.NFVTestCase):
                             print("less than 2 agents, nothing to do")
                     break
 
-                if loopcount > MAX_LOOPCOUNT:
+                if loopcount >= MAX_LOOPCOUNT:
                     print("Loopcount exit!!! loopcount:%s" % loopcount)
 
                 assert loopcount < MAX_LOOPCOUNT
