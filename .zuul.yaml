@@ -110,7 +110,6 @@
         fm-api: true
         fm-rest-api: true
         fm-mgr: true
-        guest-client: true
         nfv-common: true
         nfv-vim: true
         nfv-client: true

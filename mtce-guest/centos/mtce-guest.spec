@@ -21,7 +21,6 @@ BuildRequires: libuuid
 BuildRequires: libuuid-devel
 BuildRequires: fm-common
 BuildRequires: fm-common-dev
-BuildRequires: guest-client-devel
 BuildRequires: mtce-common-dev >= 1.0
 BuildRequires: systemd-devel
 BuildRequires: cppcheck
