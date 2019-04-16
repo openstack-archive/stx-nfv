@@ -4,6 +4,8 @@
 #
 # Copyright (C) 2019 Intel Corporation
 #
+# Copyright (c) 2019 Wind River Systems, Inc.
+#
 
 # Devstack settings
 
@@ -38,10 +40,9 @@ fi
 #                prereqs are not configured?
 if is_service_enabled guest-agent || is_service_enabled guest-server; then
     # These guest- services require additional prerequisites
-    # guest-client: to install guest_heartbeat_api_msg_defs.h
     # stx-metal: to install mtce_common header files and libraries
     # fm-common: to install fmcommon library
-    local req_services="guest-client stx-metal fm-common"
+    local req_services="stx-metal fm-common"
     for srv in $req_services;do
         if ! is_service_enabled "$srv"; then
             die $LINENO "$srv should be enabled for guestAgent/guestServer"
