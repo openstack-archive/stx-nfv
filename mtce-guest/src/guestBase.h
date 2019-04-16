@@ -2,7 +2,7 @@
 #define __INCLUDE_GUESTBASE_H__
 
 /*
- * Copyright (c) 2013-2016 Wind River Systems, Inc.
+ * Copyright (c) 2013-2019 Wind River Systems, Inc.
 *
 * SPDX-License-Identifier: Apache-2.0
 *
@@ -31,10 +31,10 @@
 #include <signal.h>
 #include <list>
 
-#include <guest-client/guest_heartbeat_msg_defs.h>
 
 using namespace std;
 
+#include "guest_heartbeat_msg_defs.h"
 #include "msgClass.h"
 #include "nodeBase.h"
 #include "httpUtil.h"

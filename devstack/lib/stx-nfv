@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (c) 2019 Wind River Systems, Inc.
+#
 # SPDX-License-Identifier: Apache-2.0
 #
 # Copyright (C) 2019 Intel Corporation
@@ -35,11 +37,6 @@ MTCE_GUEST_DIR=$STXNFV_DIR/mtce-guest
 MTCE_GUEST_CONF=$STXNFV_SYSCONFDIR/mtc
 MTCE_GUEST_OCF_DIR=$STXNFV_OCF_ROOT/resource.d/platform
 
-# guest-client
-GUEST_CLIENT_VERSION="3.0.1"
-
-STX_SDK_DEPLOY_DIR=${STX_SDK_DEPLOY_DIR:-/opt/deploy/cgcs_sdk}
-
 # STX_INST_DIR should be a non-root-writable place to install build artifacts
 STX_INST_DIR=${STX_INST_DIR:-/usr/local}
 STX_BIN_DIR=$STX_INST_DIR/bin
@@ -59,16 +56,6 @@ function cleanup_guest_agent {
     $STX_SUDO rm -rf $STX_INST_DIR/bin/guestAgent
     sudo rm -rf $STXNFV_SYSCONFDIR/init.d/guestAgent
     sudo rm -rf $STXNFV_SYSCONFDIR/logrotate.d/guestAgent.logrotate
-}
-
-function cleanup_guest_client {
-    $STX_SUDO rm -rf $STX_INST_DIR/include/guest-client
-    sudo rm -rf $STX_SDK_DEPLOY_DIR
-    sudo rm -rf $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
-    sudo rm -rf $STXNFV_SYSCONFDIR/guest-client
-    $STX_SUDO rm -rf $STX_INST_DIR/bin/guest-client
-    $STX_SUDO rm -rf $STX_INST_DIR/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    $STX_SUDO rm -rf $STX_INST_DIR/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
 }
 
 function cleanup_guest_server {
@@ -103,10 +90,6 @@ function cleanup_nfv {
 
     if is_service_enabled nova-api-proxy; then
         cleanup_nova_api_proxy
-    fi
-
-    if is_service_enabled guest-client; then
-        cleanup_guest_client
     fi
 
     if is_service_enabled guest-agent || is_service_enabled guest-server; then
@@ -291,36 +274,6 @@ function install_guest_agent {
     popd
 }
 
-function install_guest_client {
-    pushd $STXNFV_DIR/guest-client/guest-client-$GUEST_CLIENT_VERSION
-
-    make clean
-    make build sysconfdir=$STXNFV_SYSCONFDIR
-    make sample
-    make tar ARCHIVE_NAME=wrs-guest-heartbeat-$GUEST_CLIENT_VERSION
-    find build
-
-    # Sudo Install for guest-client package
-    $STX_SUDO install -m 755 -d $STX_INST_DIR/include/guest-client
-    $STX_SUDO install -m 644 -p -D guest_client/src/heartbeat/guest_heartbeat_msg_defs.h $STX_INST_DIR/include/guest-client/guest_heartbeat_msg_defs.h
-    sudo install -d $STX_SDK_DEPLOY_DIR
-    sudo install -m 640 build/wrs-guest-heartbeat-$GUEST_CLIENT_VERSION.tgz $STX_SDK_DEPLOY_DIR
-
-    # Systemd services
-    sudo install -m 644 -p -D guest_client/scripts/guest-client.service $STXNFV_SYSCONFDIR/systemd/system/guest-client.service
-    sudo install -m 744 -p -D guest_client/scripts/guest-client.systemd $STXNFV_SYSCONFDIR/guest-client/guest-client.systemd
-
-    sudo install -m 750 -d $STXNFV_SYSCONFDIR/guest-client/heartbeat
-    sudo install -m 755 -p -D guest_client/scripts/guest_heartbeat.conf $STXNFV_SYSCONFDIR/guest-client/heartbeat/guest_heartbeat.conf
-    sudo install -m 755 -p -D guest_client/scripts/sample_event_handling_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_event_handling_script
-    sudo install -m 755 -p -D guest_client/scripts/sample_health_check_script $STXNFV_SYSCONFDIR/guest-client/heartbeat/sample_health_check_script
-    $STX_SUDO install -m 640 -p -D build/guest-client $STX_INST_DIR/bin/guest-client
-    $STX_SUDO install -m 640 -p -D build/libguest_common_api.so.$GUEST_CLIENT_VERSION $STX_INST_DIR/lib/libguest_common_api.so.$GUEST_CLIENT_VERSION
-    $STX_SUDO install -m 640 -p -D build/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION $STX_INST_DIR/lib/libguest_heartbeat_api.so.$GUEST_CLIENT_VERSION
-
-    popd
-}
-
 function install_guest_server {
     pushd $MTCE_GUEST_DIR/src
 
@@ -353,9 +306,6 @@ function install_nfv {
 
     if is_service_enabled nova-api-proxy; then
         install_nova_api_proxy
-    fi
-    if is_service_enabled guest-client; then
-        install_guest_client
     fi
 
     if is_service_enabled guest-agent || is_service_enabled guest-server; then

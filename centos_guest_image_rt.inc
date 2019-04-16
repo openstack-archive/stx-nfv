@@ -5,7 +5,3 @@
 #
 # guest extensions
 #
-
-# guest-client
-guest-client
-
