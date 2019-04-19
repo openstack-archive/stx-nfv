@@ -6,7 +6,13 @@
 import json
 from six.moves import http_client as httplib
 from six.moves import urllib
+import urlparse
+import ssl
 
+
+def is_https_scheme(url):
+    o = urlparse.urlparse(url)
+    return o.scheme == "https"
 
 def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=None):
     """
@@ -17,6 +23,9 @@ def request(token_id, method, api_cmd, api_cmd_headers=None, api_cmd_payload=Non
                        'transfer-encoding', 'upgrade']
 
     try:
+        if is_https_scheme(api_cmd):
+	    ssl._create_default_https_context = ssl._create_unverified_context
+
         request_info = urllib.request.Request(api_cmd)
         request_info.get_method = lambda: method
         if token_id is not None:
