@@ -1,6 +1,0 @@
-cppcheck
-json-c-devel
-libevent-devel
-libuuid-devel
-openssl-devel
-resource-agents

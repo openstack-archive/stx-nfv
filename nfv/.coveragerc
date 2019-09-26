@@ -1,7 +1,0 @@
-[run]
-branch = True
-source = nfv_common,nfv_client,nfv_vim,nfv_plugins
-omit = nfv-tests/*
-
-[report]
-ignore_errors = True
